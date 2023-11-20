@@ -1,0 +1,21 @@
+.my-header {
+	background: red;
+}
+.my-layout {
+	.ant-layout-sider {
+		background-color: #fffffc;
+		color: #545454;
+		flex: 0 0 auto !important;
+		max-width: none !important;
+		min-width: 10px !important;
+		width: 280px !important;
+		overflow: hidden;
+	}
+	.ant-layout-header {
+    position: relative;
+		height: 72px;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+		box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.08);
+	}
+	/* background-color: ; */
+}
