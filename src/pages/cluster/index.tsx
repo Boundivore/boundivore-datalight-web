@@ -2,8 +2,9 @@ import Layouts from '@/layouts';
 import { Space, Table, Tag, Card, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import CreateCluster from './modal/createCluster';
 
 interface DataType {
 	key: string;
@@ -86,23 +87,40 @@ const data: DataType[] = [
 	}
 ];
 
-const Home: React.FC = () => {
+const Cluster: React.FC = () => {
+	const [open, setOpen] = useState(false);
 	const { t } = useTranslation();
 	const api = '/mock/2601924/api/v1/master/cluster/new';
+
 	const getData = () => {
 		RequestHttp.post(api);
+	};
+	const showModal = () => {
+		setOpen(true);
+	};
+	const handleOk = () => {
+		setOpen(false);
+	};
+
+	const handleCancel = () => {
+		setOpen(false);
 	};
 	useEffect(() => {
 		getData();
 	}, []);
 	return (
-		<Layouts>
-			<Card style={{ width: '96%', height: 'calc(100% - 40px)', margin: '20px auto' }}>
-				<Button type="primary">{t('cluster.create')}</Button>
-				<Table columns={columns} dataSource={data} />
-			</Card>
-		</Layouts>
+		<>
+			<Layouts>
+				<Card style={{ width: '96%', height: 'calc(100% - 40px)', margin: '20px auto' }}>
+					<Button type="primary" onClick={showModal}>
+						{t('cluster.create')}
+					</Button>
+					<Table columns={columns} dataSource={data} />
+				</Card>
+			</Layouts>
+			<CreateCluster open={open} onOk={handleOk} onCancel={handleCancel}></CreateCluster>
+		</>
 	);
 };
 
-export default Home;
+export default Cluster;

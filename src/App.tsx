@@ -6,7 +6,6 @@ import type { Locale } from 'antd/es/locale';
 import zhCN from 'antd/locale/zh_CN';
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
-// import i18n from "i18next"
 import Router from '@/routers/index';
 import ThemeProvider from './styles/ThemeProvider';
 // import './App.css';

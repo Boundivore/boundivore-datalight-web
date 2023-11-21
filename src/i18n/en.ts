@@ -24,5 +24,10 @@ export default {
 		personalData: '个人资料',
 		changePassword: '修改密码',
 		logout: '退出登录'
-	}
-}
+	},
+	cluster: {
+		create: '创建集群',
+		name: '集群名称'
+	},
+	test: '测试'
+};

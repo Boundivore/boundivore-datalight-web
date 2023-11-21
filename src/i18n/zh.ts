@@ -24,5 +24,14 @@ export default {
 		personalData: '个人资料',
 		changePassword: '修改密码',
 		logout: '退出登录'
-	}
-}
+	},
+	cluster: {
+		create: '创建集群',
+		name: '集群名称',
+		type: '集群类型',
+		description: '集群描述',
+		dlcVersion: '下载版本',
+		relativeClusterId: '关联集群ID'
+	},
+	test: '测试'
+};
