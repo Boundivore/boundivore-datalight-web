@@ -27,7 +27,7 @@ export default defineConfig({
 			// },
 			'/mock': {
 				target: 'http://127.0.0.1:4523',
-				changeOrigin: true,
+				changeOrigin: true
 				// rewrite: path => path.replace(/^\/mock/, '')
 			}
 		}
