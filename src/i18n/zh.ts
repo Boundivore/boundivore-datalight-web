@@ -33,5 +33,11 @@ export default {
 		dlcVersion: '下载版本',
 		relativeClusterId: '关联集群ID'
 	},
+	node: {
+		parseHostname: '解析节点主机名',
+		detect: '检查节点连通性',
+		hostName: '集群节点',
+		port: 'SSH端口号'
+	},
 	test: '测试'
 };

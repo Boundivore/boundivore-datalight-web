@@ -1,11 +1,13 @@
 import Layouts from '@/layouts';
-import { Card, Button, Col, Row, Steps, Form, Input } from 'antd';
-import { LoadingOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
+import { Card, Button, Col, Row, Form, Input } from 'antd';
+// import { LoadingOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import RequestHttp from '@/api';
+import APIConfig from '@/api/config';
 
 const layout = {
-	labelCol: { span: 4 },
-	wrapperCol: { span: 20 }
+	labelCol: { span: 8 },
+	wrapperCol: { span: 16 }
 };
 
 type FieldType = {
@@ -18,9 +20,26 @@ type FieldType = {
 const CreateCluster: React.FC = () => {
 	const { t } = useTranslation();
 	const [form] = Form.useForm();
+	const handleOk = () => {
+		const api = APIConfig.createCluster;
+		form.validateFields().then(
+			values => {
+				// setSubmittable(true);
+				RequestHttp.post(api, values);
+				console.log(11111, values);
+			},
+			errorInfo => {
+				// setSubmittable(false);
+				console.log('Failed:', errorInfo);
+			}
+		);
+		setTimeout(() => {
+			// setConfirmLoading(false);
+		}, 2000);
+	};
 
 	return (
-		<Layouts hideSider={true}>
+		<Layouts hideSider={false}>
 			<Row
 				style={{
 					width: '96%',
@@ -31,19 +50,19 @@ const CreateCluster: React.FC = () => {
 					alignItems: 'center'
 				}}
 			>
-				<Col span={6} style={{ height: '100%' }}>
+				{/* <Col span={6} style={{ height: '100%' }}>
 					<Card style={{ height: '100%' }}>
 						<Steps
 							direction="vertical"
 							items={[
 								{
-									title: 'Login',
+									title: t('cluster.create'),
 									status: 'finish',
 									icon: <UserOutlined />,
 									description: 'description'
 								},
 								{
-									title: 'Verification',
+									title: t('cluster.parseHostname'),
 									status: 'finish',
 									icon: <SolutionOutlined />,
 									description: 'description'
@@ -63,9 +82,9 @@ const CreateCluster: React.FC = () => {
 							]}
 						/>
 					</Card>
-				</Col>
-				<Col span={18} style={{ height: '100%' }}>
-					<Card style={{ height: '100%' }}>
+				</Col> */}
+				<Col span={24} style={{ height: '100%' }}>
+					<Card style={{ height: '100%' }} title={t('cluster.create')}>
 						<Form
 							form={form}
 							name="basic"
@@ -112,9 +131,11 @@ const CreateCluster: React.FC = () => {
 								<Input />
 							</Form.Item>
 						</Form>
-						<Button type="primary" size={'large'}>
-							{t('cluster.create')}
-						</Button>
+						<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+							<Button type="primary" size={'large'} onClick={handleOk}>
+								{t('cluster.create')}
+							</Button>
+						</Form.Item>
 					</Card>
 				</Col>
 			</Row>

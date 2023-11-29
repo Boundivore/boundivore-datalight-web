@@ -21,16 +21,7 @@ function getItem(
 }
 
 const items: MenuProps['items'] = [
-	// getItem('集群管理', 'sub1', <MailOutlined />, [
-	// 	getItem('Item 1', 'g1', null, [getItem('Option 1', '1'), getItem('Option 2', '2')], 'group'),
-	// 	getItem('Item 2', 'g2', null, [getItem('Option 3', '3'), getItem('Option 4', '4')], 'group')
-	// ]),
-
-	getItem('集群管理', 'sub2', <AppstoreOutlined />, [
-		getItem('Option 5', '5'),
-		getItem('Option 6', '6'),
-		getItem('Submenu', 'sub3', null, [getItem('Option 7', '7'), getItem('Option 8', '8')])
-	]),
+	getItem('集群管理', 'sub2', <AppstoreOutlined />),
 
 	{ type: 'divider' },
 
@@ -39,9 +30,7 @@ const items: MenuProps['items'] = [
 		getItem('Option 10', '10'),
 		getItem('Option 11', '11'),
 		getItem('Option 12', '12')
-	]),
-
-	getItem('Group', 'grp', null, [getItem('Option 13', '13'), getItem('Option 14', '14')], 'group')
+	])
 ];
 
 const LayoutMenu: React.FC = () => {

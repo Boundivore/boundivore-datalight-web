@@ -3,6 +3,7 @@ import { Card, Button } from 'antd';
 import RequestHttp from '@/api';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import CreateCluster from './modal/createCluster';
 
 const Cluster: React.FC = () => {
@@ -13,9 +14,9 @@ const Cluster: React.FC = () => {
 	const getData = () => {
 		RequestHttp.post(api);
 	};
-	const showModal = () => {
-		setOpen(true);
-	};
+	// const showModal = () => {
+	// 	setOpen(true);
+	// };
 	const handleOk = () => {
 		setOpen(false);
 	};
@@ -28,7 +29,7 @@ const Cluster: React.FC = () => {
 	}, []);
 	return (
 		<>
-			<Layouts hideSider={true}>
+			<Layouts hideSider={false}>
 				<Card
 					style={{
 						width: '96%',
@@ -39,8 +40,8 @@ const Cluster: React.FC = () => {
 						alignItems: 'center'
 					}}
 				>
-					<Button type="primary" size={'large'} onClick={showModal}>
-						{t('cluster.create')}
+					<Button type="primary" size={'large'}>
+						<Link to="create">{t('cluster.create')}</Link>
 					</Button>
 				</Card>
 			</Layouts>
