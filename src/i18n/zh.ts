@@ -39,5 +39,7 @@ export default {
 		hostName: '集群节点',
 		port: 'SSH端口号'
 	},
-	test: '测试'
+	previous: '上一步',
+	next: '下一步',
+	done: '完成'
 };

@@ -1,5 +1,5 @@
 export const pollRequest = (
-	pollFunction: () => Promise<{ data: any; codeStatus: string }>,
+	pollFunction: () => Promise<{ data: any; code: string }>,
 	status: string,
 	interval: number = 2000
 ) => {
@@ -12,12 +12,12 @@ export const pollRequest = (
 			return;
 		}
 
-		const { data, codeStatus } = await pollFunction();
-		console.log(data);
+		const { data, code } = await pollFunction();
 
-		if (codeStatus === status) {
+		if (code === status) {
 			shouldCancel = true;
 			clearInterval(poller);
 		}
+		return data;
 	}, interval);
 };

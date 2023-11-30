@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { pollRequest } from '@/utils/helper';
+import APIConfig from '@/api/config';
+import RequestHttp from '@/api';
 
 // import { useTranslation } from 'react-i18next';
 // import RequestHttp from '@/api';
@@ -69,7 +73,30 @@ const rowSelection = {
 const InitNodeList: React.FC = () => {
 	// const { t } = useTranslation();
 	// const handleOk = () => {};
-
+	const [searchParams] = useSearchParams();
+	const id = searchParams.get('id');
+	const apiStatue = APIConfig.nodeInitList;
+	const apiParse = APIConfig.parseHostname;
+	const getStatus = () => {
+		return RequestHttp.get(apiStatue, { ClusterId: id });
+	};
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const getParse = async () => {
+		const { data, code } = await RequestHttp.get(apiParse, { ClusterId: id });
+		if (code) {
+			const statusArr = pollRequest(getStatus, 0);
+			data.map((dataItem: { id: string }) => {
+				const matchItem = statusArr.find((statusItem: { id: string }) => {
+					return statusItem.id === dataItem.id;
+				});
+				dataItem = { ...dataItem, status: matchItem.status };
+				return dataItem;
+			});
+		}
+	};
+	useEffect(() => {
+		getParse();
+	}, [getParse]);
 	return (
 		<Table
 			rowSelection={{

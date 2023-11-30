@@ -3,7 +3,10 @@ interface Actions {
 }
 
 const APIConfig: Actions = {
-	createCluster: '/api/v1/master/cluster/new'
+	createCluster: '/api/v1/master/cluster/new',
+	parseHostname: '/api/v1/master/node/init/hostname/parse',
+	nodeInitNode: '/api/v1/master/node/init/parse/list' //轮询接口
+
 	// clusterList: ''
 };
 for (let key in APIConfig) {
