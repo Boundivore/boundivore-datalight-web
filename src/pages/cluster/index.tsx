@@ -34,6 +34,7 @@ const Cluster: React.FC = () => {
 					style={{
 						width: '96%',
 						height: 'calc(100% - 40px)',
+						minHeight: '600px',
 						margin: '20px auto',
 						display: 'flex',
 						justifyContent: 'center',

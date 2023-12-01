@@ -37,7 +37,7 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 	);
 	return (
 		<Layout className="container">
-			<Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+			<Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 				<div className="logo">logo</div>
 				<Popover content={content}>
 					<Avatar

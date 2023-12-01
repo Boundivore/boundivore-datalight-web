@@ -37,7 +37,9 @@ export default {
 		parseHostname: '解析节点主机名',
 		detect: '检查节点连通性',
 		hostName: '集群节点',
-		port: 'SSH端口号'
+		port: 'SSH端口号',
+		check: '节点初始化检查',
+		dispatch: '分发节点安装包'
 	},
 	previous: '上一步',
 	next: '下一步',
