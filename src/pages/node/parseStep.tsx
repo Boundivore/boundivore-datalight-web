@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
 import InitNodeList from './initList';
@@ -15,28 +15,32 @@ type FieldType = {
 	Hostname: string;
 	SshPort: string;
 };
-const ParseStep: React.FC = () => {
+
+const ParseStep: React.FC = forwardRef((props, ref) => {
 	const [showForm] = useState(true);
 	const { t } = useTranslation();
 	const [form] = Form.useForm();
-	// const handleOk = () => {
-	// 	const api = APIConfig.createCluster;
-	// 	form.validateFields().then(
-	// 		values => {
-	// 			// setSubmittable(true);
-	// 			RequestHttp.post(api, values);
-	// 			console.log(11111, values);
-	// 			setShowForm(false);
-	// 		},
-	// 		errorInfo => {
-	// 			// setSubmittable(false);
-	// 			console.log('Failed:', errorInfo);
-	// 		}
-	// 	);
-	// 	setTimeout(() => {
-	// 		// setConfirmLoading(false);
-	// 	}, 2000);
-	// };
+	useImperativeHandle(ref, () => ({
+		handleOk
+	}));
+	const handleOk = () => {
+		// const api = APIConfig.createCluster;
+		// form.validateFields().then(
+		// 	values => {
+		// 		// setSubmittable(true);
+		// 		RequestHttp.post(api, values);
+		// 		console.log(11111, values);
+		// 		setShowForm(false);
+		// 	},
+		// 	errorInfo => {
+		// 		// setSubmittable(false);
+		// 		console.log('Failed:', errorInfo);
+		// 	}
+		// );
+		setTimeout(() => {
+			// setConfirmLoading(false);
+		}, 2000);
+	};
 	return (
 		<>
 			{showForm ? (
@@ -75,5 +79,5 @@ const ParseStep: React.FC = () => {
 			)}
 		</>
 	);
-};
+});
 export default ParseStep;

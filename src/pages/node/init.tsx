@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import Layouts from '@/layouts';
 import { Card, Col, Row, Steps } from 'antd';
-import { LoadingOutlined, CheckCircleOutlined, SolutionOutlined, FileDoneOutlined, ImportOutlined } from '@ant-design/icons';
+import { CheckOutlined, CheckCircleOutlined, SolutionOutlined, FileDoneOutlined, ImportOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import ParseStep from './parseStep';
 import DetectStep from './detectStep';
@@ -10,6 +10,7 @@ import StepComponent from './components/stepComponent';
 
 const InitNode: React.FC = () => {
 	const { t } = useTranslation();
+	const parseStepRef = useRef<HTMLDivElement>();
 	const steps = [
 		{
 			title: t('node.parseHostname'),
@@ -21,7 +22,7 @@ const InitNode: React.FC = () => {
 		{
 			title: t('node.detect'),
 			status: 'process',
-			icon: <LoadingOutlined />,
+			icon: <CheckOutlined />,
 			description: 'description',
 			key: 1
 		},
@@ -52,7 +53,7 @@ const InitNode: React.FC = () => {
 	const stepConfig = [
 		{
 			title: t('node.parseHostname'),
-			content: <ParseStep />,
+			content: <ParseStep ref={parseStepRef} />,
 			nextStep: next
 		},
 		{
@@ -85,7 +86,7 @@ const InitNode: React.FC = () => {
 					</Card>
 				</Col>
 				<Col span={18} style={{ height: '100%' }}>
-					<StepComponent config={stepConfig} />
+					、 <StepComponent config={stepConfig} />
 				</Col>
 			</Row>
 		</Layouts>
