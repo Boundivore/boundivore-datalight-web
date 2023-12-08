@@ -11,10 +11,10 @@ const StepComponent: React.FC = ({ config }) => {
 		if (!stepConfig.nextStep) {
 			setCurrent(current + 1);
 		} else {
-			// const goNext = stepConfig.nextStep();
-			// if (goNext) {
-			setCurrent(current + 1);
-			// }
+			const goNext = stepConfig.nextStep();
+			if (goNext) {
+				setCurrent(current + 1);
+			}
 		}
 	};
 

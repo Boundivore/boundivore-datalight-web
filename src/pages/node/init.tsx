@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import Layouts from '@/layouts';
 import { Card, Col, Row, Steps } from 'antd';
 import { CheckOutlined, CheckCircleOutlined, SolutionOutlined, FileDoneOutlined, ImportOutlined } from '@ant-design/icons';
@@ -6,11 +6,12 @@ import { useTranslation } from 'react-i18next';
 import ParseStep from './parseStep';
 import DetectStep from './detectStep';
 import CheckStep from './checkStep';
+import InitList from './initList';
 import StepComponent from './components/stepComponent';
-
 const InitNode: React.FC = () => {
 	const { t } = useTranslation();
-	const parseStepRef = useRef<HTMLDivElement>();
+	const parseStepRef = useRef<HTMLDivElement>(null);
+	const [sharedData, setSharedData] = useState([]);
 	const steps = [
 		{
 			title: t('node.parseHostname'),
@@ -48,18 +49,27 @@ const InitNode: React.FC = () => {
 			key: 4
 		}
 	];
-	const next = () => {};
+	const nextList = async () => {
+		const callbackData = await parseStepRef.current.handleOk();
+		setSharedData(callbackData);
+		return callbackData;
+	};
 
 	const stepConfig = [
 		{
 			title: t('node.parseHostname'),
 			content: <ParseStep ref={parseStepRef} />,
-			nextStep: next
+			nextStep: nextList
+		},
+		{
+			title: t('node.parseHostname'),
+			content: <InitList data={sharedData} />
+			// nextStep: nextDetect
 		},
 		{
 			title: t('node.detect'),
-			content: <DetectStep />,
-			nextStep: next
+			content: <DetectStep />
+			// nextStep: next
 		},
 		{
 			title: t('node.check'),
@@ -86,7 +96,7 @@ const InitNode: React.FC = () => {
 					</Card>
 				</Col>
 				<Col span={18} style={{ height: '100%' }}>
-					、 <StepComponent config={stepConfig} />
+					<StepComponent config={stepConfig} />
 				</Col>
 			</Row>
 		</Layouts>
