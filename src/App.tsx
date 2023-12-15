@@ -13,10 +13,7 @@ function App() {
 
 	return (
 		<ConfigProvider locale={locale}>
-			<ThemeProvider>
-				{/* <RouterProvider router={Router} /> */}
-				{useRoutes(routes)}
-			</ThemeProvider>
+			<ThemeProvider>{useRoutes(routes)}</ThemeProvider>
 		</ConfigProvider>
 	);
 }

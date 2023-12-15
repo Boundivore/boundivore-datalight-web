@@ -2,6 +2,7 @@
 	background: red;
 }
 .my-layout {
+	min-height: calc(100%-40px);
 	.ant-layout-sider {
 		background-color: #fffffc;
 		color: #545454;

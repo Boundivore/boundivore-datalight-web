@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Table } from 'antd';
@@ -20,10 +20,10 @@ interface DataType {
 	NodeState: string;
 }
 
-const InitNodeList: React.FC = props => {
+const InitNodeList: React.FC = forwardRef((props, ref) => {
 	const { t } = useTranslation();
-	const [tableData, setTableData] = useState(props.data);
-	const { setSelectedRows } = useStore();
+	const { setSelectedRows, parsedList, selectedRows, setDetectedList } = useStore();
+	const [tableData, setTableData] = useState(parsedList);
 	let stopPolling: Function;
 	// const handleOk = () => {};
 	const [searchParams] = useSearchParams();
@@ -59,11 +59,7 @@ const InitNodeList: React.FC = props => {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
 			setSelectedRows(selectedRows);
-		},
-		getCheckboxProps: (record: DataType) => ({
-			disabled: record.name === 'Disabled User', // Column configuration not to be checked
-			name: record.name
-		})
+		}
 	};
 
 	const getState = async () => {
@@ -71,17 +67,32 @@ const InitNodeList: React.FC = props => {
 		return data;
 	};
 	const getParse = async () => {
-		const callbackFunc = (stateData: object) => {
+		const callbackFunc = (stateData: { NodeInitDetailList: DataType[] }) => {
 			tableData.map((dataItem: string) => {
 				const matchItem = stateData.NodeInitDetailList.find((stateItem: DataType) => {
 					return stateItem.Hostname === dataItem;
 				});
 				return matchItem;
 			});
-			// setTableData(tableData);
 			setTableData(stateData.NodeInitDetailList);
 		};
 		stopPolling = pollRequest(getState, callbackFunc, '0', 20000);
+	};
+
+	useImperativeHandle(ref, () => ({
+		handleOk
+	}));
+	const handleOk = async () => {
+		const apiDetect = APIConfig.detect;
+		const params = {
+			ClusterId: id,
+			NodeActionTypeEnum: 'DETECT',
+			NodeInfoList: selectedRows.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			SshPort: 22
+		};
+		const jobData = await RequestHttp.post(apiDetect, params);
+		setDetectedList(jobData);
+		return jobData;
 	};
 	useEffect(() => {
 		getParse();
@@ -99,6 +110,6 @@ const InitNodeList: React.FC = props => {
 			dataSource={tableData}
 		/>
 	);
-};
+});
 
 export default InitNodeList;

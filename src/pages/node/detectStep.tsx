@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -18,13 +18,12 @@ interface DataType {
 	NodeState: string;
 }
 
-const DetectStep: React.FC = () => {
-	const { selectedRows } = useStore();
+const DetectStep: React.FC = forwardRef((props, ref) => {
+	const { selectedRows, detectedData, setCheckedList, setSelectedRows } = useStore();
 	const [tableData, setTableData] = useState(selectedRows);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const apiDetect = APIConfig.detect;
 	const apiSpeed = APIConfig.detectList;
 	let stopPolling: Function;
 	const columns: ColumnsType<DataType> = [
@@ -53,24 +52,35 @@ const DetectStep: React.FC = () => {
 			render: () => <a> {t('node.detecting')}</a>
 		}
 	];
-
-	const getSpeed = async (detectData: AxiosResponse<any, any> | undefined) => {
-		const data = await RequestHttp.get(apiSpeed, { ClusterId: detectData.Data.ClusterId });
-		return data;
+	const rowSelection = {
+		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+			console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+			setSelectedRows(selectedRows);
+		}
 	};
-	const detect = async () => {
+	useImperativeHandle(ref, () => ({
+		handleOk
+	}));
+	const handleOk = async () => {
+		const apiCheck = APIConfig.check;
 		const params = {
 			ClusterId: id,
-			NodeActionTypeEnum: 'DETECT',
-			NodeInfoList: tableData.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			NodeActionTypeEnum: 'CHECk',
+			NodeInfoList: selectedRows.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
-		const jobData = await RequestHttp.post(apiDetect, params);
-		getData(jobData);
+		const jobData = await RequestHttp.post(apiCheck, params);
+		setCheckedList(jobData);
+		return jobData;
 	};
 
-	const getData = async (detectData: AxiosResponse<any, any> | undefined) => {
-		const callbackFunc = (speedData: object) => {
+	const getSpeed = async (jobData: AxiosResponse<any, any> | undefined) => {
+		const data = await RequestHttp.get(apiSpeed, { ClusterId: jobData.Data.ClusterId });
+		return data;
+	};
+
+	const getData = (jobData: AxiosResponse<any, any> | undefined) => {
+		const callbackFunc = (speedData: { NodeInitDetailList: DataType[] }) => {
 			tableData.map((dataItem: string) => {
 				const matchItem = speedData.NodeInitDetailList.find((stateItem: DataType) => {
 					return stateItem.Hostname === dataItem;
@@ -80,13 +90,22 @@ const DetectStep: React.FC = () => {
 			// setTableData(tableData);
 			setTableData(speedData.NodeInitDetailList);
 		};
-		stopPolling = pollRequest(() => getSpeed(detectData), callbackFunc, '0', 20000);
+		stopPolling = pollRequest(() => getSpeed(jobData), callbackFunc, '0', 20000);
 	};
 	useEffect(() => {
-		detect();
+		getData(detectedData);
 		return () => stopPolling();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	return <Table columns={columns} dataSource={tableData} />;
-};
+	return (
+		<Table
+			rowSelection={{
+				...rowSelection
+			}}
+			rowKey="NodeId"
+			columns={columns}
+			dataSource={tableData}
+		/>
+	);
+});
 export default DetectStep;

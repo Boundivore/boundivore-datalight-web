@@ -1,6 +1,7 @@
 import Layouts from '@/layouts';
 import { Space, Table, Tag, Card, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { useNavigate } from 'react-router-dom';
 import RequestHttp from '@/api';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -88,6 +89,7 @@ const data: DataType[] = [
 
 const Home: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const api = '/mock/2601924/api/v1/master/cluster/new';
 	const getData = () => {
 		RequestHttp.post(api);
@@ -98,7 +100,14 @@ const Home: React.FC = () => {
 	return (
 		<Layouts>
 			<Card style={{ width: '96%', height: 'calc(100% - 40px)', margin: '20px auto' }}>
-				<Button type="primary">{t('cluster.create')}</Button>
+				<Button
+					type="primary"
+					onClick={() => {
+						navigate('/cluster/create');
+					}}
+				>
+					{t('cluster.create')}
+				</Button>
 				<Table columns={columns} dataSource={data} />
 			</Card>
 		</Layouts>

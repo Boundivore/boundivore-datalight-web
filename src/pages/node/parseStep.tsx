@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 // import InitNodeList from './initList';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
+import useStore from '@/store/store';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -19,9 +20,9 @@ type FieldType = {
 
 const ParseStep: React.FC = forwardRef((props, ref) => {
 	const [showForm] = useState(true);
-	// const [ListData, setListData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
+	const { setParsedList } = useStore();
 	const id = searchParams.get('id');
 	const [form] = Form.useForm();
 	useImperativeHandle(ref, () => ({
@@ -37,9 +38,7 @@ const ParseStep: React.FC = forwardRef((props, ref) => {
 				invalidData.map((item: string) => ({
 					Hostname: item
 				}));
-				// setListData(invalidData);
-				// setShowForm(false);
-				return invalidData;
+				setParsedList(invalidData);
 			},
 			errorInfo => {
 				console.log('Failed:', errorInfo);

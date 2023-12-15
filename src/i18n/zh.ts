@@ -28,10 +28,15 @@ export default {
 	cluster: {
 		create: '创建集群',
 		name: '集群名称',
+		nameCheck: '请输入集群名称',
 		type: '集群类型',
+		typeCheck: '请输入集群类型',
 		description: '集群描述',
+		desCheck: '请输入集群描述',
 		dlcVersion: '下载版本',
-		relativeClusterId: '关联集群ID'
+		relativeClusterId: '关联集群ID',
+		createSucc: '集群创建成功！<0>指定集群节点</0>',
+		backToList: '返回集群列表'
 	},
 	node: {
 		parseHostname: '解析节点主机名',
