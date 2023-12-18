@@ -27,7 +27,7 @@ const StepComponent: React.FC = ({ config }) => {
 
 	return (
 		<>
-			<Card style={{ height: '100%' }} title={t('node.parseHostname')}>
+			<Card style={{ height: '100%' }} title={config[current].title}>
 				{config[current].content}
 				<Col style={{ marginTop: 24 }} offset={8} span={16}>
 					{/* <Button style={{ marginRight: '8px' }} onClick={handleCancel}>
@@ -49,7 +49,11 @@ const StepComponent: React.FC = ({ config }) => {
 						</Button>
 					)}
 					{current === config.length - 1 && (
-						<Button type="primary" onClick={handleFinish} disabled={!isSuccess}>
+						<Button
+							type="primary"
+							// onClick={handleFinish}
+							disabled={!isSuccess}
+						>
 							完成
 						</Button>
 					)}

@@ -1,6 +1,7 @@
 import { Menu } from 'antd';
 import { AppstoreOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
+import { NavLink } from 'react-router-dom';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -21,7 +22,7 @@ function getItem(
 }
 
 const items: MenuProps['items'] = [
-	getItem('集群管理', 'sub2', <AppstoreOutlined />),
+	getItem(<NavLink to="/home">集群管理</NavLink>, 'sub2', <AppstoreOutlined />),
 
 	{ type: 'divider' },
 

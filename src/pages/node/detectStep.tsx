@@ -7,7 +7,6 @@ import useStore from '@/store/store';
 import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { AxiosResponse } from 'axios';
 
 interface DataType {
 	NodeId: React.Key;
@@ -19,8 +18,8 @@ interface DataType {
 }
 
 const DetectStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRows, detectedData, setCheckedList, setSelectedRows } = useStore();
-	const [tableData, setTableData] = useState(selectedRows);
+	const { selectedRows, detectedList, setCheckedList, setSelectedRows } = useStore();
+	const [tableData, setTableData] = useState(detectedList);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -70,16 +69,16 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiCheck, params);
-		setCheckedList(jobData);
+		setCheckedList(selectedRows);
 		return jobData;
 	};
 
-	const getSpeed = async (jobData: AxiosResponse<any, any> | undefined) => {
-		const data = await RequestHttp.get(apiSpeed, { ClusterId: jobData.Data.ClusterId });
+	const getSpeed = async () => {
+		const data = await RequestHttp.get(apiSpeed, { ClusterId: id });
 		return data;
 	};
 
-	const getData = (jobData: AxiosResponse<any, any> | undefined) => {
+	const getData = () => {
 		const callbackFunc = (speedData: { NodeInitDetailList: DataType[] }) => {
 			tableData.map((dataItem: string) => {
 				const matchItem = speedData.NodeInitDetailList.find((stateItem: DataType) => {
@@ -90,10 +89,10 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 			// setTableData(tableData);
 			setTableData(speedData.NodeInitDetailList);
 		};
-		stopPolling = pollRequest(() => getSpeed(jobData), callbackFunc, '0', 20000);
+		stopPolling = pollRequest(() => getSpeed(), callbackFunc, '0', 20000);
 	};
 	useEffect(() => {
-		getData(detectedData);
+		getData();
 		return () => stopPolling();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);

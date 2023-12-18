@@ -8,10 +8,15 @@ import DetectStep from './detectStep';
 import CheckStep from './checkStep';
 import InitList from './initList';
 import StepComponent from './components/stepComponent';
+import DispatchStep from './dispatchStep';
+import AddStep from './addStep';
 const InitNode: React.FC = () => {
 	const { t } = useTranslation();
 	const parseStepRef = useRef<HTMLDivElement>(null);
 	const initListStepRef = useRef<HTMLDivElement>(null);
+	const detectStepRef = useRef<HTMLDivElement>(null);
+	const checkStepRef = useRef<HTMLDivElement>(null);
+	const dispatchStepRef = useRef<HTMLDivElement>(null);
 	const steps = [
 		{
 			title: t('node.parseHostname'),
@@ -42,7 +47,7 @@ const InitNode: React.FC = () => {
 			key: 3
 		},
 		{
-			title: t('done'),
+			title: t('node.add'),
 			status: 'wait',
 			icon: <CheckCircleOutlined />,
 			description: 'description',
@@ -55,6 +60,14 @@ const InitNode: React.FC = () => {
 	};
 	const nextDetect = async () => {
 		const callbackData = await initListStepRef.current.handleOk();
+		return callbackData;
+	};
+	const nextCheck = async () => {
+		const callbackData = await detectStepRef.current.handleOk();
+		return callbackData;
+	};
+	const nextDispatch = async () => {
+		const callbackData = await checkStepRef.current.handleOk();
 		return callbackData;
 	};
 
@@ -71,12 +84,21 @@ const InitNode: React.FC = () => {
 		},
 		{
 			title: t('node.detect'),
-			content: <DetectStep />
-			// nextStep: next
+			content: <DetectStep ref={detectStepRef} />,
+			nextStep: nextCheck
 		},
 		{
 			title: t('node.check'),
-			content: <CheckStep />
+			content: <CheckStep ref={checkStepRef} />,
+			nextStep: nextDispatch
+		},
+		{
+			title: t('node.dispatch'),
+			content: <DispatchStep ref={dispatchStepRef} />
+		},
+		{
+			title: t('node.add'),
+			content: <AddStep />
 		}
 	];
 

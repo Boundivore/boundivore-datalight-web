@@ -47,6 +47,7 @@ export default {
 		portCheck: '请输入正确的SSH端口号',
 		check: '节点初始化检查',
 		dispatch: '分发节点安装包',
+		add: ' 服役节点到指定集群',
 		node: '节点',
 		config: '配置',
 		control: '当前受控',

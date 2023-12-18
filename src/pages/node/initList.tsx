@@ -25,7 +25,6 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 	const { setSelectedRows, parsedList, selectedRows, setDetectedList } = useStore();
 	const [tableData, setTableData] = useState(parsedList);
 	let stopPolling: Function;
-	// const handleOk = () => {};
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiState = APIConfig.nodeInitList;
@@ -63,7 +62,7 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 	};
 
 	const getState = async () => {
-		const data = await RequestHttp.get(apiState, { ClusterId: id });
+		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
 		return data;
 	};
 	const getParse = async () => {
@@ -91,7 +90,7 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiDetect, params);
-		setDetectedList(jobData);
+		setDetectedList(selectedRows);
 		return jobData;
 	};
 	useEffect(() => {

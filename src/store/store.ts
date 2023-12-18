@@ -6,8 +6,14 @@ const useStore = create(set => ({
 	setParsedList: list => set({ parsedList: list }),
 	detectedList: [],
 	setDetectedList: list => set({ detectedList: list }),
+	checkedList: [],
+	setCheckedList: list => set({ checkedList: list }),
+	dispatchedList: [],
+	setDispatchedList: list => set({ dispatchedList: list }),
 	selectedRows: [],
-	setSelectedRows: rows => set({ selectedRows: rows })
+	setSelectedRows: rows => set({ selectedRows: rows }),
+	jobClusterId: '',
+	setJobClusterId: id => set({ jobClusterId: id })
 }));
 
 export default useStore;
