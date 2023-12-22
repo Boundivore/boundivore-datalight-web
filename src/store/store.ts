@@ -13,7 +13,9 @@ const useStore = create(set => ({
 	selectedRows: [],
 	setSelectedRows: rows => set({ selectedRows: rows }),
 	jobClusterId: '',
-	setJobClusterId: id => set({ jobClusterId: id })
+	setJobClusterId: id => set({ jobClusterId: id }),
+	stepCurrent: 0,
+	setStepCurrent: current => set({ stepCurrent: current })
 }));
 
 export default useStore;

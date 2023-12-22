@@ -9,7 +9,6 @@ import { Layout, Avatar, Popover, Menu, Breadcrumb } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import LayoutMenu from './components/menu';
 import { useTranslation } from 'react-i18next';
-import './index.css';
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -36,14 +35,14 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 		></Menu>
 	);
 	return (
-		<Layout className="container">
-			<Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+		<Layout className="w-full min-w-[1200px] min-h-[calc(100%-40px)]">
+			<Header className="flex items-center justify-between">
 				<div className="logo">logo</div>
 				<Popover content={content}>
 					<Avatar
+						className="bg-[#87d068]"
 						src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
 						size="large"
-						style={{ backgroundColor: '#87d068' }}
 						icon={<UserOutlined />}
 					/>
 				</Popover>

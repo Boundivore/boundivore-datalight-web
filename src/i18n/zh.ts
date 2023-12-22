@@ -40,6 +40,7 @@ export default {
 	},
 	node: {
 		parseHostname: '解析节点主机名',
+		chooseHostname: '选择加入集群的节点',
 		hostnameCheck: '请输入正确的主机名',
 		detect: '检查节点连通性',
 		hostName: '集群节点',
@@ -56,7 +57,9 @@ export default {
 		gb: 'GB',
 		speed: '速度',
 		detail: '详情',
-		detecting: '检查中...'
+		detecting: '检查中...',
+		log: '日志',
+		viewLog: '查看日志'
 	},
 	previous: '上一步',
 	next: '下一步',

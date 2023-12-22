@@ -32,7 +32,7 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 			render: (text: string) => <a>{text}</a>
 		},
 		{
-			title: t('node.speed'),
+			title: t('node.config'),
 			dataIndex: 'CpuCores',
 			render: (text: string, record) => (
 				<a>
@@ -48,7 +48,12 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		{
 			title: t('node.detail'),
 			dataIndex: 'NodeState',
-			render: () => <a> {t('node.detecting')}</a>
+			render: () => <a> {t('node.checking')}</a>
+		},
+		{
+			title: t('node.log'),
+			dataIndex: 'NodeState',
+			render: () => <a> {t('node.viewLog')}</a>
 		}
 	];
 	const rowSelection = {

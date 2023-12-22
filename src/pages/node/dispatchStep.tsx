@@ -32,7 +32,7 @@ const DispatchStep: React.FC = forwardRef(() => {
 			render: (text: string) => <a>{text}</a>
 		},
 		{
-			title: t('node.speed'),
+			title: t('node.config'),
 			dataIndex: 'CpuCores',
 			render: (text: string, record) => (
 				<a>

@@ -17,7 +17,7 @@ interface DataType {
 }
 
 const AddStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRows, dispatchedList, setCheckedList } = useStore();
+	const { selectedRows, dispatchedList, setSelectedRows } = useStore();
 	const [tableData] = useState(dispatchedList);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
@@ -29,7 +29,7 @@ const AddStep: React.FC = forwardRef((props, ref) => {
 			render: (text: string) => <a>{text}</a>
 		},
 		{
-			title: t('node.speed'),
+			title: t('node.config'),
 			dataIndex: 'CpuCores',
 			render: (text: string, record) => (
 				<a>
@@ -53,18 +53,30 @@ const AddStep: React.FC = forwardRef((props, ref) => {
 		handleOk
 	}));
 	const handleOk = async () => {
-		const apiCheck = APIConfig.check;
+		const apiAdd = APIConfig.add;
 		const params = {
 			ClusterId: id,
-			NodeActionTypeEnum: 'CHECk',
+			NodeActionTypeEnum: 'ADD',
 			NodeInfoList: selectedRows.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
-		const jobData = await RequestHttp.post(apiCheck, params);
-		setCheckedList(jobData);
+		const jobData = await RequestHttp.post(apiAdd, params);
 		return jobData;
 	};
-
-	return <Table rowKey="NodeId" columns={columns} dataSource={tableData} />;
+	const rowSelection = {
+		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+			setSelectedRows(selectedRows);
+		}
+	};
+	return (
+		<Table
+			rowSelection={{
+				...rowSelection
+			}}
+			rowKey="NodeId"
+			columns={columns}
+			dataSource={tableData}
+		/>
+	);
 });
 export default AddStep;
