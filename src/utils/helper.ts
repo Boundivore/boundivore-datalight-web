@@ -1,7 +1,7 @@
 export const pollRequest = (
 	pollFunction: () => Promise<{ data: any }>,
 	callback: Function,
-	status: string,
+	lockedState: [string],
 	interval: number = 2000
 ) => {
 	let poller: NodeJS.Timeout;
@@ -11,13 +11,17 @@ export const pollRequest = (
 			clearInterval(poller);
 			return;
 		}
-		const { Data, Code } = await pollFunction();
+		const data = await pollFunction();
+		shouldCancel = data.Data.NodeInitDetailList.every(element => {
+			return lockedState.includes(element.NodeState);
+		});
 		// 内部终止逻辑
-		if (Code === status) {
-			shouldCancel = true;
-			clearInterval(poller);
-		}
-		callback(Data);
+		// if (locked) {
+		// 	shouldCancel = true;
+		// 	clearInterval(poller);
+		// }
+		console.log(111, data);
+		callback(data.Data);
 	};
 	intervalFunction();
 	poller = setInterval(intervalFunction, interval);

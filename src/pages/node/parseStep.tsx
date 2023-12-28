@@ -34,11 +34,11 @@ const ParseStep: React.FC = forwardRef((props, ref) => {
 			async values => {
 				const { Hostname, SshPort } = values;
 				const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
-				const invalidData = data.Data.InvalidHostnameList;
-				invalidData.map((item: string) => ({
+				const validData = data.Data.ValidHostnameList;
+				validData.map((item: string) => ({
 					Hostname: item
 				}));
-				setParsedList(invalidData);
+				setParsedList(validData);
 			},
 			errorInfo => {
 				console.log('Failed:', errorInfo);

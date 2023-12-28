@@ -67,15 +67,15 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 	};
 	const getParse = async () => {
 		const callbackFunc = (stateData: { NodeInitDetailList: DataType[] }) => {
-			tableData.map((dataItem: string) => {
-				const matchItem = stateData.NodeInitDetailList.find((stateItem: DataType) => {
-					return stateItem.Hostname === dataItem;
-				});
-				return matchItem;
-			});
+			// tableData.map((dataItem: string) => {
+			// 	const matchItem = stateData.NodeInitDetailList.find((stateItem: DataType) => {
+			// 		return stateItem.Hostname === dataItem;
+			// 	});
+			// 	return matchItem;
+			// });
 			setTableData(stateData.NodeInitDetailList);
 		};
-		stopPolling = pollRequest(getState, callbackFunc, '0', 20000);
+		stopPolling = pollRequest(getState, callbackFunc, ['RESOLVED'], 20000);
 	};
 
 	useImperativeHandle(ref, () => ({

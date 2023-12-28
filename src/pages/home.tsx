@@ -90,7 +90,7 @@ const data: DataType[] = [
 const Home: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const api = '/mock/2601924/api/v1/master/cluster/new';
+	const api = '/api/v1/master/cluster/new';
 	const getData = () => {
 		RequestHttp.post(api);
 	};

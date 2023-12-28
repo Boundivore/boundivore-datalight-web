@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Layouts from '@/layouts';
-import { Card, Button, Col, Row, Form, Input } from 'antd';
+import { Card, Button, Col, Row, Form, Input, Tabs, List, Avatar } from 'antd';
 import { useTranslation, Trans } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -13,6 +13,8 @@ const layout = {
 
 const CreateCluster: React.FC = () => {
 	const [success, setSuccess] = useState(false);
+	const [DLCVersion] = useState('');
+	const [serviceList, setServiceList] = useState([]);
 	const { t } = useTranslation();
 	const [form] = Form.useForm();
 	const handleOk = async () => {
@@ -23,6 +25,18 @@ const CreateCluster: React.FC = () => {
 			setSuccess(true);
 		}
 	};
+	const getDLCVersion = async () => {
+		const api = APIConfig.getDLCVersion;
+		const { Code, Data } = await RequestHttp.get(api);
+		if (Code) {
+			form.setFieldsValue({ DlcVersion: Data.DLCVersion });
+			setServiceList(Data.ServiceSummaryList);
+		}
+	};
+	useEffect(() => {
+		getDLCVersion();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, ['test']);
 	return (
 		<Layouts hideSider={false}>
 			<Row
@@ -43,7 +57,7 @@ const CreateCluster: React.FC = () => {
 								name="basic"
 								{...layout}
 								style={{ maxWidth: 600 }}
-								initialValues={{ remember: true }}
+								initialValues={{ remember: true, DlcVersion: DLCVersion }}
 								autoComplete="off"
 							>
 								<Form.Item
@@ -73,6 +87,31 @@ const CreateCluster: React.FC = () => {
 									rules={[{ required: true, message: `${t('cluster.desCheck')}` }]}
 								>
 									<Input />
+								</Form.Item>
+								<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+									<Tabs
+										items={serviceList.map(service => {
+											return {
+												key: service.ServiceName,
+												label: service.ServiceName,
+												children: (
+													<List
+														itemLayout="horizontal"
+														dataSource={service.DependencyList}
+														renderItem={(item, index) => (
+															<List.Item>
+																<List.Item.Meta
+																	avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`} />}
+																	title={<a href="https://ant.design">{item.title}</a>}
+																	description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+																/>
+															</List.Item>
+														)}
+													/>
+												)
+											};
+										})}
+									/>
 								</Form.Item>
 								<Form.Item
 									label={t('cluster.relativeClusterId')}

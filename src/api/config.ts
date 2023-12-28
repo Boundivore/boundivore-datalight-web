@@ -3,18 +3,20 @@ interface Actions {
 }
 
 const APIConfig: Actions = {
-	createCluster: '/api/v1/master/cluster/new',
-	parseHostname: '/api/v1/master/node/init/hostname/parse',
-	nodeInitList: '/api/v1/master/node/init/parse/list', //轮询接口
-	detect: '/api/v1/master/node/init/detect',
-	detectList: '/api/v1/master/node/init/detect/list', //轮询接口
-	check: '/api/v1/master/node/init/check',
-	checkList: '/api/v1/master/node/init/check/list', //轮询接口
-	dispatch: '/api/v1/master/node/init/dispatch',
-	dispatchList: '/api/v1/master/node/init/dispatch/list'
+	createCluster: '/v1/master/cluster/new',
+	getDLCVersion: '/v1/master/dlc/service/list',
+	parseHostname: '/v1/master/node/init/hostname/parse',
+	nodeInitList: '/v1/master/node/init/parse/list', //轮询接口
+	detect: '/v1/master/node/init/detect',
+	detectList: '/v1/master/node/init/detect/list', //轮询接口
+	check: '/v1/master/node/init/check',
+	checkList: '/v1/master/node/init/check/list', //轮询接口
+	dispatch: '/v1/master/node/init/dispatch',
+	dispatchList: '/v1/master/node/init/dispatch/list'
 };
 for (let key in APIConfig) {
-	APIConfig[key] = '/mock/2601924' + APIConfig[key];
+	// APIConfig[key] = '/mock/2601924' + APIConfig[key];
+	APIConfig[key] = '/api' + APIConfig[key];
 }
 
 export default APIConfig;

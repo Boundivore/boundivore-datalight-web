@@ -28,11 +28,11 @@ export default defineConfig({
 	],
 	server: {
 		proxy: {
-			// '/api': {
-			// 	target: 'https://app.apifox.com/',
-			// 	changeOrigin: true,
-			// 	rewrite: path => path.replace(/^\/api/, '')
-			// },
+			'/api': {
+				target: 'http://192.168.137.10:8001',
+				changeOrigin: true
+				// rewrite: path => path.replace(/^\/api/, '')
+			},
 			'/mock': {
 				target: 'http://127.0.0.1:4523',
 				changeOrigin: true

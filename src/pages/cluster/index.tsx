@@ -9,7 +9,7 @@ import CreateCluster from './modal/createCluster';
 const Cluster: React.FC = () => {
 	const [open, setOpen] = useState(false);
 	const { t } = useTranslation();
-	const api = '/mock/2601924/api/v1/master/cluster/new';
+	const api = '/api/v1/master/cluster/new';
 
 	const getData = () => {
 		RequestHttp.post(api);
