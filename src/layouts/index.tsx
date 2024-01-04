@@ -2,9 +2,8 @@
  *
  *
  */
-// import { useEffect } from 'react';
 // import { Outlet } from 'react-router-dom';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Layout, Avatar, Popover, Menu, Breadcrumb } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import LayoutMenu from './components/menu';
@@ -20,6 +19,7 @@ interface MyComponentProps {
 
 const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 	const { t } = useTranslation();
+	const [collapsed, setCollapsed] = useState(false);
 	const content = (
 		<Menu
 			items={[
@@ -49,7 +49,7 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 			</Header>
 			<Layout>
 				{!hideSider ? (
-					<Sider theme="light">
+					<Sider theme="light" collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
 						{/* <Header>Logo</Header> */}
 						<LayoutMenu />
 					</Sider>

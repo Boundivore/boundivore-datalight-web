@@ -9,7 +9,7 @@
 		flex: 0 0 auto !important;
 		max-width: none !important;
 		min-width: 10px !important;
-		width: 280px !important;
+		/* width: 280px !important; */
 		overflow: hidden;
 	}
 	.ant-layout-header {

@@ -18,12 +18,12 @@ interface DataType {
 }
 
 const CheckStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRows, checkedList, setDispatchedList, setSelectedRows } = useStore();
+	const { selectedRows, checkedList, setDispatchedList, setSelectedRows, setJobNodeId } = useStore();
 	const [tableData, setTableData] = useState(checkedList);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const apiSpeed = APIConfig.dispatchList;
+	const apiSpeed = APIConfig.checkList;
 	let stopPolling: Function;
 	const columns: ColumnsType<DataType> = [
 		{
@@ -69,31 +69,26 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		const apiDispatch = APIConfig.dispatch;
 		const params = {
 			ClusterId: id,
-			NodeActionTypeEnum: 'CHECk',
+			NodeActionTypeEnum: 'DISPATCH',
 			NodeInfoList: selectedRows.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiDispatch, params);
 		setDispatchedList(selectedRows);
-		return jobData;
+		setJobNodeId(jobData.Data.NodeJobId);
+		return Promise.resolve(jobData);
 	};
 
 	const getSpeed = async () => {
-		const data = await RequestHttp.get(apiSpeed, { ClusterId: id });
+		const data = await RequestHttp.get(apiSpeed, { params: { ClusterId: id } });
 		return data;
 	};
 
 	const getData = () => {
 		const callbackFunc = (speedData: { NodeInitDetailList: DataType[] }) => {
-			tableData.map((dataItem: string) => {
-				const matchItem = speedData.NodeInitDetailList.find((stateItem: DataType) => {
-					return stateItem.Hostname === dataItem;
-				});
-				return matchItem;
-			});
 			setTableData(speedData.NodeInitDetailList);
 		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, '0', 20000);
+		stopPolling = pollRequest(() => getSpeed(), callbackFunc, ['CHECK_OK', 'CHECK_ERROR'], 20000);
 	};
 	useEffect(() => {
 		getData();

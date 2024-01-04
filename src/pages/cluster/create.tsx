@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import Layouts from '@/layouts';
-import { Card, Button, Col, Row, Form, Input, Tabs, List, Avatar } from 'antd';
+import { Card, Button, Col, Row, Form, Input, Tabs, List, Avatar, Select } from 'antd';
 import { useTranslation, Trans } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import { ClusterNewRequest } from '@/api/interface';
+import useStore from '@/store/store';
+
+const { Option } = Select;
 
 const layout = {
 	labelCol: { span: 8 },
@@ -15,14 +18,16 @@ const CreateCluster: React.FC = () => {
 	const [success, setSuccess] = useState(false);
 	const [DLCVersion] = useState('');
 	const [serviceList, setServiceList] = useState([]);
+	const { jobClusterId, setJobClusterId } = useStore();
 	const { t } = useTranslation();
 	const [form] = Form.useForm();
 	const handleOk = async () => {
 		const api = APIConfig.createCluster;
 		const values: ClusterNewRequest = await form.validateFields();
 		const data = await RequestHttp.post(api, values);
-		if (data.Code) {
+		if (data.Code === '00000') {
 			setSuccess(true);
+			setJobClusterId(data.Data.ClusterId);
 		}
 	};
 	const getDLCVersion = async () => {
@@ -33,6 +38,7 @@ const CreateCluster: React.FC = () => {
 			setServiceList(Data.ServiceSummaryList);
 		}
 	};
+	const handleTypeChange = () => {};
 	useEffect(() => {
 		getDLCVersion();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,7 +78,10 @@ const CreateCluster: React.FC = () => {
 									name="ClusterType"
 									rules={[{ required: true, message: `${t('cluster.typeCheck')}` }]}
 								>
-									<Input />
+									<Select onChange={handleTypeChange} allowClear>
+										<Option value="COMPUTE">COMPUTE</Option>
+										<Option value="MIXED">MIXED</Option>
+									</Select>
 								</Form.Item>
 								<Form.Item
 									label={t('cluster.description')}
@@ -129,16 +138,10 @@ const CreateCluster: React.FC = () => {
 						) : (
 							<div style={{ fontSize: '40px', textAlign: 'center' }}>
 								<p>
-									<Trans
-										i18nKey="cluster.createSucc"
-										defaults="hello <0>121212</0>"
-										components={{
-											0: <i />
-										}}
-									/>
+									<Trans i18nKey="cluster.createSucc">
+										This should be a <a href={`/node/init?id=${jobClusterId}`}>link</a>
+									</Trans>
 								</p>
-
-								{/* <p>{t('cluster.createSucc', { link: <a href="/my-link">这里</a> })}</p> */}
 								<Button type="primary">{t('cluster.backToList')}</Button>
 							</div>
 						)}

@@ -30,12 +30,12 @@ export default {
 		name: '集群名称',
 		nameCheck: '请输入集群名称',
 		type: '集群类型',
-		typeCheck: '请输入集群类型',
+		typeCheck: '请选择集群类型',
 		description: '集群描述',
 		desCheck: '请输入集群描述',
 		dlcVersion: '下载版本',
 		relativeClusterId: '关联集群ID',
-		createSucc: '集群创建成功！<0>指定集群节点</0>',
+		createSucc: '集群创建成功！<1>指定集群节点</1>',
 		backToList: '返回集群列表'
 	},
 	node: {
@@ -57,11 +57,13 @@ export default {
 		gb: 'GB',
 		speed: '速度',
 		detail: '详情',
+		progress: '分发进度',
 		detecting: '检查中...',
 		log: '日志',
 		viewLog: '查看日志'
 	},
 	previous: '上一步',
 	next: '下一步',
+	cancel: '取消',
 	done: '完成'
 };

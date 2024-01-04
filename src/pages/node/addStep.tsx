@@ -61,7 +61,7 @@ const AddStep: React.FC = forwardRef((props, ref) => {
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiAdd, params);
-		return jobData;
+		return Promise.resolve(jobData);
 	};
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {

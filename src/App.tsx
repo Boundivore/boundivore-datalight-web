@@ -6,7 +6,6 @@ import type { Locale } from 'antd/es/locale';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN';
 import ThemeProvider from './styles/ThemeProvider';
-// import './App.css';
 
 function App() {
 	const [locale] = useState<Locale>(zhCN);

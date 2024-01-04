@@ -12,7 +12,9 @@ const APIConfig: Actions = {
 	check: '/v1/master/node/init/check',
 	checkList: '/v1/master/node/init/check/list', //轮询接口
 	dispatch: '/v1/master/node/init/dispatch',
-	dispatchList: '/v1/master/node/init/dispatch/list'
+	dispatchList: '/v1/master/node/init/dispatch/list',
+	dispatchProgress: '/v1/master/node/job/dispatch/progress', //轮询接口
+	add: '/v1/master/node/init/add'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

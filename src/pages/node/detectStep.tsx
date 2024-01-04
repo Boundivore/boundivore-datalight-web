@@ -64,32 +64,26 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 		const apiCheck = APIConfig.check;
 		const params = {
 			ClusterId: id,
-			NodeActionTypeEnum: 'CHECk',
+			NodeActionTypeEnum: 'CHECK',
 			NodeInfoList: selectedRows.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiCheck, params);
 		setCheckedList(selectedRows);
-		return jobData;
+		return Promise.resolve(jobData);
 	};
 
 	const getSpeed = async () => {
-		const data = await RequestHttp.get(apiSpeed, { ClusterId: id });
+		const data = await RequestHttp.get(apiSpeed, { params: { ClusterId: id } });
 		return data;
 	};
 
 	const getData = () => {
 		const callbackFunc = (speedData: { NodeInitDetailList: DataType[] }) => {
-			tableData.map((dataItem: string) => {
-				const matchItem = speedData.NodeInitDetailList.find((stateItem: DataType) => {
-					return stateItem.Hostname === dataItem;
-				});
-				return matchItem;
-			});
 			// setTableData(tableData);
 			setTableData(speedData.NodeInitDetailList);
 		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, '0', 20000);
+		stopPolling = pollRequest(() => getSpeed(), callbackFunc, ['ACTIVE', 'INACTIVE'], 20000);
 	};
 	useEffect(() => {
 		getData();

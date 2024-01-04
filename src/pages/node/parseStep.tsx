@@ -28,22 +28,21 @@ const ParseStep: React.FC = forwardRef((props, ref) => {
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
-	const handleOk = () => {
+	const handleOk = async () => {
 		const api = APIConfig.parseHostname;
-		form.validateFields().then(
-			async values => {
-				const { Hostname, SshPort } = values;
-				const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
-				const validData = data.Data.ValidHostnameList;
-				validData.map((item: string) => ({
-					Hostname: item
-				}));
-				setParsedList(validData);
-			},
-			errorInfo => {
-				console.log('Failed:', errorInfo);
-			}
-		);
+		const values = await form.validateFields();
+		const { Hostname, SshPort } = values;
+		const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
+		const validData = data.Data.ValidHostnameList;
+		validData.map((item: string) => ({
+			Hostname: item
+		}));
+		setParsedList(validData);
+		return Promise.resolve(validData);
+		// errorInfo => {
+		// 	console.log('Failed:', errorInfo);
+		// }
+		// );
 	};
 	return (
 		<>

@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { message } from 'antd';
 
 const config = {
 	timeout: 1000 * 10,
@@ -22,7 +23,13 @@ RequestHttp.interceptors.request.use(beforeRequest, (error: AxiosError) => {
 // 响应拦截器
 const requestSuccess = (response: AxiosResponse) => {
 	const { data } = response;
-	return Promise.resolve(data);
+	console.log(2222, data.Code);
+	if (data.Code !== '00000') {
+		message.error(data.Message, 5);
+		return Promise.reject(new Error(data.Message || 'Error'));
+	} else {
+		return Promise.resolve(data);
+	}
 };
 const requestFaild = (error: AxiosError) => {
 	return Promise.reject(error);

@@ -91,7 +91,7 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 		};
 		const jobData = await RequestHttp.post(apiDetect, params);
 		setDetectedList(selectedRows);
-		return jobData;
+		return Promise.resolve(jobData);
 	};
 	useEffect(() => {
 		getParse();

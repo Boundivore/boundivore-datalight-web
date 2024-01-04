@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ConfigProvider } from 'antd';
+import { StyleProvider } from '@ant-design/cssinjs';
 import useSwitchStyle from './switchStyle';
 // import { background } from './gradientUtil';
 import './theme.css';
@@ -41,7 +42,7 @@ export default function ThemeProvider(props: ThemeProviderProps) {
 			// divider={{ className: passedCls }}
 			// card={{ className: passedCls }}
 		>
-			{children}
+			<StyleProvider hashPriority="high">{children}</StyleProvider>
 		</ConfigProvider>
 	);
 }
