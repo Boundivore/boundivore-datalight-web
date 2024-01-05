@@ -1,6 +1,7 @@
 import { useEffect, useState, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Progress } from 'antd';
+import { Table, Progress, Space } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
@@ -9,6 +10,7 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 
 interface DataType {
+	[x: string]: any;
 	NodeId: React.Key;
 	Hostname: string;
 	CpuCores: number;
@@ -17,10 +19,11 @@ interface DataType {
 	NodeState: string;
 }
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
+const stableState = ['PUSH_OK', 'PUSH_ERROR'];
 
 const DispatchStep: React.FC = forwardRef(() => {
-	const { dispatchedList, setSelectedRows, jobNodeId } = useStore();
-	const [tableData, setTableData] = useState(dispatchedList);
+	const { setSelectedRows, jobNodeId } = useStore();
+	const [tableData, setTableData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -36,8 +39,30 @@ const DispatchStep: React.FC = forwardRef(() => {
 		},
 		{
 			title: t('node.progress'),
-			dataIndex: 'NodeState',
-			render: () => <Progress percent={30} strokeColor={twoColors} strokeWidth={3} />
+			dataIndex: 'FileBytesProgress',
+			render: (text, record) => {
+				console.log(4444, record);
+				return (
+					<>
+						{text ? (
+							<>
+								<Space>
+									{Number(text.TotalProgress) !== 100 ? <LoadingOutlined /> : null}
+									<span>
+										{t('node.fileProgress')}
+										{`${record.FileCountProgress.TotalTransferFileCount}/${record.FileCountProgress.TotalFileCount}`}
+									</span>
+									<span>
+										{t('node.speed')}
+										{record.CurrentFileProgress.CurrentPrintSpeed}
+									</span>
+								</Space>
+								<Progress percent={Number(text.TotalProgress).toFixed(2)} strokeColor={twoColors} />
+							</>
+						) : null}
+					</>
+				);
+			}
 		},
 		{
 			title: t('node.config'),
@@ -58,7 +83,10 @@ const DispatchStep: React.FC = forwardRef(() => {
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectedRows(selectedRows);
-		}
+		},
+		getCheckboxProps: (record: DataType) => ({
+			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+		})
 	};
 
 	const getSpeed = async () => {
@@ -74,20 +102,21 @@ const DispatchStep: React.FC = forwardRef(() => {
 		let mergedData = NodeInitDetailList.map(item1 => {
 			let item2 = NodeJobTransferProgressList.filter(item2 => item2.NodeId === item1.NodeId);
 			if (item2.length > 0) {
-				return { ...item1, ...item2 };
+				return { ...item1, ...item2[0] };
 			} else {
 				return item1;
 			}
 		});
-		console.log(121212, mergedData);
+		console.log(12121, mergedData);
 		return mergedData;
 	};
 
 	const getData = () => {
-		const callbackFunc = (speedData: { NodeInitDetailList: DataType[] }) => {
-			setTableData(speedData.NodeInitDetailList);
+		const callbackFunc = speedData => {
+			console.log(6666, speedData);
+			setTableData(speedData);
 		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, ['PUSH_OK', 'PUSH_ERROR'], 5000);
+		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 5000);
 	};
 	useEffect(() => {
 		getData();

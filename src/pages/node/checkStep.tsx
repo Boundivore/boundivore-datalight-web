@@ -1,6 +1,6 @@
 import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Table } from 'antd';
+import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
@@ -16,15 +16,35 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
+const stableState = ['CHECK_OK', 'CHECK_ERROR'];
 
 const CheckStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRows, checkedList, setDispatchedList, setSelectedRows, setJobNodeId } = useStore();
-	const [tableData, setTableData] = useState(checkedList);
+	const { selectedRows, setDispatchedList, setSelectedRows, setJobNodeId } = useStore();
+	// const [tableData, setTableData] = useState(checkedList);
+	const [tableData, setTableData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.checkList;
 	let stopPolling: Function;
+	let stateText: { [key: string]: any };
+	stateText = {
+		// eslint-disable-next-line prettier/prettier
+		'CHECK_OK': {
+			label: t('node.check_ok'),
+			status: 'success'
+		},
+		// eslint-disable-next-line prettier/prettier
+		'CHECKING': {
+			label: t('node.checking'),
+			status: 'processing'
+		},
+		// eslint-disable-next-line prettier/prettier
+		'CHECK_ERROR': {
+			label: t('node.check_error'),
+			status: 'error'
+		}
+	};
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -46,9 +66,9 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 			)
 		},
 		{
-			title: t('node.detail'),
+			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: () => <a> {t('node.checking')}</a>
+			render: (text: string) => <Badge status={stateText[text].status} text={stateText[text].label} />
 		},
 		{
 			title: t('node.log'),
@@ -60,7 +80,10 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
 			setSelectedRows(selectedRows);
-		}
+		},
+		getCheckboxProps: (record: DataType) => ({
+			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+		})
 	};
 	useImperativeHandle(ref, () => ({
 		handleOk
@@ -81,14 +104,14 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 
 	const getSpeed = async () => {
 		const data = await RequestHttp.get(apiSpeed, { params: { ClusterId: id } });
-		return data;
+		return data.Data.NodeInitDetailList;
 	};
 
 	const getData = () => {
-		const callbackFunc = (speedData: { NodeInitDetailList: DataType[] }) => {
-			setTableData(speedData.NodeInitDetailList);
+		const callbackFunc = speedData => {
+			setTableData(speedData);
 		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, ['CHECK_OK', 'CHECK_ERROR'], 20000);
+		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 5000);
 	};
 	useEffect(() => {
 		getData();

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 // import InitNodeList from './initList';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
-import useStore from '@/store/store';
+// import useStore from '@/store/store';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -22,7 +22,7 @@ const ParseStep: React.FC = forwardRef((props, ref) => {
 	const [showForm] = useState(true);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
-	const { setParsedList } = useStore();
+	// const { setParsedList } = useStore();
 	const id = searchParams.get('id');
 	const [form] = Form.useForm();
 	useImperativeHandle(ref, () => ({
@@ -34,10 +34,10 @@ const ParseStep: React.FC = forwardRef((props, ref) => {
 		const { Hostname, SshPort } = values;
 		const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
 		const validData = data.Data.ValidHostnameList;
-		validData.map((item: string) => ({
-			Hostname: item
-		}));
-		setParsedList(validData);
+		// validData.map((item: string) => ({
+		// 	Hostname: item
+		// }));
+		// setParsedList(validData);
 		return Promise.resolve(validData);
 		// errorInfo => {
 		// 	console.log('Failed:', errorInfo);

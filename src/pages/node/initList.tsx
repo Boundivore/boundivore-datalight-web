@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Table } from 'antd';
+import { Table, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
@@ -22,12 +22,20 @@ interface DataType {
 
 const InitNodeList: React.FC = forwardRef((props, ref) => {
 	const { t } = useTranslation();
-	const { setSelectedRows, parsedList, selectedRows, setDetectedList } = useStore();
-	const [tableData, setTableData] = useState(parsedList);
+	const { setSelectedRows, selectedRows, setDetectedList } = useStore();
+	const [tableData, setTableData] = useState([]);
 	let stopPolling: Function;
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiState = APIConfig.nodeInitList;
+	let stateText: { [key: string]: any };
+	stateText = {
+		// eslint-disable-next-line prettier/prettier
+		'RESOLVED': {
+			label: t('node.resolved'),
+			status: 'success'
+		}
+	};
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -51,31 +59,28 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 		{
 			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: (text: string) => <a>{text}</a>
+			render: (text: string) => <Badge status={stateText[text].status} text={stateText[text].label} />
 		}
 	];
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
 			setSelectedRows(selectedRows);
-		}
+		},
+		getCheckboxProps: (record: DataType) => ({
+			disabled: record.NodeState !== 'RESOLVED' // Column configuration not to be checked
+		})
 	};
 
 	const getState = async () => {
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
-		return data;
+		return data.Data.NodeInitDetailList;
 	};
 	const getParse = async () => {
-		const callbackFunc = (stateData: { NodeInitDetailList: DataType[] }) => {
-			// tableData.map((dataItem: string) => {
-			// 	const matchItem = stateData.NodeInitDetailList.find((stateItem: DataType) => {
-			// 		return stateItem.Hostname === dataItem;
-			// 	});
-			// 	return matchItem;
-			// });
-			setTableData(stateData.NodeInitDetailList);
+		const callbackFunc = stateData => {
+			setTableData(stateData);
 		};
-		stopPolling = pollRequest(getState, callbackFunc, ['RESOLVED'], 20000);
+		stopPolling = pollRequest(getState, callbackFunc, ['RESOLVED'], 5000);
 	};
 
 	useImperativeHandle(ref, () => ({

@@ -1,6 +1,6 @@
 import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Table } from 'antd';
+import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
@@ -17,14 +17,34 @@ interface DataType {
 	NodeState: string;
 }
 
+const stableState = ['ACTIVE', 'INACTIVE'];
+
 const DetectStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRows, detectedList, setCheckedList, setSelectedRows } = useStore();
-	const [tableData, setTableData] = useState(detectedList);
+	const { selectedRows, setCheckedList, setSelectedRows } = useStore();
+	const [tableData, setTableData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.detectList;
 	let stopPolling: Function;
+	let stateText: { [key: string]: any };
+	stateText = {
+		// eslint-disable-next-line prettier/prettier
+		'ACTIVE': {
+			label: t('node.active'),
+			status: 'success'
+		},
+		// eslint-disable-next-line prettier/prettier
+		'DETECTING': {
+			label: t('node.detecting'),
+			status: 'processing'
+		},
+		// eslint-disable-next-line prettier/prettier
+		'INACTIVE': {
+			label: t('node.inactive'),
+			status: 'error'
+		}
+	};
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -46,16 +66,19 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 			)
 		},
 		{
-			title: t('node.detail'),
+			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: () => <a> {t('node.detecting')}</a>
+			render: (text: string) => <Badge status={stateText[text].status} text={stateText[text].label} />
 		}
 	];
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
 			setSelectedRows(selectedRows);
-		}
+		},
+		getCheckboxProps: (record: DataType) => ({
+			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+		})
 	};
 	useImperativeHandle(ref, () => ({
 		handleOk
@@ -75,15 +98,15 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 
 	const getSpeed = async () => {
 		const data = await RequestHttp.get(apiSpeed, { params: { ClusterId: id } });
-		return data;
+		return data.Data.NodeInitDetailList;
 	};
 
 	const getData = () => {
-		const callbackFunc = (speedData: { NodeInitDetailList: DataType[] }) => {
+		const callbackFunc = speedData => {
 			// setTableData(tableData);
-			setTableData(speedData.NodeInitDetailList);
+			setTableData(speedData);
 		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, ['ACTIVE', 'INACTIVE'], 20000);
+		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 5000);
 	};
 	useEffect(() => {
 		getData();

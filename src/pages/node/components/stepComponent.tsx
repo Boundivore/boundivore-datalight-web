@@ -21,6 +21,10 @@ const StepComponent: React.FC = ({ config }) => {
 		// prev();
 		setStepCurrent(stepCurrent - 1);
 	};
+	const retry = () => {
+		// retry();
+		// setStepCurrent(stepCurrent - 1);
+	};
 	const cancel = () => {};
 	//   const { current } = this.state;
 	//   const { steps, handleFinish, handleCancel, commonStyle, isSuccess } = this.props;
@@ -31,6 +35,7 @@ const StepComponent: React.FC = ({ config }) => {
 				{stepConfig.content}
 				<Col style={{ marginTop: 24 }} offset={8} span={16}>
 					<Space>
+						<Button onClick={retry}>{t('retry')}</Button>
 						{stepCurrent > 0 && <Button onClick={prev}>{t('previous')}</Button>}
 						{stepConfig.operation ? (
 							<Button type="primary" onClick={stepConfig.operation.callback}>
@@ -48,7 +53,7 @@ const StepComponent: React.FC = ({ config }) => {
 								onClick={stepConfig.finish}
 								// disabled={!isSuccess}
 							>
-								完成
+								{t('done')}
 							</Button>
 						)}
 						<Button type="primary" onClick={cancel}>

@@ -1,6 +1,6 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Table } from 'antd';
+import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
@@ -43,9 +43,9 @@ const AddStep: React.FC = forwardRef((props, ref) => {
 			)
 		},
 		{
-			title: t('node.detail'),
+			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: () => <a> {t('node.detecting')}</a>
+			render: () => <Badge status="success" text={t('node.push_ok')} />
 		}
 	];
 

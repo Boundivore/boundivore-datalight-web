@@ -12,18 +12,25 @@ export const pollRequest = (
 			return;
 		}
 		const data = await pollFunction();
-		shouldCancel = data.Data.NodeInitDetailList.length
-			? data.Data.NodeInitDetailList?.every(element => {
+		shouldCancel = data.length
+			? data.every(element => {
 					return lockedState.includes(element.NodeState);
 			  })
 			: false;
+		console.log(
+			'test',
+			data.every(element => {
+				return lockedState.includes(element.NodeState);
+			})
+		);
+		console.log('test2', shouldCancel);
 		// 内部终止逻辑
 		// if (locked) {
 		// 	shouldCancel = true;
 		// 	clearInterval(poller);
 		// }
 		console.log(111, data);
-		callback(data.Data);
+		callback(data);
 	};
 	intervalFunction();
 	poller = setInterval(intervalFunction, interval);

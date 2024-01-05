@@ -55,15 +55,24 @@ export default {
 		state: '状态',
 		core: 'Core',
 		gb: 'GB',
-		speed: '速度',
+		speed: '速度:',
 		detail: '详情',
 		progress: '分发进度',
-		detecting: '检查中...',
+		fileProgress: '文件分发进度:',
 		log: '日志',
-		viewLog: '查看日志'
+		viewLog: '查看日志',
+		resolved: '主机名已解析',
+		detecting: '探测中...',
+		active: '活跃的节点',
+		inactive: '不活跃的节点',
+		checking: '节点正在检查',
+		check_ok: '节点检查成功',
+		check_error: '节点检查失败',
+		push_ok: '节点推送成功'
 	},
+	retry: '重试',
 	previous: '上一步',
 	next: '下一步',
 	cancel: '取消',
-	done: '完成'
+	done: '服役节点到指定集群'
 };
