@@ -1,5 +1,5 @@
 export const pollRequest = (
-	pollFunction: () => Promise<{ data: any }>,
+	pollFunction: () => Promise<Array<any>>,
 	callback: Function,
 	lockedState: string[],
 	interval: number = 2000
@@ -12,23 +12,12 @@ export const pollRequest = (
 			return;
 		}
 		const data = await pollFunction();
+		// 内部终止逻辑
 		shouldCancel = data.length
 			? data.every(element => {
 					return lockedState.includes(element.NodeState);
 			  })
 			: false;
-		console.log(
-			'test',
-			data.every(element => {
-				return lockedState.includes(element.NodeState);
-			})
-		);
-		console.log('test2', shouldCancel);
-		// 内部终止逻辑
-		// if (locked) {
-		// 	shouldCancel = true;
-		// 	clearInterval(poller);
-		// }
 		console.log(111, data);
 		callback(data);
 	};

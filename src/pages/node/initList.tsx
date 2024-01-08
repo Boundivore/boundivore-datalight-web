@@ -7,9 +7,7 @@ import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
-
-// import RequestHttp from '@/api';
-// import APIConfig from '@/api/config';
+import useSetStep from './hooks/useSetStep';
 
 interface DataType {
 	NodeId: React.Key;
@@ -24,14 +22,16 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 	const { t } = useTranslation();
 	const { setSelectedRows, selectedRows, setDetectedList } = useStore();
 	const [tableData, setTableData] = useState([]);
+	useSetStep('PROCEDURE_PARSE_HOSTNAME');
 	let stopPolling: Function;
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiState = APIConfig.nodeInitList;
+	// const apiSetProcedure = APIConfig.setProcedure;
+
 	let stateText: { [key: string]: any };
 	stateText = {
-		// eslint-disable-next-line prettier/prettier
-		'RESOLVED': {
+		RESOLVED: {
 			label: t('node.resolved'),
 			status: 'success'
 		}
@@ -98,9 +98,18 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 		setDetectedList(selectedRows);
 		return Promise.resolve(jobData);
 	};
+	// const setProcedure = () => {
+	// 	const params = {
+	// 		ClusterId: id,
+	// 		ProcedureStateEnum: 'PROCEDURE_PARSE_HOSTNAME',
+	// 		Tag: stepCurrentTag
+	// 	};
+	// 	const data = RequestHttp.post(apiSetProcedure, params);
+	// 	console.log(data);
+	// };
 	useEffect(() => {
 		getParse();
-
+		// setProcedure();
 		return () => stopPolling();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);

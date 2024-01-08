@@ -22,7 +22,6 @@ const ParseStep: React.FC = forwardRef((props, ref) => {
 	const [showForm] = useState(true);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
-	// const { setParsedList } = useStore();
 	const id = searchParams.get('id');
 	const [form] = Form.useForm();
 	useImperativeHandle(ref, () => ({
@@ -44,6 +43,7 @@ const ParseStep: React.FC = forwardRef((props, ref) => {
 		// }
 		// );
 	};
+
 	return (
 		<>
 			{

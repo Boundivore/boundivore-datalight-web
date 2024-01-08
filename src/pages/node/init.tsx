@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Layouts from '@/layouts';
 import { Card, Col, Row, Steps } from 'antd';
 import { CheckOutlined, CheckCircleOutlined, SolutionOutlined, FileDoneOutlined, ImportOutlined } from '@ant-design/icons';
@@ -11,15 +12,20 @@ import InitList from './initList';
 import StepComponent from './components/stepComponent';
 import DispatchStep from './dispatchStep';
 import AddStep from './addStep';
+import APIConfig from '@/api/config';
+import RequestHttp from '@/api';
 const InitNode: React.FC = () => {
 	const { t } = useTranslation();
-	const { stepCurrent } = useStore();
+	const { stepCurrent, setStepCurrent, setStepCurrentTag, stepMap } = useStore();
+	const [searchParams] = useSearchParams();
 	const parseStepRef = useRef<HTMLDivElement>(null);
 	const initListStepRef = useRef<HTMLDivElement>(null);
 	const detectStepRef = useRef<HTMLDivElement>(null);
 	const checkStepRef = useRef<HTMLDivElement>(null);
 	const dispatchStepRef = useRef<HTMLDivElement>(null);
 	const addStepRef = useRef<HTMLDivElement>(null);
+	const apiGetProcedure = APIConfig.getProcedure;
+	const id = searchParams.get('id');
 	const steps = [
 		{
 			title: t('node.parseHostname'),
@@ -110,6 +116,19 @@ const InitNode: React.FC = () => {
 			finish: handleFinish
 		}
 	];
+	const getProcedure = async () => {
+		const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
+		const {
+			Data: { Tag, ProcedureState }
+		} = data;
+		setStepCurrentTag(Tag);
+		setStepCurrent(stepMap[ProcedureState]);
+		console.log(data);
+	};
+	useEffect(() => {
+		getProcedure();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<Layouts hideSider={false}>

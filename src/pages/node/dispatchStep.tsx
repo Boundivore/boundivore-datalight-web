@@ -8,6 +8,7 @@ import useStore from '@/store/store';
 import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import useSetStep from './hooks/useSetStep';
 
 interface DataType {
 	[x: string]: any;
@@ -22,10 +23,12 @@ const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 const stableState = ['PUSH_OK', 'PUSH_ERROR'];
 
 const DispatchStep: React.FC = forwardRef(() => {
-	const { setSelectedRows, jobNodeId } = useStore();
+	// const { setSelectedRows, jobNodeId } = useStore();
+	const { setSelectedRows } = useStore();
 	const [tableData, setTableData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
+	useSetStep('PROCEDURE_DISPATCH');
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.dispatchList;
 	const apiProgress = APIConfig.dispatchProgress;
@@ -47,19 +50,34 @@ const DispatchStep: React.FC = forwardRef(() => {
 						{text ? (
 							<>
 								<Space>
-									{Number(text.TotalProgress) !== 100 ? <LoadingOutlined /> : null}
+									{Number(text?.TotalProgress) !== 100 ? <LoadingOutlined /> : null}
 									<span>
 										{t('node.fileProgress')}
-										{`${record.FileCountProgress.TotalTransferFileCount}/${record.FileCountProgress.TotalFileCount}`}
+										{`${record?.FileCountProgress.TotalTransferFileCount}/${record?.FileCountProgress.TotalFileCount}`}
 									</span>
 									<span>
 										{t('node.speed')}
-										{record.CurrentFileProgress.CurrentPrintSpeed}
+										{record?.CurrentFileProgress.CurrentPrintSpeed}
 									</span>
 								</Space>
-								<Progress percent={Number(text.TotalProgress).toFixed(2)} strokeColor={twoColors} />
+								<Progress percent={Number(text?.TotalProgress).toFixed(2)} strokeColor={twoColors} />
 							</>
-						) : null}
+						) : (
+							<>
+								<Space>
+									<LoadingOutlined />
+									<span>
+										{t('node.fileProgress')}
+										{0}
+									</span>
+									<span>
+										{t('node.speed')}
+										{0}
+									</span>
+								</Space>
+								<Progress percent={0} strokeColor={twoColors} />
+							</>
+						)}
 					</>
 				);
 			}
@@ -91,7 +109,8 @@ const DispatchStep: React.FC = forwardRef(() => {
 
 	const getSpeed = async () => {
 		const data = await RequestHttp.get(apiSpeed, { params: { ClusterId: id } });
-		const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });
+		// const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });
+		const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: '1744292802883629056' } });
 		const {
 			Data: { NodeInitDetailList }
 		} = data;
@@ -116,7 +135,7 @@ const DispatchStep: React.FC = forwardRef(() => {
 			console.log(6666, speedData);
 			setTableData(speedData);
 		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 5000);
+		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 50000);
 	};
 	useEffect(() => {
 		getData();

@@ -7,6 +7,7 @@ import useStore from '@/store/store';
 import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import useSetStep from './hooks/useSetStep';
 
 interface DataType {
 	NodeId: React.Key;
@@ -24,6 +25,7 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 	const [tableData, setTableData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
+	useSetStep('PROCEDURE_DETECT');
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.detectList;
 	let stopPolling: Function;

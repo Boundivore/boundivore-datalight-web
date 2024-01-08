@@ -8,6 +8,7 @@ import { Layout, Avatar, Popover, Menu, Breadcrumb } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import LayoutMenu from './components/menu';
 import { useTranslation } from 'react-i18next';
+import Logo from '@/assets/logo.png';
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -37,7 +38,7 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 	return (
 		<Layout className="w-full min-w-[1200px] min-h-[calc(100%-40px)]">
 			<Header className="flex items-center justify-between">
-				<div className="logo">logo</div>
+				<img src={Logo} height={60} />
 				<Popover content={content}>
 					<Avatar
 						className="bg-[#87d068]"
