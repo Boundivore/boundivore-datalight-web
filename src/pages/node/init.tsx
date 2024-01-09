@@ -11,19 +11,19 @@ import CheckStep from './checkStep';
 import InitList from './initList';
 import StepComponent from './components/stepComponent';
 import DispatchStep from './dispatchStep';
-import AddStep from './addStep';
+import DoneStep from './doneStep';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 const InitNode: React.FC = () => {
 	const { t } = useTranslation();
-	const { stepCurrent, setStepCurrent, setStepCurrentTag, stepMap } = useStore();
+	const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, setSelectedRowsList } = useStore();
 	const [searchParams] = useSearchParams();
 	const parseStepRef = useRef<HTMLDivElement>(null);
 	const initListStepRef = useRef<HTMLDivElement>(null);
 	const detectStepRef = useRef<HTMLDivElement>(null);
 	const checkStepRef = useRef<HTMLDivElement>(null);
 	const dispatchStepRef = useRef<HTMLDivElement>(null);
-	const addStepRef = useRef<HTMLDivElement>(null);
+	// const addStepRef = useRef<HTMLDivElement>(null);
 	const apiGetProcedure = APIConfig.getProcedure;
 	const id = searchParams.get('id');
 	const steps = [
@@ -81,7 +81,7 @@ const InitNode: React.FC = () => {
 		return callbackData;
 	};
 	const handleFinish = async () => {
-		const callbackData = await addStepRef.current.handleOk();
+		const callbackData = await dispatchStepRef.current.handleOk();
 		return callbackData;
 	};
 
@@ -108,21 +108,27 @@ const InitNode: React.FC = () => {
 		},
 		{
 			title: t('node.dispatch'),
-			content: <DispatchStep ref={dispatchStepRef} />
+			content: <DispatchStep ref={dispatchStepRef} />,
+			next: handleFinish
 		},
 		{
 			title: t('node.add'),
-			content: <AddStep ref={addStepRef} />,
-			finish: handleFinish
+			content: <DoneStep />
 		}
 	];
 	const getProcedure = async () => {
 		const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
 		const {
-			Data: { Tag, ProcedureState }
+			Code,
+			Data: { NodeJobId, ProcedureState, NodeInfoList }
 		} = data;
-		setStepCurrentTag(Tag);
-		setStepCurrent(stepMap[ProcedureState]);
+		if (Code === '00000') {
+			setStepCurrent(stepMap[ProcedureState]);
+			setJobNodeId(NodeJobId);
+			setSelectedRowsList(NodeInfoList);
+		} else if (Code === 'D1001') {
+			setStepCurrent(0);
+		}
 		console.log(data);
 	};
 	useEffect(() => {

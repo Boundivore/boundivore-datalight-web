@@ -36,7 +36,10 @@ export default {
 		dlcVersion: '下载版本',
 		relativeClusterId: '关联集群ID',
 		createSucc: '集群创建成功！<1>指定集群节点</1>',
-		backToList: '返回集群列表'
+		backToList: '返回集群列表',
+		list: {
+			description: '描述'
+		}
 	},
 	node: {
 		parseHostname: '解析节点主机名',

@@ -7,7 +7,6 @@ import useStore from '@/store/store';
 import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import useSetStep from './hooks/useSetStep';
 
 interface DataType {
 	NodeId: React.Key;
@@ -20,12 +19,10 @@ interface DataType {
 const stableState = ['CHECK_OK', 'CHECK_ERROR'];
 
 const CheckStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRows, setDispatchedList, setSelectedRows, setJobNodeId } = useStore();
-	// const [tableData, setTableData] = useState(checkedList);
+	const { selectedRowsList, setSelectedRowsList, setJobNodeId } = useStore();
 	const [tableData, setTableData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
-	useSetStep('PROCEDURE_CHECK');
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.checkList;
 	let stopPolling: Function;
@@ -43,6 +40,11 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		},
 		// eslint-disable-next-line prettier/prettier
 		'CHECK_ERROR': {
+			label: t('node.check_error'),
+			status: 'error'
+		},
+		// eslint-disable-next-line prettier/prettier
+		'PUSH_OK': {
 			label: t('node.check_error'),
 			status: 'error'
 		}
@@ -80,9 +82,11 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 	];
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-			setSelectedRows(selectedRows);
+			setSelectedRowsList(selectedRows);
 		},
+		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+			return NodeId;
+		}),
 		getCheckboxProps: (record: DataType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
@@ -95,17 +99,20 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'DISPATCH',
-			NodeInfoList: selectedRows.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiDispatch, params);
-		setDispatchedList(selectedRows);
 		setJobNodeId(jobData.Data.NodeJobId);
 		return Promise.resolve(jobData);
 	};
 
 	const getSpeed = async () => {
-		const data = await RequestHttp.get(apiSpeed, { params: { ClusterId: id } });
+		const params = {
+			ClusterId: id,
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+		};
+		const data = await RequestHttp.post(apiSpeed, params);
 		return data.Data.NodeInitDetailList;
 	};
 
@@ -113,7 +120,7 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		const callbackFunc = speedData => {
 			setTableData(speedData);
 		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 5000);
+		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 1000);
 	};
 	useEffect(() => {
 		getData();

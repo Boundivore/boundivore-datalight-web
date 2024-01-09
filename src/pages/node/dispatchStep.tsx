@@ -1,4 +1,4 @@
-import { useEffect, useState, forwardRef } from 'react';
+import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Progress, Space } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
@@ -8,7 +8,6 @@ import useStore from '@/store/store';
 import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import useSetStep from './hooks/useSetStep';
 
 interface DataType {
 	[x: string]: any;
@@ -22,13 +21,11 @@ interface DataType {
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 const stableState = ['PUSH_OK', 'PUSH_ERROR'];
 
-const DispatchStep: React.FC = forwardRef(() => {
-	// const { setSelectedRows, jobNodeId } = useStore();
-	const { setSelectedRows } = useStore();
+const DispatchStep: React.FC = forwardRef((props, ref) => {
+	const { jobNodeId, selectedRowsList, setSelectedRowsList } = useStore();
 	const [tableData, setTableData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
-	useSetStep('PROCEDURE_DISPATCH');
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.dispatchList;
 	const apiProgress = APIConfig.dispatchProgress;
@@ -100,17 +97,37 @@ const DispatchStep: React.FC = forwardRef(() => {
 	];
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedRows(selectedRows);
+			setSelectedRowsList(selectedRows);
 		},
+		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+			return NodeId;
+		}),
 		getCheckboxProps: (record: DataType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
 	};
+	useImperativeHandle(ref, () => ({
+		handleOk
+	}));
+	const handleOk = async () => {
+		const apiAdd = APIConfig.add;
+		const params = {
+			ClusterId: id,
+			NodeActionTypeEnum: 'ADD',
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			SshPort: 22
+		};
+		const jobData = await RequestHttp.post(apiAdd, params);
+		return Promise.resolve(jobData);
+	};
 
 	const getSpeed = async () => {
-		const data = await RequestHttp.get(apiSpeed, { params: { ClusterId: id } });
-		// const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });
-		const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: '1744292802883629056' } });
+		const params = {
+			ClusterId: id,
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+		};
+		const data = await RequestHttp.post(apiSpeed, params);
+		const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });
 		const {
 			Data: { NodeInitDetailList }
 		} = data;
@@ -126,16 +143,14 @@ const DispatchStep: React.FC = forwardRef(() => {
 				return item1;
 			}
 		});
-		console.log(12121, mergedData);
 		return mergedData;
 	};
 
 	const getData = () => {
 		const callbackFunc = speedData => {
-			console.log(6666, speedData);
 			setTableData(speedData);
 		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 50000);
+		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 1000);
 	};
 	useEffect(() => {
 		getData();

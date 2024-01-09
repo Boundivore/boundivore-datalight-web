@@ -7,7 +7,6 @@ import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
-import useSetStep from './hooks/useSetStep';
 
 interface DataType {
 	NodeId: React.Key;
@@ -17,22 +16,24 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
-
+const stableState = ['RESOLVED', 'ACTIVE'];
 const InitNodeList: React.FC = forwardRef((props, ref) => {
 	const { t } = useTranslation();
-	const { setSelectedRows, selectedRows, setDetectedList } = useStore();
+	const { setSelectedRowsList, selectedRowsList } = useStore();
 	const [tableData, setTableData] = useState([]);
-	useSetStep('PROCEDURE_PARSE_HOSTNAME');
 	let stopPolling: Function;
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiState = APIConfig.nodeInitList;
-	// const apiSetProcedure = APIConfig.setProcedure;
 
 	let stateText: { [key: string]: any };
 	stateText = {
 		RESOLVED: {
 			label: t('node.resolved'),
+			status: 'success'
+		},
+		ACTIVE: {
+			label: t('node.active'),
 			status: 'success'
 		}
 	};
@@ -64,11 +65,13 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 	];
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-			setSelectedRows(selectedRows);
+			setSelectedRowsList(selectedRows);
 		},
+		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+			return NodeId;
+		}),
 		getCheckboxProps: (record: DataType) => ({
-			disabled: record.NodeState !== 'RESOLVED' // Column configuration not to be checked
+			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
 	};
 
@@ -80,7 +83,7 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 		const callbackFunc = stateData => {
 			setTableData(stateData);
 		};
-		stopPolling = pollRequest(getState, callbackFunc, ['RESOLVED'], 5000);
+		stopPolling = pollRequest(getState, callbackFunc, stableState, 1000);
 	};
 
 	useImperativeHandle(ref, () => ({
@@ -91,25 +94,16 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'DETECT',
-			NodeInfoList: selectedRows.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiDetect, params);
-		setDetectedList(selectedRows);
+		// setDetectedList(selectedRows);
 		return Promise.resolve(jobData);
 	};
-	// const setProcedure = () => {
-	// 	const params = {
-	// 		ClusterId: id,
-	// 		ProcedureStateEnum: 'PROCEDURE_PARSE_HOSTNAME',
-	// 		Tag: stepCurrentTag
-	// 	};
-	// 	const data = RequestHttp.post(apiSetProcedure, params);
-	// 	console.log(data);
-	// };
+
 	useEffect(() => {
 		getParse();
-		// setProcedure();
 		return () => stopPolling();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);

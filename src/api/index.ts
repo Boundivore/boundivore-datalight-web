@@ -24,7 +24,7 @@ RequestHttp.interceptors.request.use(beforeRequest, (error: AxiosError) => {
 const requestSuccess = (response: AxiosResponse) => {
 	const { data } = response;
 	console.log(2222, data.Code);
-	if (data.Code !== '00000') {
+	if (data.Code !== '00000' && data.Code !== 'D1001') {
 		message.error(data.Message, 5);
 		return Promise.reject(new Error(data.Message || 'Error'));
 	} else {

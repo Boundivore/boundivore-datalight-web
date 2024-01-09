@@ -3,6 +3,7 @@ interface Actions {
 }
 
 const APIConfig: Actions = {
+	getClusterList: '/v1/master/cluster/getClusterList',
 	createCluster: '/v1/master/cluster/new',
 	getDLCVersion: '/v1/master/dlc/service/list',
 	parseHostname: '/v1/master/node/init/hostname/parse',

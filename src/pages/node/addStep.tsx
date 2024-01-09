@@ -17,7 +17,7 @@ interface DataType {
 }
 
 const AddStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRows, dispatchedList, setSelectedRows } = useStore();
+	const { selectedRows, dispatchedList } = useStore();
 	const [tableData] = useState(dispatchedList);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();

@@ -35,19 +35,19 @@ const StepComponent: React.FC = ({ config }) => {
 				{stepConfig.content}
 				<Col style={{ marginTop: 24 }} offset={8} span={16}>
 					<Space>
-						<Button onClick={retry}>{t('retry')}</Button>
-						{stepCurrent > 0 && <Button onClick={prev}>{t('previous')}</Button>}
+						{stepCurrent < config.length - 1 && <Button onClick={retry}>{t('retry')}</Button>}
+						{stepCurrent > 0 && stepCurrent < config.length - 1 && <Button onClick={prev}>{t('previous')}</Button>}
 						{stepConfig.operation ? (
 							<Button type="primary" onClick={stepConfig.operation.callback}>
 								{stepConfig.operation.label}
 							</Button>
 						) : null}
-						{stepCurrent < config.length - 1 && (
+						{stepCurrent < config.length - 2 && (
 							<Button type="primary" onClick={next}>
 								{t('next')}
 							</Button>
 						)}
-						{stepCurrent === config.length - 1 && (
+						{stepCurrent === config.length - 2 && (
 							<Button
 								type="primary"
 								onClick={stepConfig.finish}
@@ -56,9 +56,20 @@ const StepComponent: React.FC = ({ config }) => {
 								{t('done')}
 							</Button>
 						)}
-						<Button type="primary" onClick={cancel}>
-							{t('cancel')}
-						</Button>
+						{stepCurrent === config.length - 1 && (
+							<Button
+								type="primary"
+								href="/home"
+								// disabled={!isSuccess}
+							>
+								返回首页
+							</Button>
+						)}
+						{stepCurrent < config.length - 1 && (
+							<Button type="primary" onClick={cancel}>
+								{t('cancel')}
+							</Button>
+						)}
 					</Space>
 				</Col>
 			</Card>
