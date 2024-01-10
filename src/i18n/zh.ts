@@ -23,6 +23,7 @@ export default {
 		exitFullScreen: '退出全屏',
 		personalData: '个人资料',
 		changePassword: '修改密码',
+		myAccount: '我的账号',
 		logout: '退出登录'
 	},
 	cluster: {

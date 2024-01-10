@@ -10,6 +10,8 @@ const useStore = create(set => ({
 	// setCheckedList: (list: object[]) => set({ checkedList: list }),
 	// dispatchedList: [],
 	// setDispatchedList: (list: object[]) => set({ dispatchedList: list }),
+	userInfo: {},
+	setUserInfo: (info: object) => set({ userInfo: info }),
 	selectedRowsList: [],
 	setSelectedRowsList: (rows: object[]) => set({ selectedRowsList: rows }),
 	jobClusterId: '',
@@ -19,18 +21,12 @@ const useStore = create(set => ({
 	stepCurrent: 0,
 	setStepCurrent: (current: number) => set({ stepCurrent: current }),
 	stepMap: {
-		// eslint-disable-next-line prettier/prettier
-		'PROCEDURE_BEFORE_PARSE': 0,
-		// eslint-disable-next-line prettier/prettier
-		'PROCEDURE_PARSE_HOSTNAME': 1,
-		// eslint-disable-next-line prettier/prettier
-		'PROCEDURE_DETECT': 2,
-		// eslint-disable-next-line prettier/prettier
-		'PROCEDURE_CHECK': 3,
-		// eslint-disable-next-line prettier/prettier
-		'PROCEDURE_DISPATCH': 4,
-		// eslint-disable-next-line prettier/prettier
-		'PROCEDURE_ADD_NODE_DONE': 5
+		PROCEDURE_BEFORE_PARSE: 0,
+		PROCEDURE_PARSE_HOSTNAME: 1,
+		PROCEDURE_DETECT: 2,
+		PROCEDURE_CHECK: 3,
+		PROCEDURE_DISPATCH: 4,
+		PROCEDURE_ADD_NODE_DONE: 5
 	}
 }));
 

@@ -3,6 +3,8 @@ interface Actions {
 }
 
 const APIConfig: Actions = {
+	// auth
+	login: '/v1/master/user/login',
 	getClusterList: '/v1/master/cluster/getClusterList',
 	createCluster: '/v1/master/cluster/new',
 	getDLCVersion: '/v1/master/dlc/service/list',

@@ -4,7 +4,7 @@
  */
 // import { Outlet } from 'react-router-dom';
 import { ReactNode, useState } from 'react';
-import { Layout, Avatar, Popover, Menu, Breadcrumb } from 'antd';
+import { Layout, Avatar, Popover, Menu, Breadcrumb, App } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import LayoutMenu from './components/menu';
 import { useTranslation } from 'react-i18next';
@@ -21,11 +21,12 @@ interface MyComponentProps {
 const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 	const { t } = useTranslation();
 	const [collapsed, setCollapsed] = useState(false);
+	const { modal } = App.useApp();
 	const content = (
 		<Menu
 			items={[
 				{
-					label: '我的帐户',
+					label: t('header.myAccount'),
 					key: '1'
 				},
 				{
@@ -33,35 +34,46 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 					key: '2'
 				}
 			]}
+			onClick={({ item, key }) => {
+				console.log(item);
+				if (key === '2') {
+					modal.confirm({
+						title: 'This is a warning message',
+						content: 'some messages...some messages...'
+					});
+				}
+			}}
 		></Menu>
 	);
 	return (
-		<Layout className="w-full min-w-[1200px] min-h-[calc(100%-40px)]">
-			<Header className="flex items-center justify-between">
-				<img src={Logo} height={60} />
-				<Popover content={content}>
-					<Avatar
-						className="bg-[#87d068]"
-						src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-						size="large"
-						icon={<UserOutlined />}
-					/>
-				</Popover>
-			</Header>
-			<Layout>
-				{!hideSider ? (
-					<Sider theme="light" collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
-						{/* <Header>Logo</Header> */}
-						<LayoutMenu />
-					</Sider>
-				) : null}
-				<Content>
-					<Breadcrumb />
-					{children}
-					<Footer>Footer</Footer>
-				</Content>
+		<App>
+			<Layout className="w-full min-w-[1200px] min-h-[calc(100%-40px)]">
+				<Header className="flex items-center justify-between">
+					<img src={Logo} height={60} />
+					<Popover content={content}>
+						<Avatar
+							className="bg-[#87d068]"
+							src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
+							size="large"
+							icon={<UserOutlined />}
+						/>
+					</Popover>
+				</Header>
+				<Layout>
+					{!hideSider ? (
+						<Sider theme="light" collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
+							{/* <Header>Logo</Header> */}
+							<LayoutMenu />
+						</Sider>
+					) : null}
+					<Content>
+						<Breadcrumb />
+						{children}
+						<Footer>Footer</Footer>
+					</Content>
+				</Layout>
 			</Layout>
-		</Layout>
+		</App>
 	);
 };
 
