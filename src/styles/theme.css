@@ -2,7 +2,7 @@
 	background: red;
 }
 .my-layout {
-	min-height: calc(100%-40px);
+	min-height: calc(100vh - 40px);
 	background-color: rgb(244, 247, 254)!important;;
 	.ant-layout-sider {
 		background-color: #fffffc;

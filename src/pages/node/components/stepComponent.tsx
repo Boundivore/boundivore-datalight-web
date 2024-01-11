@@ -57,13 +57,22 @@ const StepComponent: React.FC = ({ config }) => {
 							</Button>
 						)}
 						{stepCurrent === config.length - 1 && (
-							<Button
-								type="primary"
-								href="/home"
-								// disabled={!isSuccess}
-							>
-								返回首页
-							</Button>
+							<>
+								<Button
+									type="primary"
+									href="/home"
+									// disabled={!isSuccess}
+								>
+									返回首页
+								</Button>
+								<Button
+									type="primary"
+									// disabled={!isSuccess}
+									onClick={next}
+								>
+									部署服务
+								</Button>
+							</>
 						)}
 						{stepCurrent < config.length - 1 && (
 							<Button type="primary" onClick={cancel}>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App as AppAnt } from 'antd';
 import { useRoutes } from 'react-router-dom';
 import routes from '~react-pages';
 import type { Locale } from 'antd/es/locale';
@@ -11,9 +11,11 @@ function App() {
 	const [locale] = useState<Locale>(zhCN);
 
 	return (
-		<ConfigProvider locale={locale}>
-			<ThemeProvider>{useRoutes(routes)}</ThemeProvider>
-		</ConfigProvider>
+		<AppAnt>
+			<ConfigProvider locale={locale}>
+				<ThemeProvider>{useRoutes(routes)}</ThemeProvider>
+			</ConfigProvider>
+		</AppAnt>
 	);
 }
 

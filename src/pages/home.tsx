@@ -1,11 +1,12 @@
 import Layouts from '@/layouts';
-import { Table, Card, Button } from 'antd';
+import { Table, Button, Card, App } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import useStore from '@/store/store';
 
 interface DataType {
 	ClusterId: number;
@@ -44,7 +45,9 @@ const columns: ColumnsType<DataType> = [
 const Home: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const { isNeedChangePassword } = useStore();
 	const [tableData, setTableData] = useState([]);
+	const { modal } = App.useApp();
 	const api = APIConfig.getClusterList;
 	const getData = async () => {
 		const data = await RequestHttp.get(api);
@@ -55,11 +58,16 @@ const Home: React.FC = () => {
 	};
 	useEffect(() => {
 		getData();
+		isNeedChangePassword &&
+			modal.confirm({
+				title: 'This is a warning message',
+				content: 'some messages...some messages...'
+			});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
 		<Layouts>
-			<Card style={{ width: '96%', height: 'calc(100% - 40px)', margin: '20px auto' }}>
+			<Card className="h-[calc(100%-100px)] min-h-[600px] m-[20px]">
 				<Button
 					type="primary"
 					onClick={() => {

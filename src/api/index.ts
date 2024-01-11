@@ -23,10 +23,12 @@ RequestHttp.interceptors.request.use(beforeRequest, (error: AxiosError) => {
 // 响应拦截器
 const requestSuccess = (response: AxiosResponse) => {
 	const { data } = response;
-	console.log(2222, data.Code);
-	if (data.Code !== '00000' && data.Code !== 'D1001') {
-		message.error(data.Message, 5);
-		return Promise.reject(new Error(data.Message || 'Error'));
+	const { Code, Message } = data;
+	console.log(2222, Code);
+	if (Code !== '00000' && Code !== 'D1001') {
+		message.error(Message, 5);
+		Code[0] === 'H' && (window.location.href = '/auth/login');
+		return Promise.reject(new Error(Message || 'Error'));
 	} else {
 		return Promise.resolve(data);
 	}

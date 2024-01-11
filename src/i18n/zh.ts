@@ -1,7 +1,9 @@
 export default {
 	login: {
 		confirm: '登录',
-		reset: '重置'
+		reset: '重置',
+		principal: '账号',
+		credential: '登录凭证'
 	},
 	home: {
 		welcome: '欢迎使用'
@@ -74,9 +76,18 @@ export default {
 		check_error: '节点检查失败',
 		push_ok: '节点推送成功'
 	},
+	service: {
+		selectService: '选择服务',
+		selectComponent: '选择组件',
+		preConfig: '预配置服务',
+		deployOverview: '部署概览',
+		deployStep: '部署进度展示',
+		deploySuccess: '部署成功，完成'
+	},
 	retry: '重试',
 	previous: '上一步',
 	next: '下一步',
 	cancel: '取消',
-	done: '服役节点到指定集群'
+	done: '服役节点到指定集群',
+	poweredBy: 'powered by @Boundivore'
 };

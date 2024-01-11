@@ -20,28 +20,13 @@ interface DataType {
 const stableState = ['ACTIVE', 'INACTIVE'];
 
 const DetectStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRowsList, setSelectedRowsList } = useStore();
+	const { selectedRowsList, setSelectedRowsList, stateText } = useStore();
 	const [tableData, setTableData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.detectList;
 	let stopPolling: Function;
-	let stateText: { [key: string]: any };
-	stateText = {
-		ACTIVE: {
-			label: t('node.active'),
-			status: 'success'
-		},
-		DETECTING: {
-			label: t('node.detecting'),
-			status: 'processing'
-		},
-		INACTIVE: {
-			label: t('node.inactive'),
-			status: 'error'
-		}
-	};
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -65,12 +50,11 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 		{
 			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: (text: string) => <Badge status={stateText[text].status} text={stateText[text].label} />
+			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
 		}
 	];
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
 			setSelectedRowsList(selectedRows);
 		},
 		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
