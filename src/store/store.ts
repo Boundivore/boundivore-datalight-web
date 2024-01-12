@@ -19,7 +19,8 @@ const useStore = create(set => ({
 		PROCEDURE_DETECT: 2,
 		PROCEDURE_CHECK: 3,
 		PROCEDURE_DISPATCH: 4,
-		PROCEDURE_ADD_NODE_DONE: 5
+		PROCEDURE_START_WORKER: 5,
+		PROCEDURE_ADD_NODE_DONE: 6
 	},
 	stateText: {
 		RESOLVED: {
@@ -50,12 +51,42 @@ const useStore = create(set => ({
 			label: 'node.check_error',
 			status: 'error'
 		},
+		PUSHING: {
+			label: 'node.pushing',
+			status: 'processing'
+		},
 		PUSH_OK: {
-			label: 'node.check_error',
+			label: 'node.push_ok',
+			status: 'success'
+		},
+		PUSH_ERROR: {
+			label: 'node.push_ok',
+			status: 'error'
+		},
+		START_WORKER_OK: {
+			label: 'node.start_worker_ok',
+			status: 'success'
+		},
+		STARTING_WORKER: {
+			label: 'node.starting_worker',
+			status: 'success'
+		},
+		START_WORKER_ERROR: {
+			label: 'node.start_worker_error',
 			status: 'error'
 		}
 	},
-	stableState: ['RESOLVED', 'ACTIVE', 'INACTIVE', 'CHECK_OK', 'CHECK_ERROR', 'PUSH_OK', 'PUSH_ERROR']
+	stableState: [
+		'RESOLVED',
+		'ACTIVE',
+		'INACTIVE',
+		'CHECK_OK',
+		'CHECK_ERROR',
+		'PUSH_OK',
+		'PUSH_ERROR',
+		'START_WORKER_OK',
+		'START_WORKER_ERROR'
+	]
 }));
 export const usePersistStore = create(
 	persist(

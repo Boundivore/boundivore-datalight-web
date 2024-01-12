@@ -19,6 +19,8 @@ const APIConfig: Actions = {
 	dispatch: '/v1/master/node/init/dispatch',
 	dispatchList: '/v1/master/node/init/dispatch/list',
 	dispatchProgress: '/v1/master/node/job/dispatch/progress', //轮询接口
+	startWorker: '/v1/master/node/init/startWorker',
+	startWorkerList: '/v1/master/node/init/startWorker/list', //轮询接口
 	add: '/v1/master/node/init/add',
 	getProcedure: '/v1/master/init/procedure/get',
 	setProcedure: '/v1/master/init/procedure/persist'

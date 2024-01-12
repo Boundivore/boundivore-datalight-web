@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +6,7 @@ import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import usePolling from './hooks/usePolling';
 
 interface DataType {
 	NodeId: React.Key;
@@ -16,9 +17,8 @@ interface DataType {
 	NodeState: string;
 }
 
-const AddStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRows, dispatchedList } = useStore();
-	const [tableData] = useState(dispatchedList);
+const StartWorkerStep: React.FC = forwardRef((props, ref) => {
+	const { selectedRowsList, setSelectedRowsList, stateText, stableState } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -45,7 +45,7 @@ const AddStep: React.FC = forwardRef((props, ref) => {
 		{
 			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: () => <Badge status="success" text={t('node.push_ok')} />
+			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
 		}
 	];
 
@@ -57,7 +57,7 @@ const AddStep: React.FC = forwardRef((props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'ADD',
-			NodeInfoList: selectedRows.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiAdd, params);
@@ -65,9 +65,24 @@ const AddStep: React.FC = forwardRef((props, ref) => {
 	};
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedRows(selectedRows);
-		}
+			setSelectedRowsList(selectedRows);
+		},
+		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+			return NodeId;
+		}),
+		getCheckboxProps: (record: DataType) => ({
+			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+		})
 	};
+	const getList = async () => {
+		const params = {
+			ClusterId: id,
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+		};
+		const data = await RequestHttp.post(APIConfig.startWorkerList, params);
+		return data.Data.NodeInitDetailList;
+	};
+	const tableData = usePolling(getList, stableState, 1000);
 	return (
 		<Table
 			rowSelection={{
@@ -79,4 +94,4 @@ const AddStep: React.FC = forwardRef((props, ref) => {
 		/>
 	);
 });
-export default AddStep;
+export default StartWorkerStep;

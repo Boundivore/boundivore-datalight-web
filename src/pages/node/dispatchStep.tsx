@@ -114,14 +114,14 @@ const DispatchStep: React.FC = forwardRef((props, ref) => {
 		handleOk
 	}));
 	const handleOk = async () => {
-		const apiAdd = APIConfig.add;
+		const apiStartWorker = APIConfig.startWorker;
 		const params = {
 			ClusterId: id,
-			NodeActionTypeEnum: 'ADD',
+			NodeActionTypeEnum: 'START_WORKER',
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
-		const jobData = await RequestHttp.post(apiAdd, params);
+		const jobData = await RequestHttp.post(apiStartWorker, params);
 		return Promise.resolve(jobData);
 	};
 

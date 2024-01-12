@@ -54,7 +54,7 @@ const LoginPage: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<div className="bg-[url('/loginBg.jpg')] bg-cover bg-center h-screen flex">
+		<div className="min-w-[1200px] bg-[url('/loginBg.jpg')] bg-cover bg-center h-screen flex">
 			<Row className="w-8/12 height-[150] m-auto p-auto border border-blue-500 shadow-2xl shadow-blue-500">
 				{/* <Col span={12} className="bg-[url('/login.png')] bg-cover bg-center"></Col> */}
 				<Col span={12} className="pt-20 pb-10 px-10 flex items-center justify-center flex-col">

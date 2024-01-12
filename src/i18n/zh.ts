@@ -69,6 +69,7 @@ export default {
 		progress: '分发进度',
 		fileProgress: '文件分发进度:',
 		fileName: '文件名:',
+		startWorker: '启动节点worker进程',
 		log: '日志',
 		viewLog: '查看日志',
 		resolved: '主机名已解析',
@@ -78,7 +79,11 @@ export default {
 		checking: '节点正在检查',
 		check_ok: '节点检查成功',
 		check_error: '节点检查失败',
-		push_ok: '节点推送成功'
+		push_ok: '节点推送成功',
+		push_error: '节点推送失败',
+		starting_worker: '正在启动Worker',
+		start_worker_ok: '启动Woker成功',
+		start_worker_error: '启动Worker失败'
 	},
 	service: {
 		selectService: '选择服务',

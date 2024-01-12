@@ -11,81 +11,75 @@ import CheckStep from './checkStep';
 import InitList from './initList';
 import StepComponent from './components/stepComponent';
 import DispatchStep from './dispatchStep';
+import StartWorkerStep from './startWorkerStep';
 import DoneStep from './doneStep';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 const InitNode: React.FC = () => {
 	const { t } = useTranslation();
-	const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, setSelectedRowsList } = useStore();
+	const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, selectedRowsList, setSelectedRowsList } = useStore();
 	const [searchParams] = useSearchParams();
 	const parseStepRef = useRef<HTMLDivElement>(null);
 	const initListStepRef = useRef<HTMLDivElement>(null);
 	const detectStepRef = useRef<HTMLDivElement>(null);
 	const checkStepRef = useRef<HTMLDivElement>(null);
 	const dispatchStepRef = useRef<HTMLDivElement>(null);
+	const startWorkerStepRef = useRef<HTMLDivElement>(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
 	const apiGetProcedure = APIConfig.getProcedure;
 	const id = searchParams.get('id');
 	const steps = [
 		{
 			title: t('node.parseHostname'),
-			// icon: <SolutionOutlined />,
 			key: 0
 		},
 		{
 			title: t('node.chooseHostname'),
-			// icon: <SolutionOutlined />,
 			key: 1
 		},
 		{
 			title: t('node.detect'),
-			// icon: <CheckOutlined />,
 			key: 2
 		},
 		{
 			title: t('node.check'),
-			// icon: <FileDoneOutlined />,
 			key: 3
 		},
 		{
 			title: t('node.dispatch'),
-			// icon: <ImportOutlined />,
 			key: 4
 		},
 		{
-			title: t('node.add'),
-			// icon: <CheckCircleOutlined />,
+			title: t('node.startWorker'),
 			key: 5
 		},
 		{
-			title: t('service.selectService'),
-			// icon: <CheckCircleOutlined />,
+			title: t('node.add'),
 			key: 6
 		},
 		{
-			title: t('service.selectComponent'),
-			// icon: <CheckCircleOutlined />,
+			title: t('service.selectService'),
 			key: 7
 		},
 		{
-			title: t('service.preConfig'),
-			// icon: <CheckCircleOutlined />,
+			title: t('service.selectComponent'),
 			key: 8
 		},
 		{
-			title: t('service.deployOverview'),
-			// icon: <CheckCircleOutlined />,
+			title: t('service.preConfig'),
 			key: 9
 		},
 		{
-			title: t('service.deployStep'),
-			// icon: <CheckCircleOutlined />,
+			title: t('service.deployOverview'),
 			key: 10
 		},
 		{
-			title: t('service.deploySuccess'),
-			// icon: <CheckCircleOutlined />,
+			title: t('service.deployStep'),
 			key: 11
+		},
+		{
+			title: t('service.deploySuccess'),
+			key: 12
 		}
 	];
 	const nextList = async () => {
@@ -104,8 +98,12 @@ const InitNode: React.FC = () => {
 		const callbackData = await checkStepRef.current.handleOk();
 		return callbackData;
 	};
-	const handleFinish = async () => {
+	const nextStartWorker = async () => {
 		const callbackData = await dispatchStepRef.current.handleOk();
+		return callbackData;
+	};
+	const nextAdd = async () => {
+		const callbackData = await startWorkerStepRef.current.handleOk();
 		return callbackData;
 	};
 
@@ -133,7 +131,16 @@ const InitNode: React.FC = () => {
 		{
 			title: t('node.dispatch'),
 			content: <DispatchStep ref={dispatchStepRef} />,
-			next: handleFinish
+			nextStep: nextStartWorker
+		},
+		{
+			title: t('node.startWorker'),
+			content: <StartWorkerStep ref={startWorkerStepRef} />,
+			nextStep: nextAdd
+		},
+		{
+			title: t('node.add'),
+			content: <DoneStep />
 		},
 		{
 			title: t('node.add'),
@@ -169,7 +176,7 @@ const InitNode: React.FC = () => {
 					</Card>
 				</Col>
 				<Col span={18} style={{ height: '100%' }}>
-					<StepComponent config={stepConfig} />
+					{selectedRowsList.length ? <StepComponent config={stepConfig} /> : null}
 				</Col>
 			</Row>
 		</Layouts>

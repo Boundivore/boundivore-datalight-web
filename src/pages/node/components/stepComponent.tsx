@@ -47,16 +47,16 @@ const StepComponent: React.FC = ({ config }) => {
 								{t('next')}
 							</Button>
 						)}
-						{stepCurrent === config.length - 2 && (
+						{/* {stepCurrent === 6 && (
 							<Button
 								type="primary"
 								onClick={stepConfig.finish}
 								// disabled={!isSuccess}
 							>
-								{t('done')}
+								{t('node.startWorker')}
 							</Button>
-						)}
-						{stepCurrent === config.length - 1 && (
+						)} */}
+						{stepCurrent === 6 && (
 							<>
 								<Button
 									type="primary"
