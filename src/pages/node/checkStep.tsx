@@ -1,12 +1,12 @@
-import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
-import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import usePolling from './hooks/usePolling';
 
 interface DataType {
 	NodeId: React.Key;
@@ -16,39 +16,13 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
-const stableState = ['CHECK_OK', 'CHECK_ERROR'];
 
 const CheckStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRowsList, setSelectedRowsList, setJobNodeId } = useStore();
-	const [tableData, setTableData] = useState([]);
+	const { selectedRowsList, setSelectedRowsList, setJobNodeId, stateText, stableState } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.checkList;
-	let stopPolling: Function;
-	let stateText: { [key: string]: any };
-	stateText = {
-		// eslint-disable-next-line prettier/prettier
-		'CHECK_OK': {
-			label: t('node.check_ok'),
-			status: 'success'
-		},
-		// eslint-disable-next-line prettier/prettier
-		'CHECKING': {
-			label: t('node.checking'),
-			status: 'processing'
-		},
-		// eslint-disable-next-line prettier/prettier
-		'CHECK_ERROR': {
-			label: t('node.check_error'),
-			status: 'error'
-		},
-		// eslint-disable-next-line prettier/prettier
-		'PUSH_OK': {
-			label: t('node.check_error'),
-			status: 'error'
-		}
-	};
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -72,7 +46,7 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		{
 			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: (text: string) => <Badge status={stateText[text].status} text={stateText[text].label} />
+			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
 		},
 		{
 			title: t('node.log'),
@@ -115,18 +89,7 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		const data = await RequestHttp.post(apiSpeed, params);
 		return data.Data.NodeInitDetailList;
 	};
-
-	const getData = () => {
-		const callbackFunc = speedData => {
-			setTableData(speedData);
-		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 1000);
-	};
-	useEffect(() => {
-		getData();
-		return () => stopPolling();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	const tableData = usePolling(getSpeed, stableState, 1000);
 	return (
 		<Table
 			rowSelection={{

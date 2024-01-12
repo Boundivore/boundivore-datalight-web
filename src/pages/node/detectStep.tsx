@@ -1,12 +1,12 @@
-import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
-import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import usePolling from './hooks/usePolling';
 
 interface DataType {
 	NodeId: React.Key;
@@ -17,16 +17,12 @@ interface DataType {
 	NodeState: string;
 }
 
-const stableState = ['ACTIVE', 'INACTIVE'];
-
 const DetectStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRowsList, setSelectedRowsList, stateText } = useStore();
-	const [tableData, setTableData] = useState([]);
+	const { selectedRowsList, setSelectedRowsList, stateText, stableState } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.detectList;
-	let stopPolling: Function;
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -87,18 +83,7 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 		const data = await RequestHttp.post(apiSpeed, params);
 		return data.Data.NodeInitDetailList;
 	};
-
-	const getData = () => {
-		const callbackFunc = speedData => {
-			setTableData(speedData);
-		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 1000);
-	};
-	useEffect(() => {
-		getData();
-		return () => stopPolling();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	const tableData = usePolling(getSpeed, stableState, 1000);
 	return (
 		<Table
 			rowSelection={{

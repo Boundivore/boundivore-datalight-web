@@ -37,9 +37,25 @@ const useStore = create(set => ({
 		INACTIVE: {
 			label: 'node.inactive',
 			status: 'error'
+		},
+		CHECK_OK: {
+			label: 'node.check_ok',
+			status: 'success'
+		},
+		CHECKING: {
+			label: 'node.checking',
+			status: 'processing'
+		},
+		CHECK_ERROR: {
+			label: 'node.check_error',
+			status: 'error'
+		},
+		PUSH_OK: {
+			label: 'node.check_error',
+			status: 'error'
 		}
 	},
-	stableState: []
+	stableState: ['RESOLVED', 'ACTIVE', 'INACTIVE', 'CHECK_OK', 'CHECK_ERROR', 'PUSH_OK', 'PUSH_ERROR']
 }));
 export const usePersistStore = create(
 	persist(

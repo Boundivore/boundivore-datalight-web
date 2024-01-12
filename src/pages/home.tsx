@@ -60,8 +60,8 @@ const Home: React.FC = () => {
 		getData();
 		isNeedChangePassword &&
 			modal.confirm({
-				title: 'This is a warning message',
-				content: 'some messages...some messages...'
+				title: t('login.changePassword'),
+				content: t('login.changePasswordText')
 			});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);

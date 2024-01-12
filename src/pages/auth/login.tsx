@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
 	};
 	const isLogin = async () => {
 		const apiIsLogin = APIConfig.isLogin;
-		const loginData = await RequestHttp.get(apiIsLogin, { params: { UserId: userInfo.userId } });
+		const loginData = await RequestHttp.get(apiIsLogin);
 		loginData.Data && navigate('/home');
 	};
 	useEffect(() => {

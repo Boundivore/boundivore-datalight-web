@@ -3,7 +3,10 @@ export default {
 		confirm: '登录',
 		reset: '重置',
 		principal: '账号',
-		credential: '登录凭证'
+		credential: '登录凭证',
+		confirmLogout: '您确定退出登录吗？',
+		changePassword: '请修改密码',
+		changePasswordText: '请前往修改密码页面修改密码'
 	},
 	home: {
 		welcome: '欢迎使用'
@@ -65,6 +68,7 @@ export default {
 		detail: '详情',
 		progress: '分发进度',
 		fileProgress: '文件分发进度:',
+		fileName: '文件名:',
 		log: '日志',
 		viewLog: '查看日志',
 		resolved: '主机名已解析',
@@ -89,5 +93,6 @@ export default {
 	next: '下一步',
 	cancel: '取消',
 	done: '服役节点到指定集群',
-	poweredBy: 'powered by @Boundivore'
+	poweredBy: 'powered by @Boundivore',
+	confirm: '确认'
 };

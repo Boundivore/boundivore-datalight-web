@@ -8,20 +8,25 @@ import { Layout, Avatar, Popover, Menu, Breadcrumb, App } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import LayoutMenu from './components/menu';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import Logo from '@/assets/logo.png';
+import APIConfig from '@/api/config';
+import RequestHttp from '@/api';
 
 const { Header, Footer, Sider, Content } = Layout;
 
 // 定义一个接口，描述组件的 props
 interface MyComponentProps {
-	children: ReactNode; // ReactNode 是一个表示任何可以在 React 中渲染的节点的类型
+	children: ReactNode;
 	hideSider?: boolean;
 }
 
 const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 	const { t } = useTranslation();
 	const [collapsed, setCollapsed] = useState(false);
+	const navigate = useNavigate();
 	const { modal } = App.useApp();
+	const apiLogout = APIConfig.logout;
 	const content = (
 		<Menu
 			items={[
@@ -34,12 +39,16 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 					key: '2'
 				}
 			]}
-			onClick={({ item, key }) => {
-				console.log(item);
+			onClick={({ key }) => {
 				if (key === '2') {
 					modal.confirm({
-						title: 'This is a warning message',
-						content: 'some messages...some messages...'
+						title: t('login.confirmLogout'),
+						okText: t('confirm'),
+						cancelText: t('cancel'),
+						onOk: async () => {
+							const data = await RequestHttp.get(apiLogout);
+							data.Code === '00000' && navigate('/auth/login');
+						}
 					});
 				}
 			}}

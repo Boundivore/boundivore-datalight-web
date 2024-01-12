@@ -1,14 +1,15 @@
-import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Progress, Space } from 'antd';
+import { Table, Progress, Space, Typography } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
-import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import usePolling from './hooks/usePolling';
 
+const { Text } = Typography;
 interface DataType {
 	[x: string]: any;
 	NodeId: React.Key;
@@ -19,17 +20,14 @@ interface DataType {
 	NodeState: string;
 }
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
-const stableState = ['PUSH_OK', 'PUSH_ERROR'];
 
 const DispatchStep: React.FC = forwardRef((props, ref) => {
-	const { jobNodeId, selectedRowsList, setSelectedRowsList } = useStore();
-	const [tableData, setTableData] = useState([]);
+	const { jobNodeId, selectedRowsList, setSelectedRowsList, stableState } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.dispatchList;
 	const apiProgress = APIConfig.dispatchProgress;
-	let stopPolling: Function;
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -48,14 +46,20 @@ const DispatchStep: React.FC = forwardRef((props, ref) => {
 							<>
 								<Space>
 									{Number(text?.TotalProgress) !== 100 ? <LoadingOutlined /> : null}
-									<span>
+									<Text ellipsis={true} className="w-[150px]">
 										{t('node.fileProgress')}
 										{`${record?.FileCountProgress.TotalTransferFileCount}/${record?.FileCountProgress.TotalFileCount}`}
-									</span>
-									<span>
+									</Text>
+									{Number(text?.TotalProgress) !== 100 ? (
+										<Text ellipsis={true} className="w-[150px]">
+											{t('node.fileName')}
+											{record?.CurrentFileProgress.CurrentFilename}
+										</Text>
+									) : null}
+									<Text ellipsis={true} className="w-[100px]">
 										{t('node.speed')}
 										{record?.CurrentFileProgress.CurrentPrintSpeed}
-									</span>
+									</Text>
 								</Space>
 								<Progress percent={Number(text?.TotalProgress).toFixed(2)} strokeColor={twoColors} />
 							</>
@@ -146,17 +150,7 @@ const DispatchStep: React.FC = forwardRef((props, ref) => {
 		return mergedData;
 	};
 
-	const getData = () => {
-		const callbackFunc = speedData => {
-			setTableData(speedData);
-		};
-		stopPolling = pollRequest(() => getSpeed(), callbackFunc, stableState, 1000);
-	};
-	useEffect(() => {
-		getData();
-		return () => stopPolling();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	const tableData = usePolling(getSpeed, stableState, 1000);
 	return (
 		<Table
 			rowSelection={{

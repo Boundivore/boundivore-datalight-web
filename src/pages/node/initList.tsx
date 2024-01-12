@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useImperativeHandle, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Table, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { pollRequest } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
+import usePolling from './hooks/usePolling';
 
 interface DataType {
 	NodeId: React.Key;
@@ -16,27 +16,12 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
-const stableState = ['RESOLVED', 'ACTIVE'];
 const InitNodeList: React.FC = forwardRef((props, ref) => {
 	const { t } = useTranslation();
-	const { setSelectedRowsList, selectedRowsList } = useStore();
-	const [tableData, setTableData] = useState([]);
-	let stopPolling: Function;
+	const { setSelectedRowsList, selectedRowsList, stateText, stableState } = useStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiState = APIConfig.nodeInitList;
-
-	let stateText: { [key: string]: any };
-	stateText = {
-		RESOLVED: {
-			label: t('node.resolved'),
-			status: 'success'
-		},
-		ACTIVE: {
-			label: t('node.active'),
-			status: 'success'
-		}
-	};
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -79,12 +64,7 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
 		return data.Data.NodeInitDetailList;
 	};
-	const getParse = async () => {
-		const callbackFunc = stateData => {
-			setTableData(stateData);
-		};
-		stopPolling = pollRequest(getState, callbackFunc, stableState, 1000);
-	};
+	const tableData = usePolling(getState, stableState, 1000);
 
 	useImperativeHandle(ref, () => ({
 		handleOk
@@ -98,15 +78,9 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiDetect, params);
-		// setDetectedList(selectedRows);
 		return Promise.resolve(jobData);
 	};
 
-	useEffect(() => {
-		getParse();
-		return () => stopPolling();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 	return (
 		<Table
 			rowSelection={{
