@@ -23,7 +23,13 @@ const APIConfig: Actions = {
 	startWorkerList: '/v1/master/node/init/startWorker/list', //轮询接口
 	add: '/v1/master/node/init/add',
 	getProcedure: '/v1/master/init/procedure/get',
-	setProcedure: '/v1/master/init/procedure/persist'
+	setProcedure: '/v1/master/init/procedure/persist',
+	// 服务相关
+	serviceList: '/v1/master/service/list',
+	selectService: '/v1/master/service/select',
+	// 组件相关
+	componentList: '/v1/master/component/list',
+	selectComponent: '/v1/master/component/select'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

@@ -1,8 +1,23 @@
+/**
+ * Copyright (C) <2023> <Boundivore> <boundivore@foxmail.com>
+ * <p>
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Apache License, Version 2.0
+ * as published by the Apache Software Foundation.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * Apache License, Version 2.0 for more details.
+ * <p>
+ * You should have received a copy of the Apache License, Version 2.0
+ * along with this program; if not, you can obtain a copy at
+ * http://www.apache.org/licenses/LICENSE-2.0.
+ */
 import React, { useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Layouts from '@/layouts';
 import { Card, Col, Row, Steps } from 'antd';
-// import { CheckOutlined, CheckCircleOutlined, SolutionOutlined, FileDoneOutlined, ImportOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
 import ParseStep from './parseStep';
@@ -13,11 +28,13 @@ import StepComponent from './components/stepComponent';
 import DispatchStep from './dispatchStep';
 import StartWorkerStep from './startWorkerStep';
 import DoneStep from './doneStep';
+import SelectServiceStep from './selectServiceStep';
+import SelectComStep from './selectComStep';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 const InitNode: React.FC = () => {
 	const { t } = useTranslation();
-	const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, selectedRowsList, setSelectedRowsList } = useStore();
+	const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, setSelectedRowsList } = useStore();
 	const [searchParams] = useSearchParams();
 	const parseStepRef = useRef<HTMLDivElement>(null);
 	const initListStepRef = useRef<HTMLDivElement>(null);
@@ -25,6 +42,7 @@ const InitNode: React.FC = () => {
 	const checkStepRef = useRef<HTMLDivElement>(null);
 	const dispatchStepRef = useRef<HTMLDivElement>(null);
 	const startWorkerStepRef = useRef<HTMLDivElement>(null);
+	const selectServiceRef = useRef<HTMLDivElement>(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
 	const apiGetProcedure = APIConfig.getProcedure;
 	const id = searchParams.get('id');
@@ -106,6 +124,10 @@ const InitNode: React.FC = () => {
 		const callbackData = await startWorkerStepRef.current.handleOk();
 		return callbackData;
 	};
+	const nextComponent = async () => {
+		const callbackData = await selectServiceRef.current.handleOk();
+		return callbackData;
+	};
 
 	const stepConfig = [
 		{
@@ -143,8 +165,14 @@ const InitNode: React.FC = () => {
 			content: <DoneStep />
 		},
 		{
-			title: t('node.add'),
-			content: <DoneStep />
+			title: t('service.selectService'),
+			content: <SelectServiceStep ref={selectServiceRef} />,
+			nextStep: nextComponent
+		},
+		{
+			title: t('service.selectComponent'),
+			content: <SelectComStep ref={selectServiceRef} />,
+			nextStep: nextComponent
 		}
 	];
 	const getProcedure = async () => {
@@ -176,7 +204,8 @@ const InitNode: React.FC = () => {
 					</Card>
 				</Col>
 				<Col span={18} style={{ height: '100%' }}>
-					{selectedRowsList.length ? <StepComponent config={stepConfig} /> : null}
+					{/* {selectedRowsList.length ? <StepComponent config={stepConfig} /> : null} */}
+					<StepComponent config={stepConfig} />
 				</Col>
 			</Row>
 		</Layouts>

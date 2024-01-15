@@ -15,7 +15,7 @@ export const pollRequest = (
 		// 内部终止逻辑
 		shouldCancel = data.length
 			? data.every(element => {
-					return lockedState.includes(element.NodeState);
+					return lockedState.includes(element.NodeState || element.SCStateEnum);
 			  })
 			: false;
 		console.log(111, data);

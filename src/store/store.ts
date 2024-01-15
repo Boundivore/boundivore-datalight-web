@@ -7,11 +7,13 @@ const useStore = create(set => ({
 	setIsNeedChangePassword: (changePassword: boolean) => set({ isNeedChangePassword: changePassword }),
 	selectedRowsList: [],
 	setSelectedRowsList: (rows: object[]) => set({ selectedRowsList: rows }),
+	selectedServiceRowsList: [],
+	setSelectedServiceRowsList: (rows: object[]) => set({ selectedServiceRowsList: rows }),
 	jobClusterId: '',
 	setJobClusterId: (id: string) => set({ jobClusterId: id }),
 	jobNodeId: '',
 	setJobNodeId: (id: string) => set({ jobNodeId: id }),
-	stepCurrent: 5,
+	stepCurrent: 0,
 	setStepCurrent: (current: number) => set({ stepCurrent: current }),
 	stepMap: {
 		PROCEDURE_BEFORE_PARSE: 0,
@@ -74,6 +76,14 @@ const useStore = create(set => ({
 		START_WORKER_ERROR: {
 			label: 'node.start_worker_error',
 			status: 'error'
+		},
+		UNSELECTED: {
+			label: 'service.unselected',
+			status: 'error'
+		},
+		SELECTED: {
+			label: 'service.selected',
+			status: 'success'
 		}
 	},
 	stableState: [
@@ -85,7 +95,8 @@ const useStore = create(set => ({
 		'PUSH_OK',
 		'PUSH_ERROR',
 		'START_WORKER_OK',
-		'START_WORKER_ERROR'
+		'START_WORKER_ERROR',
+		'UNSELECTED'
 	]
 }));
 export const usePersistStore = create(

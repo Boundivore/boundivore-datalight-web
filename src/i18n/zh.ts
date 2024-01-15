@@ -91,7 +91,10 @@ export default {
 		preConfig: '预配置服务',
 		deployOverview: '部署概览',
 		deployStep: '部署进度展示',
-		deploySuccess: '部署成功，完成'
+		deploySuccess: '部署成功，完成',
+		unselected: '未选择',
+		selected: '已选择',
+		serviceName: '服务名称'
 	},
 	retry: '重试',
 	previous: '上一步',

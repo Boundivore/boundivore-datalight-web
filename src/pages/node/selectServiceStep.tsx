@@ -14,7 +14,7 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +22,6 @@ import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import usePolling from './hooks/usePolling';
 
 interface DataType {
 	NodeId: React.Key;
@@ -33,16 +32,17 @@ interface DataType {
 	NodeState: string;
 }
 
-const CheckStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRowsList, setSelectedRowsList, setJobNodeId, stateText, stableState } = useStore();
+const SelectServiceStep: React.FC = forwardRef((props, ref) => {
+	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText, stableState } = useStore();
+	const [tableData, setTableData] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const apiSpeed = APIConfig.checkList;
+	const apiSpeed = APIConfig.serviceList;
 	const columns: ColumnsType<DataType> = [
 		{
-			title: t('node.node'),
-			dataIndex: 'Hostname',
+			title: t('service.serviceName'),
+			dataIndex: 'ServiceName',
 			render: (text: string) => <a>{text}</a>
 		},
 		{
@@ -61,60 +61,67 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		},
 		{
 			title: t('node.state'),
-			dataIndex: 'NodeState',
+			dataIndex: 'SCStateEnum',
 			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
-		},
-		{
-			title: t('node.log'),
-			dataIndex: 'NodeState',
-			render: () => <a> {t('node.viewLog')}</a>
 		}
 	];
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedRowsList(selectedRows);
+			setSelectedServiceRowsList(selectedRows.map(item => (item.SCStateEnum = 'SELECTED')));
 		},
-		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
-			return NodeId;
+		defaultSelectedRowKeys: selectedServiceRowsList.map(({ ServiceName }) => {
+			return ServiceName;
 		}),
 		getCheckboxProps: (record: DataType) => ({
-			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+			disabled: !stableState.includes(record.SCStateEnum) // Column configuration not to be checked
 		})
 	};
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
 	const handleOk = async () => {
-		const apiDispatch = APIConfig.dispatch;
+		const apiSelect = APIConfig.selectService;
+		// let mergedArray = selectedServiceRowsList.concat(tableData); // 先合并两个数组
+		// let finalArray = mergedArray.reduce((acc, curr) => {
+		// 	// 检查是否已经有一个相同的id存在于结果数组中
+		// 	let existingIndex = acc.findIndex(item => item.ServiceName === curr.ServiceName);
+		// 	if (existingIndex !== -1) {
+		// 		// 如果存在，使用第一个数组中的值
+		// 		acc[existingIndex] = Object.assign({}, acc[existingIndex], curr);
+		// 	} else {
+		// 		// 否则，将当前元素添加到结果数组中
+		// 		acc.push(curr);
+		// 	}
+		// 	return acc;
+		// }, []);
 		const params = {
 			ClusterId: id,
-			NodeActionTypeEnum: 'DISPATCH',
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: 22
+			ServiceList: tableData.map(({ SCStateEnum, ServiceName }) => ({ SCStateEnum, ServiceName }))
 		};
-		const jobData = await RequestHttp.post(apiDispatch, params);
-		setJobNodeId(jobData.Data.NodeJobId);
+		const jobData = await RequestHttp.post(apiSelect, params);
 		return Promise.resolve(jobData);
 	};
 
 	const getSpeed = async () => {
 		const params = {
-			ClusterId: id,
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+			ClusterId: id
 		};
-		const data = await RequestHttp.post(apiSpeed, params);
-		return data.Data.NodeInitDetailList;
+		const data = await RequestHttp.get(apiSpeed, { params });
+		setTableData(data.Data.ServiceSummaryList);
 	};
-	const tableData = usePolling(getSpeed, stableState, 1000);
+	useEffect(() => {
+		getSpeed();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	return (
 		<Table
 			rowSelection={{
 				...rowSelection
 			}}
-			rowKey="NodeId"
+			rowKey="ServiceName"
 			columns={columns}
 			dataSource={tableData}
 		/>
 	);
 });
-export default CheckStep;
+export default SelectServiceStep;
