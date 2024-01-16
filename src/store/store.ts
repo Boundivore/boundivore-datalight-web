@@ -22,7 +22,8 @@ const useStore = create(set => ({
 		PROCEDURE_CHECK: 3,
 		PROCEDURE_DISPATCH: 4,
 		PROCEDURE_START_WORKER: 5,
-		PROCEDURE_ADD_NODE_DONE: 6
+		PROCEDURE_ADD_NODE_DONE: 6,
+		PROCEDURE_SELECT_SERVICE: 7
 	},
 	stateText: {
 		RESOLVED: {
@@ -107,6 +108,17 @@ export const usePersistStore = create(
 		}),
 		{
 			name: 'user-storage' // name of the item in the storage (must be unique)
+		}
+	)
+);
+export const useComponentAndNodeStore = create(
+	persist(
+		set => ({
+			nodeList: {},
+			setNodeList: (node: object) => set({ nodeList: node })
+		}),
+		{
+			name: 'node-storage' // name of the item in the storage (must be unique)
 		}
 	)
 );
