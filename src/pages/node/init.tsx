@@ -30,6 +30,7 @@ import StartWorkerStep from './startWorkerStep';
 import DoneStep from './doneStep';
 import SelectServiceStep from './selectServiceStep';
 import SelectComStep from './selectComStep';
+import PreconfigStep from './PreconfigStep';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 const InitNode: React.FC = () => {
@@ -43,6 +44,7 @@ const InitNode: React.FC = () => {
 	const dispatchStepRef = useRef<HTMLDivElement>(null);
 	const startWorkerStepRef = useRef<HTMLDivElement>(null);
 	const selectServiceRef = useRef<HTMLDivElement>(null);
+	const selectComponentRef = useRef<HTMLDivElement>(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
 	const apiGetProcedure = APIConfig.getProcedure;
 	const id = searchParams.get('id');
@@ -128,6 +130,10 @@ const InitNode: React.FC = () => {
 		const callbackData = await selectServiceRef.current.handleOk();
 		return callbackData;
 	};
+	const nextPreconfig = async () => {
+		const callbackData = await selectComponentRef.current.handleOk();
+		return callbackData;
+	};
 
 	const stepConfig = [
 		{
@@ -171,8 +177,13 @@ const InitNode: React.FC = () => {
 		},
 		{
 			title: t('service.selectComponent'),
-			content: <SelectComStep ref={selectServiceRef} />,
-			nextStep: nextComponent
+			content: <SelectComStep ref={selectComponentRef} />,
+			nextStep: nextPreconfig
+		},
+		{
+			title: t('service.preConfig'),
+			content: <PreconfigStep />
+			// nextStep: nextComponent
 		}
 	];
 	const getProcedure = async () => {

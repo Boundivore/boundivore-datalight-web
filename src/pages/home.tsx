@@ -14,6 +14,10 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+/**
+ * 集群列表
+ * @author Tracy.Guo
+ */
 import Layouts from '@/layouts';
 import { Table, Button, Card, App } from 'antd';
 import type { ColumnsType } from 'antd/es/table';

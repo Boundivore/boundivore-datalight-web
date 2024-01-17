@@ -27,6 +27,8 @@ body{
   height: 100%;
   overflow: hidden;
 }
-.ant-select-dropdown {
-  display: none !important;
+.data-light{
+  .ant-select-dropdown {
+    display: none !important;
+  }
 }

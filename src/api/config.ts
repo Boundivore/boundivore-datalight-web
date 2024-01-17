@@ -29,7 +29,9 @@ const APIConfig: Actions = {
 	selectService: '/v1/master/service/select',
 	// 组件相关
 	componentList: '/v1/master/component/list',
-	selectComponent: '/v1/master/component/select'
+	selectComponent: '/v1/master/component/select',
+	preconfigList: '/v1/master/config/pre/list',
+	preconfigSave: '/v1/master/config/pre/save'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

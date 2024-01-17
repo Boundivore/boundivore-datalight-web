@@ -14,18 +14,22 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+/**
+ * SelectComStep - 选择组件步骤
+ * @author Tracy.Guo
+ */
+import { forwardRef, useEffect, useImperativeHandle, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Collapse, Flex, Select } from 'antd';
 // import { useTranslation } from 'react-i18next';
 // import type { CollapseProps } from 'antd';
-import useStore from '@/store/store';
+import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import NodeListModal from './components/nodeListModal';
 
 const SelectComStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRowsList } = useStore();
+	const { nodeList, setNodeList } = useComponentAndNodeStore();
 	const [serviceList, setServiceList] = useState([]);
 	const [serviceNames, setServiceNames] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,14 +37,42 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 	// const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
+	const componentListRef = useRef([]);
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
 	const handleOk = async () => {
-		const apiSelect = APIConfig.selectService;
+		const apiSelect = APIConfig.selectComponent;
+		// 将 nodeList 转换为以 ComponentName 为 key 的对象
+		const nodeMap = Object.entries(nodeList).reduce((acc, [componentName, nodes]) => {
+			nodes.forEach(node => {
+				if (!acc[componentName]) {
+					acc[componentName] = [];
+				}
+				acc[componentName].push(node.NodeId);
+			});
+			return acc;
+		}, {});
+
+		// 合并数据并计算 ComponentList
+		const paramsComponentList = componentListRef.current.flatMap(service => {
+			const serviceName = service.ServiceSummary.ServiceName;
+			return service.ComponentSummaryList.map(component => {
+				const componentName = component.ComponentName;
+				const nodeIds = nodeMap[componentName] || [];
+				const scStateEnum = service.ServiceSummary.SCStateEnum; // 根据实际逻辑设置状态
+				return {
+					ComponentName: componentName,
+					NodeIdList: nodeIds,
+					SCStateEnum: scStateEnum,
+					ServiceName: serviceName
+				};
+			});
+		});
+
 		const params = {
 			ClusterId: id,
-			ServiceList: selectedRowsList.map(({ SCStateEnum, ServiceName }) => ({ SCStateEnum, ServiceName }))
+			ComponentList: paramsComponentList
 		};
 		const jobData = await RequestHttp.post(apiSelect, params);
 		return Promise.resolve(jobData);
@@ -49,13 +81,19 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 		setIsModalOpen(true);
 		setCurrentComponent(componentName);
 	};
-	const handleModalOk = () => {
+	const handleModalOk = selectedRows => {
+		setNodeList({ ...nodeList, [currentComponent]: selectedRows });
 		setIsModalOpen(false);
 	};
 
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
+	const customTagRender = ({ label }) => (
+		<span className="ant-select-selection-item ant-select-selection-item-disabled" key={label} style={{ userSelect: 'none' }}>
+			{label}
+		</span>
+	);
 
 	const getList = async () => {
 		const apiList = APIConfig.componentList;
@@ -63,35 +101,40 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 			ClusterId: id
 		};
 		const data = await RequestHttp.get(apiList, { params });
-		const componentList = data.Data.ServiceComponentSummaryList;
+		componentListRef.current = data.Data.ServiceComponentSummaryList;
+		const componentList = componentListRef.current;
 		const transformedData = componentList.map(item => {
 			return {
 				...item.ServiceSummary,
 				ComponentSummaryList: item.ComponentSummaryList
 			};
 		});
-		console.log(555, transformedData);
-		const cdata = transformedData.map(item => ({
-			key: item.ServiceName,
-			label: item.ServiceName,
-			children: (
-				<Flex wrap="wrap">
-					{item.ComponentSummaryList.map(component => {
-						return (
-							<div className="w-1/4">
-								<p>{component.ComponentName}</p>
-								<Select
-									defaultValue={[1]}
-									mode="multiple"
-									className="w-4/5"
-									onFocus={() => handleFocus(component.ComponentName)}
-								/>
-							</div>
-						);
-					})}
-				</Flex>
-			)
-		}));
+		const cdata = transformedData.map(item => {
+			return {
+				key: item.ServiceName,
+				label: item.ServiceName,
+				children: (
+					<Flex wrap="wrap">
+						{item.ComponentSummaryList.map(component => {
+							const nameArray = nodeList[component.ComponentName]?.map(node => node.Hostname);
+							console.log(component.ComponentName, nameArray);
+							return (
+								<div className="w-1/4">
+									<p>{component.ComponentName}</p>
+									<Select
+										value={nameArray}
+										mode="multiple"
+										className="w-4/5 data-light"
+										tagRender={customTagRender}
+										onFocus={() => handleFocus(component.ComponentName)}
+									/>
+								</div>
+							);
+						})}
+					</Flex>
+				)
+			};
+		});
 		const serviceNamesList = transformedData.map(item => item.ServiceName);
 		console.log(666, serviceNamesList);
 		setServiceNames(serviceNamesList);
@@ -100,16 +143,17 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 	useEffect(() => {
 		getList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [nodeList]);
 	return (
 		<>
 			<Collapse items={serviceList} activeKey={serviceNames} />
 			{isModalOpen ? (
 				<NodeListModal
-					component={currentComponent}
 					isModalOpen={isModalOpen}
 					handleOk={handleModalOk}
 					handleCancel={handleModalCancel}
+					component={currentComponent}
+					// nodeList={nodeList}
 				/>
 			) : null}
 		</>

@@ -36,7 +36,6 @@ const LoginPage: React.FC = () => {
 	const { setIsNeedChangePassword } = useStore();
 	const { userInfo, setUserInfo } = usePersistStore();
 	const onFinish = async (values: any) => {
-		console.log('Success:', values);
 		const { Credential, Principal } = values;
 		const hexHash = md5(Credential);
 		const apiLogin = APIConfig.login;

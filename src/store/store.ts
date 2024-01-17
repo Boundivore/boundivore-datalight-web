@@ -1,8 +1,11 @@
 // store.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-const useStore = create(set => ({
+interface MyStore {
+	isNeedChangePassword: boolean;
+	// 其他属性
+}
+const useStore = create<MyStore>(set => ({
 	isNeedChangePassword: false,
 	setIsNeedChangePassword: (changePassword: boolean) => set({ isNeedChangePassword: changePassword }),
 	selectedRowsList: [],
@@ -15,6 +18,7 @@ const useStore = create(set => ({
 	setJobNodeId: (id: string) => set({ jobNodeId: id }),
 	stepCurrent: 0,
 	setStepCurrent: (current: number) => set({ stepCurrent: current }),
+	// 步骤映射关系
 	stepMap: {
 		PROCEDURE_BEFORE_PARSE: 0,
 		PROCEDURE_PARSE_HOSTNAME: 1,
@@ -23,7 +27,8 @@ const useStore = create(set => ({
 		PROCEDURE_DISPATCH: 4,
 		PROCEDURE_START_WORKER: 5,
 		PROCEDURE_ADD_NODE_DONE: 6,
-		PROCEDURE_SELECT_SERVICE: 7
+		PROCEDURE_SELECT_SERVICE: 7,
+		PROCEDURE_SELECT_COMPONENT: 8
 	},
 	stateText: {
 		RESOLVED: {

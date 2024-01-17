@@ -14,6 +14,10 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+/**
+ * 新建集群
+ * @author Tracy.Guo
+ */
 import { useEffect, useState } from 'react';
 import Layouts from '@/layouts';
 import { Card, Button, Form, Input, Tabs, List, Avatar, Select } from 'antd';
@@ -50,8 +54,8 @@ const CreateCluster: React.FC = () => {
 		const api = APIConfig.getDLCVersion;
 		const { Code, Data } = await RequestHttp.get(api);
 		if (Code) {
-			form.setFieldsValue({ DlcVersion: Data.DLCVersion });
-			setServiceList(Data.ServiceSummaryList);
+			form.setFieldsValue({ DlcVersion: Data.DlcVersion });
+			setServiceList(Data.DlcServiceSummaryList);
 		}
 	};
 	const handleTypeChange = () => {};

@@ -14,15 +14,25 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-// import { useEffect, useState } from 'react';
+/**
+ * NodeListModal - 选择组件时绑定的节点弹窗
+ * @param {boolean} isModalOpen - 弹窗是否打开
+ * @param {function} handleOk - 弹窗确定的回调函数
+ * @param {function} handleCancel - 弹窗取消的回调函数
+ * @param {function} handleCancel - 弹窗取消的回调函数
+ * @param {string} component - 关联的组件名称
+ * @author Tracy.Guo
+ */
+import { useState } from 'react';
 import { Modal, Table } from 'antd';
 import useStore, { useComponentAndNodeStore } from '@/store/store';
 import { useTranslation } from 'react-i18next';
 
 const NodeListModal: React.FC = ({ isModalOpen, handleOk, handleCancel, component }) => {
 	const { selectedRowsList } = useStore();
-	const { nodeList, setNodeList } = useComponentAndNodeStore();
-	console.log(999, nodeList);
+	const [selectedNodeList, setSelectedNodeList] = useState([]);
+	const { nodeList } = useComponentAndNodeStore();
+	// console.log(999, nodeList);
 	const { t } = useTranslation();
 
 	const columns = [
@@ -34,18 +44,14 @@ const NodeListModal: React.FC = ({ isModalOpen, handleOk, handleCancel, componen
 	];
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			console.log(selectedRowKeys, selectedRows);
-			setNodeList({ ...nodeList, [component]: selectedRows });
-			// setSelectedRowsList(selectedRows);
+			setSelectedNodeList(selectedRows);
 		},
-		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+		defaultSelectedRowKeys: nodeList[component]?.map(({ NodeId }) => {
 			return NodeId;
 		})
 	};
-
-	// useEffect(() => {}, []);
 	return (
-		<Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+		<Modal title="Basic Modal" open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel}>
 			<Table
 				rowSelection={{
 					...rowSelection
