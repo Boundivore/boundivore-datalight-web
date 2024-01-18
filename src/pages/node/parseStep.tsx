@@ -39,7 +39,7 @@ type FieldType = {
 interface MyComponentMethods {
 	handleOk: () => void;
 }
-const ParseStep: React.FC = forwardRef((props, ref: Ref<MyComponentMethods>) => {
+const ParseStep: React.FC = forwardRef((_props, ref: Ref<MyComponentMethods>) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
