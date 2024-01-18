@@ -14,7 +14,7 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Layouts from '@/layouts';
 import { Card, Col, Row, Steps } from 'antd';
@@ -30,21 +30,21 @@ import StartWorkerStep from './startWorkerStep';
 import DoneStep from './doneStep';
 import SelectServiceStep from './selectServiceStep';
 import SelectComStep from './selectComStep';
-import PreconfigStep from './PreconfigStep';
+import PreconfigStep from './preconfigStep';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-const InitNode: React.FC = () => {
+const InitNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
 	const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, setSelectedRowsList } = useStore();
 	const [searchParams] = useSearchParams();
-	const parseStepRef = useRef<HTMLDivElement>(null);
-	const initListStepRef = useRef<HTMLDivElement>(null);
-	const detectStepRef = useRef<HTMLDivElement>(null);
-	const checkStepRef = useRef<HTMLDivElement>(null);
-	const dispatchStepRef = useRef<HTMLDivElement>(null);
-	const startWorkerStepRef = useRef<HTMLDivElement>(null);
-	const selectServiceRef = useRef<HTMLDivElement>(null);
-	const selectComponentRef = useRef<HTMLDivElement>(null);
+	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const initListStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const detectStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const checkStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const dispatchStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const startWorkerStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
+	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
 	const apiGetProcedure = APIConfig.getProcedure;
 	const id = searchParams.get('id');
@@ -103,35 +103,35 @@ const InitNode: React.FC = () => {
 		}
 	];
 	const nextList = async () => {
-		const callbackData = await parseStepRef.current.handleOk();
+		const callbackData = await parseStepRef.current?.handleOk();
 		return callbackData;
 	};
 	const nextDetect = async () => {
-		const callbackData = await initListStepRef.current.handleOk();
+		const callbackData = await initListStepRef.current?.handleOk();
 		return callbackData;
 	};
 	const nextCheck = async () => {
-		const callbackData = await detectStepRef.current.handleOk();
+		const callbackData = await detectStepRef.current?.handleOk();
 		return callbackData;
 	};
 	const nextDispatch = async () => {
-		const callbackData = await checkStepRef.current.handleOk();
+		const callbackData = await checkStepRef.current?.handleOk();
 		return callbackData;
 	};
 	const nextStartWorker = async () => {
-		const callbackData = await dispatchStepRef.current.handleOk();
+		const callbackData = await dispatchStepRef.current?.handleOk();
 		return callbackData;
 	};
 	const nextAdd = async () => {
-		const callbackData = await startWorkerStepRef.current.handleOk();
+		const callbackData = await startWorkerStepRef.current?.handleOk();
 		return callbackData;
 	};
 	const nextComponent = async () => {
-		const callbackData = await selectServiceRef.current.handleOk();
+		const callbackData = await selectServiceRef.current?.handleOk();
 		return callbackData;
 	};
 	const nextPreconfig = async () => {
-		const callbackData = await selectComponentRef.current.handleOk();
+		const callbackData = await selectComponentRef.current?.handleOk();
 		return callbackData;
 	};
 
@@ -186,10 +186,13 @@ const InitNode: React.FC = () => {
 			// nextStep: nextComponent
 		}
 	];
+	// 获取进度，定位到当前步骤
 	const getProcedure = async () => {
 		const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
 		const {
+			// @ts-ignore
 			Code,
+			// @ts-ignore
 			Data: { NodeJobId, ProcedureState, NodeInfoList }
 		} = data;
 		if (Code === '00000') {
@@ -221,6 +224,6 @@ const InitNode: React.FC = () => {
 			</Row>
 		</Layouts>
 	);
-};
+});
 
 export default InitNode;

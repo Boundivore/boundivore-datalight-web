@@ -14,14 +14,16 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { useState, forwardRef, useImperativeHandle } from 'react';
+/**
+ * ParseStep - 解析节点主机名步骤
+ * @author Tracy.Guo
+ */
+import { forwardRef, useImperativeHandle, Ref } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
-// import InitNodeList from './initList';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
-// import useStore from '@/store/store';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -34,8 +36,10 @@ type FieldType = {
 	SshPort: string;
 };
 
-const ParseStep: React.FC = forwardRef((props, ref) => {
-	const [showForm] = useState(true);
+interface MyComponentMethods {
+	handleOk: () => void;
+}
+const ParseStep: React.FC = forwardRef((props, ref: Ref<MyComponentMethods>) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -48,6 +52,7 @@ const ParseStep: React.FC = forwardRef((props, ref) => {
 		const values = await form.validateFields();
 		const { Hostname, SshPort } = values;
 		const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
+		// @ts-ignore
 		const validData = data.Data.ValidHostnameList;
 		// validData.map((item: string) => ({
 		// 	Hostname: item
@@ -61,38 +66,18 @@ const ParseStep: React.FC = forwardRef((props, ref) => {
 	};
 
 	return (
-		<>
-			{
-				showForm ? (
-					<Form
-						form={form}
-						name="basic"
-						{...layout}
-						style={{ maxWidth: 600 }}
-						initialValues={{ SshPort: 22 }}
-						// onFinish={onFinish}
-						// onFinishFailed={onFinishFailed}
-						autoComplete="off"
-					>
-						<Form.Item<FieldType>
-							label={t('node.hostName')}
-							name="Hostname"
-							rules={[{ required: true, message: t('node.hostnameCheck') }]}
-						>
-							<TextArea rows={4} />
-						</Form.Item>
-						<Form.Item<FieldType>
-							label={t('node.port')}
-							name="SshPort"
-							rules={[{ required: true, message: t('node.portCheck') }]}
-						>
-							<Input />
-						</Form.Item>
-					</Form>
-				) : null
-				// <InitNodeList data={ListData} />
-			}
-		</>
+		<Form form={form} name="basic" {...layout} style={{ maxWidth: 600 }} initialValues={{ SshPort: 22 }} autoComplete="off">
+			<Form.Item<FieldType>
+				label={t('node.hostName')}
+				name="Hostname"
+				rules={[{ required: true, message: t('node.hostnameCheck') }]}
+			>
+				<TextArea rows={4} />
+			</Form.Item>
+			<Form.Item<FieldType> label={t('node.port')} name="SshPort" rules={[{ required: true, message: t('node.portCheck') }]}>
+				<Input />
+			</Form.Item>
+		</Form>
 	);
 });
 export default ParseStep;

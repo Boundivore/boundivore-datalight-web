@@ -31,7 +31,9 @@ const APIConfig: Actions = {
 	componentList: '/v1/master/component/list',
 	selectComponent: '/v1/master/component/select',
 	preconfigList: '/v1/master/config/pre/list',
-	preconfigSave: '/v1/master/config/pre/save'
+	preconfigSave: '/v1/master/config/pre/save',
+	// 部署相关
+	jobProgress: '/v1/master/job/progress'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

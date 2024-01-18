@@ -13,9 +13,10 @@
  * You should have received a copy of the Apache License, Version 2.0
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
- *//**
- *
- *
+ */
+/**
+ * Layouts -页面框架
+ * @author Tracy.Guo
  */
 // import { Outlet } from 'react-router-dom';
 import { ReactNode, useState } from 'react';
@@ -62,6 +63,7 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 						cancelText: t('cancel'),
 						onOk: async () => {
 							const data = await RequestHttp.get(apiLogout);
+							// @ts-ignore
 							data.Code === '00000' && navigate('/auth/login');
 						}
 					});

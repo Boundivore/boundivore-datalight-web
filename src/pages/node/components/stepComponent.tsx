@@ -14,11 +14,24 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+/**
+ * Step封装
+ * @author Tracy.Guo
+ */
+import { ReactElement } from 'react';
 import { Button, Col, Card, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
+interface StepConfig {
+	title: string;
+	content: ReactElement;
+	nextStep?: () => Promise<void | undefined>;
+}
 
-const StepComponent: React.FC = ({ config }) => {
+interface MyComponentProps {
+	config: StepConfig[];
+}
+const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 	const { t } = useTranslation();
 	const { stepCurrent, setStepCurrent } = useStore();
 	const stepConfig = config[stepCurrent];
@@ -53,11 +66,11 @@ const StepComponent: React.FC = ({ config }) => {
 					<Space>
 						{stepCurrent < config.length - 1 && <Button onClick={retry}>{t('retry')}</Button>}
 						{stepCurrent > 0 && stepCurrent < config.length - 1 && <Button onClick={prev}>{t('previous')}</Button>}
-						{stepConfig.operation ? (
+						{/* {stepConfig.operation ? (
 							<Button type="primary" onClick={stepConfig.operation.callback}>
 								{stepConfig.operation.label}
 							</Button>
-						) : null}
+						) : null} */}
 						{stepCurrent < config.length - 1 && (
 							<Button type="primary" onClick={next}>
 								{t('next')}
@@ -90,11 +103,7 @@ const StepComponent: React.FC = ({ config }) => {
 								</Button>
 							</>
 						)}
-						{stepCurrent < config.length - 1 && (
-							<Button type="primary" onClick={cancel}>
-								{t('cancel')}
-							</Button>
-						)}
+						{stepCurrent < config.length - 1 && <Button onClick={cancel}>{t('cancel')}</Button>}
 					</Space>
 				</Col>
 			</Card>

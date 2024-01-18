@@ -2,8 +2,23 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 interface MyStore {
-	isNeedChangePassword: boolean;
-	// 其他属性
+	isNeedChangePassword: boolean; //当前用户是否需要修改密码
+	setIsNeedChangePassword: (changePassword: boolean) => void;
+	selectedRowsList: object[]; // 已选择的节点列表
+	setSelectedRowsList: (rows: object[]) => void;
+	selectedServiceRowsList: object[]; // 已选择的服务列表
+	setSelectedServiceRowsList: (rows: object[]) => void;
+	jobClusterId: string; //当前操作的集群id
+	setJobClusterId: (id: string) => void;
+	jobNodeId: string; // 当前操作的节点id
+	setJobNodeId: (id: string) => void;
+	jobId: string; // 部署任务id
+	setJobId: (id: string) => void;
+	stepCurrent: number; // 当前进度
+	setStepCurrent: (current: number) => void;
+	stepMap: Record<string, number>; // 或者具体的映射类型
+	stateText: Record<string, { label: string; status: string }>;
+	stableState: string[];
 }
 const useStore = create<MyStore>(set => ({
 	isNeedChangePassword: false,
@@ -16,6 +31,8 @@ const useStore = create<MyStore>(set => ({
 	setJobClusterId: (id: string) => set({ jobClusterId: id }),
 	jobNodeId: '',
 	setJobNodeId: (id: string) => set({ jobNodeId: id }),
+	jobId: '',
+	setJobId: (id: string) => set({ jobId: id }),
 	stepCurrent: 0,
 	setStepCurrent: (current: number) => set({ stepCurrent: current }),
 	// 步骤映射关系
@@ -27,8 +44,8 @@ const useStore = create<MyStore>(set => ({
 		PROCEDURE_DISPATCH: 4,
 		PROCEDURE_START_WORKER: 5,
 		PROCEDURE_ADD_NODE_DONE: 6,
-		PROCEDURE_SELECT_SERVICE: 7,
-		PROCEDURE_SELECT_COMPONENT: 8
+		PROCEDURE_SELECT_SERVICE: 7 + 1, // 服役节点到指定集群之后进度展示逻辑调整, 当前也操作结束，不存在下一页的列表轮询，直接进入下一阶段，所以 + 1
+		PROCEDURE_SELECT_COMPONENT: 8 + 1
 	},
 	stateText: {
 		RESOLVED: {
@@ -92,6 +109,7 @@ const useStore = create<MyStore>(set => ({
 			status: 'success'
 		}
 	},
+	// 配置停止轮询的条件
 	stableState: [
 		'RESOLVED',
 		'ACTIVE',

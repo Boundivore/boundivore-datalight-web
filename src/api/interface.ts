@@ -1,3 +1,11 @@
+// 定义后端响应数据结构
+export interface BackendResponse {
+	Code: string;
+	Data: object;
+	Message: string;
+	MessageType: string;
+	Timestamp: string;
+}
 /**
  * ClusterNewRequest
  * @export

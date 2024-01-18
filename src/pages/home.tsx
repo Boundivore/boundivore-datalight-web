@@ -72,6 +72,7 @@ const Home: React.FC = () => {
 	const getData = async () => {
 		const data = await RequestHttp.get(api);
 		const {
+			// @ts-ignore
 			Data: { ClusterList }
 		} = data;
 		setTableData(ClusterList);

@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { message } from 'antd';
+import { BackendResponse } from '@/api/interface';
 
 const config = {
 	timeout: 1000 * 10,
@@ -22,12 +23,11 @@ RequestHttp.interceptors.request.use(beforeRequest, (error: AxiosError) => {
 });
 // 响应拦截器
 const requestSuccess = (response: AxiosResponse) => {
-	const { data } = response;
+	const { data }: { data: BackendResponse } = response;
 	const { Code, Message } = data;
-	console.log(2222, Code);
 	if (Code !== '00000' && Code !== 'D1001') {
 		message.error(Message, 5);
-		Code[0] === 'H' && (window.location.href = '/auth/login');
+		Code[0] === 'H' && (window.location.href = '/auth/login'); // ‘H’前缀代表鉴权失效，跳转至登录页
 		return Promise.reject(new Error(Message || 'Error'));
 	} else {
 		return Promise.resolve(data);
@@ -36,6 +36,7 @@ const requestSuccess = (response: AxiosResponse) => {
 const requestFaild = (error: AxiosError) => {
 	return Promise.reject(error);
 };
+// @ts-ignore
 RequestHttp.interceptors.response.use(requestSuccess, requestFaild);
 // 统一错误处理
 

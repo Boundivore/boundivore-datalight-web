@@ -28,6 +28,10 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 // import NodeListModal from './components/nodeListModal';
 
+const layout = {
+	labelCol: { span: 8 },
+	wrapperCol: { span: 16 }
+};
 const PreconfigStep: React.FC = forwardRef(() => {
 	const [serviceList, setServiceList] = useState([]);
 	const [searchParams] = useSearchParams();
@@ -41,28 +45,32 @@ const PreconfigStep: React.FC = forwardRef(() => {
 			service.PlaceholderInfoList.forEach((info, infoIndex) => {
 				info.ConfigPrePropertyList.forEach((property, propertyIndex) => {
 					const formKey = `${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`;
-					initialValues[formKey] = property.Default;
+					initialValues[formKey] = property.Default || property.Value;
 				});
 			});
 		});
 		form.setFieldsValue(initialValues);
 	}, [serviceList, form]);
 
-	const onFinish = values => {
+	const onFinish = async values => {
 		// 将表单数据回填到原始数据中
 		const updatedData = [...serviceList];
 		updatedData.forEach((service, serviceIndex) => {
 			service.PlaceholderInfoList.forEach((info, infoIndex) => {
 				info.ConfigPrePropertyList.forEach((property, propertyIndex) => {
 					const formKey = `${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`;
+					// 回填时设置为Value属性，删除 Default 属性
 					property.Value = values[formKey];
+					delete property.Default;
 				});
 			});
 		});
 		setServiceList(updatedData);
-		console.log('Updated Data:', updatedData);
+		const api = APIConfig.preconfigSave;
+		const data = await RequestHttp.post(api, updatedData);
+		console.log(9999, data);
 	};
-
+	// 获取预配置项
 	const getPreconfigList = async () => {
 		const api = APIConfig.preconfigList;
 		const data = await RequestHttp.get(api, { params: { ClusterId: id } });
@@ -74,7 +82,7 @@ const PreconfigStep: React.FC = forwardRef(() => {
 	}, []);
 
 	return (
-		<Form form={form} onFinish={onFinish}>
+		<Form {...layout} form={form} onFinish={onFinish}>
 			{serviceList?.map(
 				(service, serviceIndex) =>
 					service.PlaceholderInfoList?.map(

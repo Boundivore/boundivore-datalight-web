@@ -111,6 +111,7 @@ const SelectServiceStep: React.FC = forwardRef((props, ref) => {
 			ClusterId: id
 		};
 		const data = await RequestHttp.get(apiSpeed, { params });
+		// @ts-ignore
 		setTableData(data.Data.ServiceSummaryList);
 	};
 	useEffect(() => {

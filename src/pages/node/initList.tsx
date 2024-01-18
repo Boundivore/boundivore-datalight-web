@@ -14,6 +14,10 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+/**
+ * InitNodeList - 解析出的节点主机名列表
+ * @author Tracy.Guo
+ */
 import React, { useImperativeHandle, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -78,6 +82,7 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 
 	const getState = async () => {
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
+		// @ts-ignore
 		return data.Data.NodeInitDetailList;
 	};
 	const tableData = usePolling(getState, stableState, 1000);
