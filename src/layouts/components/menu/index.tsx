@@ -18,6 +18,7 @@ import { Menu } from 'antd';
 import { AppstoreOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -37,20 +38,20 @@ function getItem(
 	} as MenuItem;
 }
 
-const items: MenuProps['items'] = [
-	getItem(<NavLink to="/home">集群管理</NavLink>, 'sub2', <AppstoreOutlined />),
-
-	{ type: 'divider' },
-
-	getItem('Navigation Three', 'sub4', <SettingOutlined />, [
-		getItem('Option 9', '9'),
-		getItem('Option 10', '10'),
-		getItem('Option 11', '11'),
-		getItem('Option 12', '12')
-	])
-];
-
 const LayoutMenu: React.FC = () => {
+	const { t } = useTranslation();
+	const items: MenuProps['items'] = [
+		getItem(<NavLink to="/home">{t('tabs.clusterManage')}</NavLink>, 'sub2', <AppstoreOutlined />),
+
+		{ type: 'divider' },
+
+		getItem(t('tabs.myAccount'), 'sub4', <SettingOutlined />, [
+			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '9'),
+			getItem('Option 10', '10'),
+			getItem('Option 11', '11'),
+			getItem('Option 12', '12')
+		])
+	];
 	return (
 		<div className="menu">
 			{/* <Spin spinning={loading} tip="Loading..."> */}

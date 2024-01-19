@@ -14,6 +14,7 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+// 国际化文件 -中文
 export default {
 	login: {
 		confirm: '登录',
@@ -24,12 +25,21 @@ export default {
 		changePassword: '请修改密码',
 		changePasswordText: '请前往修改密码页面修改密码'
 	},
-	home: {
-		welcome: '欢迎使用'
+	account: {
+		oldPassword: '旧密码',
+		newPassword: '新密码',
+		confirmNewPassword: '确认新密码',
+		changeOK: '修改密码成功，请重新登录',
+		passwordMismatch: '两次输入的新密码不一致，请确认',
+		inputPrincipal: '请输入您的账号',
+		inputOldPassword: '请输入您的旧密码',
+		inputNewPassword: '请输入您的新密码',
+		inputConfirmPassword: '请确认您的新密码'
 	},
 	tabs: {
-		more: '更多',
-		closeCurrent: '关闭当前',
+		clusterManage: '集群管理',
+		myAccount: '我的账号',
+		changePassword: '修改密码',
 		closeOther: '关闭其它',
 		closeAll: '关闭所有'
 	},
@@ -118,5 +128,7 @@ export default {
 	cancel: '取消',
 	done: '服役节点到指定集群',
 	poweredBy: 'powered by @Boundivore',
-	confirm: '确认'
+	confirm: '确认',
+	prompt: '提示',
+	error: '错误'
 };

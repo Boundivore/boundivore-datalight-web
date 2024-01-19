@@ -14,6 +14,10 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+/**
+ * InitNode - 节点初始化
+ * @author Tracy.Guo
+ */
 import React, { useRef, useEffect, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Layouts from '@/layouts';
@@ -31,6 +35,7 @@ import DoneStep from './doneStep';
 import SelectServiceStep from './selectServiceStep';
 import SelectComStep from './selectComStep';
 import PreconfigStep from './preconfigStep';
+import DeployStep from './deployStep';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 const InitNode: React.FC = forwardRef(() => {
@@ -184,6 +189,11 @@ const InitNode: React.FC = forwardRef(() => {
 			title: t('service.preConfig'),
 			content: <PreconfigStep />
 			// nextStep: nextComponent
+		},
+		{
+			title: t('service.deployStep'),
+			content: <DeployStep />
+			// nextStep: nextComponent
 		}
 	];
 	// 获取进度，定位到当前步骤
@@ -218,7 +228,6 @@ const InitNode: React.FC = forwardRef(() => {
 					</Card>
 				</Col>
 				<Col span={18} style={{ height: '100%' }}>
-					{/* {selectedRowsList.length ? <StepComponent config={stepConfig} /> : null} */}
 					<StepComponent config={stepConfig} />
 				</Col>
 			</Row>

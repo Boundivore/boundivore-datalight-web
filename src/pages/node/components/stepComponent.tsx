@@ -64,6 +64,7 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 				{stepConfig.content}
 				<Col style={{ marginTop: 24 }} offset={8} span={16}>
 					<Space>
+						{/* TODO 添加重试操作*/}
 						{stepCurrent < config.length - 1 && <Button onClick={retry}>{t('retry')}</Button>}
 						{stepCurrent > 0 && stepCurrent < config.length - 1 && <Button onClick={prev}>{t('previous')}</Button>}
 						{/* {stepConfig.operation ? (

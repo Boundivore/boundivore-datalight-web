@@ -36,9 +36,10 @@ interface DataType {
 	NodeState: string;
 }
 
-const SelectServiceStep: React.FC = forwardRef((props, ref) => {
-	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText, stableState } = useStore();
+const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
+	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText } = useStore();
 	const [tableData, setTableData] = useState([]);
+	const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -70,15 +71,19 @@ const SelectServiceStep: React.FC = forwardRef((props, ref) => {
 		}
 	];
 	const rowSelection = {
-		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedServiceRowsList(selectedRows.map(item => (item.SCStateEnum = 'SELECTED')));
+		onChange: (selectedRowKeys: [], selectedRows: DataType[]) => {
+			setSelectedRowKeys(selectedRowKeys);
+			setSelectedServiceRowsList(
+				selectedRows.map(item => {
+					item.SCStateEnum = 'SELECTED';
+					return item;
+				})
+			);
 		},
-		defaultSelectedRowKeys: selectedServiceRowsList.map(({ ServiceName }) => {
-			return ServiceName;
-		}),
-		getCheckboxProps: (record: DataType) => ({
-			disabled: !stableState.includes(record.SCStateEnum) // Column configuration not to be checked
-		})
+		selectedRowKeys: selectedRowKeys
+		// getCheckboxProps: (record: DataType) => ({
+		// 	disabled: !stableState.includes(record.SCStateEnum)
+		// })
 	};
 	useImperativeHandle(ref, () => ({
 		handleOk
@@ -98,10 +103,26 @@ const SelectServiceStep: React.FC = forwardRef((props, ref) => {
 		// 	}
 		// 	return acc;
 		// }, []);
+		const combinedArray = [...tableData, ...selectedServiceRowsList];
+
+		const groupedByServiceName = combinedArray.reduce((groups, item) => {
+			const key = item.ServiceName;
+			(groups[key] = groups[key] || []).push(item);
+			return groups;
+		}, {});
+
+		const result = Object.values(groupedByServiceName).map(group => {
+			if (group.length === 2) {
+				return group[0]; // 保留其中一个
+			} else {
+				return { ...group[0], SCStateEnum: 'UNSELECTED' }; // 将 SCStateEnum 改为 "UNSELECTED"
+			}
+		});
 		const params = {
 			ClusterId: id,
-			ServiceList: tableData.map(({ SCStateEnum, ServiceName }) => ({ SCStateEnum, ServiceName }))
+			ServiceList: result.map(({ SCStateEnum, ServiceName }) => ({ SCStateEnum, ServiceName }))
 		};
+		console.log(77777, result);
 		const jobData = await RequestHttp.post(apiSelect, params);
 		return Promise.resolve(jobData);
 	};
@@ -112,7 +133,10 @@ const SelectServiceStep: React.FC = forwardRef((props, ref) => {
 		};
 		const data = await RequestHttp.get(apiSpeed, { params });
 		// @ts-ignore
-		setTableData(data.Data.ServiceSummaryList);
+		const serviceData = data.Data.ServiceSummaryList;
+		setTableData(serviceData);
+		const defaultSelectedKeys = serviceData.filter(item => item.SCStateEnum === 'SELECTED').map(item => item.ServiceName);
+		setSelectedRowKeys(defaultSelectedKeys);
 	};
 	useEffect(() => {
 		getSpeed();

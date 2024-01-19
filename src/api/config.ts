@@ -23,6 +23,8 @@ const APIConfig: Actions = {
 	login: '/v1/master/user/login',
 	isLogin: '/v1/master/user/isLogin',
 	logout: '/v1/master/user/logout',
+	changePassword: '/v1/master/user/changePassword',
+	// 集群相关
 	getClusterList: '/v1/master/cluster/getClusterList',
 	createCluster: '/v1/master/cluster/new',
 	getDLCVersion: '/v1/master/dlc/service/list',
