@@ -71,7 +71,7 @@ const ChangePassword: React.FC = () => {
 	};
 	return (
 		<Layouts>
-			<Card className="h-[calc(100%-100px)] min-h-[600px] m-[20px]" title={t('tabs.changePassword')}>
+			<Card className="min-h-[calc(100%-100px)] m-[20px]" title={t('tabs.changePassword')}>
 				<Form
 					className="w-[600px]"
 					name="basic"

@@ -72,7 +72,7 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 		></Menu>
 	);
 	return (
-		<Layout className="w-full min-w-[1200px] min-h-[calc(100vh)]">
+		<Layout className="w-full min-w-[1200px] h-[calc(100vh)]">
 			<Header className="flex items-center justify-between">
 				<img src={Logo} height={60} />
 				<Popover content={content}>
@@ -95,7 +95,7 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 					<Breadcrumb />
 					{/* <Card style={{ width: '96%', height: 'calc(100% - 40px)', margin: '20px auto' }}>{children}</Card> */}
 					{children}
-					<Footer>{t('poweredBy')}</Footer>
+					<Footer className="fixed bottom-0 w-full bg-white p-4 shadow-md">{t('poweredBy')}</Footer>
 				</Content>
 			</Layout>
 		</Layout>

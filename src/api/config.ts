@@ -50,7 +50,9 @@ const APIConfig: Actions = {
 	selectComponent: '/v1/master/component/select',
 	preconfigList: '/v1/master/config/pre/list',
 	preconfigSave: '/v1/master/config/pre/save',
+	nodeList: '/v1/master/node/list',
 	// 部署相关
+	deploy: '/v1/master/deploy',
 	jobProgress: '/v1/master/job/progress'
 };
 for (let key in APIConfig) {

@@ -23,16 +23,20 @@
  * @param {string} component - 关联的组件名称
  * @author Tracy.Guo
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, Table } from 'antd';
-import useStore, { useComponentAndNodeStore } from '@/store/store';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useComponentAndNodeStore } from '@/store/store';
+import APIConfig from '@/api/config';
+import RequestHttp from '@/api';
 
 const NodeListModal: React.FC = ({ isModalOpen, handleOk, handleCancel, component }) => {
-	const { selectedRowsList } = useStore();
+	const [tableData, setTableData] = useState([]);
 	const [selectedNodeList, setSelectedNodeList] = useState([]);
 	const { nodeList } = useComponentAndNodeStore();
-	// console.log(999, nodeList);
+	const [searchParams] = useSearchParams();
+	const id = searchParams.get('id');
 	const { t } = useTranslation();
 
 	const columns = [
@@ -46,10 +50,23 @@ const NodeListModal: React.FC = ({ isModalOpen, handleOk, handleCancel, componen
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectedNodeList(selectedRows);
 		},
-		defaultSelectedRowKeys: nodeList[component]?.map(({ NodeId }) => {
+		defaultSelectedRowKeys: nodeList[id][component]?.map(({ NodeId }) => {
 			return NodeId;
 		})
 	};
+	const getList = async () => {
+		const apiList = APIConfig.nodeList;
+		const params = {
+			ClusterId: id
+		};
+		const data = await RequestHttp.get(apiList, { params });
+		// @ts-ignore
+		setTableData(data.Data.NodeDetailList);
+	};
+	useEffect(() => {
+		getList();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	return (
 		<Modal title="Basic Modal" open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel}>
 			<Table
@@ -57,7 +74,7 @@ const NodeListModal: React.FC = ({ isModalOpen, handleOk, handleCancel, componen
 					...rowSelection
 				}}
 				rowKey="NodeId"
-				dataSource={selectedRowsList}
+				dataSource={tableData}
 				columns={columns}
 			/>
 		</Modal>

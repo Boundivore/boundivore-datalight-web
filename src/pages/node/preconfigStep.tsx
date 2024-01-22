@@ -26,7 +26,7 @@ import { Form, Input, Button } from 'antd';
 // import useStore, { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-// import NodeListModal from './components/nodeListModal';
+import DeployOverviewModal from './components/deployOverviewModal';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -34,6 +34,7 @@ const layout = {
 };
 const PreconfigStep: React.FC = forwardRef(() => {
 	const [serviceList, setServiceList] = useState([]);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [form] = Form.useForm();
@@ -66,6 +67,7 @@ const PreconfigStep: React.FC = forwardRef(() => {
 			});
 		});
 		setServiceList(updatedData);
+		setIsModalOpen(true);
 		const api = APIConfig.preconfigSave;
 		const data = await RequestHttp.post(api, updatedData);
 		console.log(9999, data);
@@ -76,34 +78,53 @@ const PreconfigStep: React.FC = forwardRef(() => {
 		const data = await RequestHttp.get(api, { params: { ClusterId: id } });
 		setServiceList(data.Data.ConfigPreServiceList);
 	};
+	const handleModalOk = async () => {
+		const api = APIConfig.deploy;
+		const params = {
+			ActionTypeEnum: 'DEPLOY',
+			ClusterId: id,
+			IsOneByOne: false,
+			ServiceNameList: ['MONITOR', 'ZOOKEEPER', 'HDFS', 'YARN']
+		};
+		const data = await RequestHttp.post(api, params);
+		console.log(888, data);
+	};
+	const handleModalCancel = () => {
+		setIsModalOpen(false);
+	};
 	useEffect(() => {
 		getPreconfigList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (
-		<Form {...layout} form={form} onFinish={onFinish}>
-			{serviceList?.map(
-				(service, serviceIndex) =>
-					service.PlaceholderInfoList?.map(
-						(info, infoIndex) =>
-							info.ConfigPrePropertyList?.map((property, propertyIndex) => (
-								<Form.Item
-									label={property.Describe}
-									name={`${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`}
-									key={`${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`}
-								>
-									<Input placeholder={property.Placeholder} />
-								</Form.Item>
-							))
-					)
-			)}
-			<Form.Item>
-				<Button type="primary" htmlType="submit">
-					Submit
-				</Button>
-			</Form.Item>
-		</Form>
+		<>
+			<Form {...layout} form={form} onFinish={onFinish}>
+				{serviceList?.map(
+					(service, serviceIndex) =>
+						service.PlaceholderInfoList?.map(
+							(info, infoIndex) =>
+								info.ConfigPrePropertyList?.map((property, propertyIndex) => (
+									<Form.Item
+										label={property.Describe}
+										name={`${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`}
+										key={`${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`}
+									>
+										<Input placeholder={property.Placeholder} />
+									</Form.Item>
+								))
+						)
+				)}
+				<Form.Item>
+					<Button type="primary" htmlType="submit">
+						Submit
+					</Button>
+				</Form.Item>
+			</Form>
+			{isModalOpen ? (
+				<DeployOverviewModal isModalOpen={isModalOpen} handleOk={handleModalOk} handleCancel={handleModalCancel} />
+			) : null}
+		</>
 	);
 });
 

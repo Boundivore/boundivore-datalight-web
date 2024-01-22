@@ -34,6 +34,7 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 	const [serviceNames, setServiceNames] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentComponent, setCurrentComponent] = useState('');
+	const [tempData, setTempData] = useState([]);
 	// const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -82,7 +83,7 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 		setCurrentComponent(componentName);
 	};
 	const handleModalOk = selectedRows => {
-		setNodeList({ ...nodeList, [currentComponent]: selectedRows });
+		setNodeList({ [id]: { ...nodeList[id], [currentComponent]: selectedRows } });
 		setIsModalOpen(false);
 	};
 
@@ -109,14 +110,31 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 				ComponentSummaryList: item.ComponentSummaryList
 			};
 		});
-		const cdata = transformedData.map(item => {
+		setTempData(transformedData);
+		let tempList = {};
+		transformedData.map(item => {
+			item.ComponentSummaryList.map(component => {
+				tempList[id] = { ...tempList[id], [component.ComponentName]: component.ComponentNodeList };
+				console.log(232323, tempList);
+				setNodeList(tempList);
+				const nameArray = { ...tempList[id], ...nodeList[id] }[component.ComponentName]?.map(node => node.Hostname);
+				console.log(component.ComponentName, nameArray);
+			});
+		});
+	};
+	useEffect(() => {
+		const cdata = tempData.map(item => {
+			let tempList = {};
 			return {
 				key: item.ServiceName,
 				label: item.ServiceName,
 				children: (
 					<Flex wrap="wrap">
 						{item.ComponentSummaryList.map(component => {
-							const nameArray = nodeList[component.ComponentName]?.map(node => node.Hostname);
+							tempList[id] = { ...tempList[id], [component.ComponentName]: component.ComponentNodeList };
+							console.log(232323, tempList);
+							// setNodeList(tempList);
+							const nameArray = (nodeList[id] || tempList[id])[component.ComponentName]?.map(node => node.Hostname);
 							console.log(component.ComponentName, nameArray);
 							return (
 								<div className="w-1/4">
@@ -135,15 +153,15 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 				)
 			};
 		});
-		const serviceNamesList = transformedData.map(item => item.ServiceName);
-		console.log(666, serviceNamesList);
+		const serviceNamesList = tempData.map(item => item.ServiceName);
 		setServiceNames(serviceNamesList);
 		setServiceList(cdata);
-	};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [nodeList, tempData]);
 	useEffect(() => {
 		getList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [nodeList]);
+	}, []);
 	return (
 		<>
 			<Collapse items={serviceList} activeKey={serviceNames} />

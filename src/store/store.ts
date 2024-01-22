@@ -16,7 +16,7 @@
  */
 // store.ts
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 interface MyStore {
 	isNeedChangePassword: boolean; //当前用户是否需要修改密码
 	setIsNeedChangePassword: (changePassword: boolean) => void;
@@ -157,7 +157,8 @@ export const useComponentAndNodeStore = create(
 			setNodeList: (node: object) => set({ nodeList: node })
 		}),
 		{
-			name: 'node-storage' // name of the item in the storage (must be unique)
+			name: 'node-storage', // name of the item in the storage (must be unique)
+			storage: createJSONStorage(() => sessionStorage)
 		}
 	)
 );

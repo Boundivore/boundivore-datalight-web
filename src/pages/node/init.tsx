@@ -221,13 +221,13 @@ const InitNode: React.FC = forwardRef(() => {
 
 	return (
 		<Layouts hideSider={false}>
-			<Row className="h-[calc(100%-100px)] min-h-[600px] m m-[20px]">
-				<Col span={6} style={{ height: '100%' }}>
-					<Card style={{ height: '100%' }}>
+			<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
+				<Col span={6}>
+					<Card className="h-full">
 						<Steps size="small" current={stepCurrent} direction="vertical" items={steps} />
 					</Card>
 				</Col>
-				<Col span={18} style={{ height: '100%' }}>
+				<Col span={18}>
 					<StepComponent config={stepConfig} />
 				</Col>
 			</Row>
