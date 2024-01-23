@@ -38,6 +38,7 @@ const CreateCluster: React.FC = () => {
 	const [success, setSuccess] = useState(false);
 	const [DLCVersion] = useState('');
 	const [serviceList, setServiceList] = useState([]);
+	const [showRelativeId, setShowRelativeId] = useState(false);
 	const { jobClusterId, setJobClusterId } = useStore();
 	const { t } = useTranslation();
 	const [form] = Form.useForm();
@@ -58,11 +59,13 @@ const CreateCluster: React.FC = () => {
 			setServiceList(Data.DlcServiceSummaryList);
 		}
 	};
-	const handleTypeChange = () => {};
+	const handleTypeChange = (type: string) => {
+		setShowRelativeId(type === 'COMPUTE');
+	};
 	useEffect(() => {
 		getDLCVersion();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, ['test']);
+	}, []);
 	return (
 		<Layouts hideSider={false}>
 			<Card className="min-h-[calc(100%-100px)] m-[20px]" title={t('cluster.create')}>
@@ -87,9 +90,9 @@ const CreateCluster: React.FC = () => {
 							name="ClusterType"
 							rules={[{ required: true, message: `${t('cluster.typeCheck')}` }]}
 						>
-							<Select onChange={handleTypeChange} allowClear>
-								<Option value="COMPUTE">COMPUTE</Option>
-								<Option value="MIXED">MIXED</Option>
+							<Select onChange={value => handleTypeChange(value)} allowClear>
+								<Option value="COMPUTE">{t('cluster.compute')}</Option>
+								<Option value="MIXED">{t('cluster.mixed')}</Option>
 							</Select>
 						</Form.Item>
 						<Form.Item
@@ -131,13 +134,15 @@ const CreateCluster: React.FC = () => {
 								})}
 							/>
 						</Form.Item>
-						<Form.Item
-							label={t('cluster.relativeClusterId')}
-							name="RelativeClusterId"
-							rules={[{ message: `${t('cluster.desCheck')}` }]}
-						>
-							<Input />
-						</Form.Item>
+						{showRelativeId ? (
+							<Form.Item
+								label={t('cluster.relativeClusterId')}
+								name="RelativeClusterId"
+								rules={[{ required: true, message: `${t('cluster.desCheck')}` }]}
+							>
+								<Input />
+							</Form.Item>
+						) : null}
 						<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 							<Button type="primary" size={'large'} onClick={handleOk}>
 								{t('cluster.create')}
@@ -151,7 +156,9 @@ const CreateCluster: React.FC = () => {
 								This should be a <a href={`/node/init?id=${jobClusterId}`}>link</a>
 							</Trans>
 						</p>
-						<Button type="primary">{t('cluster.backToList')}</Button>
+						<Button type="primary" href="/home">
+							{t('cluster.backToList')}
+						</Button>
 					</div>
 				)}
 			</Card>

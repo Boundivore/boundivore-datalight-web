@@ -56,7 +56,6 @@ const ChangePassword: React.FC = () => {
 			Principal
 		};
 		const data = await RequestHttp.post(api, params);
-		// @ts-ignore
 		if (data.Code === '00000') {
 			modal.confirm({
 				title: t('prompt'),
@@ -79,7 +78,6 @@ const ChangePassword: React.FC = () => {
 					wrapperCol={{ span: 16 }}
 					onFinish={onFinish}
 					autoComplete="off"
-					// requiredMark={false}
 				>
 					<Form.Item
 						label={t('login.principal')}

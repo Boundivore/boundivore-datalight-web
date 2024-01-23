@@ -49,20 +49,17 @@ const ParseStep: React.FC = forwardRef((_props, ref: Ref<MyComponentMethods>) =>
 	}));
 	const handleOk = async () => {
 		const api = APIConfig.parseHostname;
-		const values = await form.validateFields();
-		const { Hostname, SshPort } = values;
-		const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
-		// @ts-ignore
-		const validData = data.Data.ValidHostnameList;
-		// validData.map((item: string) => ({
-		// 	Hostname: item
-		// }));
-		// setParsedList(validData);
-		return Promise.resolve(validData);
-		// errorInfo => {
-		// 	console.log('Failed:', errorInfo);
-		// }
-		// );
+		try {
+			const values = await form.validateFields();
+			const { Hostname, SshPort } = values;
+			const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
+			const validData = data.Data.ValidHostnameList;
+			return Promise.resolve(validData);
+			// 具体业务逻辑
+		} catch (error) {
+			return;
+			// console.log(error);
+		}
 	};
 
 	return (

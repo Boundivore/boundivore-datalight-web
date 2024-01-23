@@ -36,7 +36,7 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
-const InitNodeList: React.FC = forwardRef((props, ref) => {
+const InitNodeList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const { setSelectedRowsList, selectedRowsList, stateText, stableState } = useStore();
 	const [searchParams] = useSearchParams();
@@ -54,10 +54,8 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 			render: (text: string, record) => (
 				<a>
 					{text}
-					{t('node.core')}
-					{record.CpuArch}
-					{t('node.gb')}
-					{record.DiskTotal}
+					{t('node.core')}/{record.CpuArch}
+					{t('node.gb')}/{record.DiskTotal}
 					{t('node.gb')}
 				</a>
 			)
@@ -65,11 +63,11 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 		{
 			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: (text: string) => <Badge status={stateText[text].status} text={stateText[text].label} />
+			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
 		}
 	];
 	const rowSelection = {
-		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectedRowsList(selectedRows);
 		},
 		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
@@ -82,7 +80,6 @@ const InitNodeList: React.FC = forwardRef((props, ref) => {
 
 	const getState = async () => {
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
-		// @ts-ignore
 		return data.Data.NodeInitDetailList;
 	};
 	const tableData = usePolling(getState, stableState, 1000);

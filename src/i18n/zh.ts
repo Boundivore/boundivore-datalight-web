@@ -38,6 +38,9 @@ export default {
 	},
 	tabs: {
 		clusterManage: '集群管理',
+		nodeManage: '节点管理',
+		serviceManage: '服务管理',
+		config: '配置',
 		myAccount: '我的账号',
 		changePassword: '修改密码',
 		closeOther: '关闭其它',
@@ -69,6 +72,8 @@ export default {
 		relativeClusterId: '关联集群ID',
 		createSucc: '集群创建成功！<1>指定集群节点</1>',
 		backToList: '返回集群列表',
+		compute: '计算型',
+		mixed: '存储型',
 		list: {
 			description: '描述'
 		}
@@ -130,5 +135,6 @@ export default {
 	poweredBy: 'powered by @Boundivore',
 	confirm: '确认',
 	prompt: '提示',
-	error: '错误'
+	error: '错误',
+	operation: '操作'
 };

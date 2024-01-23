@@ -42,10 +42,13 @@ const LayoutMenu: React.FC = () => {
 	const { t } = useTranslation();
 	const items: MenuProps['items'] = [
 		getItem(<NavLink to="/home">{t('tabs.clusterManage')}</NavLink>, 'sub2', <AppstoreOutlined />),
+		getItem(<NavLink to="/home">{t('tabs.nodeManage')}</NavLink>, 'sub3', <AppstoreOutlined />),
+		getItem(<NavLink to="/home">{t('tabs.serviceManage')}</NavLink>, 'sub4', <AppstoreOutlined />),
+		getItem(<NavLink to="/home">{t('tabs.config')}</NavLink>, 'sub5', <AppstoreOutlined />),
 
 		{ type: 'divider' },
 
-		getItem(t('tabs.myAccount'), 'sub4', <SettingOutlined />, [
+		getItem(t('tabs.myAccount'), 'sub6', <SettingOutlined />, [
 			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '9'),
 			getItem('Option 10', '10'),
 			getItem('Option 11', '11'),

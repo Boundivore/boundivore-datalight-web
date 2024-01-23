@@ -16,7 +16,7 @@
  */
 
 // 二次封装axios
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { message } from 'antd';
 import { BackendResponse } from '@/api/interface';
 
@@ -27,18 +27,6 @@ const config = {
 // 创建一个实例，在实例上改造
 const RequestHttp = axios.create(config);
 // 拦截器
-// 请求拦截器
-const beforeRequest = (config: AxiosRequestConfig) => {
-	const token = localStorage.getItem('token');
-	console.log(222, config.headers);
-	token && (config.headers.Authorization = token);
-	// NOTE  添加自定义头部
-	// config?.headers['my-header'] = 'jack';
-	return { ...config, headers: { ...config.headers, 'x-access-token': token } };
-};
-RequestHttp.interceptors.request.use(beforeRequest, (error: AxiosError) => {
-	return Promise.reject(error);
-});
 // 响应拦截器
 const requestSuccess = (response: AxiosResponse) => {
 	const { data }: { data: BackendResponse } = response;

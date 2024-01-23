@@ -21,9 +21,10 @@
 import React, { forwardRef, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
+import _ from 'lodash';
 // import { useTranslation } from 'react-i18next';
 // import type { CollapseProps } from 'antd';
-// import useStore, { useComponentAndNodeStore } from '@/store/store';
+import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import DeployOverviewModal from './components/deployOverviewModal';
@@ -35,6 +36,7 @@ const layout = {
 const PreconfigStep: React.FC = forwardRef(() => {
 	const [serviceList, setServiceList] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const { setJobId } = useStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [form] = Form.useForm();
@@ -55,21 +57,27 @@ const PreconfigStep: React.FC = forwardRef(() => {
 
 	const onFinish = async values => {
 		// 将表单数据回填到原始数据中
-		const updatedData = [...serviceList];
+		const updatedData = _.cloneDeep([...serviceList]);
 		updatedData.forEach((service, serviceIndex) => {
 			service.PlaceholderInfoList.forEach((info, infoIndex) => {
 				info.ConfigPrePropertyList.forEach((property, propertyIndex) => {
 					const formKey = `${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`;
 					// 回填时设置为Value属性，删除 Default 属性
 					property.Value = values[formKey];
-					delete property.Default;
+					// delete property.Default;
 				});
+				info.PropertyList = info.ConfigPrePropertyList;
+				delete info.ConfigPrePropertyList;
 			});
 		});
-		setServiceList(updatedData);
+		// setServiceList(updatedData);
 		setIsModalOpen(true);
 		const api = APIConfig.preconfigSave;
-		const data = await RequestHttp.post(api, updatedData);
+		const params = {
+			ClusterId: id,
+			ServiceList: updatedData
+		};
+		const data = await RequestHttp.post(api, params);
 		console.log(9999, data);
 	};
 	// 获取预配置项
@@ -87,6 +95,7 @@ const PreconfigStep: React.FC = forwardRef(() => {
 			ServiceNameList: ['MONITOR', 'ZOOKEEPER', 'HDFS', 'YARN']
 		};
 		const data = await RequestHttp.post(api, params);
+		setJobId(data.Data.JobId);
 		console.log(888, data);
 	};
 	const handleModalCancel = () => {

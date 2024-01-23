@@ -25,7 +25,7 @@ import useStore from '@/store/store';
 interface StepConfig {
 	title: string;
 	content: ReactElement;
-	nextStep?: () => Promise<void | undefined>;
+	nextStep?: Function;
 }
 
 interface MyComponentProps {
@@ -35,11 +35,11 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 	const { t } = useTranslation();
 	const { stepCurrent, setStepCurrent } = useStore();
 	const stepConfig = config[stepCurrent];
-	const next = async () => {
+	const next = () => {
 		if (!stepConfig.nextStep) {
 			setStepCurrent(stepCurrent + 1);
 		} else {
-			const goNext = await stepConfig.nextStep();
+			const goNext = stepConfig.nextStep();
 			if (goNext) {
 				setStepCurrent(stepCurrent + 1);
 			}

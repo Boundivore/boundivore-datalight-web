@@ -20,10 +20,12 @@
  */
 import React, { useRef, useEffect, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Layouts from '@/layouts';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
+import Layouts from '@/layouts';
 import useStore from '@/store/store';
+import APIConfig from '@/api/config';
+import RequestHttp from '@/api';
 import ParseStep from './parseStep';
 import DetectStep from './detectStep';
 import CheckStep from './checkStep';
@@ -36,8 +38,7 @@ import SelectServiceStep from './selectServiceStep';
 import SelectComStep from './selectComStep';
 import PreconfigStep from './preconfigStep';
 import DeployStep from './deployStep';
-import APIConfig from '@/api/config';
-import RequestHttp from '@/api';
+
 const InitNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
 	const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, setSelectedRowsList } = useStore();
@@ -51,7 +52,6 @@ const InitNode: React.FC = forwardRef(() => {
 	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
-	const apiGetProcedure = APIConfig.getProcedure;
 	const id = searchParams.get('id');
 	const steps = [
 		{
@@ -107,10 +107,10 @@ const InitNode: React.FC = forwardRef(() => {
 			key: 12
 		}
 	];
-	const nextList = async () => {
-		const callbackData = await parseStepRef.current?.handleOk();
-		return callbackData;
-	};
+	// const nextList = async () => {
+	// 	const callbackData = await parseStepRef.current?.handleOk();
+	// 	return callbackData;
+	// };
 	const nextDetect = async () => {
 		const callbackData = await initListStepRef.current?.handleOk();
 		return callbackData;
@@ -144,7 +144,10 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('node.parseHostname'),
 			content: <ParseStep ref={parseStepRef} />,
-			nextStep: nextList
+			nextStep: async () => {
+				const callbackData = await parseStepRef.current?.handleOk();
+				return callbackData;
+			}
 		},
 		{
 			title: t('node.chooseHostname'),
@@ -198,11 +201,10 @@ const InitNode: React.FC = forwardRef(() => {
 	];
 	// 获取进度，定位到当前步骤
 	const getProcedure = async () => {
+		const apiGetProcedure = APIConfig.getProcedure;
 		const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
 		const {
-			// @ts-ignore
 			Code,
-			// @ts-ignore
 			Data: { NodeJobId, ProcedureState, NodeInfoList }
 		} = data;
 		if (Code === '00000') {
@@ -212,7 +214,6 @@ const InitNode: React.FC = forwardRef(() => {
 		} else if (Code === 'D1001') {
 			setStepCurrent(0);
 		}
-		console.log(data);
 	};
 	useEffect(() => {
 		getProcedure();

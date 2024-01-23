@@ -35,7 +35,7 @@ export const pollRequest = (
 			? data.every(element => {
 					return lockedState.includes(element.NodeState || element.SCStateEnum);
 			  })
-			: false;
+			: true;
 		console.log(111, data);
 		callback(data);
 	};

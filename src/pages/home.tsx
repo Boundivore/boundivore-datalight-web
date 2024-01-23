@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
 
 interface DataType {
+	HasAlreadyNode: boolean;
 	ClusterId: number;
 	ClusterDesc: string;
 	ClusterName: string;
@@ -38,30 +39,6 @@ interface DataType {
 	RelativeClusterId: number;
 }
 
-const columns: ColumnsType<DataType> = [
-	{
-		title: 'Name',
-		dataIndex: 'ClusterName',
-		key: 'ClusterName',
-		render: (text, record) => <a href={`/node/init?id=${record.ClusterId}`}>{text}</a>
-	},
-	{
-		title: 'Age',
-		dataIndex: 'ClusterDesc',
-		key: 'ClusterDesc'
-	},
-	{
-		title: 'Address',
-		dataIndex: 'ClusterType',
-		key: 'ClusterType'
-	},
-	{
-		title: 'Tags',
-		key: 'ClusterState',
-		dataIndex: 'ClusterState'
-	}
-];
-
 const Home: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -69,6 +46,31 @@ const Home: React.FC = () => {
 	const [tableData, setTableData] = useState([]);
 	const { modal } = App.useApp();
 	const api = APIConfig.getClusterList;
+	const columns: ColumnsType<DataType> = [
+		{
+			title: t('cluster.name'),
+			dataIndex: 'ClusterName',
+			key: 'ClusterName'
+		},
+		{
+			title: t('cluster.description'),
+			dataIndex: 'ClusterDesc',
+			key: 'ClusterDesc'
+		},
+		{
+			title: t('operation'),
+			key: 'IsExistInitProcedure',
+			dataIndex: 'IsExistInitProcedure',
+			render: (text, record) => {
+				const hasAlreadyNode = record.HasAlreadyNode;
+				if (hasAlreadyNode && !text) {
+					return null;
+				} else {
+					return <a href={`/node/init?id=${record.ClusterId}`}>绑定节点</a>;
+				}
+			}
+		}
+	];
 	const getData = async () => {
 		const data = await RequestHttp.get(api);
 		const {
