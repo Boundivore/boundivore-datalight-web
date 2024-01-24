@@ -20,10 +20,11 @@ export default {
 		confirm: '登录',
 		reset: '重置',
 		principal: '账号',
-		credential: '登录凭证',
+		credential: '密码',
 		confirmLogout: '您确定退出登录吗？',
 		changePassword: '请修改密码',
-		changePasswordText: '请前往修改密码页面修改密码'
+		changePasswordText: '请前往修改密码页面修改密码',
+		inputPassword: '请输入您的密码'
 	},
 	account: {
 		oldPassword: '旧密码',
@@ -114,14 +115,20 @@ export default {
 		push_error: '节点推送失败',
 		starting_worker: '正在启动Worker',
 		start_worker_ok: '启动Woker成功',
-		start_worker_error: '启动Worker失败'
+		start_worker_error: '启动Worker失败',
+		deployProgress: '部署进度',
+		addNode: '新增节点',
+		currentCluster: '当前集群: ',
+		name: '节点域名',
+		ip: 'IP地址',
+		deployService: '部署服务'
 	},
 	service: {
 		selectService: '选择服务',
 		selectComponent: '选择组件',
 		preConfig: '预配置服务',
 		deployOverview: '部署概览',
-		deployStep: '部署进度展示',
+		deployStep: '部署进度',
 		deploySuccess: '部署成功，完成',
 		unselected: '未选择',
 		selected: '已选择',
@@ -136,5 +143,6 @@ export default {
 	confirm: '确认',
 	prompt: '提示',
 	error: '错误',
-	operation: '操作'
+	operation: '操作',
+	backHome: '返回首页'
 };

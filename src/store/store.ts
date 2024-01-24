@@ -36,6 +36,10 @@ interface MyStore {
 	stateText: Record<string, { label: string; status: string }>;
 	stableState: string[];
 }
+interface PersistStore {
+	userInfo: object;
+	setUserInfo: (info: object) => void;
+}
 const useStore = create<MyStore>(set => ({
 	isNeedChangePassword: false,
 	setIsNeedChangePassword: (changePassword: boolean) => set({ isNeedChangePassword: changePassword }),
@@ -140,7 +144,7 @@ const useStore = create<MyStore>(set => ({
 		'UNSELECTED'
 	]
 }));
-export const usePersistStore = create(
+export const usePersistStore = create<PersistStore>()(
 	persist(
 		set => ({
 			userInfo: {},

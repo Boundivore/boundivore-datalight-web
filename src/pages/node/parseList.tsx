@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * InitNodeList - 解析出的节点主机名列表
+ * ParseList - 解析出的节点主机名列表
  * @author Tracy.Guo
  */
 import React, { useImperativeHandle, forwardRef } from 'react';
@@ -36,7 +36,7 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
-const InitNodeList: React.FC = forwardRef((_props, ref) => {
+const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const { setSelectedRowsList, selectedRowsList, stateText, stableState } = useStore();
 	const [searchParams] = useSearchParams();
@@ -111,4 +111,4 @@ const InitNodeList: React.FC = forwardRef((_props, ref) => {
 	);
 });
 
-export default InitNodeList;
+export default ParseList;

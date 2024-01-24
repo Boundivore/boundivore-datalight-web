@@ -93,7 +93,6 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 				) : null}
 				<Content>
 					<Breadcrumb />
-					{/* <Card style={{ width: '96%', height: 'calc(100% - 40px)', margin: '20px auto' }}>{children}</Card> */}
 					{children}
 					<Footer className="fixed bottom-0 w-full bg-white p-4 shadow-md">{t('poweredBy')}</Footer>
 				</Content>

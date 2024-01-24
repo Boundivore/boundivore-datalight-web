@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * Step封装
+ * StepComponent -Step步骤操作封装
  * @author Tracy.Guo
  */
 import { ReactElement } from 'react';
@@ -26,6 +26,10 @@ interface StepConfig {
 	title: string;
 	content: ReactElement;
 	nextStep?: Function;
+	operations?: {
+		label: string;
+		callback?: () => void;
+	}[];
 }
 
 interface MyComponentProps {
@@ -35,11 +39,13 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 	const { t } = useTranslation();
 	const { stepCurrent, setStepCurrent } = useStore();
 	const stepConfig = config[stepCurrent];
-	const next = () => {
+	const next = async () => {
+		// 不配置nextStep，默认进入下一步页面
 		if (!stepConfig.nextStep) {
 			setStepCurrent(stepCurrent + 1);
 		} else {
-			const goNext = stepConfig.nextStep();
+			// 配置的nextStep操作成功才进入下一步页面
+			const goNext = await stepConfig.nextStep();
 			if (goNext) {
 				setStepCurrent(stepCurrent + 1);
 			}
@@ -47,7 +53,6 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 	};
 
 	const prev = () => {
-		// prev();
 		setStepCurrent(stepCurrent - 1);
 	};
 	const retry = () => {
@@ -55,8 +60,6 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 		// setStepCurrent(stepCurrent - 1);
 	};
 	const cancel = () => {};
-	//   const { current } = this.state;
-	//   const { steps, handleFinish, handleCancel, commonStyle, isSuccess } = this.props;
 
 	return (
 		<>
@@ -64,47 +67,27 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 				{stepConfig.content}
 				<Col style={{ marginTop: 24 }} offset={8} span={16}>
 					<Space>
-						{/* TODO 添加重试操作*/}
-						{stepCurrent < config.length - 1 && <Button onClick={retry}>{t('retry')}</Button>}
-						{stepCurrent > 0 && stepCurrent < config.length - 1 && <Button onClick={prev}>{t('previous')}</Button>}
-						{/* {stepConfig.operation ? (
-							<Button type="primary" onClick={stepConfig.operation.callback}>
-								{stepConfig.operation.label}
-							</Button>
-						) : null} */}
-						{stepCurrent < config.length - 1 && (
-							<Button type="primary" onClick={next}>
-								{t('next')}
-							</Button>
-						)}
-						{/* {stepCurrent === 6 && (
-							<Button
-								type="primary"
-								onClick={stepConfig.finish}
-								// disabled={!isSuccess}
-							>
-								{t('node.startWorker')}
-							</Button>
-						)} */}
-						{stepCurrent === 6 && (
+						{stepConfig?.operations?.length ? (
+							stepConfig.operations.map(operation => {
+								return (
+									<Button type="primary" onClick={operation.callback || next}>
+										{operation.label}
+									</Button>
+								);
+							})
+						) : (
 							<>
-								<Button
-									type="primary"
-									href="/home"
-									// disabled={!isSuccess}
-								>
-									返回首页
-								</Button>
-								<Button
-									type="primary"
-									// disabled={!isSuccess}
-									onClick={next}
-								>
-									部署服务
-								</Button>
+								{/* TODO 添加重试和取消操作*/}
+								{stepCurrent < config.length - 1 && <Button onClick={retry}>{t('retry')}</Button>}
+								{stepCurrent > 0 && stepCurrent < config.length - 1 && <Button onClick={prev}>{t('previous')}</Button>}
+								{stepCurrent < config.length - 1 && (
+									<Button type="primary" onClick={next}>
+										{t('next')}
+									</Button>
+								)}
+								{stepCurrent < config.length - 1 && <Button onClick={cancel}>{t('cancel')}</Button>}
 							</>
 						)}
-						{stepCurrent < config.length - 1 && <Button onClick={cancel}>{t('cancel')}</Button>}
 					</Space>
 				</Col>
 			</Card>

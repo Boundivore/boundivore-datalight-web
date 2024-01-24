@@ -15,18 +15,19 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * 集群列表
+ * 节点管理列表页
  * @author Tracy.Guo
  */
-import Layouts from '@/layouts';
-import { Table, Button, Card, App } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { useNavigate } from 'react-router-dom';
-import RequestHttp from '@/api';
-import APIConfig from '@/api/config';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import useStore from '@/store/store';
+import { Table, Button, Card, Select, Flex } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { useNavigate } from 'react-router-dom';
+import Layouts from '@/layouts';
+import RequestHttp from '@/api';
+import APIConfig from '@/api/config';
+
+// import useStore from '@/store/store';
 
 interface DataType {
 	HasAlreadyNode: boolean;
@@ -39,23 +40,24 @@ interface DataType {
 	RelativeClusterId: number;
 }
 
-const Home: React.FC = () => {
+const ManageList: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { isNeedChangePassword, setIsNeedChangePassword } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState([]);
-	const { modal } = App.useApp();
+	const [selectData, setSelectData] = useState([]);
+	const [defaultSelectValue, setDefaultSelectValue] = useState('');
+	// const { modal } = App.useApp();
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('cluster.name'),
-			dataIndex: 'ClusterName',
-			key: 'ClusterName'
+			dataIndex: 'Hostname',
+			key: 'Hostname'
 		},
 		{
 			title: t('cluster.description'),
-			dataIndex: 'ClusterDesc',
-			key: 'ClusterDesc'
+			dataIndex: 'NodeIp',
+			key: 'NodeIp'
 		},
 		{
 			title: t('operation'),
@@ -71,47 +73,62 @@ const Home: React.FC = () => {
 			}
 		}
 	];
-	const getData = async () => {
+	const getClusterList = async () => {
 		setLoading(true);
 		const api = APIConfig.getClusterList;
 		const data = await RequestHttp.get(api);
 		const {
 			Data: { ClusterList }
 		} = data;
-		setTableData(ClusterList);
+		const listData = ClusterList.map(item => {
+			return {
+				value: item.ClusterId,
+				label: item.ClusterName
+			};
+		});
 		setLoading(false);
+		setDefaultSelectValue(listData[0].value);
+		setSelectData(listData);
+		// getNodeList(id);
+	};
+	const getNodeList = async id => {
+		const api = APIConfig.nodeList;
+		const data = await RequestHttp.get(api, { params: { ClusterId: id } });
+		const {
+			Data: { NodeDetailList }
+		} = data;
+		setTableData(NodeDetailList);
+	};
+	const handleChange = value => {
+		setDefaultSelectValue(value);
 	};
 	useEffect(() => {
-		getData();
-		// 登录时判断是否需要修改密码
-		isNeedChangePassword &&
-			modal.confirm({
-				title: t('login.changePassword'),
-				content: t('login.changePasswordText'),
-				okText: t('confirm'),
-				cancelText: t('cancel'),
-				onOk: () => {
-					navigate('/auth/changePassword');
-				}
-			});
-		setIsNeedChangePassword(false);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		defaultSelectValue && getNodeList(defaultSelectValue);
+	}, [defaultSelectValue]);
+	useEffect(() => {
+		getClusterList();
 	}, []);
 	return (
 		<Layouts>
 			<Card className="min-h-[calc(100%-100px)] m-[20px]">
-				<Button
-					type="primary"
-					onClick={() => {
-						navigate('/cluster/create');
-					}}
-				>
-					{t('cluster.create')}
-				</Button>
-				<Table className="mt-[20px]" rowKey="ClusterId" columns={columns} dataSource={tableData} loading={loading} />
+				<Flex justify="space-between">
+					<Button
+						type="primary"
+						onClick={() => {
+							navigate(`/node/addNode?id=${defaultSelectValue}`);
+						}}
+					>
+						{t('node.addNode')}
+					</Button>
+					<div>
+						{t('node.currentCluster')}
+						<Select className="w-[200px]" options={selectData} value={defaultSelectValue} onChange={handleChange} />
+					</div>
+				</Flex>
+				<Table className="mt-[20px]" rowKey="NodeId" columns={columns} dataSource={tableData} loading={loading} />
 			</Card>
 		</Layouts>
 	);
 };
 
-export default Home;
+export default ManageList;

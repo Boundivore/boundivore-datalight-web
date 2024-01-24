@@ -17,7 +17,7 @@
 import { Menu } from 'antd';
 import { AppstoreOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -39,17 +39,18 @@ function getItem(
 }
 
 const LayoutMenu: React.FC = () => {
+	const location = useLocation();
 	const { t } = useTranslation();
 	const items: MenuProps['items'] = [
-		getItem(<NavLink to="/home">{t('tabs.clusterManage')}</NavLink>, 'sub2', <AppstoreOutlined />),
-		getItem(<NavLink to="/home">{t('tabs.nodeManage')}</NavLink>, 'sub3', <AppstoreOutlined />),
+		getItem(<NavLink to="/home">{t('tabs.clusterManage')}</NavLink>, '/home', <AppstoreOutlined />),
+		getItem(<NavLink to="/node/manageList">{t('tabs.nodeManage')}</NavLink>, '/node/manageList', <AppstoreOutlined />),
 		getItem(<NavLink to="/home">{t('tabs.serviceManage')}</NavLink>, 'sub4', <AppstoreOutlined />),
 		getItem(<NavLink to="/home">{t('tabs.config')}</NavLink>, 'sub5', <AppstoreOutlined />),
 
 		{ type: 'divider' },
 
-		getItem(t('tabs.myAccount'), 'sub6', <SettingOutlined />, [
-			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '9'),
+		getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
+			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"'),
 			getItem('Option 10', '10'),
 			getItem('Option 11', '11'),
 			getItem('Option 12', '12')
@@ -57,19 +58,7 @@ const LayoutMenu: React.FC = () => {
 	];
 	return (
 		<div className="menu">
-			{/* <Spin spinning={loading} tip="Loading..."> */}
-			{/* <Logo></Logo> */}
-			<Menu
-				mode="inline"
-				theme="light"
-				triggerSubMenuAction="click"
-				// openKeys={openKeys}
-				// selectedKeys={selectedKeys}
-				items={items}
-				// onClick={clickMenu}
-				// onOpenChange={onOpenChange}
-			></Menu>
-			{/* </Spin> */}
+			<Menu mode="inline" theme="light" triggerSubMenuAction="click" selectedKeys={[location.pathname]} items={items}></Menu>
 		</div>
 	);
 };

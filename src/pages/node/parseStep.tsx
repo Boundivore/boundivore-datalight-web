@@ -55,10 +55,8 @@ const ParseStep: React.FC = forwardRef((_props, ref: Ref<MyComponentMethods>) =>
 			const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
 			const validData = data.Data.ValidHostnameList;
 			return Promise.resolve(validData);
-			// 具体业务逻辑
 		} catch (error) {
-			return;
-			// console.log(error);
+			return Promise.reject(error);
 		}
 	};
 

@@ -22,6 +22,7 @@ import React, { useRef, useEffect, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import Layouts from '@/layouts';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
@@ -29,7 +30,7 @@ import RequestHttp from '@/api';
 import ParseStep from './parseStep';
 import DetectStep from './detectStep';
 import CheckStep from './checkStep';
-import InitList from './initList';
+import InitList from './parseList';
 import StepComponent from './components/stepComponent';
 import DispatchStep from './dispatchStep';
 import StartWorkerStep from './startWorkerStep';
@@ -40,6 +41,7 @@ import PreconfigStep from './preconfigStep';
 import DeployStep from './deployStep';
 
 const InitNode: React.FC = forwardRef(() => {
+	const navigate = useNavigate();
 	const { t } = useTranslation();
 	const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, setSelectedRowsList } = useStore();
 	const [searchParams] = useSearchParams();
@@ -95,22 +97,14 @@ const InitNode: React.FC = forwardRef(() => {
 			key: 9
 		},
 		{
-			title: t('service.deployOverview'),
-			key: 10
-		},
-		{
 			title: t('service.deployStep'),
-			key: 11
-		},
-		{
-			title: t('service.deploySuccess'),
-			key: 12
+			key: 10
 		}
 	];
-	// const nextList = async () => {
-	// 	const callbackData = await parseStepRef.current?.handleOk();
-	// 	return callbackData;
-	// };
+	const nextList = async () => {
+		const callbackData = await parseStepRef.current?.handleOk();
+		return callbackData;
+	};
 	const nextDetect = async () => {
 		const callbackData = await initListStepRef.current?.handleOk();
 		return callbackData;
@@ -144,10 +138,7 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('node.parseHostname'),
 			content: <ParseStep ref={parseStepRef} />,
-			nextStep: async () => {
-				const callbackData = await parseStepRef.current?.handleOk();
-				return callbackData;
-			}
+			nextStep: nextList
 		},
 		{
 			title: t('node.chooseHostname'),
@@ -176,7 +167,11 @@ const InitNode: React.FC = forwardRef(() => {
 		},
 		{
 			title: t('node.add'),
-			content: <DoneStep />
+			content: <DoneStep />,
+			operations: [
+				{ label: t('service.deployService'), callback: () => navigate('/home') },
+				{ label: t('service.backHome') } // 不传callback默认进行一下步
+			]
 		},
 		{
 			title: t('service.selectService'),
