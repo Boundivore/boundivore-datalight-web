@@ -18,30 +18,34 @@
  * AddNode - 新增节点
  * @author Tracy.Guo
  */
-import React, { useRef, useEffect, forwardRef } from 'react';
-// import { useSearchParams } from 'react-router-dom';
+import React, { useRef, forwardRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
-import Layouts from '@/layouts';
 import useStore from '@/store/store';
-// import APIConfig from '@/api/config';
-// import RequestHttp from '@/api';
-import ParseStep from './parseStep';
-import DetectStep from './detectStep';
-import CheckStep from './checkStep';
-import InitList from './parseList';
+import ParseStep from './steps/parseStep';
+import DetectStep from './steps/detectStep';
+import CheckStep from './steps/checkStep';
+import InitList from './steps/parseList';
 import StepComponent from './components/stepComponent';
+import DispatchStep from './steps/dispatchStep';
+import StartWorkerStep from './steps/startWorkerStep';
+import DoneStep from './steps/doneStep';
+import useStepLogic from '@/hooks/useStepLogic';
 
 const AddNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
-	// const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, setSelectedRowsList } = useStore();
+	const navigate = useNavigate();
+	const { useStepEffect } = useStepLogic();
 	const { stepCurrent } = useStore();
-	// const [searchParams] = useSearchParams();
+	const [searchParams] = useSearchParams();
 	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const initListStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const detectStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const checkStepRef = useRef<{ handleOk: () => void } | null>(null);
-	// const id = searchParams.get('id');
+	const dispatchStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const startWorkerStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const id = searchParams.get('id');
 	const steps = [
 		{
 			title: t('node.parseHostname'),
@@ -58,6 +62,18 @@ const AddNode: React.FC = forwardRef(() => {
 		{
 			title: t('node.check'),
 			key: 3
+		},
+		{
+			title: t('node.dispatch'),
+			key: 4
+		},
+		{
+			title: t('node.startWorker'),
+			key: 5
+		},
+		{
+			title: t('node.add'),
+			key: 6
 		}
 	];
 	const nextList = async () => {
@@ -70,6 +86,18 @@ const AddNode: React.FC = forwardRef(() => {
 	};
 	const nextCheck = async () => {
 		const callbackData = await detectStepRef.current?.handleOk();
+		return callbackData;
+	};
+	const nextDispatch = async () => {
+		const callbackData = await checkStepRef.current?.handleOk();
+		return callbackData;
+	};
+	const nextStartWorker = async () => {
+		const callbackData = await dispatchStepRef.current?.handleOk();
+		return callbackData;
+	};
+	const nextAdd = async () => {
+		const callbackData = await startWorkerStepRef.current?.handleOk();
 		return callbackData;
 	};
 	const stepConfig = [
@@ -90,42 +118,38 @@ const AddNode: React.FC = forwardRef(() => {
 		},
 		{
 			title: t('node.check'),
-			content: <CheckStep ref={checkStepRef} />
+			content: <CheckStep ref={checkStepRef} />,
+			nextStep: nextDispatch
+		},
+		{
+			title: t('node.dispatch'),
+			content: <DispatchStep ref={dispatchStepRef} />,
+			nextStep: nextStartWorker
+		},
+		{
+			title: t('node.startWorker'),
+			content: <StartWorkerStep ref={startWorkerStepRef} />,
+			nextStep: nextAdd
+		},
+		{
+			title: t('node.add'),
+			content: <DoneStep />,
+			operations: [{ label: t('node.backListPage'), callback: () => navigate('/node/manageList') }]
 		}
 	];
-	// 获取进度，定位到当前步骤
-	// const getProcedure = async () => {
-	// 	const apiGetProcedure = APIConfig.getProcedure;
-	// 	const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
-	// 	const {
-	// 		Code,
-	// 		Data: { NodeJobId, ProcedureState, NodeInfoList }
-	// 	} = data;
-	// 	if (Code === '00000') {
-	// 		setStepCurrent(stepMap[ProcedureState]);
-	// 		setJobNodeId(NodeJobId);
-	// 		setSelectedRowsList(NodeInfoList);
-	// 	} else if (Code === 'D1001') {
-	// 		setStepCurrent(0);
-	// 	}
-	// };
-	useEffect(() => {
-		// getProcedure();
-	}, []);
-
+	//获取进度，定位到当前步骤
+	useStepEffect(id);
 	return (
-		<Layouts hideSider={false}>
-			<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
-				<Col span={6}>
-					<Card className="h-full">
-						<Steps size="small" current={stepCurrent} direction="vertical" items={steps} />
-					</Card>
-				</Col>
-				<Col span={18}>
-					<StepComponent config={stepConfig} />
-				</Col>
-			</Row>
-		</Layouts>
+		<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
+			<Col span={6}>
+				<Card className="h-full">
+					<Steps size="small" current={stepCurrent} direction="vertical" items={steps} />
+				</Card>
+			</Col>
+			<Col span={18}>
+				<StepComponent config={stepConfig} />
+			</Col>
+		</Row>
 	);
 });
 

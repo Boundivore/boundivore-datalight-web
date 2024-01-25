@@ -19,7 +19,6 @@
  * @author Tracy.Guo
  */
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Form, Input, Col, Row, Space } from 'antd';
 import { md5 } from 'js-md5';
@@ -27,6 +26,7 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore, { usePersistStore } from '@/store/store';
 import Logo from '@/assets/logo.png';
+import useNavigater from '@/hooks/useNavigater';
 
 type FieldType = {
 	Principal?: string;
@@ -36,7 +36,7 @@ type FieldType = {
 const LoginPage: React.FC = () => {
 	const [form] = Form.useForm();
 	const { t } = useTranslation();
-	const navigate = useNavigate();
+	const { navigateToHome } = useNavigater();
 	const { setIsNeedChangePassword } = useStore();
 	const { userInfo, setUserInfo } = usePersistStore();
 	const onFinish = async (values: any) => {
@@ -57,7 +57,7 @@ const LoginPage: React.FC = () => {
 		if (Code === '00000') {
 			setUserInfo({ userId: UserId, nickName: Nickname, realName: Realname });
 			setIsNeedChangePassword(IsNeedChangePassword);
-			navigate('/home');
+			navigateToHome;
 		}
 	};
 
@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
 	const isLogin = async () => {
 		const apiIsLogin = APIConfig.isLogin;
 		const loginData = await RequestHttp.get(apiIsLogin);
-		loginData.Data && navigate('/home');
+		loginData.Data && navigateToHome;
 	};
 	useEffect(() => {
 		(userInfo as any).userId && isLogin();

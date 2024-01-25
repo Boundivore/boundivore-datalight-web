@@ -23,7 +23,7 @@ export default defineConfig({
 		viteEslint(),
 		Pages({
 			// dirs: 'src/pages', 默认
-			exclude: ['**/components/*.tsx']
+			exclude: ['**/components/*.tsx', '**/auth/login.tsx']
 		})
 	],
 	server: {

@@ -18,33 +18,32 @@
  * InitNode - 节点初始化
  * @author Tracy.Guo
  */
-import React, { useRef, useEffect, forwardRef } from 'react';
+import React, { useRef, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import Layouts from '@/layouts';
 import useStore from '@/store/store';
-import APIConfig from '@/api/config';
-import RequestHttp from '@/api';
-import ParseStep from './parseStep';
-import DetectStep from './detectStep';
-import CheckStep from './checkStep';
-import InitList from './parseList';
+import ParseStep from './steps/parseStep';
+import DetectStep from './steps/detectStep';
+import CheckStep from './steps/checkStep';
+import InitList from './steps/parseList';
 import StepComponent from './components/stepComponent';
-import DispatchStep from './dispatchStep';
-import StartWorkerStep from './startWorkerStep';
-import DoneStep from './doneStep';
-import SelectServiceStep from './selectServiceStep';
-import SelectComStep from './selectComStep';
-import PreconfigStep from './preconfigStep';
-import DeployStep from './deployStep';
+import DispatchStep from './steps/dispatchStep';
+import StartWorkerStep from './steps/startWorkerStep';
+import DoneStep from './steps/doneStep';
+import SelectServiceStep from './steps/selectServiceStep';
+import SelectComStep from './steps/selectComStep';
+import PreconfigStep from './steps/preconfigStep';
+import DeployStep from './steps/deployStep';
+import useStepLogic from '@/hooks/useStepLogic';
+import useNavigater from '@/hooks/useNavigater';
 
 const InitNode: React.FC = forwardRef(() => {
-	const navigate = useNavigate();
 	const { t } = useTranslation();
-	const { stepCurrent, setStepCurrent, setJobNodeId, stepMap, setSelectedRowsList } = useStore();
+	const { stepCurrent } = useStore();
 	const [searchParams] = useSearchParams();
+	const { useStepEffect } = useStepLogic();
+	const { navigateToHome } = useNavigater();
 	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const initListStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const detectStepRef = useRef<{ handleOk: () => void } | null>(null);
@@ -169,8 +168,8 @@ const InitNode: React.FC = forwardRef(() => {
 			title: t('node.add'),
 			content: <DoneStep />,
 			operations: [
-				{ label: t('service.deployService'), callback: () => navigate('/home') },
-				{ label: t('service.backHome') } // 不传callback默认进行一下步
+				{ label: t('node.deployService'), callback: navigateToHome },
+				{ label: t('backHome') } // 不传callback默认进行一下步
 			]
 		},
 		{
@@ -194,40 +193,19 @@ const InitNode: React.FC = forwardRef(() => {
 			// nextStep: nextComponent
 		}
 	];
-	// 获取进度，定位到当前步骤
-	const getProcedure = async () => {
-		const apiGetProcedure = APIConfig.getProcedure;
-		const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
-		const {
-			Code,
-			Data: { NodeJobId, ProcedureState, NodeInfoList }
-		} = data;
-		if (Code === '00000') {
-			setStepCurrent(stepMap[ProcedureState]);
-			setJobNodeId(NodeJobId);
-			setSelectedRowsList(NodeInfoList);
-		} else if (Code === 'D1001') {
-			setStepCurrent(0);
-		}
-	};
-	useEffect(() => {
-		getProcedure();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
+	// 使用新的 Hook 中的 useEffect, 获取进度，定位到当前步骤
+	useStepEffect(id);
 	return (
-		<Layouts hideSider={false}>
-			<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
-				<Col span={6}>
-					<Card className="h-full">
-						<Steps size="small" current={stepCurrent} direction="vertical" items={steps} />
-					</Card>
-				</Col>
-				<Col span={18}>
-					<StepComponent config={stepConfig} />
-				</Col>
-			</Row>
-		</Layouts>
+		<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
+			<Col span={6}>
+				<Card className="h-full">
+					<Steps size="small" current={stepCurrent} direction="vertical" items={steps} />
+				</Card>
+			</Col>
+			<Col span={18}>
+				<StepComponent config={stepConfig} />
+			</Col>
+		</Row>
 	);
 });
 

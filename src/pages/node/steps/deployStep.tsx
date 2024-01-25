@@ -26,7 +26,7 @@ import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import usePolling from './hooks/usePolling';
+import usePolling from '@/hooks/usePolling';
 
 const { Text } = Typography;
 interface DataType {

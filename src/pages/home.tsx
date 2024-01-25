@@ -18,8 +18,7 @@
  * 集群列表
  * @author Tracy.Guo
  */
-import Layouts from '@/layouts';
-import { Table, Button, Card, App } from 'antd';
+import { Table, Button, Card, App, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 import RequestHttp from '@/api';
@@ -50,12 +49,26 @@ const Home: React.FC = () => {
 		{
 			title: t('cluster.name'),
 			dataIndex: 'ClusterName',
-			key: 'ClusterName'
+			key: 'ClusterName',
+			width: '20%'
 		},
 		{
 			title: t('cluster.description'),
 			dataIndex: 'ClusterDesc',
-			key: 'ClusterDesc'
+			key: 'ClusterDesc',
+			width: '20%'
+		},
+		{
+			title: t('cluster.type'),
+			dataIndex: 'ClusterType',
+			key: 'ClusterType',
+			width: '10%'
+		},
+		{
+			title: t('cluster.state'),
+			dataIndex: 'ClusterState',
+			key: 'ClusterState',
+			width: '10%'
 		},
 		{
 			title: t('operation'),
@@ -66,7 +79,40 @@ const Home: React.FC = () => {
 				if (hasAlreadyNode && !text) {
 					return null;
 				} else {
-					return <a href={`/node/init?id=${record.ClusterId}`}>绑定节点</a>;
+					return (
+						<Space>
+							<Button
+								type="primary"
+								size="small"
+								ghost
+								onClick={() => {
+									navigate(`/node/init?id=${record.ClusterId}`);
+								}}
+							>
+								{t('cluster.specifyNode')}
+							</Button>
+							<Button
+								type="primary"
+								size="small"
+								ghost
+								onClick={() => {
+									// navigate('/cluster/create');
+								}}
+							>
+								{t('cluster.restart')}
+							</Button>
+							<Button
+								type="primary"
+								size="small"
+								ghost
+								onClick={() => {
+									// navigate('/cluster/create');
+								}}
+							>
+								{t('cluster.remove')}
+							</Button>
+						</Space>
+					);
 				}
 			}
 		}
@@ -98,19 +144,17 @@ const Home: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Layouts>
-			<Card className="min-h-[calc(100%-100px)] m-[20px]">
-				<Button
-					type="primary"
-					onClick={() => {
-						navigate('/cluster/create');
-					}}
-				>
-					{t('cluster.create')}
-				</Button>
-				<Table className="mt-[20px]" rowKey="ClusterId" columns={columns} dataSource={tableData} loading={loading} />
-			</Card>
-		</Layouts>
+		<Card className="min-h-[calc(100%-100px)] m-[20px]">
+			<Button
+				type="primary"
+				onClick={() => {
+					navigate('/cluster/create');
+				}}
+			>
+				{t('cluster.create')}
+			</Button>
+			<Table className="mt-[20px]" rowKey="ClusterId" columns={columns} dataSource={tableData} loading={loading} />
+		</Card>
 	);
 };
 

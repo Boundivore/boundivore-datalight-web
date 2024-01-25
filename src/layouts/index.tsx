@@ -18,29 +18,29 @@
  * Layouts -页面框架
  * @author Tracy.Guo
  */
-// import { Outlet } from 'react-router-dom';
-import { ReactNode, useState } from 'react';
-import { Layout, Avatar, Popover, Menu, Breadcrumb, App } from 'antd';
+import { useState, Suspense } from 'react';
+import { Layout, Avatar, Popover, Menu, Breadcrumb, App, Spin } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
+import routes from '~react-pages';
 import LayoutMenu from './components/menu';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useRoutes } from 'react-router-dom';
 import Logo from '@/assets/logo.png';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import useNavigater from '@/hooks/useNavigater';
 
 const { Header, Footer, Sider, Content } = Layout;
 
 // 定义一个接口，描述组件的 props
 interface MyComponentProps {
-	children: ReactNode;
 	hideSider?: boolean;
 }
 
-const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
+const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const { t } = useTranslation();
 	const [collapsed, setCollapsed] = useState(false);
-	const navigate = useNavigate();
+	const { navigateToLogin } = useNavigater();
 	const { modal } = App.useApp();
 	const apiLogout = APIConfig.logout;
 	const content = (
@@ -63,8 +63,7 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 						cancelText: t('cancel'),
 						onOk: async () => {
 							const data = await RequestHttp.get(apiLogout);
-							// @ts-ignore
-							data.Code === '00000' && navigate('/auth/login');
+							data.Code === '00000' && navigateToLogin();
 						}
 					});
 				}
@@ -93,7 +92,7 @@ const Layouts: React.FC<MyComponentProps> = ({ children, hideSider }) => {
 				) : null}
 				<Content>
 					<Breadcrumb />
-					{children}
+					<Suspense fallback={<Spin fullscreen />}>{useRoutes(routes)}</Suspense>
 					<Footer className="fixed bottom-0 w-full bg-white p-4 shadow-md">{t('poweredBy')}</Footer>
 				</Content>
 			</Layout>

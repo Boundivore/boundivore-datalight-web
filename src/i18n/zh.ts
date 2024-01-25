@@ -66,6 +66,7 @@ export default {
 		name: '集群名称',
 		nameCheck: '请输入集群名称',
 		type: '集群类型',
+		state: '状态',
 		typeCheck: '请选择集群类型',
 		description: '集群描述',
 		desCheck: '请输入集群描述',
@@ -77,7 +78,10 @@ export default {
 		mixed: '存储型',
 		list: {
 			description: '描述'
-		}
+		},
+		restart: '重启集群',
+		remove: '删除集群',
+		specifyNode: '指定集群节点'
 	},
 	node: {
 		parseHostname: '解析节点主机名',
@@ -121,7 +125,10 @@ export default {
 		currentCluster: '当前集群: ',
 		name: '节点域名',
 		ip: 'IP地址',
-		deployService: '部署服务'
+		deployService: '部署服务',
+		restart: '重启节点',
+		remove: '删除节点',
+		backListPage: '回到节点列表页'
 	},
 	service: {
 		selectService: '选择服务',
@@ -132,7 +139,8 @@ export default {
 		deploySuccess: '部署成功，完成',
 		unselected: '未选择',
 		selected: '已选择',
-		serviceName: '服务名称'
+		serviceName: '服务名称',
+		restart: '重启服务'
 	},
 	retry: '重试',
 	previous: '上一步',

@@ -27,7 +27,7 @@ import _ from 'lodash';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import DeployOverviewModal from './components/deployOverviewModal';
+import DeployOverviewModal from '../components/deployOverviewModal';
 
 const layout = {
 	labelCol: { span: 8 },

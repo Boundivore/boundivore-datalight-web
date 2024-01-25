@@ -20,10 +20,8 @@
  */
 import { Form, Input, Button, Card, App } from 'antd';
 import { md5 } from 'js-md5';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
-import Layouts from '@/layouts';
+import useNavigater from '@/hooks/useNavigater';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 
@@ -37,7 +35,7 @@ interface ChangePasswordFormValues {
 const ChangePassword: React.FC = () => {
 	const { t } = useTranslation();
 	const { modal } = App.useApp();
-	const navigate = useNavigate();
+	const { navigateToLogin } = useNavigater();
 
 	const onFinish = async (values: ChangePasswordFormValues) => {
 		const { NewCredential, OldCredential, Principal, ConfirmNewCredential } = values;
@@ -63,69 +61,67 @@ const ChangePassword: React.FC = () => {
 				okText: t('confirm'),
 				cancelText: t('cancel'),
 				onOk: () => {
-					navigate('/auth/login');
+					navigateToLogin();
 				}
 			});
 		}
 	};
 	return (
-		<Layouts>
-			<Card className="min-h-[calc(100%-100px)] m-[20px]" title={t('tabs.changePassword')}>
-				<Form
-					className="w-[600px]"
-					name="basic"
-					labelCol={{ span: 8 }}
-					wrapperCol={{ span: 16 }}
-					onFinish={onFinish}
-					autoComplete="off"
+		<Card className="min-h-[calc(100%-100px)] m-[20px]" title={t('tabs.changePassword')}>
+			<Form
+				className="w-[600px]"
+				name="basic"
+				labelCol={{ span: 8 }}
+				wrapperCol={{ span: 16 }}
+				onFinish={onFinish}
+				autoComplete="off"
+			>
+				<Form.Item
+					label={t('login.principal')}
+					name="Principal"
+					rules={[{ required: true, message: t('account.inputPrincipal') }]}
 				>
-					<Form.Item
-						label={t('login.principal')}
-						name="Principal"
-						rules={[{ required: true, message: t('account.inputPrincipal') }]}
-					>
-						<Input />
-					</Form.Item>
-					<Form.Item
-						label={t('account.oldPassword')}
-						name="OldCredential"
-						rules={[{ required: true, message: t('account.inputOldPassword') }]}
-					>
-						<Input.Password />
-					</Form.Item>
+					<Input />
+				</Form.Item>
+				<Form.Item
+					label={t('account.oldPassword')}
+					name="OldCredential"
+					rules={[{ required: true, message: t('account.inputOldPassword') }]}
+				>
+					<Input.Password />
+				</Form.Item>
 
-					<Form.Item
-						label={t('account.newPassword')}
-						name="NewCredential"
-						rules={[{ required: true, message: t('account.inputNewPassword') }]}
-					>
-						<Input.Password />
-					</Form.Item>
-					<Form.Item
-						label={t('account.confirmNewPassword')}
-						name="ConfirmNewCredential"
-						rules={[
-							{ required: true, message: t('account.inputConfirmPassword') },
-							({ getFieldValue }) => ({
-								validator(_, value) {
-									if (!value || getFieldValue('NewCredential') === value) {
-										return Promise.resolve();
-									}
-									return Promise.reject(new Error(t('account.passwordMismatch')));
+				<Form.Item
+					label={t('account.newPassword')}
+					name="NewCredential"
+					rules={[{ required: true, message: t('account.inputNewPassword') }]}
+				>
+					<Input.Password />
+				</Form.Item>
+				<Form.Item
+					label={t('account.confirmNewPassword')}
+					name="ConfirmNewCredential"
+					rules={[
+						{ required: true, message: t('account.inputConfirmPassword') },
+						({ getFieldValue }) => ({
+							validator(_, value) {
+								if (!value || getFieldValue('NewCredential') === value) {
+									return Promise.resolve();
 								}
-							})
-						]}
-					>
-						<Input.Password />
-					</Form.Item>
-					<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-						<Button type="primary" htmlType="submit">
-							{t('tabs.changePassword')}
-						</Button>
-					</Form.Item>
-				</Form>
-			</Card>
-		</Layouts>
+								return Promise.reject(new Error(t('account.passwordMismatch')));
+							}
+						})
+					]}
+				>
+					<Input.Password />
+				</Form.Item>
+				<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+					<Button type="primary" htmlType="submit">
+						{t('tabs.changePassword')}
+					</Button>
+				</Form.Item>
+			</Form>
+		</Card>
 	);
 };
 

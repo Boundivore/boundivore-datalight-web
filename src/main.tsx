@@ -14,20 +14,14 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import React, { Suspense } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Spin } from 'antd';
-import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
 import '@/i18n';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
-		<Router>
-			<Suspense fallback={<Spin fullscreen />}>
-				<App />
-			</Suspense>
-		</Router>
+		<App />
 	</React.StrictMode>
 );

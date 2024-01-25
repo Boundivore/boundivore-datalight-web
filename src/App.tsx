@@ -15,13 +15,14 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 import { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ConfigProvider, App as AppAnt } from 'antd';
-import { useRoutes } from 'react-router-dom';
-import routes from '~react-pages';
 import type { Locale } from 'antd/es/locale';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN';
 import ThemeProvider from './styles/ThemeProvider';
+import Login from '@/pages/auth/login';
+import Layouts from '@/layouts';
 
 function App() {
 	const [locale] = useState<Locale>(zhCN);
@@ -29,7 +30,16 @@ function App() {
 	return (
 		<AppAnt>
 			<ConfigProvider locale={locale}>
-				<ThemeProvider>{useRoutes(routes)}</ThemeProvider>
+				<ThemeProvider>
+					<Router>
+						<Routes>
+							{/* 匹配 /login 路径时，只渲染 Login 组件，不使用 Layouts */}
+							<Route path="/login" element={<Login />} />
+							{/* 其他路径使用 Layouts 包裹 */}
+							<Route path="/*" element={<Layouts />} />
+						</Routes>
+					</Router>
+				</ThemeProvider>
 			</ConfigProvider>
 		</AppAnt>
 	);

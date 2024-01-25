@@ -22,7 +22,7 @@ import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import usePolling from './hooks/usePolling';
+import usePolling from '@/hooks/usePolling';
 
 interface DataType {
 	NodeId: React.Key;
@@ -33,11 +33,12 @@ interface DataType {
 	NodeState: string;
 }
 
-const StartWorkerStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRowsList, setSelectedRowsList, stateText, stableState } = useStore();
+const CheckStep: React.FC = forwardRef((props, ref) => {
+	const { selectedRowsList, setSelectedRowsList, setJobNodeId, stateText, stableState } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
+	const apiSpeed = APIConfig.checkList;
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -62,23 +63,13 @@ const StartWorkerStep: React.FC = forwardRef((props, ref) => {
 			title: t('node.state'),
 			dataIndex: 'NodeState',
 			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
+		},
+		{
+			title: t('node.log'),
+			dataIndex: 'NodeState',
+			render: () => <a> {t('node.viewLog')}</a>
 		}
 	];
-
-	useImperativeHandle(ref, () => ({
-		handleOk
-	}));
-	const handleOk = async () => {
-		const apiAdd = APIConfig.add;
-		const params = {
-			ClusterId: id,
-			NodeActionTypeEnum: 'ADD',
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: 22
-		};
-		const jobData = await RequestHttp.post(apiAdd, params);
-		return Promise.resolve(jobData);
-	};
 	const rowSelection = {
 		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectedRowsList(selectedRows);
@@ -90,16 +81,31 @@ const StartWorkerStep: React.FC = forwardRef((props, ref) => {
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
 	};
-	const getList = async () => {
+	useImperativeHandle(ref, () => ({
+		handleOk
+	}));
+	const handleOk = async () => {
+		const apiDispatch = APIConfig.dispatch;
+		const params = {
+			ClusterId: id,
+			NodeActionTypeEnum: 'DISPATCH',
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			SshPort: 22
+		};
+		const jobData = await RequestHttp.post(apiDispatch, params);
+		setJobNodeId(jobData.Data.NodeJobId);
+		return Promise.resolve(jobData);
+	};
+
+	const getSpeed = async () => {
 		const params = {
 			ClusterId: id,
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 		};
-		const data = await RequestHttp.post(APIConfig.startWorkerList, params);
-		// @ts-ignore
+		const data = await RequestHttp.post(apiSpeed, params);
 		return data.Data.NodeInitDetailList;
 	};
-	const tableData = usePolling(getList, stableState, 1000);
+	const tableData = usePolling(getSpeed, stableState, 1000);
 	return (
 		<Table
 			rowSelection={{
@@ -111,4 +117,4 @@ const StartWorkerStep: React.FC = forwardRef((props, ref) => {
 		/>
 	);
 });
-export default StartWorkerStep;
+export default CheckStep;

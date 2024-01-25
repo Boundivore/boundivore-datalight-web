@@ -19,13 +19,13 @@
  * @author Tracy.Guo
  */
 import { useEffect, useState } from 'react';
-import Layouts from '@/layouts';
 import { Card, Button, Form, Input, Tabs, List, Avatar, Select } from 'antd';
 import { useTranslation, Trans } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import { ClusterNewRequest } from '@/api/interface';
 import useStore from '@/store/store';
+import useNavigater from '@/hooks/useNavigater';
 
 const { Option } = Select;
 
@@ -35,6 +35,7 @@ const layout = {
 };
 
 const CreateCluster: React.FC = () => {
+	const { navigateToHome } = useNavigater();
 	const [success, setSuccess] = useState(false);
 	const [DLCVersion] = useState('');
 	const [serviceList, setServiceList] = useState([]);
@@ -67,102 +68,100 @@ const CreateCluster: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Layouts hideSider={false}>
-			<Card className="min-h-[calc(100%-100px)] m-[20px]" title={t('cluster.create')}>
-				{!success ? (
-					<Form
-						form={form}
-						name="basic"
-						{...layout}
-						style={{ maxWidth: 600 }}
-						initialValues={{ remember: true, DlcVersion: DLCVersion }}
-						autoComplete="off"
+		<Card className="min-h-[calc(100%-100px)] m-[20px]" title={t('cluster.create')}>
+			{!success ? (
+				<Form
+					form={form}
+					name="basic"
+					{...layout}
+					style={{ maxWidth: 600 }}
+					initialValues={{ remember: true, DlcVersion: DLCVersion }}
+					autoComplete="off"
+				>
+					<Form.Item
+						label={t('cluster.name')}
+						name="ClusterName"
+						rules={[{ required: true, message: `${t('cluster.nameCheck')}` }]}
 					>
+						<Input />
+					</Form.Item>
+					<Form.Item
+						label={t('cluster.type')}
+						name="ClusterType"
+						rules={[{ required: true, message: `${t('cluster.typeCheck')}` }]}
+					>
+						<Select onChange={value => handleTypeChange(value)} allowClear>
+							<Option value="COMPUTE">{t('cluster.compute')}</Option>
+							<Option value="MIXED">{t('cluster.mixed')}</Option>
+						</Select>
+					</Form.Item>
+					<Form.Item
+						label={t('cluster.description')}
+						name="ClusterDesc"
+						rules={[{ required: true, message: `${t('cluster.desCheck')}` }]}
+					>
+						<Input />
+					</Form.Item>
+					<Form.Item
+						label={t('cluster.dlcVersion')}
+						name="DlcVersion"
+						rules={[{ required: true, message: `${t('cluster.desCheck')}` }]}
+					>
+						<Input />
+					</Form.Item>
+					<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+						<Tabs
+							items={serviceList.map(service => {
+								return {
+									key: service.ServiceName,
+									label: service.ServiceName,
+									children: (
+										<List
+											itemLayout="horizontal"
+											dataSource={service.DependencyList}
+											renderItem={(item, index) => (
+												<List.Item>
+													<List.Item.Meta
+														avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`} />}
+														title={<a href="https://ant.design">{item.title}</a>}
+														description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+													/>
+												</List.Item>
+											)}
+										/>
+									)
+								};
+							})}
+						/>
+					</Form.Item>
+					{showRelativeId ? (
 						<Form.Item
-							label={t('cluster.name')}
-							name="ClusterName"
-							rules={[{ required: true, message: `${t('cluster.nameCheck')}` }]}
-						>
-							<Input />
-						</Form.Item>
-						<Form.Item
-							label={t('cluster.type')}
-							name="ClusterType"
-							rules={[{ required: true, message: `${t('cluster.typeCheck')}` }]}
-						>
-							<Select onChange={value => handleTypeChange(value)} allowClear>
-								<Option value="COMPUTE">{t('cluster.compute')}</Option>
-								<Option value="MIXED">{t('cluster.mixed')}</Option>
-							</Select>
-						</Form.Item>
-						<Form.Item
-							label={t('cluster.description')}
-							name="ClusterDesc"
+							label={t('cluster.relativeClusterId')}
+							name="RelativeClusterId"
 							rules={[{ required: true, message: `${t('cluster.desCheck')}` }]}
 						>
 							<Input />
 						</Form.Item>
-						<Form.Item
-							label={t('cluster.dlcVersion')}
-							name="DlcVersion"
-							rules={[{ required: true, message: `${t('cluster.desCheck')}` }]}
-						>
-							<Input />
-						</Form.Item>
-						<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-							<Tabs
-								items={serviceList.map(service => {
-									return {
-										key: service.ServiceName,
-										label: service.ServiceName,
-										children: (
-											<List
-												itemLayout="horizontal"
-												dataSource={service.DependencyList}
-												renderItem={(item, index) => (
-													<List.Item>
-														<List.Item.Meta
-															avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`} />}
-															title={<a href="https://ant.design">{item.title}</a>}
-															description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-														/>
-													</List.Item>
-												)}
-											/>
-										)
-									};
-								})}
-							/>
-						</Form.Item>
-						{showRelativeId ? (
-							<Form.Item
-								label={t('cluster.relativeClusterId')}
-								name="RelativeClusterId"
-								rules={[{ required: true, message: `${t('cluster.desCheck')}` }]}
-							>
-								<Input />
-							</Form.Item>
-						) : null}
-						<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-							<Button type="primary" size={'large'} onClick={handleOk}>
-								{t('cluster.create')}
-							</Button>
-						</Form.Item>
-					</Form>
-				) : (
-					<div style={{ fontSize: '40px', textAlign: 'center' }}>
-						<p>
-							<Trans i18nKey="cluster.createSucc">
-								This should be a <a href={`/node/init?id=${jobClusterId}`}>link</a>
-							</Trans>
-						</p>
-						<Button type="primary" href="/home">
-							{t('cluster.backToList')}
+					) : null}
+					<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+						<Button type="primary" size={'large'} onClick={handleOk}>
+							{t('cluster.create')}
 						</Button>
-					</div>
-				)}
-			</Card>
-		</Layouts>
+					</Form.Item>
+				</Form>
+			) : (
+				<div style={{ fontSize: '40px', textAlign: 'center' }}>
+					<p>
+						<Trans i18nKey="cluster.createSucc">
+							This should be a <a href={`/node/init?id=${jobClusterId}`}>link</a>
+						</Trans>
+					</p>
+					<Button type="primary" onClick={navigateToHome}>
+						{t('cluster.backToList')}
+					</Button>
+				</div>
+			)}
+		</Card>
 	);
 };
 

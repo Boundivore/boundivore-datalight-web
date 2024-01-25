@@ -16,15 +16,18 @@
  */
 import { forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Badge } from 'antd';
+import { Table, Progress, Space, Typography } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import usePolling from './hooks/usePolling';
+import usePolling from '@/hooks/usePolling';
 
+const { Text } = Typography;
 interface DataType {
+	[x: string]: any;
 	NodeId: React.Key;
 	Hostname: string;
 	CpuCores: number;
@@ -32,22 +35,74 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
+const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 
-const DetectStep: React.FC = forwardRef((props, ref) => {
-	const { selectedRowsList, setSelectedRowsList, stateText, stableState } = useStore();
+const DispatchStep: React.FC = forwardRef((props, ref) => {
+	const { jobNodeId, selectedRowsList, setSelectedRowsList, stableState } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const apiSpeed = APIConfig.detectList;
+	const apiSpeed = APIConfig.dispatchList;
+	const apiProgress = APIConfig.dispatchProgress;
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
+			width: 100,
 			render: (text: string) => <a>{text}</a>
+		},
+		{
+			title: t('node.progress'),
+			dataIndex: 'FileBytesProgress',
+			render: (text, record) => {
+				console.log(4444, record);
+				return (
+					<>
+						{text ? (
+							<>
+								<Space>
+									{Number(text?.TotalProgress) !== 100 ? <LoadingOutlined /> : null}
+									<Text ellipsis={true} className="w-[150px]">
+										{t('node.fileProgress')}
+										{`${record?.FileCountProgress.TotalTransferFileCount}/${record?.FileCountProgress.TotalFileCount}`}
+									</Text>
+									{Number(text?.TotalProgress) !== 100 ? (
+										<Text ellipsis={true} className="w-[150px]">
+											{t('node.fileName')}
+											{record?.CurrentFileProgress.CurrentFilename}
+										</Text>
+									) : null}
+									<Text ellipsis={true} className="w-[100px]">
+										{t('node.speed')}
+										{record?.CurrentFileProgress.CurrentPrintSpeed}
+									</Text>
+								</Space>
+								<Progress percent={Number(text?.TotalProgress).toFixed(2)} strokeColor={twoColors} />
+							</>
+						) : (
+							<>
+								<Space>
+									<LoadingOutlined />
+									<span>
+										{t('node.fileProgress')}
+										{0}
+									</span>
+									<span>
+										{t('node.speed')}
+										{0}
+									</span>
+								</Space>
+								<Progress percent={0} strokeColor={twoColors} />
+							</>
+						)}
+					</>
+				);
+			}
 		},
 		{
 			title: t('node.config'),
 			dataIndex: 'CpuCores',
+			width: 100,
 			render: (text: string, record) => (
 				<a>
 					{text}
@@ -58,11 +113,6 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 					{t('node.gb')}
 				</a>
 			)
-		},
-		{
-			title: t('node.state'),
-			dataIndex: 'NodeState',
-			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
 		}
 	];
 	const rowSelection = {
@@ -80,14 +130,14 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 		handleOk
 	}));
 	const handleOk = async () => {
-		const apiCheck = APIConfig.check;
+		const apiStartWorker = APIConfig.startWorker;
 		const params = {
 			ClusterId: id,
-			NodeActionTypeEnum: 'CHECK',
+			NodeActionTypeEnum: 'START_WORKER',
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
-		const jobData = await RequestHttp.post(apiCheck, params);
+		const jobData = await RequestHttp.post(apiStartWorker, params);
 		return Promise.resolve(jobData);
 	};
 
@@ -97,8 +147,25 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(apiSpeed, params);
-		return data.Data.NodeInitDetailList;
+		const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });
+		const {
+			Data: { NodeInitDetailList }
+		} = data;
+		const {
+			Data: { NodeJobTransferProgressList }
+		} = progressData;
+
+		let mergedData = NodeInitDetailList.map(item1 => {
+			let item2 = NodeJobTransferProgressList.filter(item2 => item2.NodeId === item1.NodeId);
+			if (item2.length > 0) {
+				return { ...item1, ...item2[0] };
+			} else {
+				return item1;
+			}
+		});
+		return mergedData;
 	};
+
 	const tableData = usePolling(getSpeed, stableState, 1000);
 	return (
 		<Table
@@ -111,4 +178,4 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 		/>
 	);
 });
-export default DetectStep;
+export default DispatchStep;

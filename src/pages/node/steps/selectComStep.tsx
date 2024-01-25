@@ -26,7 +26,7 @@ import { Collapse, Flex, Select } from 'antd';
 import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import NodeListModal from './components/nodeListModal';
+import NodeListModal from '../components/nodeListModal';
 
 const SelectComStep: React.FC = forwardRef((props, ref) => {
 	const { nodeList, setNodeList } = useComponentAndNodeStore();

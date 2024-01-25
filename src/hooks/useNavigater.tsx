@@ -14,31 +14,30 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-//轮询
-export const pollRequest = (
-	pollFunction: () => Promise<Array<any>>,
-	callback: Function,
-	lockedState: string[],
-	interval: number = 2000
-) => {
-	let poller: NodeJS.Timeout;
-	let shouldCancel = false;
-	const intervalFunction = async () => {
-		if (shouldCancel) {
-			clearInterval(poller);
-			return;
-		}
-		const data = await pollFunction();
-		// 内部终止逻辑
-		shouldCancel = data.length
-			? data.every(element => {
-					return lockedState.includes(element.NodeState || element.SCStateEnum);
-			  })
-			: true;
-		console.log(111, data);
-		callback(data);
+/**
+ * useNavigater - 自定义Hook
+ * 将系统中用到的跳转收敛到这里
+ * @author Tracy.Guo
+ */
+import { useNavigate } from 'react-router-dom';
+
+const useNavigater = () => {
+	const navigate = useNavigate();
+
+	const navigateToLogin = () => {
+		navigate('/login');
 	};
-	intervalFunction();
-	poller = setInterval(intervalFunction, interval);
-	return () => clearInterval(poller);
+	const navigateToHome = () => {
+		navigate('/home');
+	};
+	const navigateToClusterList = () => {
+		navigate('/home'); // 当前home及集群列表页
+	};
+	const navigateToNodeList = () => {
+		navigate('/node/list');
+	};
+
+	return { navigateToLogin, navigateToHome, navigateToClusterList, navigateToNodeList };
 };
+
+export default useNavigater;

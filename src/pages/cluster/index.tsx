@@ -14,7 +14,6 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import Layouts from '@/layouts';
 import { Card, Button } from 'antd';
 import RequestHttp from '@/api';
 import { useEffect, useState } from 'react';
@@ -45,23 +44,21 @@ const Cluster: React.FC = () => {
 	}, []);
 	return (
 		<>
-			<Layouts hideSider={false}>
-				<Card
-					style={{
-						width: '96%',
-						height: 'calc(100% - 40px)',
-						minHeight: '600px',
-						margin: '20px auto',
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center'
-					}}
-				>
-					<Button type="primary" size={'large'}>
-						<Link to="create">{t('cluster.create')}</Link>
-					</Button>
-				</Card>
-			</Layouts>
+			<Card
+				style={{
+					width: '96%',
+					height: 'calc(100% - 40px)',
+					minHeight: '600px',
+					margin: '20px auto',
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center'
+				}}
+			>
+				<Button type="primary" size={'large'}>
+					<Link to="create">{t('cluster.create')}</Link>
+				</Button>
+			</Card>
 			<CreateCluster open={open} onOk={handleOk} onCancel={handleCancel}></CreateCluster>
 		</>
 	);

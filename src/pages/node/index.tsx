@@ -20,10 +20,9 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Select, Flex } from 'antd';
+import { Table, Button, Card, Select, Flex, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
-import Layouts from '@/layouts';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 
@@ -63,13 +62,36 @@ const ManageList: React.FC = () => {
 			title: t('operation'),
 			key: 'IsExistInitProcedure',
 			dataIndex: 'IsExistInitProcedure',
-			render: (text, record) => {
-				const hasAlreadyNode = record.HasAlreadyNode;
-				if (hasAlreadyNode && !text) {
-					return null;
-				} else {
-					return <a href={`/node/init?id=${record.ClusterId}`}>绑定节点</a>;
-				}
+			render: () => {
+				// const hasAlreadyNode = record.HasAlreadyNode;
+				// if (hasAlreadyNode && !text) {
+				// 	return null;
+				// } else {
+				return (
+					<Space>
+						<Button
+							type="primary"
+							size="small"
+							ghost
+							onClick={() => {
+								// navigate('/cluster/create');
+							}}
+						>
+							{t('node.restart')}
+						</Button>
+						<Button
+							type="primary"
+							size="small"
+							ghost
+							onClick={() => {
+								// navigate('/cluster/create');
+							}}
+						>
+							{t('node.remove')}
+						</Button>
+					</Space>
+				);
+				// }
 			}
 		}
 	];
@@ -109,25 +131,24 @@ const ManageList: React.FC = () => {
 		getClusterList();
 	}, []);
 	return (
-		<Layouts>
-			<Card className="min-h-[calc(100%-100px)] m-[20px]">
-				<Flex justify="space-between">
-					<Button
-						type="primary"
-						onClick={() => {
-							navigate(`/node/addNode?id=${defaultSelectValue}`);
-						}}
-					>
-						{t('node.addNode')}
-					</Button>
-					<div>
-						{t('node.currentCluster')}
-						<Select className="w-[200px]" options={selectData} value={defaultSelectValue} onChange={handleChange} />
-					</div>
-				</Flex>
-				<Table className="mt-[20px]" rowKey="NodeId" columns={columns} dataSource={tableData} loading={loading} />
-			</Card>
-		</Layouts>
+		<Card className="min-h-[calc(100%-100px)] m-[20px]">
+			<Flex justify="space-between">
+				<Button
+					type="primary"
+					disabled={!selectData.length}
+					onClick={() => {
+						navigate(`/node/addNode?id=${defaultSelectValue}`);
+					}}
+				>
+					{t('node.addNode')}
+				</Button>
+				<div>
+					{t('node.currentCluster')}
+					<Select className="w-[200px]" options={selectData} value={defaultSelectValue} onChange={handleChange} />
+				</div>
+			</Flex>
+			<Table className="mt-[20px]" rowKey="NodeId" columns={columns} dataSource={tableData} loading={loading} />
+		</Card>
 	);
 };
 

@@ -17,7 +17,7 @@
 import { Menu } from 'antd';
 import { AppstoreOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -44,13 +44,13 @@ const LayoutMenu: React.FC = () => {
 	const items: MenuProps['items'] = [
 		getItem(<NavLink to="/home">{t('tabs.clusterManage')}</NavLink>, '/home', <AppstoreOutlined />),
 		getItem(<NavLink to="/node/manageList">{t('tabs.nodeManage')}</NavLink>, '/node/manageList', <AppstoreOutlined />),
-		getItem(<NavLink to="/home">{t('tabs.serviceManage')}</NavLink>, 'sub4', <AppstoreOutlined />),
-		getItem(<NavLink to="/home">{t('tabs.config')}</NavLink>, 'sub5', <AppstoreOutlined />),
+		getItem(<Link to="/home">{t('tabs.serviceManage')}</Link>, 'sub4', <AppstoreOutlined />),
+		getItem(<Link to="/home">{t('tabs.config')}</Link>, 'sub5', <AppstoreOutlined />),
 
 		{ type: 'divider' },
 
 		getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
-			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"'),
+			getItem(<Link to="/auth/changePassword">{t('tabs.changePassword')}</Link>, '/changePassword"'),
 			getItem('Option 10', '10'),
 			getItem('Option 11', '11'),
 			getItem('Option 12', '12')

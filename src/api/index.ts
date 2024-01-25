@@ -33,7 +33,7 @@ const requestSuccess = (response: AxiosResponse) => {
 	const { Code, Message } = data;
 	if (Code !== '00000' && Code !== 'D1001') {
 		message.error(Message, 5);
-		Code[0] === 'H' && (window.location.href = '/auth/login'); // ‘H’前缀代表鉴权失效，跳转至登录页
+		Code[0] === 'H' && (window.location.href = '/login'); // ‘H’前缀代表鉴权失效，跳转至登录页
 		return Promise.reject(new Error(Message || 'Error'));
 	} else {
 		return Promise.resolve(data);
