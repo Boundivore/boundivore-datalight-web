@@ -43,7 +43,7 @@ const LayoutMenu: React.FC = () => {
 	const { t } = useTranslation();
 	const items: MenuProps['items'] = [
 		getItem(<NavLink to="/home">{t('tabs.clusterManage')}</NavLink>, '/home', <AppstoreOutlined />),
-		getItem(<NavLink to="/node/manageList">{t('tabs.nodeManage')}</NavLink>, '/node/manageList', <AppstoreOutlined />),
+		getItem(<NavLink to="/node">{t('tabs.nodeManage')}</NavLink>, '/node', <AppstoreOutlined />),
 		getItem(<Link to="/home">{t('tabs.serviceManage')}</Link>, 'sub4', <AppstoreOutlined />),
 		getItem(<Link to="/home">{t('tabs.config')}</Link>, 'sub5', <AppstoreOutlined />),
 

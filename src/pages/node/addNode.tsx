@@ -134,7 +134,7 @@ const AddNode: React.FC = forwardRef(() => {
 		{
 			title: t('node.add'),
 			content: <DoneStep />,
-			operations: [{ label: t('node.backListPage'), callback: () => navigate('/node/manageList') }]
+			operations: [{ label: t('node.backListPage'), callback: () => navigate('/node') }]
 		}
 	];
 	//获取进度，定位到当前步骤
