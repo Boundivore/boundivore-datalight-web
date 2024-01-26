@@ -57,7 +57,7 @@ const LoginPage: React.FC = () => {
 		if (Code === '00000') {
 			setUserInfo({ userId: UserId, nickName: Nickname, realName: Realname });
 			setIsNeedChangePassword(IsNeedChangePassword);
-			navigateToHome;
+			navigateToHome();
 		}
 	};
 
@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
 	const isLogin = async () => {
 		const apiIsLogin = APIConfig.isLogin;
 		const loginData = await RequestHttp.get(apiIsLogin);
-		loginData.Data && navigateToHome;
+		loginData.Data && navigateToHome();
 	};
 	useEffect(() => {
 		(userInfo as any).userId && isLogin();

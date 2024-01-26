@@ -53,14 +53,12 @@ const DeployOverview: React.FC = ({ isModalOpen, handleOk, handleCancel }) => {
 			ClusterId: id
 		};
 		const data = await RequestHttp.get(apiList, { params });
-		// @ts-ignore
 		const tableData = data.Data.ServiceComponentSummaryList.map(item => {
 			item.rowKey = item.ServiceSummary.ServiceName;
 			item.children = item.ComponentSummaryList;
 			return item;
 		});
 		setServiceTable(tableData);
-		console.log(111, data);
 	};
 	useEffect(() => {
 		getInfo();

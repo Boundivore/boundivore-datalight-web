@@ -47,7 +47,7 @@ const NodeListModal: React.FC = ({ isModalOpen, handleOk, handleCancel, componen
 		}
 	];
 	const rowSelection = {
-		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectedNodeList(selectedRows);
 		},
 		defaultSelectedRowKeys: nodeList[id][component]?.map(({ NodeId }) => {
@@ -60,7 +60,6 @@ const NodeListModal: React.FC = ({ isModalOpen, handleOk, handleCancel, componen
 			ClusterId: id
 		};
 		const data = await RequestHttp.get(apiList, { params });
-		// @ts-ignore
 		setTableData(data.Data.NodeDetailList);
 	};
 	useEffect(() => {

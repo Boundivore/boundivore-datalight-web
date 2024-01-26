@@ -16,7 +16,7 @@
  */
 /**
  * useNavigater - 自定义Hook
- * 将系统中用到的跳转收敛到这里
+ * 将系统中用到的跳转收敛到这里, 路由地址如有变化，请查看是否需要更新该文件
  * @author Tracy.Guo
  */
 import { useNavigate } from 'react-router-dom';
@@ -28,16 +28,47 @@ const useNavigater = () => {
 		navigate('/login');
 	};
 	const navigateToHome = () => {
+		// 当前home是集群列表页，后续可能会是dashbord
 		navigate('/home');
 	};
 	const navigateToClusterList = () => {
-		navigate('/home'); // 当前home及集群列表页
+		// 当前home就是集群列表页，后续可能会是dashbord
+		navigate('/home');
 	};
 	const navigateToNodeList = () => {
-		navigate('/node/list');
+		navigate('/node');
+	};
+	const navigateToChangePassword = () => {
+		navigate('/auth/changePassword');
+	};
+	// 跳转至节点初始化页面
+	const navigateToNodeInit = (id: string | number) => {
+		navigate(`/node/init?id=${id}`);
+	};
+	// 跳转至新建集群页面
+	const navigateToCreateCluster = () => {
+		navigate('/cluster/create');
+	};
+	// 跳转至新增集群页面
+	const navigateToAddNode = (id: string | number) => {
+		navigate(`/node/addNode?id=${id}`);
+	};
+	// 跳转至组件管理页面
+	const navigateToComManage = (id: string | number, name: string) => {
+		navigate(`/service/componentManage?id=${id}&name=${name}`);
 	};
 
-	return { navigateToLogin, navigateToHome, navigateToClusterList, navigateToNodeList };
+	return {
+		navigateToLogin,
+		navigateToHome,
+		navigateToClusterList,
+		navigateToNodeList,
+		navigateToChangePassword,
+		navigateToNodeInit,
+		navigateToCreateCluster,
+		navigateToAddNode,
+		navigateToComManage
+	};
 };
 
 export default useNavigater;

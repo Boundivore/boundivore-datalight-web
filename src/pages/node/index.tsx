@@ -20,11 +20,11 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Select, Flex, Space } from 'antd';
+import { Table, Button, Card, Select, Flex, Space, App, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { useNavigate } from 'react-router-dom';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
+import useNavigater from '@/hooks/useNavigater';
 
 // import useStore from '@/store/store';
 
@@ -41,60 +41,130 @@ interface DataType {
 
 const ManageList: React.FC = () => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState([]);
 	const [selectData, setSelectData] = useState([]);
-	const [defaultSelectValue, setDefaultSelectValue] = useState('');
-	// const { modal } = App.useApp();
+	const [selectCluster, setSelectCluster] = useState('');
+	const [selectedRowsList, setSelectedRowsList] = useState([]);
+	const { navigateToAddNode } = useNavigater();
+	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
+	const [messageApi, contextHolder] = message.useMessage();
+	const { modal } = App.useApp();
+	// 顶部操作按钮配置
+	const buttonConfigTop = [
+		{
+			id: 1,
+			label: t('node.addNode'),
+			callback: () => navigateToAddNode(selectCluster),
+			disabled: !selectData.length
+		},
+		{
+			id: 2,
+			label: t('node.batchRestart'),
+			callback: () => {
+				const nodeList = selectedRowsList.map(node => ({ NodeId: node.NodeId, Hostname: node.Hostname }));
+				const sshPort = selectedRowsList[0].SshPort;
+				restartNode(nodeList, sshPort);
+			},
+			disabled: selectedRowsList.length === 0
+		},
+		{
+			id: 3,
+			label: t('node.batchRemove'),
+			callback: () => removeNode(selectedRowsList.map(node => ({ NodeId: node.NodeId }))),
+			disabled: removeDisabled
+		}
+	];
+	// 单条操作按钮配置
+	const buttonConfigItem = (text: [], record: {}) => {
+		const { NodeId, Hostname, SshPort } = record;
+		return [
+			{
+				id: 1,
+				label: t('node.restart'),
+				callback: () => restartNode([{ NodeId, Hostname }], SshPort),
+				disabled: false
+			},
+			{
+				id: 2,
+				label: t('node.remove'),
+				callback: () => removeNode([{ NodeId }]),
+				disabled: text.length !== 0
+			}
+		];
+	};
 	const columns: ColumnsType<DataType> = [
 		{
-			title: t('cluster.name'),
+			title: t('node.name'),
 			dataIndex: 'Hostname',
 			key: 'Hostname'
 		},
 		{
-			title: t('cluster.description'),
+			title: t('node.ip'),
 			dataIndex: 'NodeIp',
 			key: 'NodeIp'
 		},
 		{
 			title: t('operation'),
-			key: 'IsExistInitProcedure',
-			dataIndex: 'IsExistInitProcedure',
-			render: () => {
-				// const hasAlreadyNode = record.HasAlreadyNode;
-				// if (hasAlreadyNode && !text) {
-				// 	return null;
-				// } else {
+			key: 'ComponentName',
+			dataIndex: 'ComponentName',
+			render: (text, record) => {
 				return (
 					<Space>
-						<Button
-							type="primary"
-							size="small"
-							ghost
-							onClick={() => {
-								// navigate('/cluster/create');
-							}}
-						>
-							{t('node.restart')}
-						</Button>
-						<Button
-							type="primary"
-							size="small"
-							ghost
-							onClick={() => {
-								// navigate('/cluster/create');
-							}}
-						>
-							{t('node.remove')}
-						</Button>
+						{buttonConfigItem(text, record).map(button => (
+							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
+								{button.label}
+							</Button>
+						))}
 					</Space>
 				);
-				// }
 			}
 		}
 	];
+	const restartNode = (nodeList: object[], sshPort: string | number) => {
+		modal.confirm({
+			title: t('node.restart'),
+			content: t('node.restartConfirm'),
+			okText: t('confirm'),
+			cancelText: t('cancel'),
+			onOk: async () => {
+				const api = APIConfig.operateNode;
+				const params = {
+					ClusterId: selectCluster,
+					NodeActionTypeEnum: 'RESTART',
+					NodeInfoList: nodeList,
+					SshPort: sshPort
+				};
+				const data = await RequestHttp.post(api, params);
+				const { Code } = data;
+				if (Code === '00000') {
+					messageApi.success(t('messageSuccess'));
+					getNodeList(selectCluster);
+				}
+			}
+		});
+	};
+	const removeNode = (nodeIdList: object[]) => {
+		modal.confirm({
+			title: t('node.remove'),
+			content: t('node.removeConfirm'),
+			okText: t('confirm'),
+			cancelText: t('cancel'),
+			onOk: async () => {
+				const api = APIConfig.removeNode;
+				const params = {
+					ClusterId: selectCluster,
+					NodeIdList: nodeIdList
+				};
+				const data = await RequestHttp.post(api, params);
+				const { Code } = data;
+				if (Code === '00000') {
+					messageApi.success(t('messageSuccess'));
+					getNodeList(selectCluster);
+				}
+			}
+		});
+	};
 	const getClusterList = async () => {
 		setLoading(true);
 		const api = APIConfig.getClusterList;
@@ -109,45 +179,69 @@ const ManageList: React.FC = () => {
 			};
 		});
 		setLoading(false);
-		setDefaultSelectValue(listData[0].value);
+		setSelectCluster(listData[0].value);
 		setSelectData(listData);
-		// getNodeList(id);
 	};
-	const getNodeList = async id => {
-		const api = APIConfig.nodeList;
+	const getNodeList = async (id: string | number) => {
+		const api = APIConfig.nodeListWithComponent;
 		const data = await RequestHttp.get(api, { params: { ClusterId: id } });
 		const {
-			Data: { NodeDetailList }
+			Data: { NodeWithComponentList }
 		} = data;
-		setTableData(NodeDetailList);
+		const listData = NodeWithComponentList.map(node => {
+			node.NodeDetail.ComponentName = node.ComponentName;
+			return node.NodeDetail;
+		});
+		setTableData(listData);
 	};
 	const handleChange = value => {
-		setDefaultSelectValue(value);
+		setSelectCluster(value);
 	};
 	useEffect(() => {
-		defaultSelectValue && getNodeList(defaultSelectValue);
-	}, [defaultSelectValue]);
+		selectCluster && getNodeList(selectCluster);
+	}, [selectCluster]);
+	useEffect(() => {
+		// 检查 ComponentName 数组是否为空
+		const isButtonAbled = selectedRowsList.length > 0 && selectedRowsList.every(item => item.ComponentName.length === 0);
+		// 更新按钮的禁用状态
+		setRemoveDisabled(!isButtonAbled);
+	}, [selectedRowsList]); // 在 selectedRowsList 变化时触发
+
 	useEffect(() => {
 		getClusterList();
 	}, []);
+	const rowSelection = {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+			setSelectedRowsList(selectedRows);
+		}
+	};
+
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
+			{contextHolder}
 			<Flex justify="space-between">
-				<Button
-					type="primary"
-					disabled={!selectData.length}
-					onClick={() => {
-						navigate(`/node/addNode?id=${defaultSelectValue}`);
-					}}
-				>
-					{t('node.addNode')}
-				</Button>
+				<Space>
+					{buttonConfigTop.map(button => (
+						<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+							{button.label}
+						</Button>
+					))}
+				</Space>
 				<div>
 					{t('node.currentCluster')}
-					<Select className="w-[200px]" options={selectData} value={defaultSelectValue} onChange={handleChange} />
+					<Select className="w-[200px]" options={selectData} value={selectCluster} onChange={handleChange} />
 				</div>
 			</Flex>
-			<Table className="mt-[20px]" rowKey="NodeId" columns={columns} dataSource={tableData} loading={loading} />
+			<Table
+				className="mt-[20px]"
+				rowKey="NodeId"
+				rowSelection={{
+					...rowSelection
+				}}
+				columns={columns}
+				dataSource={tableData}
+				loading={loading}
+			/>
 		</Card>
 	);
 };

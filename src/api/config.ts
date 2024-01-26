@@ -42,6 +42,12 @@ const APIConfig: Actions = {
 	add: '/v1/master/node/init/add',
 	getProcedure: '/v1/master/init/procedure/get',
 	setProcedure: '/v1/master/init/procedure/persist',
+	removeCluster: '/v1/master/cluster/remove',
+	//节点相关
+	nodeList: '/v1/master/node/list',
+	nodeListWithComponent: '/v1/master/node/listWithComponent',
+	removeNode: '/v1/master/node/removeBatchByIds', // 支持批量删除
+	operateNode: '/v1/master/node/operate',
 	// 服务相关
 	serviceList: '/v1/master/service/list',
 	selectService: '/v1/master/service/select',
@@ -50,7 +56,6 @@ const APIConfig: Actions = {
 	selectComponent: '/v1/master/component/select',
 	preconfigList: '/v1/master/config/pre/list',
 	preconfigSave: '/v1/master/config/pre/save',
-	nodeList: '/v1/master/node/list',
 	// 部署相关
 	deploy: '/v1/master/deploy',
 	jobProgress: '/v1/master/job/progress'

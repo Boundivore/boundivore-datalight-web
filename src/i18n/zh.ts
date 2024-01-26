@@ -81,7 +81,8 @@ export default {
 		},
 		restart: '重启集群',
 		remove: '删除集群',
-		specifyNode: '指定集群节点'
+		specifyNode: '指定集群节点',
+		removeConfirm: '您确认删除集群{{clusterName}}吗？'
 	},
 	node: {
 		parseHostname: '解析节点主机名',
@@ -128,7 +129,11 @@ export default {
 		deployService: '部署服务',
 		restart: '重启节点',
 		remove: '删除节点',
-		backListPage: '回到节点列表页'
+		batchRestart: '批量重启',
+		batchRemove: '批量删除',
+		backListPage: '回到节点列表页',
+		removeConfirm: '您确认删除节点吗？',
+		restartConfirm: '您确认重启节点吗？'
 	},
 	service: {
 		selectService: '选择服务',
@@ -140,7 +145,9 @@ export default {
 		unselected: '未选择',
 		selected: '已选择',
 		serviceName: '服务名称',
-		restart: '重启服务'
+		restart: '重启服务',
+		serviceType: '服务类型',
+		componentManage: '组件管理'
 	},
 	retry: '重试',
 	previous: '上一步',
@@ -152,5 +159,8 @@ export default {
 	prompt: '提示',
 	error: '错误',
 	operation: '操作',
-	backHome: '返回首页'
+	backHome: '返回首页',
+	messageSuccess: '操作成功',
+	description: '描述',
+	detail: '详情'
 };

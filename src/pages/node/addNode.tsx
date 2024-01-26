@@ -19,7 +19,7 @@
  * @author Tracy.Guo
  */
 import React, { useRef, forwardRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
@@ -32,13 +32,14 @@ import DispatchStep from './steps/dispatchStep';
 import StartWorkerStep from './steps/startWorkerStep';
 import DoneStep from './steps/doneStep';
 import useStepLogic from '@/hooks/useStepLogic';
+import useNavigater from '@/hooks/useNavigater';
 
 const AddNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const { useStepEffect } = useStepLogic();
 	const { stepCurrent } = useStore();
 	const [searchParams] = useSearchParams();
+	const { navigateToNodeList } = useNavigater();
 	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const initListStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const detectStepRef = useRef<{ handleOk: () => void } | null>(null);
@@ -134,7 +135,7 @@ const AddNode: React.FC = forwardRef(() => {
 		{
 			title: t('node.add'),
 			content: <DoneStep />,
-			operations: [{ label: t('node.backListPage'), callback: () => navigate('/node') }]
+			operations: [{ label: t('node.backListPage'), callback: navigateToNodeList }]
 		}
 	];
 	//获取进度，定位到当前步骤

@@ -18,14 +18,14 @@
  * 集群列表
  * @author Tracy.Guo
  */
-import { Table, Button, Card, App, Space } from 'antd';
+import { Table, Button, Card, App, Space, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { useNavigate } from 'react-router-dom';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
+import useNavigater from '@/hooks/useNavigater';
 
 interface DataType {
 	HasAlreadyNode: boolean;
@@ -40,10 +40,11 @@ interface DataType {
 
 const Home: React.FC = () => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
+	const [messageApi, contextHolder] = message.useMessage();
 	const { isNeedChangePassword, setIsNeedChangePassword } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState([]);
+	const { navigateToChangePassword, navigateToNodeInit, navigateToCreateCluster } = useNavigater();
 	const { modal } = App.useApp();
 	const columns: ColumnsType<DataType> = [
 		{
@@ -75,20 +76,13 @@ const Home: React.FC = () => {
 			key: 'IsExistInitProcedure',
 			dataIndex: 'IsExistInitProcedure',
 			render: (text, record) => {
-				const hasAlreadyNode = record.HasAlreadyNode;
-				if (hasAlreadyNode && !text) {
+				const { HasAlreadyNode, ClusterId, ClusterName } = record;
+				if (HasAlreadyNode && !text) {
 					return null;
 				} else {
 					return (
 						<Space>
-							<Button
-								type="primary"
-								size="small"
-								ghost
-								onClick={() => {
-									navigate(`/node/init?id=${record.ClusterId}`);
-								}}
-							>
+							<Button type="primary" size="small" ghost onClick={() => navigateToNodeInit(ClusterId)}>
 								{t('cluster.specifyNode')}
 							</Button>
 							<Button
@@ -101,22 +95,34 @@ const Home: React.FC = () => {
 							>
 								{t('cluster.restart')}
 							</Button>
-							<Button
-								type="primary"
-								size="small"
-								ghost
-								onClick={() => {
-									// navigate('/cluster/create');
-								}}
-							>
-								{t('cluster.remove')}
-							</Button>
+							{!HasAlreadyNode ? (
+								<Button type="primary" size="small" ghost onClick={() => removeCluster(ClusterName, ClusterId)}>
+									{t('cluster.remove')}
+								</Button>
+							) : null}
 						</Space>
 					);
 				}
 			}
 		}
 	];
+	const removeCluster = (clusterName: string, clusterId: string | number) => {
+		modal.confirm({
+			title: t('cluster.remove'),
+			content: t('cluster.removeConfirm', { clusterName }),
+			okText: t('confirm'),
+			cancelText: t('cancel'),
+			onOk: async () => {
+				const api = APIConfig.removeCluster;
+				const data = await RequestHttp.post(api, { ClusterId: clusterId });
+				const { Code } = data;
+				if (Code === '00000') {
+					messageApi.success(t('messageSuccess'));
+					getData();
+				}
+			}
+		});
+	};
 	const getData = async () => {
 		setLoading(true);
 		const api = APIConfig.getClusterList;
@@ -136,21 +142,15 @@ const Home: React.FC = () => {
 				content: t('login.changePasswordText'),
 				okText: t('confirm'),
 				cancelText: t('cancel'),
-				onOk: () => {
-					navigate('/auth/changePassword');
-				}
+				onOk: navigateToChangePassword
 			});
 		setIsNeedChangePassword(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
-			<Button
-				type="primary"
-				onClick={() => {
-					navigate('/cluster/create');
-				}}
-			>
+			{contextHolder}
+			<Button type="primary" onClick={navigateToCreateCluster}>
 				{t('cluster.create')}
 			</Button>
 			<Table className="mt-[20px]" rowKey="ClusterId" columns={columns} dataSource={tableData} loading={loading} />
