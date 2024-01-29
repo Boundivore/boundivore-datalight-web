@@ -35,7 +35,7 @@ const APIConfig: Actions = {
 	check: '/v1/master/node/init/check',
 	checkList: '/v1/master/node/init/check/list', //轮询接口
 	dispatch: '/v1/master/node/init/dispatch',
-	dispatchList: '/v1/master/node/init/dispatch/list',
+	dispatchList: '/v1/master/node/init/dispatch/list', //轮询接口
 	dispatchProgress: '/v1/master/node/job/dispatch/progress', //轮询接口
 	startWorker: '/v1/master/node/init/startWorker',
 	startWorkerList: '/v1/master/node/init/startWorker/list', //轮询接口
@@ -51,11 +51,14 @@ const APIConfig: Actions = {
 	// 服务相关
 	serviceList: '/v1/master/service/list',
 	selectService: '/v1/master/service/select',
+	operateService: '/v1/master/operate/jobDetail',
 	// 组件相关
 	componentList: '/v1/master/component/list',
+	componentListByServiceName: '/v1/master/component/listByServiceName',
 	selectComponent: '/v1/master/component/select',
 	preconfigList: '/v1/master/config/pre/list',
 	preconfigSave: '/v1/master/config/pre/save',
+	removeComponent: '/v1/master/component/removeBatchByIds',
 	// 部署相关
 	deploy: '/v1/master/deploy',
 	jobProgress: '/v1/master/job/progress'

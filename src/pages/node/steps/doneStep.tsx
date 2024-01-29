@@ -14,7 +14,17 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-const AddStep: React.FC = () => {
-	return <span>done</span>;
+import { Result } from 'antd';
+import { useTranslation } from 'react-i18next';
+
+const DoneStep: React.FC = () => {
+	const { t } = useTranslation();
+	return (
+		<Result
+			status="success"
+			title={t('node.addSuccessTitle')}
+			// subTitle="Order number: 2017182818828182881 Cloud server configuration takes 1-5 minutes, please wait."
+		/>
+	);
 };
-export default AddStep;
+export default DoneStep;

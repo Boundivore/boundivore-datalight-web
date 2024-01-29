@@ -133,7 +133,8 @@ export default {
 		batchRemove: '批量删除',
 		backListPage: '回到节点列表页',
 		removeConfirm: '您确认删除节点吗？',
-		restartConfirm: '您确认重启节点吗？'
+		restartConfirm: '您确认重启节点吗？',
+		addSuccessTitle: '您已经成功添加节点到该集群'
 	},
 	service: {
 		selectService: '选择服务',
@@ -147,7 +148,12 @@ export default {
 		serviceName: '服务名称',
 		restart: '重启服务',
 		serviceType: '服务类型',
-		componentManage: '组件管理'
+		componentManage: '组件管理',
+		addComponent: '新增组件',
+		startComponent: '启动组件',
+		componentName: '组件名称',
+		componentState: '组件状态',
+		node: '所属节点'
 	},
 	retry: '重试',
 	previous: '上一步',
@@ -162,5 +168,12 @@ export default {
 	backHome: '返回首页',
 	messageSuccess: '操作成功',
 	description: '描述',
-	detail: '详情'
+	detail: '详情',
+	start: '启动',
+	remove: '删除',
+	restart: '重启',
+	stop: '停止',
+	batchRestart: '批量重启',
+	batchRemove: '批量删除',
+	operationConfirm: '您确定{{operation}}吗？'
 };

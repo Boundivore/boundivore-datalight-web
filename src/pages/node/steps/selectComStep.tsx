@@ -28,7 +28,7 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import NodeListModal from '../components/nodeListModal';
 
-const SelectComStep: React.FC = forwardRef((props, ref) => {
+const SelectComStep: React.FC = forwardRef((_props, ref) => {
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
 	const [serviceList, setServiceList] = useState([]);
 	const [serviceNames, setServiceNames] = useState([]);
@@ -115,7 +115,6 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 		transformedData.map(item => {
 			item.ComponentSummaryList.map(component => {
 				tempList[id] = { ...tempList[id], [component.ComponentName]: component.ComponentNodeList };
-				console.log(232323, tempList);
 				setNodeList(tempList);
 				const nameArray = { ...tempList[id], ...nodeList[id] }[component.ComponentName]?.map(node => node.Hostname);
 				console.log(component.ComponentName, nameArray);
@@ -132,10 +131,8 @@ const SelectComStep: React.FC = forwardRef((props, ref) => {
 					<Flex wrap="wrap">
 						{item.ComponentSummaryList.map(component => {
 							tempList[id] = { ...tempList[id], [component.ComponentName]: component.ComponentNodeList };
-							console.log(232323, tempList);
 							// setNodeList(tempList);
 							const nameArray = (nodeList[id] || tempList[id])[component.ComponentName]?.map(node => node.Hostname);
-							console.log(component.ComponentName, nameArray);
 							return (
 								<div className="w-1/4">
 									<p>{component.ComponentName}</p>

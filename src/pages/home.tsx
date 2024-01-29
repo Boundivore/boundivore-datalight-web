@@ -46,6 +46,56 @@ const Home: React.FC = () => {
 	const [tableData, setTableData] = useState([]);
 	const { navigateToChangePassword, navigateToNodeInit, navigateToCreateCluster } = useNavigater();
 	const { modal } = App.useApp();
+	// 顶部操作按钮配置
+	const buttonConfigTop = [
+		{
+			id: 1,
+			label: t('cluster.create'),
+			callback: navigateToCreateCluster
+		}
+	];
+	// 单条操作按钮配置
+	// 	<Button type="primary" size="small" ghost onClick={() => navigateToNodeInit(ClusterId)}>
+	// 		{t('cluster.specifyNode')}
+	// 	</Button>
+	// 	<Button
+	// 		type="primary"
+	// 		size="small"
+	// 		ghost
+	// 		onClick={() => {
+	// 			// navigate('/cluster/create');
+	// 		}}
+	// 	>
+	// 		{t('cluster.restart')}
+	// 	</Button>
+	// 	{!HasAlreadyNode ? (
+	// 		<Button type="primary" size="small" ghost onClick={() => removeCluster(ClusterName, ClusterId)}>
+	// 			{t('cluster.remove')}
+	// 		</Button>
+	// 	) : null}
+	const buttonConfigItem = (text: string, record: {}) => {
+		const { HasAlreadyNode, ClusterName, ClusterId } = record;
+		return [
+			{
+				id: 1,
+				label: t('cluster.specifyNode'),
+				callback: () => navigateToNodeInit(ClusterId),
+				disabled: HasAlreadyNode && !text
+			},
+			{
+				id: 2,
+				label: t('cluster.restart'),
+				callback: () => {},
+				disabled: HasAlreadyNode && !text
+			},
+			{
+				id: 2,
+				label: t('cluster.remove'),
+				callback: () => removeCluster(ClusterName, ClusterId),
+				disabled: HasAlreadyNode
+			}
+		];
+	};
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('cluster.name'),
@@ -75,35 +125,15 @@ const Home: React.FC = () => {
 			title: t('operation'),
 			key: 'IsExistInitProcedure',
 			dataIndex: 'IsExistInitProcedure',
-			render: (text, record) => {
-				const { HasAlreadyNode, ClusterId, ClusterName } = record;
-				if (HasAlreadyNode && !text) {
-					return null;
-				} else {
-					return (
-						<Space>
-							<Button type="primary" size="small" ghost onClick={() => navigateToNodeInit(ClusterId)}>
-								{t('cluster.specifyNode')}
-							</Button>
-							<Button
-								type="primary"
-								size="small"
-								ghost
-								onClick={() => {
-									// navigate('/cluster/create');
-								}}
-							>
-								{t('cluster.restart')}
-							</Button>
-							{!HasAlreadyNode ? (
-								<Button type="primary" size="small" ghost onClick={() => removeCluster(ClusterName, ClusterId)}>
-									{t('cluster.remove')}
-								</Button>
-							) : null}
-						</Space>
-					);
-				}
-			}
+			render: (text, record) => (
+				<Space>
+					{buttonConfigItem(text, record).map(button => (
+						<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
+							{button.label}
+						</Button>
+					))}
+				</Space>
+			)
 		}
 	];
 	const removeCluster = (clusterName: string, clusterId: string | number) => {
@@ -150,9 +180,13 @@ const Home: React.FC = () => {
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
 			{contextHolder}
-			<Button type="primary" onClick={navigateToCreateCluster}>
-				{t('cluster.create')}
-			</Button>
+			<Space>
+				{buttonConfigTop.map(button => (
+					<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+						{button.label}
+					</Button>
+				))}
+			</Space>
 			<Table className="mt-[20px]" rowKey="ClusterId" columns={columns} dataSource={tableData} loading={loading} />
 		</Card>
 	);

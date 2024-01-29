@@ -26,8 +26,6 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 
-// import useStore from '@/store/store';
-
 interface DataType {
 	HasAlreadyNode: boolean;
 	ClusterId: number;

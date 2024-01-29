@@ -168,8 +168,8 @@ const InitNode: React.FC = forwardRef(() => {
 			title: t('node.add'),
 			content: <DoneStep />,
 			operations: [
-				{ label: t('node.deployService'), callback: navigateToHome },
-				{ label: t('backHome') } // 不传callback默认进行一下步
+				{ label: t('node.deployService') }, // 不传callback默认进行一下步
+				{ label: t('backHome'), callback: navigateToHome }
 			]
 		},
 		{

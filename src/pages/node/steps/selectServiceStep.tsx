@@ -19,6 +19,7 @@
  * @author Tracy.Guo
  */
 import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
+import _ from 'lodash';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -74,55 +75,41 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 		onChange: (selectedRowKeys: [], selectedRows: DataType[]) => {
 			setSelectedRowKeys(selectedRowKeys);
 			setSelectedServiceRowsList(
-				selectedRows.map(item => {
+				_.cloneDeep([...selectedRows]).map(item => {
 					item.SCStateEnum = 'SELECTED';
 					return item;
 				})
 			);
 		},
 		selectedRowKeys: selectedRowKeys
-		// getCheckboxProps: (record: DataType) => ({
-		// 	disabled: !stableState.includes(record.SCStateEnum)
-		// })
 	};
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
 	const handleOk = async () => {
 		const apiSelect = APIConfig.selectService;
-		// let mergedArray = selectedServiceRowsList.concat(tableData); // 先合并两个数组
-		// let finalArray = mergedArray.reduce((acc, curr) => {
-		// 	// 检查是否已经有一个相同的id存在于结果数组中
-		// 	let existingIndex = acc.findIndex(item => item.ServiceName === curr.ServiceName);
-		// 	if (existingIndex !== -1) {
-		// 		// 如果存在，使用第一个数组中的值
-		// 		acc[existingIndex] = Object.assign({}, acc[existingIndex], curr);
-		// 	} else {
-		// 		// 否则，将当前元素添加到结果数组中
-		// 		acc.push(curr);
-		// 	}
-		// 	return acc;
-		// }, []);
+		// 合并原始数据和本次操作选择的数据, tableData和selectedServiceRowsList位置不能互换
 		const combinedArray = [...tableData, ...selectedServiceRowsList];
-
+		// 加工数据，以ServiceName为key
 		const groupedByServiceName = combinedArray.reduce((groups, item) => {
 			const key = item.ServiceName;
 			(groups[key] = groups[key] || []).push(item);
 			return groups;
 		}, {});
-
+		// 加工数据
 		const result = Object.values(groupedByServiceName).map(group => {
 			if (group.length === 2) {
-				return group[0]; // 保留其中一个
+				// 从"UNSELECTED"到"SELECTED"， 保留"SELECTED"
+				return group[1];
 			} else {
-				return { ...group[0], SCStateEnum: 'UNSELECTED' }; // 将 SCStateEnum 改为 "UNSELECTED"
+				// 从"SELECTED"变为"UNSELECTED"将 SCStateEnum 改为 "UNSELECTED"
+				return { ...group[0], SCStateEnum: 'UNSELECTED' };
 			}
 		});
 		const params = {
 			ClusterId: id,
 			ServiceList: result.map(({ SCStateEnum, ServiceName }) => ({ SCStateEnum, ServiceName }))
 		};
-		console.log(77777, result);
 		const jobData = await RequestHttp.post(apiSelect, params);
 		return Promise.resolve(jobData);
 	};
@@ -132,7 +119,6 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 			ClusterId: id
 		};
 		const data = await RequestHttp.get(apiSpeed, { params });
-		// @ts-ignore
 		const serviceData = data.Data.ServiceSummaryList;
 		setTableData(serviceData);
 		const defaultSelectedKeys = serviceData.filter(item => item.SCStateEnum === 'SELECTED').map(item => item.ServiceName);
