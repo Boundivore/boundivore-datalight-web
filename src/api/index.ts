@@ -19,10 +19,22 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { message } from 'antd';
 import { BackendResponse } from '@/api/interface';
+import i18n from '@/i18n';
 
 const config = {
 	timeout: 1000 * 10,
 	withCredentials: true
+};
+let lastErrorTimestamp = 0;
+let errorTime = 5000;
+
+const handleError = (errorMessage: string) => {
+	const currentTimestamp = Date.now();
+	// 如果距离上一次错误时间超过 10 秒，则执行错误处理
+	if (currentTimestamp - lastErrorTimestamp > errorTime) {
+		message.error(errorMessage, 5);
+		lastErrorTimestamp = currentTimestamp;
+	}
 };
 // 创建一个实例，在实例上改造
 const RequestHttp = axios.create(config);
@@ -32,7 +44,7 @@ const requestSuccess = (response: AxiosResponse) => {
 	const { data }: { data: BackendResponse } = response;
 	const { Code, Message } = data;
 	if (Code !== '00000' && Code !== 'D1001') {
-		message.error(Message, 5);
+		handleError(Message);
 		Code[0] === 'H' && (window.location.href = '/login'); // ‘H’前缀代表鉴权失效，跳转至登录页
 		return Promise.reject(new Error(Message || 'Error'));
 	} else {
@@ -40,6 +52,7 @@ const requestSuccess = (response: AxiosResponse) => {
 	}
 };
 const requestFaild = (error: AxiosError) => {
+	handleError(i18n.t('errorMessage'));
 	return Promise.reject(error);
 };
 // @ts-ignore

@@ -175,5 +175,6 @@ export default {
 	stop: '停止',
 	batchRestart: '批量重启',
 	batchRemove: '批量删除',
-	operationConfirm: '您确定{{operation}}吗？'
+	operationConfirm: '您确定{{operation}}吗？',
+	errorMessage: '服务不可用，请联系管理员'
 };

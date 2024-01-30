@@ -35,6 +35,7 @@ const ComponentManage: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState([]);
 	const [selectComponent, setSelectComponent] = useState([]);
+	const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState([]);
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	// 顶部操作按钮配置
@@ -84,6 +85,7 @@ const ComponentManage: React.FC = () => {
 				id: 2,
 				label: t('stop'),
 				callback: () => operateComponent('STOP', [record])
+				// disabled: record?.ComponentNodeList[0]?.SCStateEnum === 'STOPPED'
 			},
 			{
 				id: 3,
@@ -94,8 +96,8 @@ const ComponentManage: React.FC = () => {
 			{
 				id: 4,
 				label: t('remove'),
-				callback: () => removeComponent([record]),
-				disabled: record.ComponentNodeList[0].SCStateEnum !== 'STOPPED'
+				callback: () => removeComponent([record])
+				// disabled: record?.ComponentNodeList[0]?.SCStateEnum !== 'STOPPED'
 			}
 		];
 	};
@@ -103,14 +105,20 @@ const ComponentManage: React.FC = () => {
 		{
 			title: t('service.componentName'),
 			dataIndex: 'ComponentName',
-			key: 'ComponentName'
+			key: 'ComponentName',
+			render: (text, record) => {
+				// record.operation ? null : (return { text });
+				if (!record.operation) {
+					return <span>{text}</span>;
+				}
+			}
 		},
 		{
 			title: t('service.node'),
-			dataIndex: 'ComponentNodeList',
-			key: 'ComponentNodeList',
+			dataIndex: 'Hostname',
+			key: 'Hostname',
 			render: text => {
-				return <Text ellipsis={true}>{text.map(item => item.Hostname)}</Text>;
+				return <Text ellipsis={true}>{text}</Text>;
 			}
 		},
 		{
@@ -120,10 +128,10 @@ const ComponentManage: React.FC = () => {
 		},
 		{
 			title: t('operation'),
-			key: 'detail',
-			dataIndex: 'detail',
-			render: (_text, record) => {
-				return (
+			key: 'operation',
+			dataIndex: 'operation',
+			render: (text, record) => {
+				return text ? (
 					<Space>
 						{buttonConfigItem(record).map(button => (
 							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
@@ -131,14 +139,14 @@ const ComponentManage: React.FC = () => {
 							</Button>
 						))}
 					</Space>
-				);
+				) : null;
 			}
 		}
 	];
 	const removeComponent = componentList => {
 		const idList = componentList.map(component => {
 			return {
-				ComponentId: component.ComponentId
+				ComponentId: component.ComponentNodeList[0].ComponentId // 先这样测一下
 			};
 		});
 		modal.confirm({
@@ -150,7 +158,8 @@ const ComponentManage: React.FC = () => {
 				const api = APIConfig.removeComponent;
 				const params = {
 					ClusterId: id,
-					ComponentIdList: idList
+					ComponentIdList: idList,
+					ServiceName: serviceName
 				};
 				const data = await RequestHttp.post(api, params);
 				const { Code } = data;
@@ -163,13 +172,13 @@ const ComponentManage: React.FC = () => {
 	};
 	const operateComponent = (operation, componentList) => {
 		const jobDetailComponentList = componentList.map(component => {
-			const jobDetailNodeList = component.ComponentNodeList.map(node => {
-				return {
-					Hostname: node.Hostname,
-					NodeId: node.NodeId,
-					NodeIp: node.NodeIp
-				};
-			});
+			const jobDetailNodeList = [
+				{
+					Hostname: component.Hostname,
+					NodeId: component.NodeId,
+					NodeIp: component.NodeIp
+				}
+			];
 
 			return {
 				ComponentName: component.ComponentName,
@@ -211,10 +220,21 @@ const ComponentManage: React.FC = () => {
 		const {
 			Data: { ServiceComponentSummaryList }
 		} = data;
+		const tempData = ServiceComponentSummaryList[0].ComponentSummaryList.map(item => {
+			item.rowKey = item.ComponentName;
+			item.children = item.ComponentNodeList;
+			item.children.map(child => {
+				child.operation = true;
+				child.rowKey = child.ComponentId;
+				child.ComponentName = item.ComponentName;
+			});
+			return item;
+		});
 		setLoading(false);
-		setTableData(ServiceComponentSummaryList[0].ComponentSummaryList);
+		setTableData(tempData);
 	};
 	const rowSelection = {
+		checkStrictly: false,
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: []) => {
 			setSelectComponent(selectedRows);
 		}
@@ -224,6 +244,13 @@ const ComponentManage: React.FC = () => {
 		getComponentList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	useEffect(() => {
+		const expandedRowKeys: string[] = [];
+		tableData.map(data => {
+			expandedRowKeys.push(data.ComponentName);
+		});
+		setDefaultExpandedRowKeys(expandedRowKeys);
+	}, [tableData]);
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
 			{contextHolder}
@@ -239,10 +266,11 @@ const ComponentManage: React.FC = () => {
 					...rowSelection
 				}}
 				className="mt-[20px]"
-				rowKey="ComponentName"
+				rowKey="rowKey"
 				columns={columns}
 				dataSource={tableData}
 				loading={loading}
+				expandable={{ expandedRowKeys: defaultExpandedRowKeys }}
 			/>
 		</Card>
 	);
