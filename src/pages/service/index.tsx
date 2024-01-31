@@ -43,8 +43,26 @@ const ServiceManage: React.FC = () => {
 	const [tableData, setTableData] = useState([]);
 	const [selectData, setSelectData] = useState([]);
 	const [defaultSelectValue, setDefaultSelectValue] = useState('');
-	const { navigateToComManage } = useNavigater();
+	const { navigateToComManage, navigateToConfig } = useNavigater();
 	// const { modal } = App.useApp();
+
+	// 单条操作按钮配置
+	const buttonConfigItem = record => {
+		const { ServiceName } = record;
+		return [
+			{
+				id: 1,
+				label: t('modifyConfig'),
+				callback: () => navigateToConfig(defaultSelectValue, ServiceName)
+			},
+			{
+				id: 2,
+				label: t('service.componentManage'),
+				callback: () => navigateToComManage(defaultSelectValue, ServiceName)
+				// disabled: record?.ComponentNodeList[0]?.SCStateEnum === 'STOPPED'
+			}
+		];
+	};
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('service.serviceName'),
@@ -66,22 +84,13 @@ const ServiceManage: React.FC = () => {
 			key: 'detail',
 			dataIndex: 'detail',
 			render: (_text, record) => {
-				const { ServiceName } = record;
 				return (
 					<Space>
-						<Button
-							type="primary"
-							size="small"
-							ghost
-							onClick={() => {
-								// navigate('/cluster/create');
-							}}
-						>
-							{t('detail')}
-						</Button>
-						<Button type="primary" size="small" ghost onClick={() => navigateToComManage(defaultSelectValue, ServiceName)}>
-							{t('service.componentManage')}
-						</Button>
+						{buttonConfigItem(record).map(button => (
+							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
+								{button.label}
+							</Button>
+						))}
 					</Space>
 				);
 				// }

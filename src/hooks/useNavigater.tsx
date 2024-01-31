@@ -53,6 +53,10 @@ const useNavigater = () => {
 	const navigateToAddNode = (id: string | number) => {
 		navigate(`/node/addNode?id=${id}`);
 	};
+	// 跳转至修改配置文件页面
+	const navigateToConfig = (id: string | number, name: string) => {
+		navigate(`/service/modifyConfig?id=${id}&name=${name}`);
+	};
 	// 跳转至组件管理页面
 	const navigateToComManage = (id: string | number, name: string) => {
 		navigate(`/service/componentManage?id=${id}&name=${name}`);
@@ -67,6 +71,7 @@ const useNavigater = () => {
 		navigateToNodeInit,
 		navigateToCreateCluster,
 		navigateToAddNode,
+		navigateToConfig,
 		navigateToComManage
 	};
 };

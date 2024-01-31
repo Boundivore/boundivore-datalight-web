@@ -1,0 +1,111 @@
+{
+	"tabs": {
+		"Timestamp": "1706583442967",
+		"Code": "00000",
+		"Message": "成功",
+		"MessageType": "成功",
+		"Data": {
+			"ClusterId": "1750438151106437122",
+			"ServiceName": "MONITOR",
+			"ConfigSummaryList": [
+				{
+					"FileName": "prometheus.sh",
+					"ConfigPath": "/srv/datalight/MONITOR/prometheus/bin/prometheus.sh"
+				},
+				{
+					"FileName": "prometheus.yml",
+					"ConfigPath": "/srv/datalight/MONITOR/prometheus/prometheus.yml"
+				},
+				{
+					"FileName": "alert_manager.sh",
+					"ConfigPath": "/srv/datalight/MONITOR/alertmanager/bin/alert_manager.sh"
+				},
+				{
+					"FileName": "alertmanager.yml",
+					"ConfigPath": "/srv/datalight/MONITOR/alertmanager/alertmanager.yml"
+				},
+				{
+					"FileName": "mysql_exporter.sh",
+					"ConfigPath": "/srv/datalight/MONITOR/exporter/mysql/bin/mysql_exporter.sh"
+				},
+				{
+					"FileName": "mysql-datalight.cnf",
+					"ConfigPath": "/srv/datalight/MONITOR/exporter/mysql/mysql-datalight.cnf"
+				},
+				{
+					"FileName": "node_exporter.sh",
+					"ConfigPath": "/srv/datalight/MONITOR/exporter/node/bin/node_exporter.sh"
+				},
+				{
+					"FileName": "grafana.sh",
+					"ConfigPath": "/srv/datalight/MONITOR/grafana/bin/grafana.sh"
+				},
+				{
+					"FileName": "GrafanaDefaultHome.json",
+					"ConfigPath": "/srv/datalight/MONITOR/grafana/conf/GrafanaDefaultHome.json"
+				},
+				{
+					"FileName": "defaults.ini",
+					"ConfigPath": "/srv/datalight/MONITOR/grafana/conf/defaults.ini"
+				}
+			]
+		}
+	},
+
+	"content": {
+		"Timestamp": "1706583618634",
+		"Code": "00000",
+		"Message": "成功",
+		"MessageType": "成功",
+		"Data": {
+			"ClusterId": "1750438151106437122",
+			"ServiceName": "MONITOR",
+			"ConfigGroupList": [
+				{
+					"Sha256": "fee57e49181d05f6d8131ff7f2018eca3af9e0e038368472936d7678fac52ebc",
+					"Filename": "prometheus.sh",
+					"ConfigPath": "/srv/datalight/MONITOR/prometheus/bin/prometheus.sh",
+					"ConfigData": "IyEvYmluL2Jhc2gKClBST01FVEhFVVNfUEFUSD0iL3Nydi9kYXRhbGlnaHQvTU9OSVRPUi9wcm9tZXRoZXVzL3Byb21ldGhldXMiClBST01FVEhFVVNfQ09ORklHPSIvc3J2L2RhdGFsaWdodC9NT05JVE9SL3Byb21ldGhldXMvcHJvbWV0aGV1cy55bWwiCgplY2hvICJQUk9NRVRIRVVTX1BBVEg6ICR7UFJPTUVUSEVVU19QQVRIfSIKZWNobyAiUFJPTUVUSEVVU19DT05GSUc6ICR7UFJPTUVUSEVVU19DT05GSUd9IgoKRVhQT1JURVJfT1BUSU9OUz0oCiAgIi0td2ViLmxpc3Rlbi1hZGRyZXNzPTAuMC4wLjA6OTA5MCIKICAiLS1zdG9yYWdlLnRzZGIucGF0aD0vZGF0YS9kYXRhbGlnaHQvZGF0YS9NT05JVE9SL3Byb21ldGhldXMiCiAgIi0tc3RvcmFnZS50c2RiLnJldGVudGlvbi50aW1lPThkIgogICItLXdlYi5lbmFibGUtbGlmZWN5Y2xlIgogICItLXdlYi5tYXgtY29ubmVjdGlvbnM9MTAwMDAwMCIKICAiLS13ZWIucmVhZC10aW1lb3V0PTFtIgogICItLXF1ZXJ5Lm1heC1jb25jdXJyZW5jeT0xMDAwMCIKICAiLS1xdWVyeS50aW1lb3V0PTFtIgopCgpzdGFydF9wcm9tZXRoZXVzKCkgewogIG5vaHVwICIke1BST01FVEhFVVNfUEFUSH0iIC0tY29uZmlnLmZpbGU9IiR7UFJPTUVUSEVVU19DT05GSUd9IiAiJHtFWFBPUlRFUl9PUFRJT05TW0BdfSIgPiAvZGV2L251bGwgMj4mMSAmCn0KCnN0b3BfcHJvbWV0aGV1cygpIHsKICBwa2lsbCAtZiAiJHtQUk9NRVRIRVVTX0NPTkZJR30iCn0KCnJlc3RhcnRfcHJvbWV0aGV1cygpIHsKICBzdG9wX3Byb21ldGhldXMKICBzbGVlcCAyCiAgc3RhcnRfcHJvbWV0aGV1cwp9CgpjYXNlICIkMSIgaW4KICAic3RhcnQiKQogICAgc3RhcnRfcHJvbWV0aGV1cwogICAgOzsKICAic3RvcCIpCiAgICBzdG9wX3Byb21ldGhldXMKICAgIDs7CiAgInJlc3RhcnQiKQogICAgcmVzdGFydF9wcm9tZXRoZXVzCiAgICA7OwogICopCiAgICBlY2hvICJJbnZhbGlkIGFyZ3VtZW50LiBQbGVhc2UgdXNlICdzdGFydCcsICdzdG9wJywgb3IgJ3Jlc3RhcnQnLiIKICAgIDs7CmVzYWMK",
+					"ConfigNodeList": [
+						{
+							"NodeId": "1750447713167343622",
+							"Hostname": "node01",
+							"NodeIp": "192.168.137.10",
+							"ConfigVersion": "1"
+						},
+						{
+							"NodeId": "1750447713167343622",
+							"Hostname": "node01",
+							"NodeIp": "192.168.137.10",
+							"ConfigVersion": "1"
+						},
+						{
+							"NodeId": "1750447713167343622",
+							"Hostname": "node01",
+							"NodeIp": "192.168.137.10",
+							"ConfigVersion": "1"
+						},
+						{
+							"NodeId": "1750447713175732226",
+							"Hostname": "node02",
+							"NodeIp": "192.168.137.11",
+							"ConfigVersion": "1"
+						},
+						{
+							"NodeId": "1750447713175732227",
+							"Hostname": "node03",
+							"NodeIp": "192.168.137.12",
+							"ConfigVersion": "1"
+						},
+						{
+							"NodeId": "1750447713167343622",
+							"Hostname": "node01",
+							"NodeIp": "192.168.137.10",
+							"ConfigVersion": "1"
+						}
+					]
+				}
+			]
+		}
+	}
+}

@@ -61,7 +61,11 @@ const APIConfig: Actions = {
 	removeComponent: '/v1/master/component/removeBatchByIds',
 	// 部署相关
 	deploy: '/v1/master/deploy',
-	jobProgress: '/v1/master/job/progress'
+	jobProgress: '/v1/master/job/progress',
+	// 配置相关
+	listSummary: '/v1/master/config/listSummary',
+	listByGroup: '/v1/master/config/listByGroup',
+	saveByGroup: '/v1/master/config/saveByGroup'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

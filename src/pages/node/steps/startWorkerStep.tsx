@@ -80,7 +80,7 @@ const StartWorkerStep: React.FC = forwardRef((props, ref) => {
 		return Promise.resolve(jobData);
 	};
 	const rowSelection = {
-		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectedRowsList(selectedRows);
 		},
 		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
@@ -96,7 +96,6 @@ const StartWorkerStep: React.FC = forwardRef((props, ref) => {
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(APIConfig.startWorkerList, params);
-		// @ts-ignore
 		return data.Data.NodeInitDetailList;
 	};
 	const tableData = usePolling(getList, stableState, 1000);

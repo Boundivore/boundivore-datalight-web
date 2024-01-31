@@ -16,13 +16,16 @@
 		]
 	},
 	"dependencies": {
+		"ace-builds": "^1.32.5",
 		"antd": "^5.11.0",
 		"axios": "^1.6.1",
 		"crypto-js": "^4.2.0",
+		"diff": "^5.1.0",
 		"i18next": "^23.6.0",
 		"js-md5": "^0.8.3",
 		"lodash": "^4.17.21",
 		"react": "^18.2.0",
+		"react-ace": "^10.1.0",
 		"react-dom": "^18.2.0",
 		"react-i18next": "^13.5.0",
 		"react-router-dom": "^6.18.0",
