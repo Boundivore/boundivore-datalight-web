@@ -21,11 +21,14 @@
 import { useEffect, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 // import { useSearchParams } from 'react-router-dom';
-import { Tabs, Card, Col, Row, Space, Dropdown } from 'antd';
+import { Tabs, Card, Col, Row, Space, Button } from 'antd';
+import { PlusCircleOutlined } from '@ant-design/icons';
+
 // import RequestHttp from '@/api';
 // import APIConfig from '@/api/config';
 import mockData from './mockData/tempData.json';
-import DiffViewer from './codeEditor';
+import CodeEditor from './codeEditor';
+import NodeListModal from './components/nodeListModal';
 
 const ModifyConfig: React.FC = () => {
 	// const { t } = useTranslation();
@@ -35,6 +38,10 @@ const ModifyConfig: React.FC = () => {
 	const [tabsData, setTabsData] = useState([]);
 	const [activeTab, setActiveTab] = useState('');
 	const [activeContent, setActiveContent] = useState({});
+	const [codeEdit, setCodeEdit] = useState('');
+	const [groupList, setGroupList] = useState([]);
+	const [currentNodeList, setCurrentNodeList] = useState([]);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const getConfigFile = async () => {
 		// setLoading(true);
@@ -67,7 +74,10 @@ const ModifyConfig: React.FC = () => {
 			Data: { ConfigGroupList }
 		} = mockData.content; // TODO 年后调整为接口获取
 		// setLoading(false);
+		const codeData = atob(ConfigGroupList[0].ConfigData);
 		setActiveContent(ConfigGroupList);
+		setCodeEdit(codeData);
+		setGroupList(ConfigGroupList);
 		console.log(activeContent);
 	};
 	useEffect(() => {
@@ -77,8 +87,16 @@ const ModifyConfig: React.FC = () => {
 		getFileContent();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
-	const originalText = 'Hello, this is the original text.';
-	const modifiedText = 'Hello, this is the modified tet.';
+	const handleClick = nodeList => {
+		console.log('click', nodeList);
+		setIsModalOpen(true);
+		setCurrentNodeList(nodeList);
+	};
+	const handleModalOk = () => {};
+	const handleModalCancel = () => {
+		setIsModalOpen(false);
+	};
+
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
 			<Tabs items={tabsData} />
@@ -86,13 +104,29 @@ const ModifyConfig: React.FC = () => {
 			<Row>
 				<Col span={8}>
 					<Space>
-						<Dropdown.Button></Dropdown.Button>
+						{groupList.map((group, index) => {
+							return (
+								<>
+									<Button key={index} size="middle" type="primary" shape="round">
+										分组{index + 1}
+									</Button>
+									<PlusCircleOutlined style={{ fontSize: '16px' }} onClick={() => handleClick(group.ConfigNodeList)} />
+								</>
+							);
+						})}
 					</Space>
 				</Col>
-				<Col span={16}>
-					<DiffViewer originalText={originalText} modifiedText={modifiedText} />
-				</Col>
+				<Col span={16}>{codeEdit ? <CodeEditor data={codeEdit} /> : null}</Col>
 			</Row>
+			{isModalOpen ? (
+				<NodeListModal
+					isModalOpen={isModalOpen}
+					nodeList={currentNodeList}
+					handleOk={handleModalOk}
+					handleCancel={handleModalCancel}
+					// nodeList={nodeList}
+				/>
+			) : null}
 		</Card>
 	);
 };

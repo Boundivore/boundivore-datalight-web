@@ -153,7 +153,9 @@ export default {
 		startComponent: '启动组件',
 		componentName: '组件名称',
 		componentState: '组件状态',
-		node: '所属节点'
+		node: '所属节点',
+		createGroup: '创建新的分组',
+		moveToGroup: '移至其他分组'
 	},
 	retry: '重试',
 	previous: '上一步',

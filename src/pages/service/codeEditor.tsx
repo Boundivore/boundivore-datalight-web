@@ -1,41 +1,54 @@
-// DiffViewer.js
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/mode-text';
+import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-github';
-import { diffChars } from 'diff';
+import 'ace-builds/src-noconflict/ext-language_tools'; // 引入语言工具扩展
+import 'ace-builds/src-noconflict/worker-javascript';
 
-const DiffViewer = ({ originalText, modifiedText }) => {
+const modified = 'ace-changed';
+const CodeEditor: React.FC = ({ data }) => {
 	const editorRef = useRef(null);
 
-	useEffect(() => {
-		if (editorRef.current && editorRef.current.editor) {
-			const changes = diffChars(originalText, modifiedText);
+	const handleChange = e => {
+		// 示例：根据编辑器的内容进行注释设置
 
-			// Mark changes in the editor
-			changes.forEach(part => {
-				const className = part.added ? 'added' : part.removed ? 'removed' : 'unchanged';
-				const start = part.added ? part.index : part.removed ? part.index : part.index + part.value.length;
-				const end = part.added ? part.index + part.value.length : part.removed ? part.index + part.value.length : part.index;
-
-				editorRef.current.editor.getSession().addMarker(new window.ace.Range(start, 0, end, 0), className, 'fullLine');
-			});
+		let activeLine = e.start.row;
+		if (e.action == 'insert') {
+			while (activeLine < e.end.row + 1) {
+				editorRef.current.editor.session.removeGutterDecoration(activeLine, modified);
+				editorRef.current.editor.session.addGutterDecoration(activeLine, modified);
+				activeLine++;
+			}
+		} else if (e.action == 'remove') {
+			while (activeLine < e.end.row + 1) {
+				editorRef.current.editor.session.removeGutterDecoration(activeLine, modified);
+				activeLine++;
+			}
+			editorRef.current.editor.session.addGutterDecoration(e.start.row, modified);
 		}
-	}, [originalText, modifiedText]);
-
-	const handleEditorLoad = editor => {
-		editorRef.current = editor;
 	};
 
 	return (
 		<AceEditor
-			mode="text"
+			ref={editorRef}
+			mode="javascript"
 			theme="github"
-			value={modifiedText}
-			editorProps={{ $blockScrolling: true }}
-			onLoad={handleEditorLoad}
+			name="code-editor"
+			fontSize={14}
+			width="100%"
+			value={data}
+			showPrintMargin={false}
+			editorProps={{ $blockScrolling: Infinity, $useWorker: true }}
+			setOptions={{
+				enableBasicAutocompletion: true,
+				enableLiveAutocompletion: true,
+				enableSnippets: true,
+				showLineNumbers: true,
+				tabSize: 2
+			}}
+			onChange={(_value, e) => handleChange(e)}
 		/>
 	);
 };
 
-export default DiffViewer;
+export default CodeEditor;

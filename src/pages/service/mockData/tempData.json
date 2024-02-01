@@ -72,19 +72,7 @@
 							"Hostname": "node01",
 							"NodeIp": "192.168.137.10",
 							"ConfigVersion": "1"
-						},
-						{
-							"NodeId": "1750447713167343622",
-							"Hostname": "node01",
-							"NodeIp": "192.168.137.10",
-							"ConfigVersion": "1"
-						},
-						{
-							"NodeId": "1750447713167343622",
-							"Hostname": "node01",
-							"NodeIp": "192.168.137.10",
-							"ConfigVersion": "1"
-						},
+						},	
 						{
 							"NodeId": "1750447713175732226",
 							"Hostname": "node02",
@@ -95,12 +83,6 @@
 							"NodeId": "1750447713175732227",
 							"Hostname": "node03",
 							"NodeIp": "192.168.137.12",
-							"ConfigVersion": "1"
-						},
-						{
-							"NodeId": "1750447713167343622",
-							"Hostname": "node01",
-							"NodeIp": "192.168.137.10",
 							"ConfigVersion": "1"
 						}
 					]
