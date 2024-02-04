@@ -19,32 +19,34 @@
  * @param {boolean} isModalOpen - 弹窗是否打开
  * @param {function} handleOk - 弹窗确定的回调函数
  * @param {function} handleCancel - 弹窗取消的回调函数
- * @param {function} handleCancel - 弹窗取消的回调函数
- * @param {string} component - 关联的组件名称
  * @author Tracy.Guo
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, Table, Space, Button, Dropdown } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { DownOutlined } from '@ant-design/icons';
+import useStore from '@/store/store';
 
-const NodeListModal: React.FC = ({ isModalOpen, nodeList, handleOk, handleCancel }) => {
-	const [tableData] = useState(nodeList);
+const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCancel }) => {
 	const [selectedNodeList, setSelectedNodeList] = useState([]);
+	const { configGroupInfo, setConfigGroupInfo } = useStore();
+	const [groupList, setGroupList] = useState([]);
 	const { t } = useTranslation();
+	const tableData = configGroupInfo[groupIndex].ConfigNodeList;
 	// 顶部操作按钮配置
 	const buttonConfigTop = [
 		{
 			id: 1,
 			label: t('service.createGroup'),
-			callback: () => {},
+			callback: () => createGroup(),
 			disabled: !selectedNodeList.length
 		},
 		{
 			id: 2,
 			label: t('service.moveToGroup'),
 			disabled: !selectedNodeList.length,
-			type: 'dropdown'
+			type: 'dropdown',
+			callback: (index: number) => moveToOtherGroup(index)
 		}
 	];
 	const columns = [
@@ -59,18 +61,54 @@ const NodeListModal: React.FC = ({ isModalOpen, nodeList, handleOk, handleCancel
 			setSelectedNodeList(selectedRows);
 		}
 	};
-	const items = [
-		{
-			key: 1,
-			label: '分组'
+	const createGroup = () => {
+		setConfigGroupInfo([
+			...configGroupInfo,
+			{
+				...configGroupInfo[groupIndex],
+				ConfigNodeList: selectedNodeList
+			}
+		]);
+		handleOk();
+	};
+	const moveToOtherGroup = targetGroupIndex => {
+		const data = mergeData(targetGroupIndex, selectedNodeList);
+		setConfigGroupInfo(data);
+		handleOk();
+	};
+	const mergeData = (n, newDataArr) => {
+		// Copy the original data
+		const updatedConfigGroupList = [...configGroupInfo];
+
+		if (updatedConfigGroupList[n]) {
+			updatedConfigGroupList[n].ConfigNodeList.push(...newDataArr);
 		}
-	];
+		return updatedConfigGroupList;
+	};
+
+	useEffect(() => {
+		let items = [];
+		configGroupInfo.map((_group, index) => {
+			items.push({
+				key: index,
+				label: t('group', { name: index + 1 })
+			});
+		});
+		setGroupList(items);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [configGroupInfo]);
+
 	return (
-		<Modal title="Basic Modal" open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel}>
+		<Modal title="Basic Modal" open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel} footer={null}>
 			<Space>
 				{buttonConfigTop.map(button => {
 					return button.type === 'dropdown' ? (
-						<Dropdown.Button icon={<DownOutlined />} menu={{ items }} disabled={button.disabled}>
+						<Dropdown.Button
+							icon={<DownOutlined />}
+							type="primary"
+							menu={{ items: groupList, onClick: ({ key }) => button.callback(key) }}
+							disabled={button.disabled}
+						>
 							{button.label}
 						</Dropdown.Button>
 					) : (

@@ -35,6 +35,8 @@ interface MyStore {
 	stepMap: Record<string, number>; // 或者具体的映射类型
 	stateText: Record<string, { label: string; status: string }>;
 	stableState: string[];
+	configGroupInfo: object[]; // 修改配置文件时的分组信息
+	setConfigGroupInfo: (group: object[]) => void;
 }
 interface PersistStore {
 	userInfo: object;
@@ -143,7 +145,9 @@ const useStore = create<MyStore>(set => ({
 		'START_WORKER_OK',
 		'START_WORKER_ERROR',
 		'UNSELECTED'
-	]
+	],
+	configGroupInfo: [],
+	setConfigGroupInfo: (group: object[]) => set({ configGroupInfo: group })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

@@ -19,19 +19,20 @@
  * @author Tracy.Guo
  */
 import { useEffect, useState } from 'react';
-// import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 // import { useSearchParams } from 'react-router-dom';
 import { Tabs, Card, Col, Row, Space, Button } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
-
+import _ from 'lodash';
 // import RequestHttp from '@/api';
 // import APIConfig from '@/api/config';
+import useStore from '@/store/store';
 import mockData from './mockData/tempData.json';
 import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
 
 const ModifyConfig: React.FC = () => {
-	// const { t } = useTranslation();
+	const { t } = useTranslation();
 	// const [searchParams] = useSearchParams();
 	// const id = searchParams.get('id');
 	// const serviceName = searchParams.get('name');
@@ -39,9 +40,12 @@ const ModifyConfig: React.FC = () => {
 	const [activeTab, setActiveTab] = useState('');
 	const [activeContent, setActiveContent] = useState({});
 	const [codeEdit, setCodeEdit] = useState('');
-	const [groupList, setGroupList] = useState([]);
-	const [currentNodeList, setCurrentNodeList] = useState([]);
+	// const [groupList, setGroupList] = useState([]);
+	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const { configGroupInfo, setConfigGroupInfo } = useStore();
+
+	let paramData = null; // 最终保存修改时提交的数据
 
 	const getConfigFile = async () => {
 		// setLoading(true);
@@ -74,10 +78,14 @@ const ModifyConfig: React.FC = () => {
 			Data: { ConfigGroupList }
 		} = mockData.content; // TODO 年后调整为接口获取
 		// setLoading(false);
-		const codeData = atob(ConfigGroupList[0].ConfigData);
-		setActiveContent(ConfigGroupList);
+		paramData = ConfigGroupList;
+		console.log(paramData);
+		const copyData = _.cloneDeep(ConfigGroupList);
+		const codeData = atob(copyData[0].ConfigData);
+		setActiveContent(copyData);
 		setCodeEdit(codeData);
-		setGroupList(ConfigGroupList);
+		// setGroupList(copyData);
+		setConfigGroupInfo(copyData);
 		console.log(activeContent);
 	};
 	useEffect(() => {
@@ -87,12 +95,15 @@ const ModifyConfig: React.FC = () => {
 		getFileContent();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
-	const handleClick = nodeList => {
-		console.log('click', nodeList);
+	const handleClick = (index: Number) => {
 		setIsModalOpen(true);
-		setCurrentNodeList(nodeList);
+		setCurrentGroupIndex(index);
 	};
-	const handleModalOk = () => {};
+	const handleModalOk = () => {
+		// 新建分组，添加到其他分组
+		setIsModalOpen(false);
+		setCurrentGroupIndex(configGroupInfo.length); // TODO 这里还需要考虑移动的情况
+	};
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
@@ -103,30 +114,43 @@ const ModifyConfig: React.FC = () => {
 			{/* <div>{activeContent}</div> */}
 			<Row>
 				<Col span={8}>
-					<Space>
-						{groupList.map((group, index) => {
+					<Space direction="vertical">
+						{configGroupInfo.map((_group, index) => {
 							return (
-								<>
-									<Button key={index} size="middle" type="primary" shape="round">
-										分组{index + 1}
+								<Space>
+									<Button
+										key={index}
+										size="middle"
+										type={index === currentGroupIndex ? 'primary' : 'default'}
+										shape="round"
+										onClick={() => setCurrentGroupIndex(index)}
+									>
+										{t('group', { name: index + 1 })}
 									</Button>
-									<PlusCircleOutlined style={{ fontSize: '16px' }} onClick={() => handleClick(group.ConfigNodeList)} />
-								</>
+									<PlusCircleOutlined style={{ fontSize: '16px' }} onClick={() => handleClick(index)} />
+								</Space>
 							);
 						})}
 					</Space>
 				</Col>
-				<Col span={16}>{codeEdit ? <CodeEditor data={codeEdit} /> : null}</Col>
+				<Col className="min-h-[500px]" span={16}>
+					{codeEdit ? <CodeEditor data={codeEdit} /> : null}
+				</Col>
 			</Row>
 			{isModalOpen ? (
 				<NodeListModal
 					isModalOpen={isModalOpen}
-					nodeList={currentNodeList}
+					groupIndex={currentGroupIndex}
 					handleOk={handleModalOk}
 					handleCancel={handleModalCancel}
-					// nodeList={nodeList}
 				/>
 			) : null}
+			<div className="bottom-0 bg-white p-4 shadow-md">
+				<Space>
+					<Button>{t('cancel')}</Button>
+					<Button type="primary">{t('save')}</Button>
+				</Space>
+			</div>
 		</Card>
 	);
 };
