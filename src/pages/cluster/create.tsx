@@ -34,6 +34,11 @@ const layout = {
 	wrapperCol: { span: 16 }
 };
 
+interface Service {
+	ServiceName: string;
+	DependencyList: any[];
+}
+
 const CreateCluster: React.FC = () => {
 	const { navigateToHome } = useNavigater();
 	const [success, setSuccess] = useState(false);
@@ -54,10 +59,13 @@ const CreateCluster: React.FC = () => {
 	};
 	const getDLCVersion = async () => {
 		const api = APIConfig.getDLCVersion;
-		const { Code, Data } = await RequestHttp.get(api);
+		const {
+			Code,
+			Data: { DlcVersion, DlcServiceSummaryList }
+		} = await RequestHttp.get(api);
 		if (Code) {
-			form.setFieldsValue({ DlcVersion: Data.DlcVersion });
-			setServiceList(Data.DlcServiceSummaryList);
+			form.setFieldsValue({ DlcVersion: DlcVersion });
+			setServiceList(DlcServiceSummaryList);
 		}
 	};
 	const handleTypeChange = (type: string) => {
@@ -111,7 +119,7 @@ const CreateCluster: React.FC = () => {
 					</Form.Item>
 					<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 						<Tabs
-							items={serviceList.map(service => {
+							items={(serviceList as Service[]).map(service => {
 								return {
 									key: service.ServiceName,
 									label: service.ServiceName,

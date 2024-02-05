@@ -14,6 +14,11 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+/**
+ * usePolling - 自定义Hook
+ * 轮询调用
+ * @author Tracy.Guo
+ */
 import { useEffect, useState, useRef } from 'react';
 import { pollRequest } from '@/utils/helper';
 

@@ -18,12 +18,12 @@
  * 集群列表
  * @author Tracy.Guo
  */
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Table, Button, Card, App, Space, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
 
@@ -36,6 +36,11 @@ interface DataType {
 	ClusterState: string;
 	DlcVersion: string;
 	RelativeClusterId: number;
+}
+interface RecordType {
+	HasAlreadyNode: boolean;
+	ClusterName: string;
+	ClusterId: number;
 }
 
 const Home: React.FC = () => {
@@ -55,25 +60,7 @@ const Home: React.FC = () => {
 		}
 	];
 	// 单条操作按钮配置
-	// 	<Button type="primary" size="small" ghost onClick={() => navigateToNodeInit(ClusterId)}>
-	// 		{t('cluster.specifyNode')}
-	// 	</Button>
-	// 	<Button
-	// 		type="primary"
-	// 		size="small"
-	// 		ghost
-	// 		onClick={() => {
-	// 			// navigate('/cluster/create');
-	// 		}}
-	// 	>
-	// 		{t('cluster.restart')}
-	// 	</Button>
-	// 	{!HasAlreadyNode ? (
-	// 		<Button type="primary" size="small" ghost onClick={() => removeCluster(ClusterName, ClusterId)}>
-	// 			{t('cluster.remove')}
-	// 		</Button>
-	// 	) : null}
-	const buttonConfigItem = (text: string, record: {}) => {
+	const buttonConfigItem = (text: string, record: RecordType) => {
 		const { HasAlreadyNode, ClusterName, ClusterId } = record;
 		return [
 			{
@@ -182,7 +169,7 @@ const Home: React.FC = () => {
 			{contextHolder}
 			<Space>
 				{buttonConfigTop.map(button => (
-					<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+					<Button key={button.id} type="primary" onClick={button.callback}>
 						{button.label}
 					</Button>
 				))}
