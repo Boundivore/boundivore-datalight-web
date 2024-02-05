@@ -71,10 +71,10 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 		]);
 		handleOk();
 	};
-	const moveToOtherGroup = targetGroupIndex => {
+	const moveToOtherGroup = (targetGroupIndex: number) => {
 		const data = mergeData(targetGroupIndex, selectedNodeList);
 		setConfigGroupInfo(data);
-		handleOk();
+		handleOk(targetGroupIndex);
 	};
 	const mergeData = (n, newDataArr) => {
 		// Copy the original data
@@ -106,7 +106,7 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 						<Dropdown.Button
 							icon={<DownOutlined />}
 							type="primary"
-							menu={{ items: groupList, onClick: ({ key }) => button.callback(key) }}
+							menu={{ items: groupList, onClick: ({ key }) => button.callback(Number(key)) }}
 							disabled={button.disabled}
 						>
 							{button.label}

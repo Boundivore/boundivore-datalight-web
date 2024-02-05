@@ -1,4 +1,3 @@
-import React, { useRef } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-github';
@@ -6,12 +5,10 @@ import 'ace-builds/src-noconflict/ext-language_tools'; // 引入语言工具扩�
 import 'ace-builds/src-noconflict/worker-javascript';
 
 const modified = 'ace-changed';
-const CodeEditor: React.FC = ({ data }) => {
-	const editorRef = useRef(null);
-
-	const handleChange = e => {
-		// 示例：根据编辑器的内容进行注释设置
-
+const CodeEditor: React.FC = ({ editorRef, data }) => {
+	const handleChange = (value, e) => {
+		console.log(222, value);
+		// 标记修改
 		let activeLine = e.start.row;
 		if (e.action == 'insert') {
 			while (activeLine < e.end.row + 1) {
@@ -46,7 +43,7 @@ const CodeEditor: React.FC = ({ data }) => {
 				showLineNumbers: true,
 				tabSize: 2
 			}}
-			onChange={(_value, e) => handleChange(e)}
+			onChange={(value, e) => handleChange(value, e)}
 		/>
 	);
 };

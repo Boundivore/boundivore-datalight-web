@@ -18,12 +18,13 @@
  * 修改配置文件页面
  * @author Tracy.Guo
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 // import { useSearchParams } from 'react-router-dom';
 import { Tabs, Card, Col, Row, Space, Button } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import _ from 'lodash';
+import sha256 from 'crypto-js/sha256';
 // import RequestHttp from '@/api';
 // import APIConfig from '@/api/config';
 import useStore from '@/store/store';
@@ -44,6 +45,9 @@ const ModifyConfig: React.FC = () => {
 	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { configGroupInfo, setConfigGroupInfo } = useStore();
+	// const [messageApi, contextHolder] = message.useMessage();
+
+	const editorRef = useRef(null);
 
 	let paramData = null; // 最终保存修改时提交的数据
 
@@ -95,22 +99,48 @@ const ModifyConfig: React.FC = () => {
 		getFileContent();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
-	const handleClick = (index: Number) => {
+	const handleClick = (currentIndex: Number) => {
 		setIsModalOpen(true);
-		setCurrentGroupIndex(index);
+		changeFile(currentIndex);
 	};
-	const handleModalOk = () => {
+	const handleModalOk = (currentIndex: number) => {
 		// 新建分组，添加到其他分组
 		setIsModalOpen(false);
-		setCurrentGroupIndex(configGroupInfo.length); // TODO 这里还需要考虑移动的情况
+		changeFile(currentIndex);
 	};
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
+	const changeFile = (currentIndex: number) => {
+		if (editorRef.current) {
+			const editorValue = editorRef.current.editor.getValue();
+			const base64Data = btoa(editorValue);
+			const hashDigest = sha256(editorValue);
+			setConfigGroupInfo([
+				...configGroupInfo,
+				{
+					...configGroupInfo[currentIndex],
+					Sha256: hashDigest,
+					ConfigData: base64Data
+				}
+			]);
+		}
+		setCurrentGroupIndex(currentIndex || configGroupInfo.length); // 移动时定位到currentIndex，新建时定位到最后一个分组
+	};
+	const saveChange = () => {
+		// const api = APIConfig.saveByGroup;
+		// const params = configGroupInfo;
+		// const data = await RequestHttp.post(api, params);
+		// const { Code } = data;
+		// if (Code === '00000') {
+		// 	messageApi.success(t('messageSuccess'));
+		// }
+	};
 
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
-			<Tabs items={tabsData} />
+			{/* {contextHolder} */}
+			<Tabs items={tabsData} onChange={activeKey => setActiveTab(activeKey)} />
 			{/* <div>{activeContent}</div> */}
 			<Row>
 				<Col span={8}>
@@ -134,7 +164,7 @@ const ModifyConfig: React.FC = () => {
 					</Space>
 				</Col>
 				<Col className="min-h-[500px]" span={16}>
-					{codeEdit ? <CodeEditor data={codeEdit} /> : null}
+					{codeEdit ? <CodeEditor editorRef={editorRef} data={codeEdit} /> : null}
 				</Col>
 			</Row>
 			{isModalOpen ? (
@@ -148,7 +178,9 @@ const ModifyConfig: React.FC = () => {
 			<div className="bottom-0 bg-white p-4 shadow-md">
 				<Space>
 					<Button>{t('cancel')}</Button>
-					<Button type="primary">{t('save')}</Button>
+					<Button type="primary" onClick={saveChange}>
+						{t('save')}
+					</Button>
 				</Space>
 			</div>
 		</Card>
