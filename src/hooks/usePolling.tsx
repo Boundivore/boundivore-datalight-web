@@ -16,22 +16,21 @@
  */
 /**
  * usePolling - 自定义Hook
- * 轮询调用
+ * 轮询调用fetchData
  * @author Tracy.Guo
  */
 import { useEffect, useState, useRef } from 'react';
 import { pollRequest } from '@/utils/helper';
 
-interface DataType {
-	NodeId: React.Key;
-	Hostname: string;
-	CpuCores: number;
-	CpuArch: string;
-	DiskTotal: string;
-	NodeState: string;
-}
+type PollFunctionResult = {
+	NodeState?: string;
+	SCStateEnum?: string;
+};
 
-const usePolling = (fetchData: Promise, stableStates: string[], interval: number): DataType[] => {
+// 定义 DataType 为 PollFunctionResult 类型的数组
+type DataType = PollFunctionResult[];
+
+const usePolling = (fetchData: () => Promise<DataType>, stableStates: string[], interval: number): DataType[] => {
 	const [data, setData] = useState<DataType[]>([]);
 	const stopPollingRef = useRef<Function>();
 
@@ -41,7 +40,11 @@ const usePolling = (fetchData: Promise, stableStates: string[], interval: number
 		};
 		stopPollingRef.current = pollRequest(fetchData, callback, stableStates, interval);
 
-		return () => stopPollingRef.current();
+		return () => {
+			if (stopPollingRef.current) {
+				stopPollingRef.current();
+			}
+		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
