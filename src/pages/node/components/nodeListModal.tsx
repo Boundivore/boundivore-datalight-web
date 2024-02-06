@@ -25,21 +25,31 @@
  */
 import { useState, useEffect } from 'react';
 import { Modal, Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 
-const NodeListModal: React.FC = ({ isModalOpen, handleOk, handleCancel, component }) => {
+interface NodeListModalProps {
+	isModalOpen: boolean;
+	handleOk: () => void;
+	handleCancel: () => void;
+	component: [];
+}
+interface DataType {
+	Hostname: string;
+}
+const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component }) => {
 	const [tableData, setTableData] = useState([]);
-	const [selectedNodeList, setSelectedNodeList] = useState([]);
+	const [selectedNodeList, setSelectedNodeList] = useState<DataType[]>([]);
 	const { nodeList } = useComponentAndNodeStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { t } = useTranslation();
 
-	const columns = [
+	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
@@ -60,7 +70,10 @@ const NodeListModal: React.FC = ({ isModalOpen, handleOk, handleCancel, componen
 			ClusterId: id
 		};
 		const data = await RequestHttp.get(apiList, { params });
-		setTableData(data.Data.NodeDetailList);
+		const {
+			Data: { NodeDetailList }
+		} = data;
+		setTableData(NodeDetailList);
 	};
 	useEffect(() => {
 		getList();

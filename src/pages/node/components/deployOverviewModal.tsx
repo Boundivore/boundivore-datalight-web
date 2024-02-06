@@ -20,26 +20,38 @@
  */
 import { useEffect, useState } from 'react';
 import { Table, Modal } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-const DeployOverview: React.FC = ({ isModalOpen, handleOk, handleCancel }) => {
+
+interface DeployOverviewProps {
+	isModalOpen: boolean;
+	handleOk: () => void;
+	handleCancel: () => void;
+}
+interface DataType {
+	ServiceName: string;
+	ComponentName: string;
+}
+
+const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleOk, handleCancel }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { t } = useTranslation();
 	const [serviceTable, setServiceTable] = useState([]);
-	const serviceColumn = [
+	const serviceColumn: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'ServiceSummary',
-			render: (text: {}) => <a>{text?.ServiceName}</a>
+			render: text => <a>{text?.ServiceName}</a>
 		},
 		{
 			title: t('node.config'),
 			dataIndex: 'ComponentName',
-			render: (text: {}) => <p>{text}</p>
+			render: text => <p>{text}</p>
 		},
 		{
 			title: t('node.config'),
@@ -53,11 +65,16 @@ const DeployOverview: React.FC = ({ isModalOpen, handleOk, handleCancel }) => {
 			ClusterId: id
 		};
 		const data = await RequestHttp.get(apiList, { params });
-		const tableData = data.Data.ServiceComponentSummaryList.map(item => {
-			item.rowKey = item.ServiceSummary.ServiceName;
-			item.children = item.ComponentSummaryList;
-			return item;
-		});
+		const {
+			Data: { ServiceComponentSummaryList }
+		} = data;
+		const tableData = ServiceComponentSummaryList.map(
+			(item: { rowKey: string; ServiceSummary: { ServiceName: string }; children: []; ComponentSummaryList: [] }) => {
+				item.rowKey = item.ServiceSummary.ServiceName;
+				item.children = item.ComponentSummaryList;
+				return item;
+			}
+		);
 		setServiceTable(tableData);
 	};
 	useEffect(() => {

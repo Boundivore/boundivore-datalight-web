@@ -27,6 +27,19 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 
 const { Text } = Typography;
+
+interface DataType {
+	Hostname: string;
+	NodeId: string;
+	NodeIp: string;
+	ComponentName: string;
+	SCStateEnum: string;
+	ComponentNodeList: {
+		ComponentId: string;
+	}[];
+	operation: boolean;
+}
+
 const ComponentManage: React.FC = () => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
@@ -34,8 +47,8 @@ const ComponentManage: React.FC = () => {
 	const serviceName = searchParams.get('name');
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState([]);
-	const [selectComponent, setSelectComponent] = useState([]);
-	const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState([]);
+	const [selectComponent, setSelectComponent] = useState<DataType[]>([]);
+	const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState<string[]>([]);
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	// 顶部操作按钮配置
@@ -72,7 +85,7 @@ const ComponentManage: React.FC = () => {
 		}
 	];
 	// 单条操作按钮配置
-	const buttonConfigItem = record => {
+	const buttonConfigItem = (record: DataType) => {
 		// const { NodeId, Hostname, SshPort } = record;
 		return [
 			{
@@ -101,7 +114,7 @@ const ComponentManage: React.FC = () => {
 			}
 		];
 	};
-	const columns: ColumnsType = [
+	const columns: ColumnsType<DataType> = [
 		{
 			title: t('service.componentName'),
 			dataIndex: 'ComponentName',
@@ -143,7 +156,7 @@ const ComponentManage: React.FC = () => {
 			}
 		}
 	];
-	const removeComponent = componentList => {
+	const removeComponent = (componentList: DataType[]) => {
 		const idList = componentList.map(component => {
 			return {
 				ComponentId: component.ComponentNodeList[0].ComponentId // 先这样测一下
@@ -170,7 +183,7 @@ const ComponentManage: React.FC = () => {
 			}
 		});
 	};
-	const operateComponent = (operation, componentList) => {
+	const operateComponent = (operation: string, componentList: DataType[]) => {
 		const jobDetailComponentList = componentList.map(component => {
 			const jobDetailNodeList = [
 				{
@@ -220,22 +233,24 @@ const ComponentManage: React.FC = () => {
 		const {
 			Data: { ServiceComponentSummaryList }
 		} = data;
-		const tempData = ServiceComponentSummaryList[0].ComponentSummaryList.map(item => {
-			item.rowKey = item.ComponentName;
-			item.children = item.ComponentNodeList;
-			item.children.map(child => {
-				child.operation = true;
-				child.rowKey = child.ComponentId;
-				child.ComponentName = item.ComponentName;
-			});
-			return item;
-		});
+		const tempData = ServiceComponentSummaryList[0].ComponentSummaryList.map(
+			(item: { rowKey: string; ComponentName: string; children: any[]; ComponentNodeList: any }) => {
+				item.rowKey = item.ComponentName;
+				item.children = item.ComponentNodeList;
+				item.children.map(child => {
+					child.operation = true;
+					child.rowKey = child.ComponentId;
+					child.ComponentName = item.ComponentName;
+				});
+				return item;
+			}
+		);
 		setLoading(false);
 		setTableData(tempData);
 	};
 	const rowSelection = {
 		checkStrictly: false,
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: []) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectComponent(selectedRows);
 		}
 	};
@@ -246,7 +261,7 @@ const ComponentManage: React.FC = () => {
 	}, []);
 	useEffect(() => {
 		const expandedRowKeys: string[] = [];
-		tableData.map(data => {
+		tableData.map((data: DataType) => {
 			expandedRowKeys.push(data.ComponentName);
 		});
 		setDefaultExpandedRowKeys(expandedRowKeys);

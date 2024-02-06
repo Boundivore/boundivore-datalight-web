@@ -5,23 +5,27 @@ import 'ace-builds/src-noconflict/ext-language_tools'; // 引入语言工具扩�
 import 'ace-builds/src-noconflict/worker-javascript';
 
 const modified = 'ace-changed';
-const CodeEditor: React.FC = ({ editorRef, data }) => {
-	const handleChange = (value, e) => {
-		console.log(222, value);
+interface Props {
+	editorRef: React.RefObject<AceEditor>;
+	data: string;
+}
+const CodeEditor: React.FC<Props> = ({ editorRef, data }) => {
+	const handleChange = (_value: string, e: { start: { row: number }; action: string; end: { row: number } }) => {
 		// 标记修改
+		const editor = editorRef?.current?.editor;
 		let activeLine = e.start.row;
 		if (e.action == 'insert') {
 			while (activeLine < e.end.row + 1) {
-				editorRef.current.editor.session.removeGutterDecoration(activeLine, modified);
-				editorRef.current.editor.session.addGutterDecoration(activeLine, modified);
+				editor?.session.removeGutterDecoration(activeLine, modified);
+				editor?.session.addGutterDecoration(activeLine, modified);
 				activeLine++;
 			}
 		} else if (e.action == 'remove') {
 			while (activeLine < e.end.row + 1) {
-				editorRef.current.editor.session.removeGutterDecoration(activeLine, modified);
+				editor?.session.removeGutterDecoration(activeLine, modified);
 				activeLine++;
 			}
-			editorRef.current.editor.session.addGutterDecoration(e.start.row, modified);
+			editor?.session.addGutterDecoration(e.start.row, modified);
 		}
 	};
 

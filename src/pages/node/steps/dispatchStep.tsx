@@ -116,7 +116,7 @@ const DispatchStep: React.FC = forwardRef((props, ref) => {
 		}
 	];
 	const rowSelection = {
-		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectedRowsList(selectedRows);
 		},
 		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {

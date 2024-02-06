@@ -36,6 +36,8 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
+type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
+
 const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const { setSelectedRowsList, selectedRowsList, stateText, stableState } = useStore();
@@ -63,7 +65,7 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		{
 			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		}
 	];
 	const rowSelection = {
@@ -82,7 +84,7 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
 		return data.Data.NodeInitDetailList;
 	};
-	const tableData = usePolling(getState, stableState, 1000);
+	const tableData: DataType[] = usePolling(getState, stableState, 1000);
 
 	useImperativeHandle(ref, () => ({
 		handleOk

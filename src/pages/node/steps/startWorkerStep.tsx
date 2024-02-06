@@ -33,7 +33,7 @@ interface DataType {
 	NodeState: string;
 }
 
-const StartWorkerStep: React.FC = forwardRef((props, ref) => {
+const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 	const { selectedRowsList, setSelectedRowsList, stateText, stableState } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();

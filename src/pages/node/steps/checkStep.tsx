@@ -25,15 +25,16 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 
 interface DataType {
-	NodeId: React.Key;
+	NodeId: string | number;
 	Hostname: string;
 	CpuCores: number;
 	CpuArch: string;
 	DiskTotal: string;
 	NodeState: string;
 }
+type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 
-const CheckStep: React.FC = forwardRef((props, ref) => {
+const CheckStep: React.FC = forwardRef((_props, ref) => {
 	const { selectedRowsList, setSelectedRowsList, setJobNodeId, stateText, stableState } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
@@ -62,7 +63,7 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		{
 			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		},
 		{
 			title: t('node.log'),
@@ -71,10 +72,10 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		}
 	];
 	const rowSelection = {
-		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectedRowsList(selectedRows);
 		},
-		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }: any) => {
 			return NodeId;
 		}),
 		getCheckboxProps: (record: DataType) => ({
@@ -89,7 +90,7 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'DISPATCH',
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
 			SshPort: 22
 		};
 		const jobData = await RequestHttp.post(apiDispatch, params);
@@ -100,7 +101,7 @@ const CheckStep: React.FC = forwardRef((props, ref) => {
 	const getSpeed = async () => {
 		const params = {
 			ClusterId: id,
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(apiSpeed, params);
 		return data.Data.NodeInitDetailList;

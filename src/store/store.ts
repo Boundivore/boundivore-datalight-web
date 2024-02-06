@@ -42,6 +42,10 @@ interface PersistStore {
 	userInfo: object;
 	setUserInfo: (info: object) => void;
 }
+interface ComponentAndNodeStore {
+	nodeList: object;
+	setNodeList: (info: object) => void;
+}
 const useStore = create<MyStore>(set => ({
 	isNeedChangePassword: false,
 	setIsNeedChangePassword: (changePassword: boolean) => set({ isNeedChangePassword: changePassword }),
@@ -160,7 +164,7 @@ export const usePersistStore = create<PersistStore>()(
 		}
 	)
 );
-export const useComponentAndNodeStore = create(
+export const useComponentAndNodeStore = create<ComponentAndNodeStore>()(
 	persist(
 		set => ({
 			nodeList: {},

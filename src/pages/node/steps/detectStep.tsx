@@ -32,8 +32,9 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
+type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 
-const DetectStep: React.FC = forwardRef((props, ref) => {
+const DetectStep: React.FC = forwardRef((_props, ref) => {
 	const { selectedRowsList, setSelectedRowsList, stateText, stableState } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
@@ -62,11 +63,11 @@ const DetectStep: React.FC = forwardRef((props, ref) => {
 		{
 			title: t('node.state'),
 			dataIndex: 'NodeState',
-			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		}
 	];
 	const rowSelection = {
-		onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setSelectedRowsList(selectedRows);
 		},
 		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {

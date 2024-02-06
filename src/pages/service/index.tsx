@@ -27,14 +27,10 @@ import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 
 interface DataType {
-	HasAlreadyNode: boolean;
-	ClusterId: number;
-	ClusterDesc: string;
-	ClusterName: string;
-	ClusterType: string;
-	ClusterState: string;
-	DlcVersion: string;
-	RelativeClusterId: number;
+	Desc: string;
+	ServiceName: string;
+	ServiceType: string;
+	ComponentNodeList: [];
 }
 
 const ServiceManage: React.FC = () => {
@@ -47,7 +43,7 @@ const ServiceManage: React.FC = () => {
 	// const { modal } = App.useApp();
 
 	// 单条操作按钮配置
-	const buttonConfigItem = record => {
+	const buttonConfigItem = (record: DataType) => {
 		const { ServiceName } = record;
 		return [
 			{
@@ -58,8 +54,8 @@ const ServiceManage: React.FC = () => {
 			{
 				id: 2,
 				label: t('service.componentManage'),
-				callback: () => navigateToComManage(defaultSelectValue, ServiceName)
-				// disabled: record?.ComponentNodeList[0]?.SCStateEnum === 'STOPPED'
+				callback: () => navigateToComManage(defaultSelectValue, ServiceName),
+				disabled: record?.ComponentNodeList.length === 0
 			}
 		];
 	};
@@ -93,7 +89,6 @@ const ServiceManage: React.FC = () => {
 						))}
 					</Space>
 				);
-				// }
 			}
 		}
 	];
@@ -104,7 +99,7 @@ const ServiceManage: React.FC = () => {
 		const {
 			Data: { ClusterList }
 		} = data;
-		const listData = ClusterList.map(item => {
+		const listData = ClusterList.map((item: { ClusterId: string; ClusterName: string }) => {
 			return {
 				value: item.ClusterId,
 				label: item.ClusterName

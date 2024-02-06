@@ -18,7 +18,7 @@
  * ParseStep - 解析节点主机名步骤
  * @author Tracy.Guo
  */
-import { forwardRef, useImperativeHandle, Ref } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -36,10 +36,10 @@ type FieldType = {
 	SshPort: string;
 };
 
-interface MyComponentMethods {
-	handleOk: () => void;
-}
-const ParseStep: React.FC = forwardRef((_props, ref: Ref<MyComponentMethods>) => {
+// interface MyComponentMethods {
+// 	handleOk: () => void;
+// }
+const ParseStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');

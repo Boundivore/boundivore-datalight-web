@@ -22,20 +22,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { pollRequest } from '@/utils/helper';
 
-type PollFunctionResult = {
-	NodeState?: string;
-	SCStateEnum?: string;
-};
+type DataType = object[];
 
-// 定义 DataType 为 PollFunctionResult 类型的数组
-type DataType = PollFunctionResult[];
-
-const usePolling = (fetchData: () => Promise<DataType>, stableStates: string[], interval: number): DataType[] => {
-	const [data, setData] = useState<DataType[]>([]);
+const usePolling = (fetchData: () => Promise<DataType>, stableStates: string[], interval: number): DataType => {
+	const [data, setData] = useState<DataType>([]);
 	const stopPollingRef = useRef<Function>();
 
 	useEffect(() => {
-		const callback = (stateData: DataType[]) => {
+		const callback = (stateData: DataType) => {
 			setData(stateData);
 		};
 		stopPollingRef.current = pollRequest(fetchData, callback, stableStates, interval);
