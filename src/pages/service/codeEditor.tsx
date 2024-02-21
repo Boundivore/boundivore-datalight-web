@@ -8,8 +8,9 @@ const modified = 'ace-changed';
 interface Props {
 	editorRef: React.RefObject<AceEditor>;
 	data: string;
+	mode: string;
 }
-const CodeEditor: React.FC<Props> = ({ editorRef, data }) => {
+const CodeEditor: React.FC<Props> = ({ editorRef, data, mode }) => {
 	const handleChange = (_value: string, e: { start: { row: number }; action: string; end: { row: number } }) => {
 		// 标记修改
 		const editor = editorRef?.current?.editor;
@@ -32,7 +33,7 @@ const CodeEditor: React.FC<Props> = ({ editorRef, data }) => {
 	return (
 		<AceEditor
 			ref={editorRef}
-			mode="javascript"
+			mode={mode}
 			theme="github"
 			name="code-editor"
 			fontSize={14}

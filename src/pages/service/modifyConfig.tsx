@@ -20,32 +20,33 @@
  */
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-// import { useSearchParams } from 'react-router-dom';
-import { Tabs, Card, Col, Row, Space, Button } from 'antd';
+import { useSearchParams } from 'react-router-dom';
+import { Tabs, Card, Col, Row, Space, Button, message } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import sha256 from 'crypto-js/sha256';
-// import RequestHttp from '@/api';
-// import APIConfig from '@/api/config';
+import RequestHttp from '@/api';
+import APIConfig from '@/api/config';
 import useStore from '@/store/store';
-import mockData from './mockData/tempData.json';
+// import mockData from './mockData/tempData.json';
 import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
 
 const ModifyConfig: React.FC = () => {
 	const { t } = useTranslation();
-	// const [searchParams] = useSearchParams();
-	// const id = searchParams.get('id');
-	// const serviceName = searchParams.get('name');
+	const [searchParams] = useSearchParams();
+	const id = searchParams.get('id');
+	const serviceName = searchParams.get('name');
 	const [tabsData, setTabsData] = useState([]);
 	const [activeTab, setActiveTab] = useState('');
+	const [activeMode, setActiveMode] = useState('');
 	const [activeContent, setActiveContent] = useState({});
 	const [codeEdit, setCodeEdit] = useState('');
 	// const [groupList, setGroupList] = useState([]);
 	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { configGroupInfo, setConfigGroupInfo } = useStore();
-	// const [messageApi, contextHolder] = message.useMessage();
+	const [messageApi, contextHolder] = message.useMessage();
 
 	const editorRef = useRef(null);
 
@@ -53,12 +54,12 @@ const ModifyConfig: React.FC = () => {
 
 	const getConfigFile = async () => {
 		// setLoading(true);
-		// const api = APIConfig.listSummary;
-		// const params = { ClusterId: id, ServiceName: serviceName };
-		// const data = await RequestHttp.get(api, { params });
+		const api = APIConfig.listSummary;
+		const params = { ClusterId: id, ServiceName: serviceName };
+		const data = await RequestHttp.get(api, { params });
 		const {
 			Data: { ConfigSummaryList }
-		} = mockData.tabs; // TODO 年后调整为接口获取
+		} = data;
 
 		const tempData = ConfigSummaryList.map(item => {
 			item.key = item.FileName;
@@ -67,20 +68,22 @@ const ModifyConfig: React.FC = () => {
 		});
 		// setLoading(false);
 		setActiveTab(tempData[0].FileName); // 默认选中第一项
+		const fileExtension = tempData[0].FileName.split('.').pop();
+		setActiveMode(fileExtension);
 		setTabsData(tempData);
 	};
 	const getFileContent = async () => {
 		// setLoading(true);
-		// const api = APIConfig.listByGroup;
-		// const { configPath } = tabsData.find(item => {
-		// 	return item.key === activeTab;
-		// });
-		// const params = { ClusterId: id, ServiceName: serviceName, Filename: activeTab, ConfigPath: configPath };
-		// const data = await RequestHttp.get(api, { params });
-		// console.log(data);
+		const api = APIConfig.listByGroup;
+		const { ConfigPath } = tabsData.find(item => {
+			return item.key === activeTab;
+		});
+		const params = { ClusterId: id, ServiceName: serviceName, Filename: activeTab, ConfigPath };
+		const data = await RequestHttp.get(api, { params });
+		console.log(data);
 		const {
 			Data: { ConfigGroupList }
-		} = mockData.content; // TODO 年后调整为接口获取
+		} = data;
 		// setLoading(false);
 		paramData = ConfigGroupList;
 		console.log(paramData);
@@ -94,53 +97,71 @@ const ModifyConfig: React.FC = () => {
 	};
 	useEffect(() => {
 		getConfigFile();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	useEffect(() => {
 		getFileContent();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
-	const handleClick = (currentIndex: Number) => {
+	const handleClick = () => {
 		setIsModalOpen(true);
-		changeFile(currentIndex);
+		// changeFile(currentIndex);
 	};
-	const handleModalOk = (currentIndex: number) => {
+	const handleModalOk = () => {
 		// 新建分组，添加到其他分组
 		setIsModalOpen(false);
-		changeFile(currentIndex);
+		changeFile();
 	};
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
-	const changeFile = (currentIndex: number) => {
+	const changeFile = () => {
 		if (editorRef.current) {
 			const editorValue = editorRef.current.editor.getValue();
 			const base64Data = btoa(editorValue);
-			const hashDigest = sha256(editorValue);
+			const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
 			setConfigGroupInfo([
 				...configGroupInfo,
 				{
-					...configGroupInfo[currentIndex],
+					...configGroupInfo[currentGroupIndex],
 					Sha256: hashDigest,
 					ConfigData: base64Data
 				}
 			]);
 		}
-		setCurrentGroupIndex(currentIndex || configGroupInfo.length); // 移动时定位到currentIndex，新建时定位到最后一个分组
+		setCurrentGroupIndex(currentGroupIndex || configGroupInfo.length); // 移动时定位到currentIndex，新建时定位到最后一个分组
 	};
-	const saveChange = () => {
-		// const api = APIConfig.saveByGroup;
-		// const params = configGroupInfo;
-		// const data = await RequestHttp.post(api, params);
-		// const { Code } = data;
-		// if (Code === '00000') {
-		// 	messageApi.success(t('messageSuccess'));
-		// }
+	const saveChange = async () => {
+		const api = APIConfig.saveByGroup;
+		const editorValue = editorRef.current.editor.getValue();
+		const base64Data = btoa(editorValue);
+		const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
+		const params = [
+			...configGroupInfo,
+			{
+				...configGroupInfo[currentGroupIndex],
+				Sha256: hashDigest,
+				ConfigData: base64Data
+			}
+		];
+		const data = await RequestHttp.post(api, params);
+		const { Code } = data;
+		if (Code === '00000') {
+			messageApi.success(t('messageSuccess'));
+		}
 	};
 
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
-			{/* {contextHolder} */}
-			<Tabs items={tabsData} onChange={activeKey => setActiveTab(activeKey)} />
+			{contextHolder}
+			<Tabs
+				items={tabsData}
+				onChange={activeKey => {
+					setActiveTab(activeKey);
+					const fileExtension = activeKey.split('.').pop();
+					setActiveMode(fileExtension);
+				}}
+			/>
 			{/* <div>{activeContent}</div> */}
 			<Row>
 				<Col span={8}>
@@ -164,7 +185,7 @@ const ModifyConfig: React.FC = () => {
 					</Space>
 				</Col>
 				<Col className="min-h-[500px]" span={16}>
-					{codeEdit ? <CodeEditor editorRef={editorRef} data={codeEdit} /> : null}
+					{codeEdit ? <CodeEditor editorRef={editorRef} data={codeEdit} mode={activeMode} changeFile={changeFile} /> : null}
 				</Col>
 			</Row>
 			{isModalOpen ? (

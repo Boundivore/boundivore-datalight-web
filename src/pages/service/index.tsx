@@ -30,6 +30,7 @@ interface DataType {
 	Desc: string;
 	ServiceName: string;
 	ServiceType: string;
+	SCStateEnum: string;
 	ComponentNodeList: [];
 }
 
@@ -49,13 +50,14 @@ const ServiceManage: React.FC = () => {
 			{
 				id: 1,
 				label: t('modifyConfig'),
-				callback: () => navigateToConfig(defaultSelectValue, ServiceName)
+				callback: () => navigateToConfig(defaultSelectValue, ServiceName),
+				disabled: record?.SCStateEnum !== 'DEPLOYED'
 			},
 			{
 				id: 2,
 				label: t('service.componentManage'),
 				callback: () => navigateToComManage(defaultSelectValue, ServiceName),
-				disabled: record?.ComponentNodeList.length === 0
+				disabled: !record.ComponentNodeList || record.ComponentNodeList.length === 0
 			}
 		];
 	};

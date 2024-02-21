@@ -50,10 +50,7 @@ const LayoutMenu: React.FC = () => {
 		{ type: 'divider' },
 
 		getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
-			getItem(<Link to="/auth/changePassword">{t('tabs.changePassword')}</Link>, '/changePassword"'),
-			getItem('Option 10', '10'),
-			getItem('Option 11', '11'),
-			getItem('Option 12', '12')
+			getItem(<Link to="/auth/changePassword">{t('tabs.changePassword')}</Link>, '/changePassword"')
 		])
 	];
 	return (
