@@ -52,6 +52,8 @@ const InitNode: React.FC = forwardRef(() => {
 	const startWorkerStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
+	const PreconfigStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const DeployStepRef = useRef<{ handleOk: () => void } | null>(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
 	const id = searchParams.get('id');
 	const steps = [
@@ -132,6 +134,10 @@ const InitNode: React.FC = forwardRef(() => {
 		const callbackData = await selectComponentRef.current?.handleOk();
 		return callbackData;
 	};
+	const nextDeploy = async () => {
+		const callbackData = await PreconfigStepRef.current?.handleOk();
+		return callbackData;
+	};
 
 	const stepConfig = [
 		{
@@ -184,12 +190,13 @@ const InitNode: React.FC = forwardRef(() => {
 		},
 		{
 			title: t('service.preConfig'),
-			content: <PreconfigStep />
-			// nextStep: nextComponent
+			content: <PreconfigStep ref={PreconfigStepRef} />,
+			nextStep: nextDeploy
 		},
 		{
 			title: t('service.deployStep'),
-			content: <DeployStep />
+			content: <DeployStep ref={DeployStepRef} />,
+			operations: [{ label: t('backHome'), callback: navigateToHome }]
 			// nextStep: nextComponent
 		}
 	];

@@ -25,9 +25,11 @@ import { Tabs, Card, Col, Row, Space, Button, message } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import sha256 from 'crypto-js/sha256';
+import CryptoJS from 'crypto-js';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
+import useNavigater from '@/hooks/useNavigater';
 // import mockData from './mockData/tempData.json';
 import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
@@ -47,6 +49,7 @@ const ModifyConfig: React.FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { configGroupInfo, setConfigGroupInfo } = useStore();
 	const [messageApi, contextHolder] = message.useMessage();
+	const { navigateToService } = useNavigater();
 
 	const editorRef = useRef(null);
 
@@ -110,7 +113,8 @@ const ModifyConfig: React.FC = () => {
 	const handleModalOk = () => {
 		// 新建分组，添加到其他分组
 		setIsModalOpen(false);
-		changeFile();
+		// changeFile();
+		setCurrentGroupIndex(currentGroupIndex || configGroupInfo.length); // 移动时定位到currentIndex，新建时定位到最后一个分组
 	};
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
@@ -134,20 +138,19 @@ const ModifyConfig: React.FC = () => {
 	const saveChange = async () => {
 		const api = APIConfig.saveByGroup;
 		const editorValue = editorRef.current.editor.getValue();
-		const base64Data = btoa(editorValue);
+		const base64Data = btoa(unescape(encodeURIComponent(editorValue)));
 		const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
-		const params = [
-			...configGroupInfo,
-			{
-				...configGroupInfo[currentGroupIndex],
-				Sha256: hashDigest,
-				ConfigData: base64Data
-			}
-		];
+		_.merge(configGroupInfo[currentGroupIndex], { Sha256: hashDigest, ConfigData: base64Data });
+		const params = {
+			ClusterId: id,
+			ConfigGroupList: configGroupInfo,
+			ServiceName: serviceName
+		};
 		const data = await RequestHttp.post(api, params);
 		const { Code } = data;
 		if (Code === '00000') {
 			messageApi.success(t('messageSuccess'));
+			navigateToService();
 		}
 	};
 

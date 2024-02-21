@@ -61,7 +61,7 @@ const DispatchStep: React.FC = forwardRef((props, ref) => {
 						{text ? (
 							<>
 								<Space>
-									{Number(text?.TotalProgress) !== 100 ? <LoadingOutlined /> : null}
+									{/* {Number(text?.TotalProgress) !== 100 ? <LoadingOutlined /> : null} */}
 									<Text ellipsis={true} className="w-[150px]">
 										{t('node.fileProgress')}
 										{`${record?.FileCountProgress.TotalTransferFileCount}/${record?.FileCountProgress.TotalFileCount}`}

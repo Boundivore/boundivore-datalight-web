@@ -57,7 +57,8 @@ const ServiceManage: React.FC = () => {
 				id: 2,
 				label: t('service.componentManage'),
 				callback: () => navigateToComManage(defaultSelectValue, ServiceName),
-				disabled: !record.ComponentNodeList || record.ComponentNodeList.length === 0
+				// disabled: !record.ComponentNodeList || record.ComponentNodeList.length === 0
+				disabled: record?.SCStateEnum !== 'DEPLOYED'
 			}
 		];
 	};

@@ -70,12 +70,12 @@ export default {
 		typeCheck: '请选择集群类型',
 		description: '集群描述',
 		desCheck: '请输入集群描述',
-		dlcVersion: '下载版本',
+		dlcVersion: 'DLC版本',
 		relativeClusterId: '关联集群ID',
 		createSucc: '集群创建成功！<1>指定集群节点</1>',
 		backToList: '返回集群列表',
 		compute: '计算型',
-		mixed: '存储型',
+		mixed: '混合型',
 		list: {
 			description: '描述'
 		},
@@ -162,7 +162,7 @@ export default {
 	next: '下一步',
 	cancel: '取消',
 	done: '服役节点到指定集群',
-	poweredBy: 'powered by @Boundivore',
+	poweredBy: 'Powered by @Boundivore',
 	confirm: '确认',
 	prompt: '提示',
 	error: '错误',
@@ -181,5 +181,6 @@ export default {
 	errorMessage: '服务不可用，请联系管理员',
 	modifyConfig: '修改配置',
 	save: '保存修改',
-	group: '分组{{name}}'
+	group: '分组{{name}}',
+	preview: '预览'
 };

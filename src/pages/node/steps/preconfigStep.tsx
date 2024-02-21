@@ -18,11 +18,11 @@
  * PreconfigStep - 预配置步骤
  * @author Tracy.Guo
  */
-import React, { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
 import _ from 'lodash';
-// import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 // import type { CollapseProps } from 'antd';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
@@ -33,7 +33,8 @@ const layout = {
 	labelCol: { span: 8 },
 	wrapperCol: { span: 16 }
 };
-const PreconfigStep: React.FC = forwardRef(() => {
+const PreconfigStep: React.FC = forwardRef((_props, ref) => {
+	const { t } = useTranslation();
 	const [serviceList, setServiceList] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { setJobId } = useStore();
@@ -86,7 +87,10 @@ const PreconfigStep: React.FC = forwardRef(() => {
 		const data = await RequestHttp.get(api, { params: { ClusterId: id } });
 		setServiceList(data.Data.ConfigPreServiceList);
 	};
-	const handleModalOk = async () => {
+	useImperativeHandle(ref, () => ({
+		handleOk
+	}));
+	const handleOk = async () => {
 		const api = APIConfig.deploy;
 		const params = {
 			ActionTypeEnum: 'DEPLOY',
@@ -126,12 +130,12 @@ const PreconfigStep: React.FC = forwardRef(() => {
 				)}
 				<Form.Item>
 					<Button type="primary" htmlType="submit">
-						Submit
+						{t('preview')}
 					</Button>
 				</Form.Item>
 			</Form>
 			{isModalOpen ? (
-				<DeployOverviewModal isModalOpen={isModalOpen} handleOk={handleModalOk} handleCancel={handleModalCancel} />
+				<DeployOverviewModal isModalOpen={isModalOpen} handleOk={handleModalCancel} handleCancel={handleModalCancel} />
 			) : null}
 		</>
 	);

@@ -97,8 +97,8 @@ const ComponentManage: React.FC = () => {
 			{
 				id: 2,
 				label: t('stop'),
-				callback: () => operateComponent('STOP', [record])
-				// disabled: record?.ComponentNodeList[0]?.SCStateEnum === 'STOPPED'
+				callback: () => operateComponent('STOP', [record]),
+				disabled: record.SCStateEnum === 'STOPPED'
 			},
 			{
 				id: 3,
@@ -109,8 +109,8 @@ const ComponentManage: React.FC = () => {
 			{
 				id: 4,
 				label: t('remove'),
-				callback: () => removeComponent([record])
-				// disabled: record?.ComponentNodeList[0]?.SCStateEnum !== 'STOPPED'
+				callback: () => removeComponent([record]),
+				disabled: record.SCStateEnum !== 'STOPPED'
 			}
 		];
 	};

@@ -37,6 +37,8 @@ interface MyStore {
 	stableState: string[];
 	configGroupInfo: object[]; // 修改配置文件时的分组信息
 	setConfigGroupInfo: (group: object[]) => void;
+	currentPageDisabled: object; // 当前页面操作的置灰状态
+	setCurrentPageDisabled: (state: object) => void;
 }
 interface PersistStore {
 	userInfo: object;
@@ -151,7 +153,9 @@ const useStore = create<MyStore>(set => ({
 		'UNSELECTED'
 	],
 	configGroupInfo: [],
-	setConfigGroupInfo: (group: object[]) => set({ configGroupInfo: group })
+	setConfigGroupInfo: (group: object[]) => set({ configGroupInfo: group }),
+	currentPageDisabled: { next: true },
+	setCurrentPageDisabled: (state: object) => set({ currentPageDisabled: state })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

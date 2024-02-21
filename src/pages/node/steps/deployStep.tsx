@@ -65,8 +65,8 @@ const DeployStep: React.FC = forwardRef((props, ref) => {
 			title: t('node.detail'),
 			dataIndex: 'ExecProgressStepList',
 			render: (text: []) => {
-				const runningStep = text.find(step => step.StepExecState === 'RUNNING');
-				return runningStep ? <Text>{runningStep.StepName}</Text> : null;
+				// const runningStep = text.find(step => step.StepExecState === 'RUNNING');
+				return <Text>{text.StepName}</Text>;
 			}
 		}
 	];

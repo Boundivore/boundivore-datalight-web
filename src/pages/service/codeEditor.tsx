@@ -46,7 +46,10 @@ const CodeEditor: React.FC<Props> = ({ editorRef, data, mode }) => {
 				enableLiveAutocompletion: true,
 				enableSnippets: true,
 				showLineNumbers: true,
-				tabSize: 2
+				tabSize: 2,
+				fontFamily: 'sans-serif',
+				fontSize: '14px',
+				charset: 'utf-8'
 			}}
 			onChange={(value, e) => handleChange(value, e)}
 		/>

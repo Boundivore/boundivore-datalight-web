@@ -69,6 +69,13 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 				ConfigNodeList: selectedNodeList
 			}
 		]);
+		console.log(2222, [
+			...configGroupInfo,
+			{
+				...configGroupInfo[groupIndex],
+				ConfigNodeList: selectedNodeList
+			}
+		]);
 		handleOk();
 	};
 	const moveToOtherGroup = (targetGroupIndex: number) => {

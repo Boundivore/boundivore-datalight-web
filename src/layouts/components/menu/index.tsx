@@ -45,7 +45,7 @@ const LayoutMenu: React.FC = () => {
 		getItem(<NavLink to="/home">{t('tabs.clusterManage')}</NavLink>, '/home', <AppstoreOutlined />),
 		getItem(<NavLink to="/node">{t('tabs.nodeManage')}</NavLink>, '/node', <AppstoreOutlined />),
 		getItem(<Link to="/service">{t('tabs.serviceManage')}</Link>, '/service', <AppstoreOutlined />),
-		getItem(<Link to="/home">{t('tabs.config')}</Link>, 'sub5', <AppstoreOutlined />),
+		// getItem(<Link to="/home">{t('tabs.config')}</Link>, 'sub5', <AppstoreOutlined />),
 
 		{ type: 'divider' },
 

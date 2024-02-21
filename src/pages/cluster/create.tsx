@@ -19,7 +19,7 @@
  * @author Tracy.Guo
  */
 import { useEffect, useState } from 'react';
-import { Card, Button, Form, Input, Tabs, List, Avatar, Select } from 'antd';
+import { Card, Button, Form, Input, Select } from 'antd';
 import { useTranslation, Trans } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -34,16 +34,16 @@ const layout = {
 	wrapperCol: { span: 16 }
 };
 
-interface Service {
-	ServiceName: string;
-	DependencyList: any[];
-}
+// interface Service {
+// 	ServiceName: string;
+// 	DependencyList: any[];
+// }
 
 const CreateCluster: React.FC = () => {
 	const { navigateToHome } = useNavigater();
 	const [success, setSuccess] = useState(false);
 	const [DLCVersion] = useState('');
-	const [serviceList, setServiceList] = useState([]);
+	// const [serviceList, setServiceList] = useState([]);
 	const [showRelativeId, setShowRelativeId] = useState(false);
 	const { jobClusterId, setJobClusterId } = useStore();
 	const { t } = useTranslation();
@@ -61,11 +61,11 @@ const CreateCluster: React.FC = () => {
 		const api = APIConfig.getDLCVersion;
 		const {
 			Code,
-			Data: { DlcVersion, DlcServiceSummaryList }
+			Data: { DlcVersion }
 		} = await RequestHttp.get(api);
 		if (Code) {
 			form.setFieldsValue({ DlcVersion: DlcVersion });
-			setServiceList(DlcServiceSummaryList);
+			// setServiceList(DlcServiceSummaryList);
 		}
 	};
 	const handleTypeChange = (type: string) => {
@@ -115,9 +115,9 @@ const CreateCluster: React.FC = () => {
 						name="DlcVersion"
 						rules={[{ required: true, message: `${t('cluster.desCheck')}` }]}
 					>
-						<Input />
+						<Input disabled />
 					</Form.Item>
-					<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+					{/* <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 						<Tabs
 							items={(serviceList as Service[]).map(service => {
 								return {
@@ -127,13 +127,9 @@ const CreateCluster: React.FC = () => {
 										<List
 											itemLayout="horizontal"
 											dataSource={service.DependencyList}
-											renderItem={(item, index) => (
+											renderItem={item => (
 												<List.Item>
-													<List.Item.Meta
-														avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`} />}
-														title={<a href="https://ant.design">{item.title}</a>}
-														description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-													/>
+													<List.Item.Meta title={<span>{item}</span>} />
 												</List.Item>
 											)}
 										/>
@@ -141,7 +137,7 @@ const CreateCluster: React.FC = () => {
 								};
 							})}
 						/>
-					</Form.Item>
+					</Form.Item> */}
 					{showRelativeId ? (
 						<Form.Item
 							label={t('cluster.relativeClusterId')}

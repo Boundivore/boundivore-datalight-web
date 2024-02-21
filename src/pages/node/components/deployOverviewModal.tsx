@@ -19,7 +19,7 @@
  * @author Tracy.Guo
  */
 import { useEffect, useState } from 'react';
-import { Table, Modal } from 'antd';
+import { Table, Modal, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +37,7 @@ interface DataType {
 	ComponentName: string;
 }
 
-const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleOk, handleCancel }) => {
+const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleCancel }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { t } = useTranslation();
@@ -82,7 +82,7 @@ const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleOk, 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+		<Modal title="预览" open={isModalOpen} footer={null}>
 			{/* <Space> */}
 			{/* <Table></Table> */}
 			<Table
@@ -91,6 +91,7 @@ const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleOk, 
 				columns={serviceColumn}
 				dataSource={serviceTable}
 			></Table>
+			<Button onClick={handleCancel}>关闭</Button>
 			{/* </Space> */}
 		</Modal>
 	);

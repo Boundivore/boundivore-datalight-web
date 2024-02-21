@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 import { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { ConfigProvider, App as AppAnt } from 'antd';
 import type { Locale } from 'antd/es/locale';
 // import enUS from 'antd/locale/en_US'
@@ -37,6 +37,8 @@ function App() {
 							<Route path="/login" element={<Login />} />
 							{/* 其他路径使用 Layouts 包裹 */}
 							<Route path="/*" element={<Layouts />} />
+							{/* 重定向 */}
+							<Route path="/" element={<Navigate to="/home" replace />} />
 						</Routes>
 					</Router>
 				</ThemeProvider>
