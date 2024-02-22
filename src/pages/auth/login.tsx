@@ -109,7 +109,7 @@ const LoginPage: React.FC = () => {
 								</Button>
 							</Form.Item>
 						</Form>
-						<span>{t('poweredBy')}</span>
+						<span className="font-bold">{t('poweredBy')}</span>
 					</Space>
 				</Col>
 				<Col span={12} className="bg-[url('/login.png')] bg-cover bg-center"></Col>

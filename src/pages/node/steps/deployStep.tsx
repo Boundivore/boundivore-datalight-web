@@ -40,7 +40,7 @@ interface DataType {
 }
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 
-const DeployStep: React.FC = forwardRef((props, ref) => {
+const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const { selectedRowsList, setSelectedRowsList, stableState, jobId } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
@@ -56,8 +56,7 @@ const DeployStep: React.FC = forwardRef((props, ref) => {
 			title: t('node.deployProgress'),
 			dataIndex: 'ExecProgress',
 			width: 350,
-			render: (text, record) => {
-				console.log(4444, record);
+			render: text => {
 				return <Progress percent={Number(text).toFixed(2)} strokeColor={twoColors} />;
 			}
 		},
@@ -65,8 +64,16 @@ const DeployStep: React.FC = forwardRef((props, ref) => {
 			title: t('node.detail'),
 			dataIndex: 'ExecProgressStepList',
 			render: (text: []) => {
-				// const runningStep = text.find(step => step.StepExecState === 'RUNNING');
-				return <Text>{text.StepName}</Text>;
+				const runningStep = text.find(step => step.StepExecState === 'RUNNING');
+				const errorStep = text.reverse().find(step => step.StepExecState === 'ERROR');
+				const okStep = text.reverse().find(step => step.StepExecState === 'OK');
+				return runningStep ? (
+					<Text className="text-blue-500">{runningStep?.StepName}</Text>
+				) : errorStep ? (
+					<Text className="text-red-500">{errorStep?.StepName}</Text>
+				) : (
+					<Text className="text-green-500">{okStep?.StepName}</Text>
+				);
 			}
 		}
 	];

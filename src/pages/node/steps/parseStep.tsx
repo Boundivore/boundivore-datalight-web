@@ -18,12 +18,13 @@
  * ParseStep - 解析节点主机名步骤
  * @author Tracy.Guo
  */
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useEffect, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
+import useStore from '@/store/store';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -42,6 +43,7 @@ type FieldType = {
 const ParseStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
+	const { setCurrentPageDisabled } = useStore();
 	const id = searchParams.get('id');
 	const [form] = Form.useForm();
 	useImperativeHandle(ref, () => ({
@@ -59,6 +61,10 @@ const ParseStep: React.FC = forwardRef((_props, ref) => {
 			return Promise.reject(error);
 		}
 	};
+	useEffect(() => {
+		setCurrentPageDisabled({ next: false });
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<Form form={form} name="basic" {...layout} style={{ maxWidth: 600 }} initialValues={{ SshPort: 22 }} autoComplete="off">

@@ -19,19 +19,23 @@ import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 
-const useStepLogic = () => {
-	const { setStepCurrent, setJobNodeId, setSelectedRowsList, stepMap } = useStore();
+interface MyProps {
+	step?: number;
+}
+const useStepLogic = <T extends MyProps>(step: T) => {
+	const { setStepCurrent, setJobNodeId, setSelectedRowsList, stepMap, setJobId } = useStore();
 
 	const getProcedure = async (id: string | number) => {
 		const apiGetProcedure = APIConfig.getProcedure;
 		const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
 		const {
 			Code,
-			Data: { NodeJobId, ProcedureState, NodeInfoList }
+			Data: { JobId, NodeJobId, ProcedureState, NodeInfoList }
 		} = data;
 		if (Code === '00000') {
-			setStepCurrent(stepMap[ProcedureState]);
+			setStepCurrent(step ? stepMap[ProcedureState] - step : stepMap[ProcedureState]);
 			setJobNodeId(NodeJobId);
+			setJobId(JobId);
 			setSelectedRowsList(NodeInfoList);
 		} else if (Code === 'D1001') {
 			setStepCurrent(0);

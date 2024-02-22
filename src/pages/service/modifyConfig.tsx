@@ -30,7 +30,6 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
-// import mockData from './mockData/tempData.json';
 import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
 
@@ -83,7 +82,6 @@ const ModifyConfig: React.FC = () => {
 		});
 		const params = { ClusterId: id, ServiceName: serviceName, Filename: activeTab, ConfigPath };
 		const data = await RequestHttp.get(api, { params });
-		console.log(data);
 		const {
 			Data: { ConfigGroupList }
 		} = data;
@@ -177,7 +175,10 @@ const ModifyConfig: React.FC = () => {
 										size="middle"
 										type={index === currentGroupIndex ? 'primary' : 'default'}
 										shape="round"
-										onClick={() => setCurrentGroupIndex(index)}
+										onClick={() => {
+											setCurrentGroupIndex(index);
+											setCodeEdit(atob(activeContent[index].ConfigData));
+										}}
 									>
 										{t('group', { name: index + 1 })}
 									</Button>
@@ -201,7 +202,7 @@ const ModifyConfig: React.FC = () => {
 			) : null}
 			<div className="bottom-0 bg-white p-4 shadow-md">
 				<Space>
-					<Button>{t('cancel')}</Button>
+					<Button onClick={navigateToService}>{t('cancel')}</Button>
 					<Button type="primary" onClick={saveChange}>
 						{t('save')}
 					</Button>

@@ -37,8 +37,8 @@ function App() {
 							<Route path="/login" element={<Login />} />
 							{/* 其他路径使用 Layouts 包裹 */}
 							<Route path="/*" element={<Layouts />} />
-							{/* 重定向 */}
-							<Route path="/" element={<Navigate to="/home" replace />} />
+							{/* 跟路径重定向至home页 */}
+							<Route path="/" element={<Navigate to="/login" replace />} />
 						</Routes>
 					</Router>
 				</ThemeProvider>

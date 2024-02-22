@@ -21,11 +21,16 @@
 import { ReactElement } from 'react';
 import { Button, Col, Card, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import useStore from '@/store/store';
+import APIConfig from '@/api/config';
+import RequestHttp from '@/api';
+import useNavigater from '@/hooks/useNavigater';
 interface StepConfig {
 	title: string;
 	content: ReactElement;
 	nextStep?: Function;
+	hideNext?: boolean; // 是否隐藏下一步按钮
 	operations?: {
 		label: string;
 		callback?: () => void;
@@ -37,7 +42,11 @@ interface MyComponentProps {
 }
 const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 	const { t } = useTranslation();
-	const { stepCurrent, setStepCurrent } = useStore();
+	const [searchParams] = useSearchParams();
+	const id = searchParams.get('id');
+	const { navigateToClusterList } = useNavigater();
+	const { stepCurrent, setStepCurrent, currentPageDisabled } = useStore();
+	const { next: nextDisabled } = currentPageDisabled;
 	const stepConfig = config[stepCurrent];
 	const next = async () => {
 		// 不配置nextStep，默认进入下一步页面
@@ -59,7 +68,15 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 		// retry();
 		// setStepCurrent(stepCurrent - 1);
 	};
-	const cancel = () => {};
+	const cancel = async () => {
+		const api = APIConfig.removeProcedure;
+		const params = {
+			ClusterId: id
+		};
+		const data = await RequestHttp.post(api, params);
+		const { Code } = data;
+		(Code === '00000' || Code === 'D1001') && navigateToClusterList();
+	};
 
 	return (
 		<>
@@ -78,14 +95,22 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 						) : (
 							<>
 								{/* TODO 添加重试和取消操作*/}
-								{stepCurrent < config.length - 1 && <Button onClick={retry}>{t('retry')}</Button>}
-								{stepCurrent > 0 && stepCurrent < config.length - 1 && <Button onClick={prev}>{t('previous')}</Button>}
 								{stepCurrent < config.length - 1 && (
-									<Button type="primary" onClick={next}>
+									<Button onClick={retry} disabled={nextDisabled}>
+										{t('retry')}
+									</Button>
+								)}
+								{stepCurrent > 0 && stepCurrent < config.length - 1 && <Button onClick={prev}>{t('previous')}</Button>}
+								{stepCurrent < config.length - 1 && !stepConfig.hideNext && (
+									<Button type="primary" onClick={next} disabled={nextDisabled}>
 										{t('next')}
 									</Button>
 								)}
-								{stepCurrent < config.length - 1 && <Button onClick={cancel}>{t('cancel')}</Button>}
+								{stepCurrent < config.length - 1 && (
+									<Button onClick={cancel} disabled={nextDisabled}>
+										{t('cancel')}
+									</Button>
+								)}
 							</>
 						)}
 					</Space>

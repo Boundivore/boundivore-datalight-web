@@ -19,7 +19,7 @@
  * @author Tracy.Guo
  */
 import { useEffect, useState } from 'react';
-import { Card, Button, Form, Input, Select } from 'antd';
+import { Card, Button, Form, Input, Select, List, Tabs } from 'antd';
 import { useTranslation, Trans } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -34,16 +34,16 @@ const layout = {
 	wrapperCol: { span: 16 }
 };
 
-// interface Service {
-// 	ServiceName: string;
-// 	DependencyList: any[];
-// }
+interface Service {
+	ServiceName: string;
+	DependencyList: any[];
+}
 
 const CreateCluster: React.FC = () => {
 	const { navigateToHome } = useNavigater();
 	const [success, setSuccess] = useState(false);
 	const [DLCVersion] = useState('');
-	// const [serviceList, setServiceList] = useState([]);
+	const [serviceList, setServiceList] = useState([]);
 	const [showRelativeId, setShowRelativeId] = useState(false);
 	const { jobClusterId, setJobClusterId } = useStore();
 	const { t } = useTranslation();
@@ -61,11 +61,30 @@ const CreateCluster: React.FC = () => {
 		const api = APIConfig.getDLCVersion;
 		const {
 			Code,
-			Data: { DlcVersion }
+			Data: { DlcVersion, DlcServiceSummaryList }
 		} = await RequestHttp.get(api);
 		if (Code) {
 			form.setFieldsValue({ DlcVersion: DlcVersion });
-			// setServiceList(DlcServiceSummaryList);
+			const processedData = DlcServiceSummaryList.reduce((result, item) => {
+				const serviceType = item.ServiceType;
+				const serviceName = item.ServiceName;
+				const version = item.Version;
+				const desc = item.Desc;
+				const existingItem = result.find(obj => obj.ServiceType === serviceType);
+
+				if (existingItem) {
+					existingItem.Service.push({ ServiceName: serviceName, Version: version, Desc: desc });
+				} else {
+					result.push({
+						ServiceType: serviceType,
+						Service: [{ ServiceName: serviceName, Version: version, Desc: desc }]
+					});
+				}
+
+				return result;
+			}, []);
+			console.log(6666, processedData);
+			setServiceList(processedData);
 		}
 	};
 	const handleTypeChange = (type: string) => {
@@ -117,19 +136,29 @@ const CreateCluster: React.FC = () => {
 					>
 						<Input disabled />
 					</Form.Item>
-					{/* <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+					<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 						<Tabs
 							items={(serviceList as Service[]).map(service => {
 								return {
-									key: service.ServiceName,
-									label: service.ServiceName,
+									key: service.ServiceType,
+									label: t(service.ServiceType.toLowerCase()),
 									children: (
 										<List
+											size="small"
 											itemLayout="horizontal"
-											dataSource={service.DependencyList}
+											dataSource={service.Service}
 											renderItem={item => (
 												<List.Item>
-													<List.Item.Meta title={<span>{item}</span>} />
+													<List.Item.Meta
+														title={
+															<div>
+																<p>
+																	{item.ServiceName}-V{item.Version}
+																</p>
+																<p className="text-stone-500">{item.Desc}</p>
+															</div>
+														}
+													/>
 												</List.Item>
 											)}
 										/>
@@ -137,12 +166,12 @@ const CreateCluster: React.FC = () => {
 								};
 							})}
 						/>
-					</Form.Item> */}
+					</Form.Item>
 					{showRelativeId ? (
 						<Form.Item
 							label={t('cluster.relativeClusterId')}
 							name="RelativeClusterId"
-							rules={[{ required: true, message: `${t('cluster.desCheck')}` }]}
+							rules={[{ required: true, message: `${t('cluster.idCheck')}` }]}
 						>
 							<Input />
 						</Form.Item>

@@ -14,10 +14,9 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Progress, Space, Typography } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
@@ -37,8 +36,8 @@ interface DataType {
 }
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 
-const DispatchStep: React.FC = forwardRef((props, ref) => {
-	const { jobNodeId, selectedRowsList, setSelectedRowsList, stableState } = useStore();
+const DispatchStep: React.FC = forwardRef((_props, ref) => {
+	const { jobNodeId, selectedRowsList, setSelectedRowsList, stableState, setCurrentPageDisabled } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -82,7 +81,7 @@ const DispatchStep: React.FC = forwardRef((props, ref) => {
 						) : (
 							<>
 								<Space>
-									<LoadingOutlined />
+									{/* <LoadingOutlined /> */}
 									<span>
 										{t('node.fileProgress')}
 										{0}
@@ -107,10 +106,11 @@ const DispatchStep: React.FC = forwardRef((props, ref) => {
 				<a>
 					{text}
 					{t('node.core')}
-					{record.CpuArch}
+					{(record?.Ram / 1024).toFixed(2)}
 					{t('node.gb')}
-					{record.DiskTotal}
+					{(record?.DiskTotal / 1024).toFixed(2)}
 					{t('node.gb')}
+					{record?.CpuArch}
 				</a>
 			)
 		}
@@ -149,7 +149,7 @@ const DispatchStep: React.FC = forwardRef((props, ref) => {
 		const data = await RequestHttp.post(apiSpeed, params);
 		const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });
 		const {
-			Data: { NodeInitDetailList }
+			Data: { ExecStateEnum, NodeInitDetailList }
 		} = data;
 		const {
 			Data: { NodeJobTransferProgressList }
@@ -163,10 +163,15 @@ const DispatchStep: React.FC = forwardRef((props, ref) => {
 				return item1;
 			}
 		});
+		setCurrentPageDisabled({ next: ExecStateEnum !== 'OK' && ExecStateEnum !== 'NOT_EXIST' });
 		return mergedData;
 	};
 
 	const tableData = usePolling(getSpeed, stableState, 1000);
+	useEffect(() => {
+		setCurrentPageDisabled({ next: true });
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	return (
 		<Table
 			rowSelection={{

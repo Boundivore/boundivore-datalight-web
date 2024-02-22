@@ -93,7 +93,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 				<Content>
 					<Breadcrumb />
 					<Suspense fallback={<Spin fullscreen />}>{useRoutes(routes)}</Suspense>
-					<Footer className="fixed bottom-0 w-full bg-white p-4 shadow-md">{t('poweredBy')}</Footer>
+					<Footer className="fixed bottom-0 w-full bg-white p-4 shadow-md font-bold">{t('poweredBy')}</Footer>
 				</Content>
 			</Layout>
 		</Layout>

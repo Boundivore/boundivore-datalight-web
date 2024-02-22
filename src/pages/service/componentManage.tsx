@@ -25,6 +25,7 @@ import { Table, Button, Card, Space, App, message, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
+import useNavigater from '@/hooks/useNavigater';
 
 const { Text } = Typography;
 
@@ -49,6 +50,10 @@ const ComponentManage: React.FC = () => {
 	const [tableData, setTableData] = useState([]);
 	const [selectComponent, setSelectComponent] = useState<DataType[]>([]);
 	const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState<string[]>([]);
+	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
+	const [startDisabled, setStartDisabled] = useState(true); // 是否禁用批量启动
+	const [stopDisabled, setStopDisabled] = useState(true); // 是否禁用批量停止
+	const { navigateToAddComponent } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	// 顶部操作按钮配置
@@ -56,32 +61,32 @@ const ComponentManage: React.FC = () => {
 		{
 			id: 1,
 			label: t('service.addComponent'),
-			callback: () => {},
+			callback: () => navigateToAddComponent(id),
 			disabled: false
 		},
 		{
 			id: 2,
 			label: t('start'),
 			callback: () => operateComponent('START', selectComponent),
-			disabled: true
+			disabled: startDisabled
 		},
 		{
 			id: 3,
 			label: t('stop'),
 			callback: () => operateComponent('STOP', selectComponent),
-			disabled: true
+			disabled: stopDisabled
 		},
 		{
 			id: 4,
 			label: t('restart'),
 			callback: () => operateComponent('RESTART', selectComponent),
-			disabled: true
+			disabled: selectComponent.length === 0
 		},
 		{
 			id: 5,
 			label: t('remove'),
 			callback: () => removeComponent(selectComponent),
-			disabled: true
+			disabled: removeDisabled
 		}
 	];
 	// 单条操作按钮配置
@@ -92,19 +97,19 @@ const ComponentManage: React.FC = () => {
 				id: 1,
 				label: t('start'),
 				callback: () => operateComponent('START', [record]),
-				disabled: true
+				disabled: record.SCStateEnum !== 'STOPPED' || record.SCStateEnum === 'STOPPING'
 			},
 			{
 				id: 2,
 				label: t('stop'),
 				callback: () => operateComponent('STOP', [record]),
-				disabled: record.SCStateEnum === 'STOPPED'
+				disabled: record.SCStateEnum === 'STOPPED' || record.SCStateEnum === 'STOPPING'
 			},
 			{
 				id: 3,
 				label: t('restart'),
 				callback: () => operateComponent('RESTART', [record]),
-				disabled: false
+				disabled: record.SCStateEnum === 'STOPPING'
 			},
 			{
 				id: 4,
@@ -114,6 +119,16 @@ const ComponentManage: React.FC = () => {
 			}
 		];
 	};
+	useEffect(() => {
+		// 检查 状态是否为'STOPPED'
+		const removeAbled = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum === 'STOPPED');
+		const startAbled = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum === 'STOPPED');
+		const stopAbled = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum !== 'STOPPED');
+		// 更新按钮的禁用状态
+		setStartDisabled(!startAbled);
+		setStopDisabled(!stopAbled);
+		setRemoveDisabled(!removeAbled);
+	}, [selectComponent]); // 在 selectComponent 变化时触发
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('service.componentName'),
@@ -159,7 +174,7 @@ const ComponentManage: React.FC = () => {
 	const removeComponent = (componentList: DataType[]) => {
 		const idList = componentList.map(component => {
 			return {
-				ComponentId: component.ComponentNodeList[0].ComponentId // 先这样测一下
+				ComponentId: component.ComponentId
 			};
 		});
 		modal.confirm({
@@ -251,7 +266,8 @@ const ComponentManage: React.FC = () => {
 	const rowSelection = {
 		checkStrictly: false,
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectComponent(selectedRows);
+			const filteredselectedRows = selectedRows.filter(item => item.ComponentId);
+			setSelectComponent(filteredselectedRows);
 		}
 	};
 

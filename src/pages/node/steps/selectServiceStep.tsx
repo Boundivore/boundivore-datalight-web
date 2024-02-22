@@ -38,7 +38,7 @@ interface DataType {
 }
 
 const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
-	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText } = useStore();
+	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText, setCurrentPageDisabled } = useStore();
 	const [tableData, setTableData] = useState([]);
 	const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 	const { t } = useTranslation();
@@ -52,18 +52,8 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 			render: (text: string) => <a>{text}</a>
 		},
 		{
-			title: t('node.config'),
-			dataIndex: 'CpuCores',
-			render: (text: string, record) => (
-				<a>
-					{text}
-					{t('node.core')}
-					{record.CpuArch}
-					{t('node.gb')}
-					{record.DiskTotal}
-					{t('node.gb')}
-				</a>
-			)
+			title: t('description'),
+			dataIndex: 'Desc'
 		},
 		{
 			title: t('node.state'),
@@ -126,8 +116,13 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 	};
 	useEffect(() => {
 		getSpeed();
+		setCurrentPageDisabled({ next: true });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	useEffect(() => {
+		setCurrentPageDisabled({ next: !selectedRowKeys.length });
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedRowKeys]);
 	return (
 		<Table
 			rowSelection={{

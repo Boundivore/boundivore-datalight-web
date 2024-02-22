@@ -42,6 +42,7 @@ const APIConfig: Actions = {
 	add: '/v1/master/node/init/add',
 	getProcedure: '/v1/master/init/procedure/get',
 	setProcedure: '/v1/master/init/procedure/persist',
+	removeProcedure: '/v1/master/init/procedure/remove',
 	removeCluster: '/v1/master/cluster/remove',
 	//节点相关
 	nodeList: '/v1/master/node/list',

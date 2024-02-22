@@ -138,6 +138,10 @@ const InitNode: React.FC = forwardRef(() => {
 		const callbackData = await PreconfigStepRef.current?.handleOk();
 		return callbackData;
 	};
+	const preview = async () => {
+		const callbackData = await PreconfigStepRef.current?.onFinish(true);
+		return callbackData;
+	};
 
 	const stepConfig = [
 		{
@@ -176,7 +180,8 @@ const InitNode: React.FC = forwardRef(() => {
 			operations: [
 				{ label: t('node.deployService') }, // 不传callback默认进行一下步
 				{ label: t('backHome'), callback: navigateToHome }
-			]
+			],
+			hideNext: true
 		},
 		{
 			title: t('service.selectService'),
@@ -191,12 +196,18 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('service.preConfig'),
 			content: <PreconfigStep ref={PreconfigStepRef} />,
-			nextStep: nextDeploy
+			nextStep: nextDeploy,
+			hideNext: true,
+			operations: [
+				{ label: t('preview'), callback: preview },
+				{ label: t('startDeploy') } // 不传callback默认进行一下步
+			]
 		},
 		{
 			title: t('service.deployStep'),
 			content: <DeployStep ref={DeployStepRef} />,
-			operations: [{ label: t('backHome'), callback: navigateToHome }]
+			operations: [{ label: t('backHome'), callback: navigateToHome }],
+			hideNext: true
 			// nextStep: nextComponent
 		}
 	];

@@ -70,18 +70,21 @@ export default {
 		typeCheck: '请选择集群类型',
 		description: '集群描述',
 		desCheck: '请输入集群描述',
+		idCheck: '请输入关联集群ID',
 		dlcVersion: 'DLC版本',
 		relativeClusterId: '关联集群ID',
-		createSucc: '集群创建成功！<1>指定集群节点</1>',
+		createSucc: '集群创建成功！<1>继续集群引导</1>',
 		backToList: '返回集群列表',
 		compute: '计算型',
 		mixed: '混合型',
+		storage: '存储型',
+		base: '基础型',
 		list: {
 			description: '描述'
 		},
 		restart: '重启集群',
 		remove: '删除集群',
-		specifyNode: '指定集群节点',
+		specifyNode: '继续集群引导',
 		removeConfirm: '您确认删除集群{{clusterName}}吗？'
 	},
 	node: {
@@ -99,8 +102,8 @@ export default {
 		config: '配置',
 		control: '当前受控',
 		state: '状态',
-		core: 'Core',
-		gb: 'GB',
+		core: 'Core ',
+		gb: 'GB ',
 		speed: '速度:',
 		detail: '详情',
 		progress: '分发进度',
@@ -145,6 +148,7 @@ export default {
 		deploySuccess: '部署成功，完成',
 		unselected: '未选择',
 		selected: '已选择',
+		deployed: '已部署',
 		serviceName: '服务名称',
 		restart: '重启服务',
 		serviceType: '服务类型',
@@ -182,5 +186,11 @@ export default {
 	modifyConfig: '修改配置',
 	save: '保存修改',
 	group: '分组{{name}}',
-	preview: '预览'
+	preview: '预览',
+	startDeploy: '开始部署',
+	close: '关闭',
+	compute: '计算型',
+	mixed: '混合型',
+	storage: '存储型',
+	base: '基础型'
 };

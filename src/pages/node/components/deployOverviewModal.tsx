@@ -29,7 +29,6 @@ import RequestHttp from '@/api';
 
 interface DeployOverviewProps {
 	isModalOpen: boolean;
-	handleOk: () => void;
 	handleCancel: () => void;
 }
 interface DataType {
@@ -82,7 +81,16 @@ const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleCanc
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Modal title="预览" open={isModalOpen} footer={null}>
+		<Modal
+			title="预览"
+			open={isModalOpen}
+			onCancel={handleCancel}
+			footer={[
+				<Button key="cancel" onClick={handleCancel}>
+					{t('close')}
+				</Button>
+			]}
+		>
 			{/* <Space> */}
 			{/* <Table></Table> */}
 			<Table
@@ -91,7 +99,7 @@ const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleCanc
 				columns={serviceColumn}
 				dataSource={serviceTable}
 			></Table>
-			<Button onClick={handleCancel}>关闭</Button>
+			{/* <Button onClick={handleCancel}>关闭</Button> */}
 			{/* </Space> */}
 		</Modal>
 	);

@@ -64,13 +64,13 @@ const Home: React.FC = () => {
 		const { HasAlreadyNode, ClusterName, ClusterId } = record;
 		return [
 			{
-				id: 1,
+				id: 0,
 				label: t('cluster.specifyNode'),
 				callback: () => navigateToNodeInit(ClusterId),
 				disabled: HasAlreadyNode && !text
 			},
 			{
-				id: 2,
+				id: 1,
 				label: t('cluster.restart'),
 				callback: () => {},
 				disabled: HasAlreadyNode && !text

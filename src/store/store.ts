@@ -74,7 +74,7 @@ const useStore = create<MyStore>(set => ({
 		PROCEDURE_ADD_NODE_DONE: 6,
 		PROCEDURE_SELECT_SERVICE: 7 + 1, // 服役节点到指定集群之后进度展示逻辑调整, 当前也操作结束，不存在下一页的列表轮询，直接进入下一阶段，所以 + 1
 		PROCEDURE_SELECT_COMPONENT: 8 + 1,
-		PROCEDURE_PRE_CONFIG: 9 + 1,
+		PROCEDURE_PRE_CONFIG: 9,
 		PROCEDURE_DEPLOYING: 10
 	},
 	stateText: {
@@ -124,7 +124,7 @@ const useStore = create<MyStore>(set => ({
 		},
 		STARTING_WORKER: {
 			label: 'node.starting_worker',
-			status: 'success'
+			status: 'processing'
 		},
 		START_WORKER_ERROR: {
 			label: 'node.start_worker_error',
@@ -135,6 +135,14 @@ const useStore = create<MyStore>(set => ({
 			status: 'error'
 		},
 		SELECTED: {
+			label: 'service.selected',
+			status: 'success'
+		},
+		DEPLOYED: {
+			label: 'service.deployed',
+			status: 'success'
+		},
+		SELECTED_ADDITION: {
 			label: 'service.selected',
 			status: 'success'
 		}

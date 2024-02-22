@@ -14,7 +14,7 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +35,7 @@ interface DataType {
 type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 
 const DetectStep: React.FC = forwardRef((_props, ref) => {
-	const { selectedRowsList, setSelectedRowsList, stateText, stableState } = useStore();
+	const { selectedRowsList, setSelectedRowsList, stateText, stableState, setCurrentPageDisabled } = useStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -53,10 +53,11 @@ const DetectStep: React.FC = forwardRef((_props, ref) => {
 				<a>
 					{text}
 					{t('node.core')}
-					{record.CpuArch}
+					{(record?.Ram / 1024).toFixed(2)}
 					{t('node.gb')}
-					{record.DiskTotal}
+					{(record?.DiskTotal / 1024).toFixed(2)}
 					{t('node.gb')}
+					{record?.CpuArch}
 				</a>
 			)
 		},
@@ -98,9 +99,17 @@ const DetectStep: React.FC = forwardRef((_props, ref) => {
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(apiSpeed, params);
-		return data.Data.NodeInitDetailList;
+		const {
+			Data: { ExecStateEnum, NodeInitDetailList }
+		} = data;
+		setCurrentPageDisabled({ next: ExecStateEnum !== 'OK' && ExecStateEnum !== 'NOT_EXIST' });
+		return NodeInitDetailList;
 	};
 	const tableData = usePolling(getSpeed, stableState, 1000);
+	useEffect(() => {
+		setCurrentPageDisabled({ next: true });
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	return (
 		<Table
 			rowSelection={{

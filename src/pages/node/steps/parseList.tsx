@@ -18,7 +18,7 @@
  * ParseList - 解析出的节点主机名列表
  * @author Tracy.Guo
  */
-import React, { useImperativeHandle, forwardRef } from 'react';
+import React, { useImperativeHandle, forwardRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Table, Badge } from 'antd';
@@ -40,7 +40,7 @@ type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 
 const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
-	const { setSelectedRowsList, selectedRowsList, stateText, stableState } = useStore();
+	const { setSelectedRowsList, selectedRowsList, stateText, stableState, setCurrentPageDisabled } = useStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiState = APIConfig.nodeInitList;
@@ -56,9 +56,12 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 			render: (text: string, record) => (
 				<a>
 					{text}
-					{t('node.core')}/{record.CpuArch}
-					{t('node.gb')}/{record.DiskTotal}
+					{t('node.core')}
+					{(record?.Ram / 1024).toFixed(2)}
 					{t('node.gb')}
+					{(record?.DiskTotal / 1024).toFixed(2)}
+					{t('node.gb')}
+					{record?.CpuArch}
 				</a>
 			)
 		},
@@ -82,7 +85,11 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 
 	const getState = async () => {
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
-		return data.Data.NodeInitDetailList;
+		const {
+			Data: { ExecStateEnum, NodeInitDetailList }
+		} = data;
+		setCurrentPageDisabled({ next: ExecStateEnum !== 'NOT_EXIST' });
+		return NodeInitDetailList;
 	};
 	const tableData: DataType[] = usePolling(getState, stableState, 1000);
 
@@ -100,6 +107,10 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		const jobData = await RequestHttp.post(apiDetect, params);
 		return Promise.resolve(jobData);
 	};
+	useEffect(() => {
+		setCurrentPageDisabled({ next: true });
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<Table

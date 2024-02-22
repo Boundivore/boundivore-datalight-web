@@ -80,7 +80,7 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Modal title="Basic Modal" open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel}>
+		<Modal title="节点" open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel}>
 			<Table
 				rowSelection={{
 					...rowSelection
