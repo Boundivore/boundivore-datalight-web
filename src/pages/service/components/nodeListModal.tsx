@@ -36,13 +36,7 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 	// 顶部操作按钮配置
 	const buttonConfigTop = [
 		{
-			id: 1,
-			label: t('service.createGroup'),
-			callback: () => createGroup(),
-			disabled: !selectedNodeList.length
-		},
-		{
-			id: 2,
+			id: 0,
 			label: t('service.moveToGroup'),
 			disabled: !selectedNodeList.length,
 			type: 'dropdown',
@@ -60,23 +54,6 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: []) => {
 			setSelectedNodeList(selectedRows);
 		}
-	};
-	const createGroup = () => {
-		setConfigGroupInfo([
-			...configGroupInfo,
-			{
-				...configGroupInfo[groupIndex],
-				ConfigNodeList: selectedNodeList
-			}
-		]);
-		console.log(2222, [
-			...configGroupInfo,
-			{
-				...configGroupInfo[groupIndex],
-				ConfigNodeList: selectedNodeList
-			}
-		]);
-		handleOk();
 	};
 	const moveToOtherGroup = (targetGroupIndex: number) => {
 		const data = mergeData(targetGroupIndex, selectedNodeList);
@@ -98,7 +75,8 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 		configGroupInfo.map((_group, index) => {
 			items.push({
 				key: index,
-				label: t('group', { name: index + 1 })
+				label: t('group', { name: index + 1 }),
+				nodeList: []
 			});
 		});
 		setGroupList(items);
