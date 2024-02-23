@@ -186,7 +186,11 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
+<<<<<<< HEAD
    Copyright [2024] [Boundivore]
+=======
+   Copyright [yyyy] [name of copyright owner]
+>>>>>>> 433eaf079b2ff9377ed08e95dd1273e39bef3ebf
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
