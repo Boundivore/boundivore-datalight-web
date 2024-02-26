@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 import { Menu } from 'antd';
-import { AppstoreOutlined, SettingOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, SettingOutlined, ApartmentOutlined, ClusterOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -42,8 +42,8 @@ const LayoutMenu: React.FC = () => {
 	const location = useLocation();
 	const { t } = useTranslation();
 	const items: MenuProps['items'] = [
-		getItem(<NavLink to="/home">{t('tabs.clusterManage')}</NavLink>, '/home', <AppstoreOutlined />),
-		getItem(<NavLink to="/node">{t('tabs.nodeManage')}</NavLink>, '/node', <AppstoreOutlined />),
+		getItem(<NavLink to="/home">{t('tabs.clusterManage')}</NavLink>, '/home', <ClusterOutlined />),
+		getItem(<NavLink to="/node">{t('tabs.nodeManage')}</NavLink>, '/node', <ApartmentOutlined />),
 		getItem(<Link to="/service">{t('tabs.serviceManage')}</Link>, '/service', <AppstoreOutlined />),
 		// getItem(<Link to="/home">{t('tabs.config')}</Link>, 'sub5', <AppstoreOutlined />),
 

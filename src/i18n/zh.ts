@@ -192,5 +192,9 @@ export default {
 	compute: '计算型',
 	mixed: '混合型',
 	storage: '存储型',
-	base: '基础型'
+	base: '基础型',
+	deployInfoView: '部署信息总览',
+	nodeNum: '总节点数量',
+	expandAll: '展开全部',
+	unexpandAll: '收起全部'
 };

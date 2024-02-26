@@ -75,7 +75,7 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 			ClusterId: id,
 			NodeActionTypeEnum: 'ADD',
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: 22
+			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiAdd, params);
 		return Promise.resolve(jobData);

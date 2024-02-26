@@ -35,6 +35,7 @@ interface DataType {
 	CpuArch: string;
 	DiskTotal: string;
 	NodeState: string;
+	SshPort: number | string;
 }
 type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 
@@ -102,7 +103,7 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 			ClusterId: id,
 			NodeActionTypeEnum: 'DETECT',
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: 22
+			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiDetect, params);
 		return Promise.resolve(jobData);

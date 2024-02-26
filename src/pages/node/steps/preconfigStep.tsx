@@ -18,11 +18,13 @@
  * PreconfigStep - 预配置步骤
  * @author Tracy.Guo
  */
-import React, { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Form, Input, Card } from 'antd';
+import { Form, Input, Collapse, Col, Button, Space } from 'antd';
+import { DoubleRightOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-// import type { CollapseProps } from 'antd';
+import type { CollapseProps } from 'antd';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -33,18 +35,43 @@ const layout = {
 	wrapperCol: { span: 16 }
 };
 const PreconfigStep: React.FC = forwardRef((_props, ref) => {
+	const { t } = useTranslation();
 	const [serviceList, setServiceList] = useState([]);
+	const [items, setItems] = useState([]);
+	const [keys, setKeys] = useState<string[]>([]);
+	const [cachedKeys, setCachedKeys] = useState<string[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { setJobId } = useStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [form] = Form.useForm();
-	let serviceNameList: string[] = [];
-
+	let serviceNameList = useRef<string[]>([]);
 	useEffect(() => {
+		const filterItems = serviceList.filter(item => item.PlaceholderInfoList.length);
+		const updatedItems: CollapseProps['items'] = filterItems.map((service, serviceIndex) => ({
+			key: `${serviceIndex}`,
+			label: service.ServiceName,
+			children: service.PlaceholderInfoList.map(
+				(info, infoIndex) =>
+					info.ConfigPrePropertyList?.map((property, propertyIndex) => (
+						<Form.Item
+							label={property.Describe}
+							name={`${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`}
+							key={`${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`}
+						>
+							<Input placeholder={property.Placeholder} />
+						</Form.Item>
+					))
+			)
+		}));
+		const keysArr = updatedItems.map(item => String(item.key));
+		setItems(updatedItems);
+		setKeys(keysArr);
+		setCachedKeys(keysArr); // 缓存 keys 副本
+
 		// 在组件挂载时，根据原始数据初始化表单
 		const initialValues = {};
-		serviceList.forEach((service, serviceIndex) => {
+		filterItems.forEach((service, serviceIndex) => {
 			service.PlaceholderInfoList.forEach((info, infoIndex) => {
 				info.ConfigPrePropertyList.forEach((property, propertyIndex) => {
 					const formKey = `${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`;
@@ -90,7 +117,7 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 		} = data;
 		setServiceList(ConfigPreServiceList);
 		ConfigPreServiceList.map(service => {
-			serviceNameList.push(service.ServiceName);
+			serviceNameList.current.push(service.ServiceName);
 		});
 	};
 	useImperativeHandle(ref, () => ({
@@ -104,7 +131,7 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 			ActionTypeEnum: 'DEPLOY',
 			ClusterId: id,
 			IsOneByOne: false,
-			ServiceNameList: serviceNameList.length ? serviceNameList : ['MONITOR', 'ZOOKEEPER', 'HDFS', 'YARN']
+			ServiceNameList: [...new Set(serviceNameList.current)] // 数组去重
 		};
 		await onFinish(false);
 		const data = await RequestHttp.post(api, params);
@@ -114,6 +141,15 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
+	const handleExpand = () => {
+		setKeys(cachedKeys);
+	};
+	const handleUnexpand = () => {
+		setKeys([]);
+	};
+	const handleChange = (keyArr: string[]) => {
+		setKeys(keyArr);
+	};
 	useEffect(() => {
 		getPreconfigList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,23 +157,18 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 
 	return (
 		<>
+			<Col className="mb-[20px]" span={24}>
+				<Space className="flex justify-end">
+					<Button size="middle" icon={<DoubleRightOutlined rotate={90} />} onClick={handleExpand}>
+						{t('expandAll')}
+					</Button>
+					<Button size="middle" icon={<DoubleRightOutlined rotate={270} />} onClick={handleUnexpand}>
+						{t('unexpandAll')}
+					</Button>
+				</Space>
+			</Col>
 			<Form {...layout} form={form}>
-				{serviceList?.map((service, serviceIndex) => (
-					<Card title={service.ServiceName}>
-						{service.PlaceholderInfoList?.map(
-							(info, infoIndex) =>
-								info.ConfigPrePropertyList?.map((property, propertyIndex) => (
-									<Form.Item
-										label={property.Describe}
-										name={`${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`}
-										key={`${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`}
-									>
-										<Input placeholder={property.Placeholder} />
-									</Form.Item>
-								))
-						)}
-					</Card>
-				))}
+				<Collapse items={items} activeKey={keys} onChange={keyArr => handleChange(keyArr)} />
 			</Form>
 			{isModalOpen ? <DeployOverviewModal isModalOpen={isModalOpen} handleCancel={handleModalCancel} /> : null}
 		</>

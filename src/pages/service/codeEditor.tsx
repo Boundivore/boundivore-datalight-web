@@ -3,6 +3,7 @@ import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/ext-language_tools'; // 引入语言工具扩展
 import 'ace-builds/src-noconflict/worker-javascript';
+import CodeMirror from '@uiw/react-codemirror';
 
 const modified = 'ace-changed';
 interface Props {
@@ -31,28 +32,29 @@ const CodeEditor: React.FC<Props> = ({ editorRef, data, mode }) => {
 	};
 
 	return (
-		<AceEditor
-			ref={editorRef}
-			mode={mode}
-			theme="github"
-			name="code-editor"
-			fontSize={14}
-			width="100%"
-			value={data}
-			showPrintMargin={false}
-			editorProps={{ $blockScrolling: Infinity, $useWorker: true }}
-			setOptions={{
-				enableBasicAutocompletion: true,
-				enableLiveAutocompletion: true,
-				enableSnippets: true,
-				showLineNumbers: true,
-				tabSize: 2,
-				fontFamily: 'sans-serif',
-				fontSize: '14px',
-				charset: 'utf-8'
-			}}
-			onChange={(value, e) => handleChange(value, e)}
-		/>
+		// <AceEditor
+		// 	ref={editorRef}
+		// 	mode={mode}
+		// 	theme="github"
+		// 	name="code-editor"
+		// 	fontSize={14}
+		// 	width="100%"
+		// 	value={data}
+		// 	showPrintMargin={false}
+		// 	editorProps={{ $blockScrolling: Infinity, $useWorker: true }}
+		// 	setOptions={{
+		// 		enableBasicAutocompletion: true,
+		// 		enableLiveAutocompletion: true,
+		// 		enableSnippets: true,
+		// 		showLineNumbers: true,
+		// 		tabSize: 2,
+		// 		fontFamily: 'sans-serif',
+		// 		fontSize: '14px',
+		// 		charset: 'utf-8'
+		// 	}}
+		// 	onChange={(value, e) => handleChange(value, e)}
+		// />
+		<CodeMirror ref={editorRef} value={data} height="200px" extensions={[mode]} onChange={(value, e) => handleChange(value, e)} />
 	);
 };
 

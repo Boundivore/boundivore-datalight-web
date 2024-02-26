@@ -43,17 +43,17 @@ const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleCanc
 	const [serviceTable, setServiceTable] = useState([]);
 	const serviceColumn: ColumnsType<DataType> = [
 		{
-			title: t('node.node'),
+			title: t('service.serviceName'),
 			dataIndex: 'ServiceSummary',
 			render: text => <a>{text?.ServiceName}</a>
 		},
 		{
-			title: t('node.config'),
+			title: t('service.componentName'),
 			dataIndex: 'ComponentName',
 			render: text => <p>{text}</p>
 		},
 		{
-			title: t('node.config'),
+			title: t('nodeNum'),
 			dataIndex: 'ComponentNodeList',
 			render: (text: []) => <span>{text?.length}</span>
 		}
@@ -82,7 +82,7 @@ const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleCanc
 	}, []);
 	return (
 		<Modal
-			title="预览"
+			title={t('deployInfoView')}
 			open={isModalOpen}
 			onCancel={handleCancel}
 			footer={[
@@ -98,6 +98,8 @@ const DeployOverview: React.FC<DeployOverviewProps> = ({ isModalOpen, handleCanc
 				rowKey="rowKey"
 				columns={serviceColumn}
 				dataSource={serviceTable}
+				size="small"
+				scroll={{ y: '400px' }}
 			></Table>
 			{/* <Button onClick={handleCancel}>关闭</Button> */}
 			{/* </Space> */}

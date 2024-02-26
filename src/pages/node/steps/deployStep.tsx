@@ -18,8 +18,6 @@
  * DeployStep - 部署步骤
  * @author Tracy.Guo
  */
-import { forwardRef, useImperativeHandle } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Table, Progress, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
@@ -40,11 +38,9 @@ interface DataType {
 }
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 
-const DeployStep: React.FC = forwardRef((_props, ref) => {
+const DeployStep: React.FC = () => {
 	const { selectedRowsList, setSelectedRowsList, stableState, jobId } = useStore();
 	const { t } = useTranslation();
-	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id');
 	const columns: ColumnsType<DataType> = [
 		{
 			title: t('node.node'),
@@ -88,30 +84,15 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
 	};
-	useImperativeHandle(ref, () => ({
-		handleOk
-	}));
-	const handleOk = async () => {
-		const apiStartWorker = APIConfig.startWorker;
-		const params = {
-			ClusterId: id,
-			NodeActionTypeEnum: 'START_WORKER',
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: 22
-		};
-		const jobData = await RequestHttp.post(apiStartWorker, params);
-		return Promise.resolve(jobData);
-	};
-
 	const getSpeed = async () => {
 		const api = APIConfig.jobProgress;
 		const progressData = await RequestHttp.get(api, { params: { JobId: jobId } });
 		const {
 			Data: {
-				JobExecProgress: { ExecProgressPerNodeList }
+				JobExecProgress: { ExecProgressPerNodeList, JobExecStateEnum }
 			}
 		} = progressData;
-		return ExecProgressPerNodeList;
+		return { ...ExecProgressPerNodeList, JobExecStateEnum }; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 	};
 
 	const tableData = usePolling(getSpeed, stableState, 1000);
@@ -125,5 +106,5 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			dataSource={tableData}
 		/>
 	);
-});
+};
 export default DeployStep;

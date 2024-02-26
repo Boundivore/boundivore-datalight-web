@@ -80,10 +80,10 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 
 	return (
 		<>
-			<Card style={{ height: '100%' }} title={stepConfig.title}>
+			<Card className="h-full" title={stepConfig.title}>
 				{stepConfig.content}
-				<Col style={{ marginTop: 24 }} offset={8} span={16}>
-					<Space>
+				<Col className="mt-[24px]" span={24}>
+					<Space className="flex justify-center">
 						{stepConfig?.operations?.length ? (
 							stepConfig.operations.map(operation => {
 								return (

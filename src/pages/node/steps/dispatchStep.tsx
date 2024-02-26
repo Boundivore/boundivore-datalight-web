@@ -135,7 +135,7 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 			ClusterId: id,
 			NodeActionTypeEnum: 'START_WORKER',
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: 22
+			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiStartWorker, params);
 		return Promise.resolve(jobData);

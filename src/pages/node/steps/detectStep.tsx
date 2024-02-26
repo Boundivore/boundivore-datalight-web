@@ -87,7 +87,7 @@ const DetectStep: React.FC = forwardRef((_props, ref) => {
 			ClusterId: id,
 			NodeActionTypeEnum: 'CHECK',
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: 22
+			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiCheck, params);
 		return Promise.resolve(jobData);

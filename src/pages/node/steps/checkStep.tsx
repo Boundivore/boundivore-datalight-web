@@ -31,6 +31,7 @@ interface DataType {
 	CpuArch: string;
 	DiskTotal: string;
 	NodeState: string;
+	SshPort: number | string;
 }
 type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 
@@ -92,7 +93,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 			ClusterId: id,
 			NodeActionTypeEnum: 'DISPATCH',
 			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
-			SshPort: 22
+			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiDispatch, params);
 		setJobNodeId(jobData.Data.NodeJobId);
@@ -111,7 +112,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		setCurrentPageDisabled({ next: ExecStateEnum !== 'OK' && ExecStateEnum !== 'NOT_EXIST' });
 		return NodeInitDetailList;
 	};
-	const tableData = usePolling(getSpeed, stableState, 1000);
+	const tableData: DataType[] = usePolling(getSpeed, stableState, 1000);
 	useEffect(() => {
 		setCurrentPageDisabled({ next: true });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
