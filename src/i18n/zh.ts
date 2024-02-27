@@ -115,6 +115,7 @@ export default {
 		resolved: '主机名已解析',
 		detecting: '探测中...',
 		active: '活跃的节点',
+		started: '运行中',
 		inactive: '不活跃的节点',
 		checking: '节点正在检查',
 		check_ok: '节点检查成功',
@@ -129,6 +130,7 @@ export default {
 		currentCluster: '当前集群: ',
 		name: '节点域名',
 		ip: 'IP地址',
+		component: '组件',
 		deployService: '部署服务',
 		restart: '重启节点',
 		remove: '删除节点',
@@ -196,5 +198,7 @@ export default {
 	deployInfoView: '部署信息总览',
 	nodeNum: '总节点数量',
 	expandAll: '展开全部',
-	unexpandAll: '收起全部'
+	unexpandAll: '收起全部',
+	selectNode: '选择节点',
+	includeComponent: '包含组件'
 };

@@ -98,6 +98,7 @@ const DeployStep: React.FC = () => {
 	const tableData = usePolling(getSpeed, stableState, 1000);
 	return (
 		<Table
+			className="data-light-table" //使用自定义class重定义table行高
 			rowSelection={{
 				...rowSelection
 			}}

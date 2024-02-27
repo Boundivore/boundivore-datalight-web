@@ -84,7 +84,13 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 	}, [configGroupInfo]);
 
 	return (
-		<Modal title="节点" open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel} footer={null}>
+		<Modal
+			title={t('selectNode')}
+			open={isModalOpen}
+			onOk={() => handleOk(selectedNodeList)}
+			onCancel={handleCancel}
+			footer={null}
+		>
 			<Space>
 				{buttonConfigTop.map(button => {
 					return button.type === 'dropdown' ? (

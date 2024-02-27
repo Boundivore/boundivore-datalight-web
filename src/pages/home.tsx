@@ -64,12 +64,6 @@ const Home: React.FC = () => {
 		const { HasAlreadyNode, ClusterName, ClusterId } = record;
 		return [
 			{
-				id: 0,
-				label: t('cluster.specifyNode'),
-				callback: () => navigateToNodeInit(ClusterId),
-				disabled: HasAlreadyNode && !text
-			},
-			{
 				id: 1,
 				label: t('cluster.restart'),
 				callback: () => {},
@@ -80,6 +74,13 @@ const Home: React.FC = () => {
 				label: t('cluster.remove'),
 				callback: () => removeCluster(ClusterName, ClusterId),
 				disabled: HasAlreadyNode
+			},
+			{
+				id: 3,
+				label: t('cluster.specifyNode'),
+				callback: () => navigateToNodeInit(ClusterId),
+				disabled: HasAlreadyNode && !text,
+				hide: HasAlreadyNode && !text
 			}
 		];
 	};
@@ -100,7 +101,8 @@ const Home: React.FC = () => {
 			title: t('cluster.type'),
 			dataIndex: 'ClusterType',
 			key: 'ClusterType',
-			width: '10%'
+			width: '10%',
+			render: text => t(text.toLowerCase())
 		},
 		{
 			title: t('cluster.state'),
@@ -114,11 +116,13 @@ const Home: React.FC = () => {
 			dataIndex: 'IsExistInitProcedure',
 			render: (text, record) => (
 				<Space>
-					{buttonConfigItem(text, record).map(button => (
-						<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
-							{button.label}
-						</Button>
-					))}
+					{buttonConfigItem(text, record)
+						.filter(item => !item.hide)
+						.map(button => (
+							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
+								{button.label}
+							</Button>
+						))}
 				</Space>
 			)
 		}

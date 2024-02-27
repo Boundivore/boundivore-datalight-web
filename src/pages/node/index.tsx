@@ -20,11 +20,13 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Select, Flex, Space, App, message } from 'antd';
+import { Table, Button, Card, Select, Flex, Space, App, message, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
+import useStore from '@/store/store';
+import ItemConfigInfo from '@/components/itemConfigInfo';
 
 interface DataType {
 	HasAlreadyNode: boolean;
@@ -36,9 +38,11 @@ interface DataType {
 	DlcVersion: string;
 	RelativeClusterId: number;
 }
+type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 
 const ManageList: React.FC = () => {
 	const { t } = useTranslation();
+	const { stateText } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState([]);
 	const [selectData, setSelectData] = useState([]);
@@ -101,6 +105,24 @@ const ManageList: React.FC = () => {
 			title: t('node.ip'),
 			dataIndex: 'NodeIp',
 			key: 'NodeIp'
+		},
+		{
+			title: t('node.config'),
+			dataIndex: 'CpuCores',
+			key: 'CpuCores',
+			render: (text: string, record) => <ItemConfigInfo text={text} record={record} />
+		},
+		{
+			title: t('node.state'),
+			dataIndex: 'NodeState',
+			key: 'NodeState',
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
+		},
+		{
+			title: t('node.component'),
+			dataIndex: 'ComponentName',
+			key: 'ComponentName',
+			render: text => text.length
 		},
 		{
 			title: t('operation'),

@@ -78,6 +78,10 @@ const useStore = create<MyStore>(set => ({
 		PROCEDURE_DEPLOYING: 10
 	},
 	stateText: {
+		STARTED: {
+			label: 'node.started',
+			status: 'success'
+		},
 		RESOLVED: {
 			label: 'node.resolved',
 			status: 'success'

@@ -23,6 +23,7 @@ import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
+import ItemConfigInfo from '@/components/itemConfigInfo';
 
 interface DataType {
 	NodeId: React.Key;
@@ -42,26 +43,19 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
+			key: 'Hostname',
 			render: (text: string) => <a>{text}</a>
 		},
 		{
 			title: t('node.config'),
 			dataIndex: 'CpuCores',
-			render: (text: string, record) => (
-				<a>
-					{text}
-					{t('node.core')}
-					{(record?.Ram / 1024).toFixed(2)}
-					{t('node.gb')}
-					{(record?.DiskTotal / 1024).toFixed(2)}
-					{t('node.gb')}
-					{record?.CpuArch}
-				</a>
-			)
+			key: 'CpuCores',
+			render: (text: string, record) => <ItemConfigInfo text={text} record={record} />
 		},
 		{
 			title: t('node.state'),
 			dataIndex: 'NodeState',
+			key: 'NodeState',
 			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
 		}
 	];

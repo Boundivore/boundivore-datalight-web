@@ -147,12 +147,14 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('node.parseHostname'),
 			content: <ParseStep ref={parseStepRef} />,
-			nextStep: nextList
+			nextStep: nextList,
+			retry: nextList
 		},
 		{
 			title: t('node.chooseHostname'),
 			content: <InitList ref={initListStepRef} />,
-			nextStep: nextDetect
+			nextStep: nextDetect,
+			retry: nextList
 		},
 		{
 			title: t('node.detect'),
@@ -181,7 +183,7 @@ const InitNode: React.FC = forwardRef(() => {
 				{ label: t('node.deployService') }, // 不传callback默认进行一下步
 				{ label: t('backHome'), callback: navigateToHome }
 			],
-			hideNext: true
+			hideInitButton: true
 		},
 		{
 			title: t('service.selectService'),
@@ -197,7 +199,7 @@ const InitNode: React.FC = forwardRef(() => {
 			title: t('service.preConfig'),
 			content: <PreconfigStep ref={PreconfigStepRef} />,
 			nextStep: nextDeploy,
-			hideNext: true,
+			hideInitButton: true,
 			operations: [
 				{ label: t('preview'), callback: preview },
 				{ label: t('startDeploy') } // 不传callback默认进行一下步

@@ -53,7 +53,14 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
+			key: 'Hostname',
 			render: (text: string) => <a>{text}</a>
+		},
+		{
+			title: t('includeComponent'),
+			dataIndex: 'ComponentName',
+			key: 'ComponentName',
+			render: (text: string[]) => text.map(component => component)
 		}
 	];
 	const rowSelection = {
@@ -65,22 +72,35 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		})
 	};
 	const getList = async () => {
-		const apiList = APIConfig.nodeList;
+		const apiList = APIConfig.nodeListWithComponent;
 		const params = {
 			ClusterId: id
 		};
 		const data = await RequestHttp.get(apiList, { params });
 		const {
-			Data: { NodeDetailList }
+			Data: { NodeWithComponentList }
 		} = data;
-		setTableData(NodeDetailList);
+		const listData = NodeWithComponentList.map(node => {
+			node.NodeDetail.ComponentName = node.ComponentName;
+			return node.NodeDetail;
+		});
+		setTableData(listData);
+	};
+	const selectRow = record => {
+		const selectedRowKeys = [...selectedNodeList];
+		if (selectedRowKeys.indexOf(record.key) >= 0) {
+			selectedRowKeys.splice(selectedRowKeys.indexOf(record.key), 1);
+		} else {
+			selectedRowKeys.push(record.key);
+		}
+		setSelectedNodeList(selectedRowKeys);
 	};
 	useEffect(() => {
 		getList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Modal title="节点" open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel}>
+		<Modal title={t('selectNode')} open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel}>
 			<Table
 				rowSelection={{
 					...rowSelection
@@ -88,6 +108,11 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 				rowKey="NodeId"
 				dataSource={tableData}
 				columns={columns}
+				onRow={record => {
+					return {
+						onClick: () => selectRow(record) // 点击行
+					};
+				}}
 			/>
 		</Modal>
 	);

@@ -23,6 +23,7 @@ import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
+import ItemConfigInfo from '@/components/itemConfigInfo';
 
 const { Text } = Typography;
 interface DataType {
@@ -47,14 +48,16 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
+			key: 'Hostname',
 			width: 100,
 			render: (text: string) => <a>{text}</a>
 		},
 		{
 			title: t('node.progress'),
 			dataIndex: 'FileBytesProgress',
+			key: 'FileBytesProgress',
+			width: '60%',
 			render: (text, record) => {
-				console.log(4444, record);
 				return (
 					<>
 						{text ? (
@@ -101,18 +104,8 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		{
 			title: t('node.config'),
 			dataIndex: 'CpuCores',
-			width: 100,
-			render: (text: string, record) => (
-				<a>
-					{text}
-					{t('node.core')}
-					{(record?.Ram / 1024).toFixed(2)}
-					{t('node.gb')}
-					{(record?.DiskTotal / 1024).toFixed(2)}
-					{t('node.gb')}
-					{record?.CpuArch}
-				</a>
-			)
+			key: 'CpuCores',
+			render: (text: string, record) => <ItemConfigInfo text={text} record={record} />
 		}
 	];
 	const rowSelection = {

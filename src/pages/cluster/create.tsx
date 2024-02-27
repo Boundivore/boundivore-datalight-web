@@ -83,7 +83,6 @@ const CreateCluster: React.FC = () => {
 
 				return result;
 			}, []);
-			console.log(6666, processedData);
 			setServiceList(processedData);
 		}
 	};

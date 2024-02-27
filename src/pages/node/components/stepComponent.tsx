@@ -30,7 +30,8 @@ interface StepConfig {
 	title: string;
 	content: ReactElement;
 	nextStep?: Function;
-	hideNext?: boolean; // 是否隐藏下一步按钮
+	hideInitButton?: boolean; // 是否隐藏初始化按钮，包括上一步、下一步、重试和取消
+	hideNext?: boolean; // 是否单独隐藏下一步按钮
 	operations?: {
 		label: string;
 		callback?: () => void;
@@ -65,7 +66,7 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 		setStepCurrent(stepCurrent - 1);
 	};
 	const retry = () => {
-		// retry();
+		stepConfig.retry();
 		// setStepCurrent(stepCurrent - 1);
 	};
 	const cancel = async () => {
@@ -84,17 +85,18 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 				{stepConfig.content}
 				<Col className="mt-[24px]" span={24}>
 					<Space className="flex justify-center">
-						{stepConfig?.operations?.length ? (
-							stepConfig.operations.map(operation => {
-								return (
-									<Button type="primary" onClick={operation.callback || next}>
-										{operation.label}
-									</Button>
-								);
-							})
-						) : (
+						{stepConfig?.operations?.length
+							? stepConfig.operations.map(operation => {
+									return (
+										<Button type="primary" onClick={operation.callback || next}>
+											{operation.label}
+										</Button>
+									);
+							  })
+							: null}
+						{!stepConfig.hideInitButton ? (
 							<>
-								{/* TODO 添加重试和取消操作*/}
+								{/* TODO 添加重试操作*/}
 								{stepCurrent < config.length - 1 && (
 									<Button onClick={retry} disabled={nextDisabled}>
 										{t('retry')}
@@ -112,7 +114,7 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 									</Button>
 								)}
 							</>
-						)}
+						) : null}
 					</Space>
 				</Col>
 			</Card>

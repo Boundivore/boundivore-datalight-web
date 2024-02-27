@@ -17,7 +17,6 @@
 import React, { useState } from 'react';
 import { Modal, ModalProps, Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
-// import type { FormInstance } from 'antd/es/form';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 

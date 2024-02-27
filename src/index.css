@@ -18,27 +18,32 @@
 @tailwind components;
 @tailwind utilities;
 
-html{
-  width: 100%;
-  height: 100%;
+html {
+	width: 100%;
+	height: 100%;
 }
-body{
-  margin: 0;
-  height: 100%;
-  overflow: hidden;
+body {
+	margin: 0;
+	height: 100%;
+	overflow: hidden;
 }
-.data-light{
-  .ant-select-dropdown {
-    display: none !important;
-  }
+.data-light {
+	.ant-select-dropdown {
+		display: none !important;
+	}
 }
-#code-editor { 
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+.data-light-table {
+	.ant-table-row {
+		height: 80px;
+	}
+}
+#code-editor {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
 }
 .ace-changed {
-	border-left: #FCAF3E 3px solid;
+	border-left: #fcaf3e 3px solid;
 }
