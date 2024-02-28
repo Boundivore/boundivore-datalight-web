@@ -28,15 +28,20 @@ export const pollRequest = (
 			clearInterval(poller);
 			return;
 		}
-		const data = await pollFunction();
 		// 内部终止逻辑
-		shouldCancel = data.length
-			? data.every(element => {
-					return lockedState.includes(element.NodeState || element.SCStateEnum || element.JobExecStateEnum); //兼容几种不同轮询的终止判断
-			  })
-			: true;
-		console.log(111, data);
-		callback(data);
+		try {
+			const data = await pollFunction();
+			shouldCancel = data.length
+				? data.every(element => {
+						//兼容几种不同轮询的终止判断
+						return lockedState.includes(element.NodeState || element.SCStateEnum || element.JobExecStateEnum);
+				  })
+				: true;
+			callback(data);
+		} catch (error) {
+			console.error('轮询终止:', error);
+			shouldCancel = true;
+		}
 	};
 	intervalFunction();
 	poller = setInterval(intervalFunction, interval);

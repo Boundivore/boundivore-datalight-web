@@ -36,7 +36,8 @@ interface DataType {
 	NodeState: string;
 }
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
-
+const preStepName = 'PROCEDURE_CHECK';
+const stepName = 'PROCEDURE_DISPATCH';
 const DispatchStep: React.FC = forwardRef((_props, ref) => {
 	const { jobNodeId, selectedRowsList, setSelectedRowsList, stableState, setCurrentPageDisabled } = useStore();
 	const { t } = useTranslation();
@@ -110,9 +111,9 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 	];
 	const rowSelection = {
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedRowsList(selectedRows);
+			setSelectedRowsList(stepName, selectedRows);
 		},
-		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+		defaultSelectedRowKeys: selectedRowsList[preStepName].map(({ NodeId }) => {
 			return NodeId;
 		}),
 		getCheckboxProps: (record: DataType) => ({
@@ -127,7 +128,7 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'START_WORKER',
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			NodeInfoList: selectedRowsList[stepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiStartWorker, params);
@@ -137,7 +138,7 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 	const getSpeed = async () => {
 		const params = {
 			ClusterId: id,
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+			NodeInfoList: selectedRowsList[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(apiSpeed, params);
 		const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });

@@ -20,8 +20,6 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 interface MyStore {
 	isNeedChangePassword: boolean; //当前用户是否需要修改密码
 	setIsNeedChangePassword: (changePassword: boolean) => void;
-	selectedRowsList: object[]; // 已选择的节点列表
-	setSelectedRowsList: (rows: object[]) => void;
 	selectedServiceRowsList: object[]; // 已选择的服务列表
 	setSelectedServiceRowsList: (rows: object[]) => void;
 	jobClusterId: string; //当前操作的集群id
@@ -47,12 +45,12 @@ interface PersistStore {
 interface ComponentAndNodeStore {
 	nodeList: object;
 	setNodeList: (info: object) => void;
+	selectedRowsList: object; // 已选择的节点列表, 这个列表是集群引导全流程中的每一步里都可能不相同，因此需要记录所有
+	setSelectedRowsList: (key: string, rows: object[]) => void;
 }
 const useStore = create<MyStore>(set => ({
 	isNeedChangePassword: false,
 	setIsNeedChangePassword: (changePassword: boolean) => set({ isNeedChangePassword: changePassword }),
-	selectedRowsList: [],
-	setSelectedRowsList: (rows: object[]) => set({ selectedRowsList: rows }),
 	selectedServiceRowsList: [],
 	setSelectedServiceRowsList: (rows: object[]) => set({ selectedServiceRowsList: rows }),
 	jobClusterId: '',
@@ -184,7 +182,16 @@ export const useComponentAndNodeStore = create<ComponentAndNodeStore>()(
 	persist(
 		set => ({
 			nodeList: {},
-			setNodeList: (node: object) => set({ nodeList: node })
+			setNodeList: (node: object) => set({ nodeList: node }),
+			selectedRowsList: {
+				PROCEDURE_PARSE_HOSTNAME: [],
+				PROCEDURE_DETECT: [],
+				PROCEDURE_CHECK: [],
+				PROCEDURE_DISPATCH: [],
+				PROCEDURE_START_WORKER: []
+			},
+			setSelectedRowsList: (key: string, rows: object[]) =>
+				set(state => ({ selectedRowsList: { ...state.selectedRowsList, [key]: rows } }))
 		}),
 		{
 			name: 'node-storage', // name of the item in the storage (must be unique)

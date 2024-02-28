@@ -33,7 +33,8 @@ interface DataType {
 	DiskTotal: string;
 	NodeState: string;
 }
-
+const preStepName = 'PROCEDURE_DISPATCH';
+const stepName = 'PROCEDURE_START_WORKER';
 const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 	const { selectedRowsList, setSelectedRowsList, stateText, stableState, setCurrentPageDisabled } = useStore();
 	const { t } = useTranslation();
@@ -68,7 +69,7 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'ADD',
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			NodeInfoList: selectedRowsList[stepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiAdd, params);
@@ -76,9 +77,9 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 	};
 	const rowSelection = {
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedRowsList(selectedRows);
+			setSelectedRowsList(stepName, selectedRows);
 		},
-		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+		defaultSelectedRowKeys: selectedRowsList[preStepName].map(({ NodeId }) => {
 			return NodeId;
 		}),
 		getCheckboxProps: (record: DataType) => ({
@@ -88,7 +89,7 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 	const getList = async () => {
 		const params = {
 			ClusterId: id,
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+			NodeInfoList: selectedRowsList[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(APIConfig.startWorkerList, params);
 		const {

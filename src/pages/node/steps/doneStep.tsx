@@ -19,12 +19,6 @@ import { useTranslation } from 'react-i18next';
 
 const DoneStep: React.FC = () => {
 	const { t } = useTranslation();
-	return (
-		<Result
-			status="success"
-			title={t('node.addSuccessTitle')}
-			// subTitle="Order number: 2017182818828182881 Cloud server configuration takes 1-5 minutes, please wait."
-		/>
-	);
+	return <Result status="success" title={t('node.addSuccessTitle')} />;
 };
 export default DoneStep;

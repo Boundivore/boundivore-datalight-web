@@ -66,7 +66,10 @@ const APIConfig: Actions = {
 	// 配置相关
 	listSummary: '/v1/master/config/listSummary',
 	listByGroup: '/v1/master/config/listByGroup',
-	saveByGroup: '/v1/master/config/saveByGroup'
+	saveByGroup: '/v1/master/config/saveByGroup',
+	//前端状态缓存相关
+	webStateGet: '/v1/master/web/state/get',
+	webStateSave: '/v1/master/web/state/save'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

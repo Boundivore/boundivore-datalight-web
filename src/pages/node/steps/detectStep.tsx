@@ -14,12 +14,12 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { forwardRef, useImperativeHandle, useEffect } from 'react';
+import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
-import useStore from '@/store/store';
+import useStore, { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
@@ -34,12 +34,17 @@ interface DataType {
 	NodeState: string;
 }
 type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
-
+// const preStepName = 'PROCEDURE_PARSE_HOSTNAME';
+const stepName = 'PROCEDURE_DETECT';
+const nextStepName = 'PROCEDURE_CHECK';
 const DetectStep: React.FC = forwardRef((_props, ref) => {
-	const { selectedRowsList, setSelectedRowsList, stateText, stableState, setCurrentPageDisabled } = useStore();
+	const { stateText, stableState, setCurrentPageDisabled } = useStore();
+	const { selectedRowsList, setSelectedRowsList } = useComponentAndNodeStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
+	// 当前页面选择条目，区别进程中的selectedRowsList, currentSelectedRowsList用于当前页面的逻辑
+	const [currentSelectedRowsList, setCurrentSelectedRowsList] = useState(selectedRowsList[stepName]);
 	const apiSpeed = APIConfig.detectList;
 	const columns: ColumnsType<DataType> = [
 		{
@@ -59,14 +64,12 @@ const DetectStep: React.FC = forwardRef((_props, ref) => {
 		}
 	];
 	const rowSelection = {
+		selectedRowKeys: currentSelectedRowsList.map(row => row.NodeId),
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedRowsList(selectedRows);
+			setCurrentSelectedRowsList(selectedRows);
 		},
-		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
-			return NodeId;
-		}),
 		getCheckboxProps: (record: DataType) => ({
-			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+			disabled: record.NodeState === 'INACTIVE' // 状态不是ACTIVE不可选
 		})
 	};
 	useImperativeHandle(ref, () => ({
@@ -77,30 +80,34 @@ const DetectStep: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'CHECK',
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			NodeInfoList: currentSelectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiCheck, params);
+		setSelectedRowsList(nextStepName, currentSelectedRowsList);
 		return Promise.resolve(jobData);
 	};
 
 	const getSpeed = async () => {
 		const params = {
 			ClusterId: id,
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+			NodeInfoList: currentSelectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(apiSpeed, params);
 		const {
 			Data: { ExecStateEnum, NodeInitDetailList }
 		} = data;
-		setCurrentPageDisabled({ next: ExecStateEnum !== 'OK' && ExecStateEnum !== 'NOT_EXIST' });
+		setCurrentPageDisabled({
+			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND' || currentSelectedRowsList.length === 0
+		});
+		// 用不等于INACTIVE作为过滤条件，而不是等于ACTIVE，因为可能从后边流程退回到这一步，状态不是ACTIVE
+		setCurrentSelectedRowsList(NodeInitDetailList.filter(row => row.NodeState !== 'INACTIVE')); // 更新选中项数据
 		return NodeInitDetailList;
 	};
 	const tableData = usePolling(getSpeed, stableState, 1000);
 	useEffect(() => {
-		setCurrentPageDisabled({ next: true });
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+		setCurrentPageDisabled({ next: currentSelectedRowsList.length === 0 });
+	}, [currentSelectedRowsList, setCurrentPageDisabled]);
 	return (
 		<Table
 			rowSelection={{

@@ -35,7 +35,9 @@ interface DataType {
 	SshPort: number | string;
 }
 type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
-
+// const preStepName = 'PROCEDURE_DETECT';
+const stepName = 'PROCEDURE_CHECK';
+const nextStepName = 'PROCEDURE_DISPATCH';
 const CheckStep: React.FC = forwardRef((_props, ref) => {
 	const { selectedRowsList, setSelectedRowsList, setJobNodeId, stateText, stableState, setCurrentPageDisabled } = useStore();
 	const { t } = useTranslation();
@@ -70,9 +72,9 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 	];
 	const rowSelection = {
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedRowsList(selectedRows);
+			setSelectedRowsList(nextStepName, selectedRows);
 		},
-		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }: any) => {
+		defaultSelectedRowKeys: selectedRowsList[stepName].map(({ NodeId }: any) => {
 			return NodeId;
 		}),
 		getCheckboxProps: (record: DataType) => ({
@@ -87,7 +89,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'DISPATCH',
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
+			NodeInfoList: selectedRowsList[stepName].map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
 			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiDispatch, params);
@@ -98,7 +100,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 	const getSpeed = async () => {
 		const params = {
 			ClusterId: id,
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId }))
+			NodeInfoList: selectedRowsList[stepName].map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(apiSpeed, params);
 		const {

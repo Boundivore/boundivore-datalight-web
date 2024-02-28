@@ -19,7 +19,7 @@
  * @author Tracy.Guo
  */
 import { useEffect } from 'react';
-import useStore from '@/store/store';
+import useStore, { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 
@@ -27,8 +27,8 @@ interface MyProps {
 	step?: number;
 }
 const useStepLogic = <T extends MyProps>(step: T) => {
-	const { setStepCurrent, setJobNodeId, setSelectedRowsList, stepMap, setJobId } = useStore();
-
+	const { setStepCurrent, setJobNodeId, stepMap, setJobId } = useStore();
+	const { setSelectedRowsList } = useComponentAndNodeStore();
 	const getProcedure = async (id: string | number) => {
 		const apiGetProcedure = APIConfig.getProcedure;
 		const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
@@ -40,7 +40,7 @@ const useStepLogic = <T extends MyProps>(step: T) => {
 			setStepCurrent(step ? stepMap[ProcedureState] - step : stepMap[ProcedureState]);
 			setJobNodeId(NodeJobId);
 			setJobId(JobId);
-			setSelectedRowsList(NodeInfoList);
+			setSelectedRowsList(ProcedureState, NodeInfoList);
 		} else if (Code === 'D1001') {
 			setStepCurrent(0);
 		}

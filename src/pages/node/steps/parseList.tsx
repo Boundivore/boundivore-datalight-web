@@ -25,7 +25,7 @@ import { Table, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import useStore from '@/store/store';
+import useStore, { useComponentAndNodeStore, usePersistStore } from '@/store/store';
 import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 
@@ -40,9 +40,16 @@ interface DataType {
 }
 type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 
+// const stepName = 'PROCEDURE_PARSE_HOSTNAME';
+const nextStepName = 'PROCEDURE_DETECT';
+
 const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
-	const { setSelectedRowsList, selectedRowsList, stateText, stableState, setCurrentPageDisabled } = useStore();
+	const { stateText, stableState, setCurrentPageDisabled } = useStore();
+	const { setSelectedRowsList, selectedRowsList } = useComponentAndNodeStore();
+	const {
+		userInfo: { userId }
+	} = usePersistStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiState = APIConfig.nodeInitList;
@@ -65,9 +72,9 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	];
 	const rowSelection = {
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedRowsList(selectedRows);
+			setSelectedRowsList(nextStepName, selectedRows);
 		},
-		defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+		defaultSelectedRowKeys: selectedRowsList[nextStepName].map(({ NodeId }) => {
 			return NodeId;
 		}),
 		getCheckboxProps: (record: DataType) => ({
@@ -80,9 +87,19 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		const {
 			Data: { ExecStateEnum, NodeInitDetailList }
 		} = data;
-		setCurrentPageDisabled({ next: ExecStateEnum !== 'NOT_EXIST' });
+		setCurrentPageDisabled({
+			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND' || selectedRowsList[nextStepName].length === 0
+		});
 		return NodeInitDetailList;
 	};
+	// const psrseHostname = async () => {
+	// 	const api = APIConfig.parseHostname;
+	// 	const values = await form.validateFields();
+	// 	const { Hostname, SshPort } = values;
+	// 	const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
+	// 	const validData = data.Data.ValidHostnameList;
+	// 	return Promise.resolve(validData);
+	// };
 	const tableData: DataType[] = usePolling(getState, stableState, 1000);
 
 	useImperativeHandle(ref, () => ({
@@ -93,16 +110,34 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'DETECT',
-			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			NodeInfoList: selectedRowsList[nextStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: tableData[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiDetect, params);
 		return Promise.resolve(jobData);
 	};
+	const getWebState = async () => {
+		const api = APIConfig.webStateGet;
+		try {
+			const params = {
+				ClusterId: id,
+				UserId: userId,
+				WebKey: 'parseStep'
+			};
+			const data = await RequestHttp.get(api, { params });
+			return Promise.resolve(data.Data);
+		} catch (error) {
+			return Promise.reject(error);
+		}
+		// return Promise.resolve(data.Data);
+	};
 	useEffect(() => {
-		setCurrentPageDisabled({ next: true });
+		getWebState();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	useEffect(() => {
+		setCurrentPageDisabled({ next: selectedRowsList[nextStepName].length === 0 });
+	}, [selectedRowsList, setCurrentPageDisabled]);
 
 	return (
 		<Table

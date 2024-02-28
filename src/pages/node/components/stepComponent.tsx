@@ -65,8 +65,8 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 	const prev = () => {
 		setStepCurrent(stepCurrent - 1);
 	};
-	const retry = () => {
-		stepConfig.retry();
+	const retry = async () => {
+		await stepConfig.retry();
 		// setStepCurrent(stepCurrent - 1);
 	};
 	const cancel = async () => {

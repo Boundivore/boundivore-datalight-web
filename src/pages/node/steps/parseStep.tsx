@@ -24,7 +24,7 @@ import { Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
-import useStore from '@/store/store';
+import useStore, { usePersistStore } from '@/store/store';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -44,25 +44,59 @@ const ParseStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const { setCurrentPageDisabled } = useStore();
+	const {
+		userInfo: { userId }
+	} = usePersistStore();
 	const id = searchParams.get('id');
 	const [form] = Form.useForm();
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
 	const handleOk = async () => {
-		const api = APIConfig.parseHostname;
+		// const api = APIConfig.parseHostname;
+		// try {
+		// 	const values = await form.validateFields();
+		// 	const { Hostname, SshPort } = values;
+		// 	const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
+		// 	const validData = data.Data.ValidHostnameList;
+		// 	return Promise.resolve(validData);
+		// } catch (error) {
+		// 	return Promise.reject(error);
+		// }
+		const api = APIConfig.webStateSave;
 		try {
 			const values = await form.validateFields();
-			const { Hostname, SshPort } = values;
-			const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
-			const validData = data.Data.ValidHostnameList;
-			return Promise.resolve(validData);
+			const data = await RequestHttp.post(api, {
+				ClusterId: id,
+				UserId: userId,
+				WebKey: 'parseStep',
+				WebValue: btoa(JSON.stringify(values))
+			});
+			return Promise.resolve(data.Code === '00000');
 		} catch (error) {
 			return Promise.reject(error);
 		}
 	};
+	const getWebState = async () => {
+		const api = APIConfig.webStateGet;
+		const params = {
+			ClusterId: id,
+			UserId: userId,
+			WebKey: 'parseStep'
+		};
+		const data = await RequestHttp.get(api, { params });
+		const {
+			Data: {
+				KVMap: { parseStep }
+			}
+		} = data;
+		form.setFieldsValue(JSON.parse(atob(parseStep)));
+		console.log(111, JSON.parse(atob(data.Data.KVMap.parseStep)));
+		// return Promise.resolve(data.Data);
+	};
 	useEffect(() => {
 		setCurrentPageDisabled({ next: false });
+		getWebState();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
