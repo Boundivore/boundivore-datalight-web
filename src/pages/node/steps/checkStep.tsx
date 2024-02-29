@@ -14,7 +14,7 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { forwardRef, useImperativeHandle, useEffect } from 'react';
+import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -39,7 +39,12 @@ type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 const stepName = 'PROCEDURE_CHECK';
 const nextStepName = 'PROCEDURE_DISPATCH';
 const CheckStep: React.FC = forwardRef((_props, ref) => {
-	const { selectedRowsList, setSelectedRowsList, setJobNodeId, stateText, stableState, setCurrentPageDisabled } = useStore();
+	const { setJobNodeId, stateText, stableState, setCurrentPageDisabled } = useStore();
+	const [selectedRowsList, setSelectedRowsList] = useState([]);
+	// const initialWebStateFetched = useRef(false);
+	// const {
+	// 	userInfo: { userId }
+	// } = usePersistStore();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');

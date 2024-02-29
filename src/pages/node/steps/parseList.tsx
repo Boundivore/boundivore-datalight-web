@@ -15,17 +15,17 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * ParseList - 解析出的节点主机名列表
+ * ParseList - 解析出的节点主机名列表, 第二步
  * @author Tracy.Guo
  */
-import React, { useImperativeHandle, forwardRef, useEffect } from 'react';
+import React, { useImperativeHandle, forwardRef, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Table, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import useStore, { useComponentAndNodeStore, usePersistStore } from '@/store/store';
+import useStore, { usePersistStore } from '@/store/store';
 import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 
@@ -40,13 +40,14 @@ interface DataType {
 }
 type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 
-// const stepName = 'PROCEDURE_PARSE_HOSTNAME';
-const nextStepName = 'PROCEDURE_DETECT';
+const preStepName = 'parseStep'; // 当前步骤页面基于上一步的输入和选择生成
+const stepName = 'parseList';
 
 const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const { stateText, stableState, setCurrentPageDisabled } = useStore();
-	const { setSelectedRowsList, selectedRowsList } = useComponentAndNodeStore();
+	const [selectedRowsList, setSelectedRowsList] = useState([]);
+	const [initialWebStateFetched, setInitialWebStateFetched] = useState(false);
 	const {
 		userInfo: { userId }
 	} = usePersistStore();
@@ -71,72 +72,88 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		}
 	];
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			setSelectedRowsList(nextStepName, selectedRows);
-		},
-		defaultSelectedRowKeys: selectedRowsList[nextStepName].map(({ NodeId }) => {
-			return NodeId;
+		selectedRowKeys: selectedRowsList.map(row => {
+			return row.Hostname;
 		}),
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+			setSelectedRowsList(selectedRows);
+		},
 		getCheckboxProps: (record: DataType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
 	};
 
 	const getState = async () => {
+		// getWebState只执行一次，不参与轮询
+		if (!initialWebStateFetched) {
+			await getWebState();
+			setInitialWebStateFetched(true);
+		}
+
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
 		const {
 			Data: { ExecStateEnum, NodeInitDetailList }
 		} = data;
 		setCurrentPageDisabled({
-			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND' || selectedRowsList[nextStepName].length === 0
+			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
 		});
 		return NodeInitDetailList;
 	};
-	// const psrseHostname = async () => {
-	// 	const api = APIConfig.parseHostname;
-	// 	const values = await form.validateFields();
-	// 	const { Hostname, SshPort } = values;
-	// 	const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
-	// 	const validData = data.Data.ValidHostnameList;
-	// 	return Promise.resolve(validData);
-	// };
 	const tableData: DataType[] = usePolling(getState, stableState, 1000);
 
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
 	const handleOk = async () => {
-		const apiDetect = APIConfig.detect;
-		const params = {
-			ClusterId: id,
-			NodeActionTypeEnum: 'DETECT',
-			NodeInfoList: selectedRowsList[nextStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: tableData[0].SshPort
-		};
-		const jobData = await RequestHttp.post(apiDetect, params);
-		return Promise.resolve(jobData);
-	};
-	const getWebState = async () => {
-		const api = APIConfig.webStateGet;
+		// const apiDetect = APIConfig.detect;
+		// const params = {
+		// 	ClusterId: id,
+		// 	NodeActionTypeEnum: 'DETECT',
+		// 	NodeInfoList: selectedRowsList[nextStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+		// 	SshPort: tableData[0].SshPort
+		// };
+		// const jobData = await RequestHttp.post(apiDetect, params);
+		// return Promise.resolve(jobData);
+		const api = APIConfig.webStateSave;
 		try {
-			const params = {
+			const values = selectedRowsList;
+			const data = await RequestHttp.post(api, {
 				ClusterId: id,
 				UserId: userId,
-				WebKey: 'parseStep'
-			};
-			const data = await RequestHttp.get(api, { params });
-			return Promise.resolve(data.Data);
+				WebKey: stepName,
+				WebValue: btoa(JSON.stringify(values))
+			});
+			return Promise.resolve(data.Code === '00000');
 		} catch (error) {
 			return Promise.reject(error);
 		}
-		// return Promise.resolve(data.Data);
+	};
+	const getWebState = async () => {
+		const api = APIConfig.webStateGet;
+		const params = {
+			ClusterId: id,
+			UserId: userId,
+			WebKey: preStepName
+		};
+		const data = await RequestHttp.get(api, { params });
+		const {
+			Data: { KVMap }
+		} = data;
+		// TODO 接口没问题之后，合并
+		const params2 = {
+			ClusterId: id,
+			UserId: userId,
+			WebKey: stepName
+		};
+		const data2 = await RequestHttp.get(api, { params: params2 });
+		console.log(1111, JSON.parse(atob(data2.Data.KVMap[stepName])));
+		setSelectedRowsList(JSON.parse(atob(data2.Data.KVMap[stepName])));
+		const apiParse = APIConfig.parseHostname;
+		const { Hostname, SshPort } = JSON.parse(atob(KVMap[preStepName]));
+		await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
 	};
 	useEffect(() => {
-		getWebState();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-	useEffect(() => {
-		setCurrentPageDisabled({ next: selectedRowsList[nextStepName].length === 0 });
+		setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
 	}, [selectedRowsList, setCurrentPageDisabled]);
 
 	return (
@@ -144,7 +161,7 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 			rowSelection={{
 				...rowSelection
 			}}
-			rowKey="NodeId"
+			rowKey="Hostname"
 			columns={columns}
 			dataSource={tableData}
 		/>

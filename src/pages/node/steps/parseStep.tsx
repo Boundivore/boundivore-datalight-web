@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * ParseStep - 解析节点主机名步骤
+ * ParseStep - 解析节点主机名步骤, 第一步
  * @author Tracy.Guo
  */
 import { forwardRef, useEffect, useImperativeHandle } from 'react';
@@ -36,6 +36,7 @@ type FieldType = {
 	Hostname: string;
 	SshPort: string;
 };
+const stepName = 'parseStep';
 
 // interface MyComponentMethods {
 // 	handleOk: () => void;
@@ -69,7 +70,7 @@ const ParseStep: React.FC = forwardRef((_props, ref) => {
 			const data = await RequestHttp.post(api, {
 				ClusterId: id,
 				UserId: userId,
-				WebKey: 'parseStep',
+				WebKey: stepName,
 				WebValue: btoa(JSON.stringify(values))
 			});
 			return Promise.resolve(data.Code === '00000');
@@ -82,7 +83,7 @@ const ParseStep: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			UserId: userId,
-			WebKey: 'parseStep'
+			WebKey: stepName
 		};
 		const data = await RequestHttp.get(api, { params });
 		const {

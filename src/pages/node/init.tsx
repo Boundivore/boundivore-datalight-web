@@ -26,7 +26,7 @@ import useStore from '@/store/store';
 import ParseStep from './steps/parseStep';
 import DetectStep from './steps/detectStep';
 import CheckStep from './steps/checkStep';
-import InitList from './steps/parseList';
+import ParseList from './steps/parseList';
 import StepComponent from './components/stepComponent';
 import DispatchStep from './steps/dispatchStep';
 import StartWorkerStep from './steps/startWorkerStep';
@@ -37,6 +37,8 @@ import PreconfigStep from './steps/preconfigStep';
 import DeployStep from './steps/deployStep';
 import useStepLogic from '@/hooks/useStepLogic';
 import useNavigater from '@/hooks/useNavigater';
+// const ParseStep = React.lazy(() => import('./steps/parseStep'));
+// const ParseList = React.lazy(() => import('./steps/parseList'));
 
 const InitNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
@@ -45,7 +47,7 @@ const InitNode: React.FC = forwardRef(() => {
 	const { useStepEffect } = useStepLogic();
 	const { navigateToHome } = useNavigater();
 	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const initListStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const parseListStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const detectStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const checkStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const dispatchStepRef = useRef<{ handleOk: () => void } | null>(null);
@@ -107,7 +109,7 @@ const InitNode: React.FC = forwardRef(() => {
 		return callbackData;
 	};
 	const nextDetect = async () => {
-		const callbackData = await initListStepRef.current?.handleOk();
+		const callbackData = await parseListStepRef.current?.handleOk();
 		return callbackData;
 	};
 	const nextCheck = async () => {
@@ -152,7 +154,7 @@ const InitNode: React.FC = forwardRef(() => {
 		},
 		{
 			title: t('node.chooseHostname'),
-			content: <InitList ref={initListStepRef} />,
+			content: <ParseList ref={parseListStepRef} />,
 			nextStep: nextDetect,
 			retry: nextList
 		},
