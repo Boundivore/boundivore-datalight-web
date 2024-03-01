@@ -27,34 +27,25 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore, { usePersistStore } from '@/store/store';
 import usePolling from '@/hooks/usePolling';
+import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
-
-interface DataType {
-	NodeId: React.Key;
-	Hostname: string;
-	CpuCores: number;
-	CpuArch: string;
-	DiskTotal: string;
-	NodeState: string;
-	SshPort: number | string;
-}
-type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
+import { NodeType, ParseHostnameType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'parseStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'parseList';
 
 const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
-	const { stateText, stableState, setCurrentPageDisabled } = useStore();
-	const [selectedRowsList, setSelectedRowsList] = useState([]);
-	const [initialWebStateFetched, setInitialWebStateFetched] = useState(false);
 	const {
 		userInfo: { userId }
 	} = usePersistStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const apiState = APIConfig.nodeInitList;
-	const columns: ColumnsType<DataType> = [
+	const { stateText, stableState, setCurrentPageDisabled } = useStore();
+	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
+	const [initialWebStateFetched, setInitialWebStateFetched] = useState(false);
+	const { useGetSepData } = useStepLogic();
+	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
@@ -75,10 +66,10 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		selectedRowKeys: selectedRowsList.map(row => {
 			return row.Hostname;
 		}),
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
 		},
-		getCheckboxProps: (record: DataType) => ({
+		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
 	};
@@ -86,10 +77,10 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	const getState = async () => {
 		// getWebState只执行一次，不参与轮询
 		if (!initialWebStateFetched) {
-			await getWebState();
+			await getWebState(webState, selectedList);
 			setInitialWebStateFetched(true);
 		}
-
+		const apiState = APIConfig.nodeInitList;
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
 		const {
 			Data: { ExecStateEnum, NodeInitDetailList }
@@ -99,7 +90,7 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		});
 		return NodeInitDetailList;
 	};
-	const tableData: DataType[] = usePolling(getState, stableState, 1000);
+	const tableData: NodeType[] = usePolling(getState, stableState, 1000);
 
 	useImperativeHandle(ref, () => ({
 		handleOk
@@ -128,28 +119,12 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 			return Promise.reject(error);
 		}
 	};
-	const getWebState = async () => {
-		const api = APIConfig.webStateGet;
-		const params = {
-			ClusterId: id,
-			UserId: userId,
-			WebKey: preStepName
-		};
-		const data = await RequestHttp.get(api, { params });
-		const {
-			Data: { KVMap }
-		} = data;
-		// TODO 接口没问题之后，合并
-		const params2 = {
-			ClusterId: id,
-			UserId: userId,
-			WebKey: stepName
-		};
-		const data2 = await RequestHttp.get(api, { params: params2 });
-		console.log(1111, JSON.parse(atob(data2.Data.KVMap[stepName])));
-		setSelectedRowsList(JSON.parse(atob(data2.Data.KVMap[stepName])));
+	const { webState, selectedList } = useGetSepData(preStepName, stepName);
+
+	const getWebState = async (webState: { [key: string]: NodeType[] | ParseHostnameType }, selectedList: NodeType[]) => {
+		setSelectedRowsList(selectedList);
 		const apiParse = APIConfig.parseHostname;
-		const { Hostname, SshPort } = JSON.parse(atob(KVMap[preStepName]));
+		const { Hostname, SshPort } = webState[preStepName] as ParseHostnameType;
 		await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
 	};
 	useEffect(() => {

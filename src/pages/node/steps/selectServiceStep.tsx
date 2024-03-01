@@ -27,15 +27,7 @@ import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-
-interface DataType {
-	NodeId: React.Key;
-	Hostname: string;
-	CpuCores: number;
-	CpuArch: string;
-	DiskTotal: string;
-	NodeState: string;
-}
+import { NodeType, BadgeStatus } from '@/api/interface';
 
 const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText, setCurrentPageDisabled } = useStore();
@@ -45,7 +37,7 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.serviceList;
-	const columns: ColumnsType<DataType> = [
+	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceName',
@@ -58,11 +50,11 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 		{
 			title: t('node.state'),
 			dataIndex: 'SCStateEnum',
-			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		}
 	];
 	const rowSelection = {
-		onChange: (selectedRowKeys: [], selectedRows: DataType[]) => {
+		onChange: (selectedRowKeys: [], selectedRows: NodeType[]) => {
 			setSelectedRowKeys(selectedRowKeys);
 			setSelectedServiceRowsList(
 				_.cloneDeep([...selectedRows]).map(item => {

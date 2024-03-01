@@ -29,24 +29,15 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import useStepLogic from '@/hooks/useStepLogic';
-
-interface DataType {
-	NodeId: React.Key;
-	Hostname: string;
-	CpuCores: number;
-	CpuArch: string;
-	DiskTotal: string;
-	NodeState: string;
-}
-type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
+import { NodeType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'parseList'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'detectStep';
 const DetectStep: React.FC = memo(
 	forwardRef((_props, ref) => {
 		const { stateText, stableState, setCurrentPageDisabled } = useStore();
-		const [selectedRowsList, setSelectedRowsList] = useState([]);
-		const { useGetSepState } = useStepLogic();
+		const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
+		const { useGetSepData } = useStepLogic();
 		const {
 			userInfo: { userId }
 		} = usePersistStore();
@@ -55,7 +46,7 @@ const DetectStep: React.FC = memo(
 		const id = searchParams.get('id');
 		const apiSpeed = APIConfig.detectList;
 		// let preStepSelectList = [];
-		const columns: ColumnsType<DataType> = [
+		const columns: ColumnsType<NodeType> = [
 			{
 				title: t('node.node'),
 				dataIndex: 'Hostname',
@@ -74,10 +65,10 @@ const DetectStep: React.FC = memo(
 		];
 		const rowSelection = {
 			selectedRowKeys: selectedRowsList.map(row => row.Hostname),
-			onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+			onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 				setSelectedRowsList(selectedRows);
 			},
-			getCheckboxProps: (record: DataType) => ({
+			getCheckboxProps: (record: NodeType) => ({
 				disabled: record.NodeState === 'INACTIVE' // 状态不是ACTIVE不可选
 			})
 		};
@@ -109,23 +100,23 @@ const DetectStep: React.FC = memo(
 				return Promise.reject(error);
 			}
 		};
-		const webState = useGetSepState(preStepName, stepName, setSelectedRowsList);
-		const getWebState = async () => {
+		const detect = async (initNodeData: NodeType[]) => {
 			const apiDetect = APIConfig.detect;
 			const params3 = {
 				ClusterId: id,
 				NodeActionTypeEnum: 'DETECT',
-				NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-				SshPort: webState[preStepName][0].SshPort
+				NodeInfoList: initNodeData.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+				SshPort: initNodeData[0].SshPort
 			};
 			await RequestHttp.post(apiDetect, params3);
 			return Promise.resolve();
 		};
-
-		const getSpeed = async () => {
+		const { webState, selectedList } = useGetSepData(preStepName, stepName);
+		detect(webState[preStepName]);
+		const getSpeed = async (selectedList: NodeType[]) => {
 			const params = {
 				ClusterId: id,
-				NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+				NodeInfoList: selectedList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 			};
 			const data = await RequestHttp.post(apiSpeed, params);
 			const {
@@ -135,15 +126,10 @@ const DetectStep: React.FC = memo(
 				next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
 			});
 			// 用不等于INACTIVE作为过滤条件，而不是等于ACTIVE，因为可能从后边流程退回到这一步，状态不是ACTIVE
-			setSelectedRowsList(NodeInitDetailList.filter(row => row.NodeState !== 'INACTIVE')); // 更新选中项数据
+			setSelectedRowsList(NodeInitDetailList.filter((row: NodeType) => row.NodeState !== 'INACTIVE')); // 更新选中项数据
 			return NodeInitDetailList;
 		};
-		const tableData = usePolling(getSpeed, stableState, 1000);
-		useEffect(() => {
-			console.log(1111, webState === webState);
-			webState[preStepName] && getWebState();
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [webState]);
+		const tableData = usePolling(() => getSpeed(selectedList), stableState, 1000);
 		useEffect(() => {
 			setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
 			// getSpeed();

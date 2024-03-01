@@ -23,9 +23,9 @@ import { Card, Button, Form, Input, Select, List, Tabs } from 'antd';
 import { useTranslation, Trans } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
-import { ClusterNewRequest } from '@/api/interface';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
+import { ClusterType, ServiceItemType } from '@/api/interface';
 
 const { Option } = Select;
 
@@ -34,23 +34,18 @@ const layout = {
 	wrapperCol: { span: 16 }
 };
 
-interface Service {
-	ServiceName: string;
-	DependencyList: any[];
-}
-
 const CreateCluster: React.FC = () => {
 	const { navigateToHome } = useNavigater();
 	const [success, setSuccess] = useState(false);
 	const [DLCVersion] = useState('');
-	const [serviceList, setServiceList] = useState([]);
+	const [serviceList, setServiceList] = useState<ServiceItemType[]>([]);
 	const [showRelativeId, setShowRelativeId] = useState(false);
 	const { jobClusterId, setJobClusterId } = useStore();
 	const { t } = useTranslation();
 	const [form] = Form.useForm();
 	const handleOk = async () => {
 		const api = APIConfig.createCluster;
-		const values: ClusterNewRequest = await form.validateFields();
+		const values: ClusterType = await form.validateFields();
 		const data = await RequestHttp.post(api, values);
 		if (data.Code === '00000') {
 			setSuccess(true);
@@ -65,12 +60,12 @@ const CreateCluster: React.FC = () => {
 		} = await RequestHttp.get(api);
 		if (Code) {
 			form.setFieldsValue({ DlcVersion: DlcVersion });
-			const processedData = DlcServiceSummaryList.reduce((result, item) => {
+			const processedData = DlcServiceSummaryList.reduce((result: ServiceItemType, item: ServiceItemType) => {
 				const serviceType = item.ServiceType;
 				const serviceName = item.ServiceName;
 				const version = item.Version;
 				const desc = item.Desc;
-				const existingItem = result.find(obj => obj.ServiceType === serviceType);
+				const existingItem = result.find((obj: ServiceItemType) => obj.ServiceType === serviceType);
 
 				if (existingItem) {
 					existingItem.Service.push({ ServiceName: serviceName, Version: version, Desc: desc });
@@ -137,7 +132,7 @@ const CreateCluster: React.FC = () => {
 					</Form.Item>
 					<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 						<Tabs
-							items={(serviceList as Service[]).map(service => {
+							items={serviceList.map(service => {
 								return {
 									key: service.ServiceType,
 									label: t(service.ServiceType.toLowerCase()),
@@ -146,7 +141,7 @@ const CreateCluster: React.FC = () => {
 											size="small"
 											itemLayout="horizontal"
 											dataSource={service.Service}
-											renderItem={item => (
+											renderItem={(item: ServiceItemType) => (
 												<List.Item>
 													<List.Item.Meta
 														title={

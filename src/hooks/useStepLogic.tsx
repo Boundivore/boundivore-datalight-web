@@ -23,43 +23,47 @@ import { useSearchParams } from 'react-router-dom';
 import useStore, { usePersistStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-
-interface MyProps {
-	step?: number;
+import { NodeType, ParseHostnameType } from '@/api/interface';
+interface NodeDataType {
+	// 根据实际情况调整这个接口
+	[key: string]: NodeType[] | ParseHostnameType;
 }
-const useStepLogic = <T extends MyProps>(step: T) => {
-	const { setStepCurrent, setJobNodeId, stepMap, setJobId } = useStore();
+
+const useStepLogic = (step: number = 0) => {
 	const {
 		userInfo: { userId }
 	} = usePersistStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const getProcedure = async (id: string | number) => {
-		const apiGetProcedure = APIConfig.getProcedure;
-		const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
-		const {
-			Code,
-			Data: { JobId, NodeJobId, ProcedureState }
-		} = data;
-		if (Code === '00000') {
-			setStepCurrent(step ? stepMap[ProcedureState] - step : stepMap[ProcedureState]);
-			setJobNodeId(NodeJobId);
-			setJobId(JobId);
-		} else if (Code === 'D1001') {
-			setStepCurrent(0);
-		}
-	};
 
 	// 定位步骤
-	const useStepEffect = (id: string | number) => {
+	const useStepEffect = () => {
+		const { setStepCurrent, setJobNodeId, stepMap, setJobId } = useStore();
+		const getProcedure = async () => {
+			const apiGetProcedure = APIConfig.getProcedure;
+			const data = await RequestHttp.get(apiGetProcedure, { params: { ClusterId: id } });
+			const {
+				Code,
+				Data: { JobId, NodeJobId, ProcedureState }
+			} = data;
+			if (Code === '00000') {
+				setStepCurrent(stepMap[ProcedureState] - step);
+				setJobNodeId(NodeJobId);
+				setJobId(JobId);
+			} else if (Code === 'D1001') {
+				setStepCurrent(0);
+			}
+		};
 		useEffect(() => {
-			getProcedure(id);
-		}, [id]);
+			getProcedure();
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, []);
 	};
 	// 获取当前步骤数据
-	const useGetSepState = (preStepName, stepName, setSelectedRowsList) => {
-		const [webState, setWebState] = useState({});
-		const getWebState = async (preStepName, stepName, setSelectedRowsList) => {
+	const useGetSepData = (preStepName: string, stepName: string) => {
+		const [webState, setWebState] = useState<NodeDataType>({});
+		const [selectedList, setSelectedList] = useState<NodeType[]>([]);
+		const getWebState = async (preStepName: string, stepName: string) => {
 			const api = APIConfig.webStateGet;
 			const params = {
 				ClusterId: id,
@@ -79,19 +83,19 @@ const useStepLogic = <T extends MyProps>(step: T) => {
 			const data2 = await RequestHttp.get(api, { params: params2 });
 			// 如果当前步骤有数据说明之前操作过，则按当前步骤的数据显示选中节点，如果之前没有，则默认选中上一步选择的节点
 			if (data2.Code === '00000') {
-				setSelectedRowsList(JSON.parse(atob(data2.Data.KVMap[stepName])));
+				setSelectedList(JSON.parse(atob(data2.Data.KVMap[stepName])));
 			} else {
-				setSelectedRowsList(JSON.parse(atob(KVMap[preStepName])));
+				setSelectedList(JSON.parse(atob(KVMap[preStepName])));
 			}
 			setWebState({ [preStepName]: JSON.parse(atob(KVMap[preStepName])) });
 		};
 		useEffect(() => {
-			getWebState(preStepName, stepName, setSelectedRowsList);
-		}, [preStepName, stepName, setSelectedRowsList]);
-		return { ...webState };
+			getWebState(preStepName, stepName);
+		}, [preStepName, stepName]);
+		return { webState, selectedList };
 	};
 
-	return { useStepEffect, useGetSepState };
+	return { useStepEffect, useGetSepData };
 };
 
 export default useStepLogic;

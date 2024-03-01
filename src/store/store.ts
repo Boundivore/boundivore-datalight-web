@@ -35,12 +35,22 @@ interface MyStore {
 	stableState: string[];
 	configGroupInfo: object[]; // 修改配置文件时的分组信息
 	setConfigGroupInfo: (group: object[]) => void;
-	currentPageDisabled: object; // 当前页面操作的置灰状态
-	setCurrentPageDisabled: (state: object) => void;
+	currentPageDisabled: PageDisabledType; // 当前页面操作的置灰状态
+	setCurrentPageDisabled: (state: PageDisabledType) => void;
+}
+interface PageDisabledType {
+	next: boolean;
+	// 如果将来还有其他属性，可以在这里添加
+}
+interface UserInfoType {
+	userId: string;
+	nickName: string;
+	realName: string;
+	// 其他可能的用户信息字段...
 }
 interface PersistStore {
-	userInfo: object;
-	setUserInfo: (info: object) => void;
+	userInfo: UserInfoType;
+	setUserInfo: (info: UserInfoType) => void;
 }
 interface ComponentAndNodeStore {
 	nodeList: object;
@@ -165,13 +175,13 @@ const useStore = create<MyStore>(set => ({
 	configGroupInfo: [],
 	setConfigGroupInfo: (group: object[]) => set({ configGroupInfo: group }),
 	currentPageDisabled: { next: true },
-	setCurrentPageDisabled: (state: object) => set({ currentPageDisabled: state })
+	setCurrentPageDisabled: (state: PageDisabledType) => set({ currentPageDisabled: state })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(
 		set => ({
-			userInfo: {},
-			setUserInfo: (info: object) => set({ userInfo: info })
+			userInfo: {} as UserInfoType,
+			setUserInfo: (info: UserInfoType) => set({ userInfo: info })
 		}),
 		{
 			name: 'user-storage' // name of the item in the storage (must be unique)

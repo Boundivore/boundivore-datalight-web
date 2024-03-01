@@ -18,7 +18,7 @@
  * PreconfigStep - 预配置步骤
  * @author Tracy.Guo
  */
-import React, { forwardRef, useImperativeHandle, useEffect, useState, useRef } from 'react';
+import React, { useImperativeHandle, useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input, Collapse, Col, Button, Space } from 'antd';
 import { DoubleRightOutlined } from '@ant-design/icons';
@@ -34,7 +34,10 @@ const layout = {
 	labelCol: { span: 8 },
 	wrapperCol: { span: 16 }
 };
-const PreconfigStep: React.FC = forwardRef((_props, ref) => {
+const PreconfigStep: React.ForwardRefRenderFunction<
+	{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> },
+	any
+> = (_props, ref) => {
 	const { t } = useTranslation();
 	const [serviceList, setServiceList] = useState([]);
 	const [items, setItems] = useState([]);
@@ -173,6 +176,5 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 			{isModalOpen ? <DeployOverviewModal isModalOpen={isModalOpen} handleCancel={handleModalCancel} /> : null}
 		</>
 	);
-});
-
+};
 export default PreconfigStep;

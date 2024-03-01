@@ -18,13 +18,14 @@
  * ParseStep - 解析节点主机名步骤, 第一步
  * @author Tracy.Guo
  */
-import { forwardRef, useEffect, useImperativeHandle } from 'react';
+import { useEffect, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore, { usePersistStore } from '@/store/store';
+import { ParseHostnameType } from '@/api/interface';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -32,16 +33,9 @@ const layout = {
 };
 const { TextArea } = Input;
 
-type FieldType = {
-	Hostname: string;
-	SshPort: string;
-};
 const stepName = 'parseStep';
 
-// interface MyComponentMethods {
-// 	handleOk: () => void;
-// }
-const ParseStep: React.FC = forwardRef((_props, ref) => {
+const ParseStep: React.ForwardRefRenderFunction<{ handleOk: () => void } | null, any> = (_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const { setCurrentPageDisabled } = useStore();
@@ -103,17 +97,21 @@ const ParseStep: React.FC = forwardRef((_props, ref) => {
 
 	return (
 		<Form form={form} name="basic" {...layout} style={{ maxWidth: 600 }} initialValues={{ SshPort: 22 }} autoComplete="off">
-			<Form.Item<FieldType>
+			<Form.Item<ParseHostnameType>
 				label={t('node.hostName')}
 				name="Hostname"
 				rules={[{ required: true, message: t('node.hostnameCheck') }]}
 			>
 				<TextArea rows={4} />
 			</Form.Item>
-			<Form.Item<FieldType> label={t('node.port')} name="SshPort" rules={[{ required: true, message: t('node.portCheck') }]}>
+			<Form.Item<ParseHostnameType>
+				label={t('node.port')}
+				name="SshPort"
+				rules={[{ required: true, message: t('node.portCheck') }]}
+			>
 				<Input />
 			</Form.Item>
 		</Form>
 	);
-});
+};
 export default ParseStep;

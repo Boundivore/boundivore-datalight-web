@@ -27,18 +27,7 @@ import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 import useStore from '@/store/store';
 import ItemConfigInfo from '@/components/itemConfigInfo';
-
-interface DataType {
-	HasAlreadyNode: boolean;
-	ClusterId: number;
-	ClusterDesc: string;
-	ClusterName: string;
-	ClusterType: string;
-	ClusterState: string;
-	DlcVersion: string;
-	RelativeClusterId: number;
-}
-type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
+import { NodeType, NodeWithComponent, ClusterType, BadgeStatus } from '@/api/interface';
 
 const ManageList: React.FC = () => {
 	const { t } = useTranslation();
@@ -47,7 +36,7 @@ const ManageList: React.FC = () => {
 	const [tableData, setTableData] = useState([]);
 	const [selectData, setSelectData] = useState([]);
 	const [selectCluster, setSelectCluster] = useState('');
-	const [selectedRowsList, setSelectedRowsList] = useState([]);
+	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const { navigateToAddNode } = useNavigater();
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
 	const [messageApi, contextHolder] = message.useMessage();
@@ -78,7 +67,7 @@ const ManageList: React.FC = () => {
 		}
 	];
 	// 单条操作按钮配置
-	const buttonConfigItem = (text: [], record: {}) => {
+	const buttonConfigItem = (text: [], record: NodeType) => {
 		const { NodeId, Hostname, SshPort } = record;
 		return [
 			{
@@ -95,7 +84,7 @@ const ManageList: React.FC = () => {
 			}
 		];
 	};
-	const columns: ColumnsType<DataType> = [
+	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.name'),
 			dataIndex: 'Hostname',
@@ -192,7 +181,7 @@ const ManageList: React.FC = () => {
 		const {
 			Data: { ClusterList }
 		} = data;
-		const listData = ClusterList.map(item => {
+		const listData = ClusterList.map((item: ClusterType) => {
 			return {
 				value: item.ClusterId,
 				label: item.ClusterName
@@ -208,13 +197,13 @@ const ManageList: React.FC = () => {
 		const {
 			Data: { NodeWithComponentList }
 		} = data;
-		const listData = NodeWithComponentList.map(node => {
+		const listData = NodeWithComponentList.map((node: NodeWithComponent) => {
 			node.NodeDetail.ComponentName = node.ComponentName;
 			return node.NodeDetail;
 		});
 		setTableData(listData);
 	};
-	const handleChange = value => {
+	const handleChange = (value: string) => {
 		setSelectCluster(value);
 	};
 	useEffect(() => {
@@ -231,7 +220,7 @@ const ManageList: React.FC = () => {
 		getClusterList();
 	}, []);
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
 		}
 	};

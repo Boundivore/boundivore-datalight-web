@@ -26,22 +26,7 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
-
-interface DataType {
-	HasAlreadyNode: boolean;
-	ClusterId: number;
-	ClusterDesc: string;
-	ClusterName: string;
-	ClusterType: string;
-	ClusterState: string;
-	DlcVersion: string;
-	RelativeClusterId: number;
-}
-interface RecordType {
-	HasAlreadyNode: boolean;
-	ClusterName: string;
-	ClusterId: number;
-}
+import { ClusterType } from '@/api/interface';
 
 const Home: React.FC = () => {
 	const { t } = useTranslation();
@@ -60,7 +45,7 @@ const Home: React.FC = () => {
 		}
 	];
 	// 单条操作按钮配置
-	const buttonConfigItem = (text: string, record: RecordType) => {
+	const buttonConfigItem = (text: string, record: ClusterType) => {
 		const { HasAlreadyNode, ClusterName, ClusterId } = record;
 		return [
 			{
@@ -84,7 +69,7 @@ const Home: React.FC = () => {
 			}
 		];
 	};
-	const columns: ColumnsType<DataType> = [
+	const columns: ColumnsType<ClusterType> = [
 		{
 			title: t('cluster.name'),
 			dataIndex: 'ClusterName',

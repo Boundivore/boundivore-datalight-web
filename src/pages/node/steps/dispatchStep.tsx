@@ -24,17 +24,10 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
+import { NodeType } from '@/api/interface';
 
 const { Text } = Typography;
-interface DataType {
-	[x: string]: any;
-	NodeId: React.Key;
-	Hostname: string;
-	CpuCores: number;
-	CpuArch: string;
-	DiskTotal: string;
-	NodeState: string;
-}
+
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 const preStepName = 'PROCEDURE_CHECK';
 const stepName = 'PROCEDURE_DISPATCH';
@@ -45,7 +38,7 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.dispatchList;
 	const apiProgress = APIConfig.dispatchProgress;
-	const columns: ColumnsType<DataType> = [
+	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
@@ -110,13 +103,13 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		}
 	];
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(stepName, selectedRows);
 		},
 		defaultSelectedRowKeys: selectedRowsList[preStepName].map(({ NodeId }) => {
 			return NodeId;
 		}),
-		getCheckboxProps: (record: DataType) => ({
+		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
 	};

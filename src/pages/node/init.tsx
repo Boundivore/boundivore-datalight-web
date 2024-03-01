@@ -19,7 +19,6 @@
  * @author Tracy.Guo
  */
 import React, { useRef, forwardRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
@@ -43,7 +42,6 @@ import useNavigater from '@/hooks/useNavigater';
 const InitNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
 	const { stepCurrent } = useStore();
-	const [searchParams] = useSearchParams();
 	const { useStepEffect } = useStepLogic();
 	const { navigateToHome } = useNavigater();
 	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
@@ -54,10 +52,9 @@ const InitNode: React.FC = forwardRef(() => {
 	const startWorkerStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
-	const PreconfigStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const DeployStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const PreconfigStepRef = useRef<{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> }>(null);
+	const DeployStepRef = useRef(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
-	const id = searchParams.get('id');
 	const steps = [
 		{
 			title: t('node.parseHostname'),
@@ -104,46 +101,16 @@ const InitNode: React.FC = forwardRef(() => {
 			key: 10
 		}
 	];
-	const nextList = async () => {
-		const callbackData = await parseStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextDetect = async () => {
-		const callbackData = await parseListStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextCheck = async () => {
-		const callbackData = await detectStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextDispatch = async () => {
-		const callbackData = await checkStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextStartWorker = async () => {
-		const callbackData = await dispatchStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextAdd = async () => {
-		const callbackData = await startWorkerStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextComponent = async () => {
-		const callbackData = await selectServiceRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextPreconfig = async () => {
-		const callbackData = await selectComponentRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextDeploy = async () => {
-		const callbackData = await PreconfigStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const preview = async () => {
-		const callbackData = await PreconfigStepRef.current?.onFinish(true);
-		return callbackData;
-	};
+	const nextList = async () => await parseStepRef.current?.handleOk();
+	const nextDetect = async () => await parseListStepRef.current?.handleOk();
+	const nextCheck = async () => await detectStepRef.current?.handleOk();
+	const nextDispatch = async () => await checkStepRef.current?.handleOk();
+	const nextStartWorker = async () => await dispatchStepRef.current?.handleOk();
+	const nextAdd = async () => await startWorkerStepRef.current?.handleOk();
+	const nextComponent = async () => await selectServiceRef.current?.handleOk();
+	const nextPreconfig = async () => await selectComponentRef.current?.handleOk();
+	const nextDeploy = async () => await PreconfigStepRef.current?.handleOk();
+	const preview = async () => await PreconfigStepRef.current?.onFinish(true);
 
 	const stepConfig = [
 		{
@@ -216,7 +183,7 @@ const InitNode: React.FC = forwardRef(() => {
 		}
 	];
 	// 使用新的 Hook 中的 useEffect, 获取进度，定位到当前步骤
-	useStepEffect(id);
+	useStepEffect();
 	return (
 		<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
 			<Col span={6}>

@@ -31,25 +31,24 @@ import { useTranslation } from 'react-i18next';
 import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import { NodeType, NodeWithComponent } from '@/api/interface';
 
 interface NodeListModalProps {
 	isModalOpen: boolean;
-	handleOk: () => void;
+	handleOk: (list: NodeType[]) => void;
 	handleCancel: () => void;
 	component: [];
 }
-interface DataType {
-	Hostname: string;
-}
+
 const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component }) => {
 	const [tableData, setTableData] = useState([]);
-	const [selectedNodeList, setSelectedNodeList] = useState<DataType[]>([]);
+	const [selectedNodeList, setSelectedNodeList] = useState<NodeType[]>([]);
 	const { nodeList } = useComponentAndNodeStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { t } = useTranslation();
 
-	const columns: ColumnsType<DataType> = [
+	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
@@ -64,7 +63,7 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		}
 	];
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedNodeList(selectedRows);
 		},
 		defaultSelectedRowKeys: nodeList[id][component]?.map(({ NodeId }) => {
@@ -80,13 +79,13 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		const {
 			Data: { NodeWithComponentList }
 		} = data;
-		const listData = NodeWithComponentList.map(node => {
+		const listData = NodeWithComponentList.map((node: NodeWithComponent) => {
 			node.NodeDetail.ComponentName = node.ComponentName;
 			return node.NodeDetail;
 		});
 		setTableData(listData);
 	};
-	const selectRow = record => {
+	const selectRow = (record: NodeType) => {
 		const selectedRowKeys = [...selectedNodeList];
 		if (selectedRowKeys.indexOf(record.key) >= 0) {
 			selectedRowKeys.splice(selectedRowKeys.indexOf(record.key), 1);

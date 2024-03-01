@@ -24,17 +24,8 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
+import { NodeType, BadgeStatus } from '@/api/interface';
 
-interface DataType {
-	NodeId: string | number;
-	Hostname: string;
-	CpuCores: number;
-	CpuArch: string;
-	DiskTotal: string;
-	NodeState: string;
-	SshPort: number | string;
-}
-type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
 // const preStepName = 'PROCEDURE_DETECT';
 const stepName = 'PROCEDURE_CHECK';
 const nextStepName = 'PROCEDURE_DISPATCH';
@@ -49,7 +40,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const apiSpeed = APIConfig.checkList;
-	const columns: ColumnsType<DataType> = [
+	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
@@ -76,13 +67,13 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		}
 	];
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(nextStepName, selectedRows);
 		},
 		defaultSelectedRowKeys: selectedRowsList[stepName].map(({ NodeId }: any) => {
 			return NodeId;
 		}),
-		getCheckboxProps: (record: DataType) => ({
+		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
 	};
@@ -114,7 +105,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		setCurrentPageDisabled({ next: ExecStateEnum !== 'OK' && ExecStateEnum !== 'NOT_EXIST' });
 		return NodeInitDetailList;
 	};
-	const tableData: DataType[] = usePolling(getSpeed, stableState, 1000);
+	const tableData: NodeType[] = usePolling(getSpeed, stableState, 1000);
 	useEffect(() => {
 		setCurrentPageDisabled({ next: true });
 		// eslint-disable-next-line react-hooks/exhaustive-deps

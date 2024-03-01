@@ -24,11 +24,14 @@ export interface BackendResponse {
 	Timestamp: string;
 }
 /**
- * ClusterNewRequest
+ * ClusterType
  * @export
- * @interface ClusterNewRequest
+ * @interface ClusterType
  */
-export interface ClusterNewRequest {
+export interface ClusterType {
+	HasAlreadyNode: boolean;
+	ClusterId: number;
+	ClusterState: string;
 	ClusterDesc: string;
 	ClusterName: string;
 	ClusterType: ClusterNewRequestClusterTypeEnum;
@@ -44,3 +47,53 @@ export enum ClusterNewRequestClusterTypeEnum {
 	COMPUTE = 'COMPUTE',
 	MIXED = 'MIXED'
 }
+/**
+ * @export
+ * @interface ParseHostnameType 解析节点主机名
+ */
+export interface ParseHostnameType {
+	Hostname: string;
+	SshPort: string | number;
+}
+/**
+ * @export
+ * @interface NodeType 节点
+ */
+export interface NodeType {
+	[x: string]: any;
+	NodeId: string | number;
+	Hostname: string;
+	CpuCores: number;
+	CpuArch: string;
+	DiskTotal: string;
+	NodeState: string;
+	SshPort: number | string;
+}
+/**
+ * @export
+ * @interface NodeWithComponent 附带组件信息的节点
+ */
+export interface NodeWithComponent {
+	ComponentName: string[];
+	NodeDetail: NodeType;
+}
+/**
+ * @export
+ * @interface ServiceItemType 服务
+ */
+export interface ServiceItemType {
+	[x: string]: any;
+	ServiceType: string;
+	ServiceName: string;
+	SCStateEnum: string;
+	Desc: string;
+	DependencyList: string[];
+	Priority: number | string;
+	Version: string;
+	Tgz: string;
+}
+/**
+ * @export
+ * @type BadgeStatus 徽标状态
+ */
+export type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';

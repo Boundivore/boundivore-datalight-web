@@ -29,7 +29,8 @@ import useNavigater from '@/hooks/useNavigater';
 interface StepConfig {
 	title: string;
 	content: ReactElement;
-	nextStep?: Function;
+	nextStep?: () => string;
+	retry?: () => string;
 	hideInitButton?: boolean; // 是否隐藏初始化按钮，包括上一步、下一步、重试和取消
 	hideNext?: boolean; // 是否单独隐藏下一步按钮
 	operations?: {

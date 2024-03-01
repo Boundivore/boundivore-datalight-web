@@ -19,7 +19,6 @@
  * @author Tracy.Guo
  */
 import React, { useRef, forwardRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
@@ -38,7 +37,6 @@ const AddNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
 	const { useStepEffect } = useStepLogic();
 	const { stepCurrent } = useStore();
-	const [searchParams] = useSearchParams();
 	const { navigateToNodeList } = useNavigater();
 	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const initListStepRef = useRef<{ handleOk: () => void } | null>(null);
@@ -46,7 +44,6 @@ const AddNode: React.FC = forwardRef(() => {
 	const checkStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const dispatchStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const startWorkerStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const id = searchParams.get('id');
 	const steps = [
 		{
 			title: t('node.parseHostname'),
@@ -139,7 +136,7 @@ const AddNode: React.FC = forwardRef(() => {
 		}
 	];
 	//获取进度，定位到当前步骤
-	useStepEffect(id);
+	useStepEffect();
 	return (
 		<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
 			<Col span={6}>
