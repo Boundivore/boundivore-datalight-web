@@ -18,13 +18,11 @@
  * ParseStep - 解析节点主机名步骤, 第一步
  * @author Tracy.Guo
  */
-import { useEffect, useImperativeHandle } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useImperativeHandle, forwardRef } from 'react';
 import { Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
-import RequestHttp from '@/api';
-import APIConfig from '@/api/config';
-import useStore, { usePersistStore } from '@/store/store';
+import useStepLogic from '@/hooks/useStepLogic';
+import useStore from '@/store/store';
 import { ParseHostnameType } from '@/api/interface';
 
 const layout = {
@@ -35,65 +33,21 @@ const { TextArea } = Input;
 
 const stepName = 'parseStep';
 
-const ParseStep: React.ForwardRefRenderFunction<{ handleOk: () => void } | null, any> = (_props, ref) => {
+const ParseStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
-	const [searchParams] = useSearchParams();
 	const { setCurrentPageDisabled } = useStore();
-	const {
-		userInfo: { userId }
-	} = usePersistStore();
-	const id = searchParams.get('id');
+	const { useGetSepData, useSetStepData } = useStepLogic();
+	const { webState } = useGetSepData('', stepName);
 	const [form] = Form.useForm();
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
-	const handleOk = async () => {
-		// const api = APIConfig.parseHostname;
-		// try {
-		// 	const values = await form.validateFields();
-		// 	const { Hostname, SshPort } = values;
-		// 	const data = await RequestHttp.post(api, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
-		// 	const validData = data.Data.ValidHostnameList;
-		// 	return Promise.resolve(validData);
-		// } catch (error) {
-		// 	return Promise.reject(error);
-		// }
-		const api = APIConfig.webStateSave;
-		try {
-			const values = await form.validateFields();
-			const data = await RequestHttp.post(api, {
-				ClusterId: id,
-				UserId: userId,
-				WebKey: stepName,
-				WebValue: btoa(JSON.stringify(values))
-			});
-			return Promise.resolve(data.Code === '00000');
-		} catch (error) {
-			return Promise.reject(error);
-		}
-	};
-	const getWebState = async () => {
-		const api = APIConfig.webStateGet;
-		const params = {
-			ClusterId: id,
-			UserId: userId,
-			WebKey: stepName
-		};
-		const data = await RequestHttp.get(api, { params });
-		const {
-			Data: {
-				KVMap: { parseStep }
-			}
-		} = data;
-		form.setFieldsValue(JSON.parse(atob(parseStep)));
-		console.log(111, JSON.parse(atob(data.Data.KVMap.parseStep)));
-		// return Promise.resolve(data.Data);
-	};
+	const handleOk = useSetStepData(stepName, form, null);
 	useEffect(() => {
 		setCurrentPageDisabled({ next: false });
-		getWebState();
+		form.setFieldsValue(webState[stepName]);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [webState]);
 
 	return (
 		<Form form={form} name="basic" {...layout} style={{ maxWidth: 600 }} initialValues={{ SshPort: 22 }} autoComplete="off">
@@ -113,5 +67,5 @@ const ParseStep: React.ForwardRefRenderFunction<{ handleOk: () => void } | null,
 			</Form.Item>
 		</Form>
 	);
-};
+});
 export default ParseStep;

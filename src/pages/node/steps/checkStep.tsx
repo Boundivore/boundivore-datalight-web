@@ -14,6 +14,10 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+/**
+ * CheckStep - 第四步
+ * @author Tracy.Guo
+ */
 import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
@@ -24,22 +28,20 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
+import useStepLogic from '@/hooks/useStepLogic';
 import { NodeType, BadgeStatus } from '@/api/interface';
 
-// const preStepName = 'PROCEDURE_DETECT';
-const stepName = 'PROCEDURE_CHECK';
-const nextStepName = 'PROCEDURE_DISPATCH';
+const preStepName = 'detectStep'; // 当前步骤页面基于上一步的输入和选择生成
+const stepName = 'checkStep'; // 当前步骤结束时需要存储步骤数据
 const CheckStep: React.FC = forwardRef((_props, ref) => {
-	const { setJobNodeId, stateText, stableState, setCurrentPageDisabled } = useStore();
-	const [selectedRowsList, setSelectedRowsList] = useState([]);
-	// const initialWebStateFetched = useRef(false);
-	// const {
-	// 	userInfo: { userId }
-	// } = usePersistStore();
+	const { stateText, stableState, setCurrentPageDisabled } = useStore();
+	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
+	const [checkState, setCheckState] = useState(false);
+	const { useGetSepData, useSetStepData } = useStepLogic();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const apiSpeed = APIConfig.checkList;
+	const { webState, selectedList } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -66,50 +68,58 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 			render: () => <a> {t('node.viewLog')}</a>
 		}
 	];
+	useImperativeHandle(ref, () => ({
+		handleOk
+	}));
+	const handleOk = useSetStepData(stepName, null, selectedRowsList);
+	const check = async () => {
+		const apiCheck = APIConfig.check;
+		const params = {
+			ClusterId: id,
+			NodeActionTypeEnum: 'CHECK',
+			NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			SshPort: webState[preStepName][0].SshPort
+		};
+		const data = await RequestHttp.post(apiCheck, params);
+		setCheckState(data.Code === '00000');
+	};
+
+	const getList = async () => {
+		const apiList = APIConfig.checkList;
+		const params = {
+			ClusterId: id,
+			NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId }))
+		};
+		const data = await RequestHttp.post(apiList, params);
+		const {
+			Data: { ExecStateEnum, NodeInitDetailList }
+		} = data;
+		setCurrentPageDisabled({
+			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
+		});
+		return NodeInitDetailList;
+	};
+
+	useEffect(() => {
+		setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
+	}, [selectedRowsList, setCurrentPageDisabled]);
+	useEffect(() => {
+		//基于上一步的数据重新执行当前页面步骤
+		webState[preStepName] && check();
+		setSelectedRowsList(selectedList);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [webState]);
+	// check之后拉取得checkList
+	const tableData: NodeType[] = usePolling(getList, stableState, 1000, [checkState, webState]);
 	const rowSelection = {
+		selectedRowKeys: selectedRowsList.map(row => row.NodeId),
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
-			setSelectedRowsList(nextStepName, selectedRows);
+			setSelectedRowsList(selectedRows);
 		},
-		defaultSelectedRowKeys: selectedRowsList[stepName].map(({ NodeId }: any) => {
-			return NodeId;
-		}),
 		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 		})
 	};
-	useImperativeHandle(ref, () => ({
-		handleOk
-	}));
-	const handleOk = async () => {
-		const apiDispatch = APIConfig.dispatch;
-		const params = {
-			ClusterId: id,
-			NodeActionTypeEnum: 'DISPATCH',
-			NodeInfoList: selectedRowsList[stepName].map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
-			SshPort: tableData[0].SshPort
-		};
-		const jobData = await RequestHttp.post(apiDispatch, params);
-		setJobNodeId(jobData.Data.NodeJobId);
-		return Promise.resolve(jobData);
-	};
-
-	const getSpeed = async () => {
-		const params = {
-			ClusterId: id,
-			NodeInfoList: selectedRowsList[stepName].map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId }))
-		};
-		const data = await RequestHttp.post(apiSpeed, params);
-		const {
-			Data: { ExecStateEnum, NodeInitDetailList }
-		} = data;
-		setCurrentPageDisabled({ next: ExecStateEnum !== 'OK' && ExecStateEnum !== 'NOT_EXIST' });
-		return NodeInitDetailList;
-	};
-	const tableData: NodeType[] = usePolling(getSpeed, stableState, 1000);
-	useEffect(() => {
-		setCurrentPageDisabled({ next: true });
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 	return (
 		<Table
 			rowSelection={{

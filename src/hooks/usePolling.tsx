@@ -23,7 +23,12 @@ import { useEffect, useState, useRef } from 'react';
 import { pollRequest } from '@/utils/helper';
 import { NodeType } from '@/api/interface';
 
-const usePolling = (fetchData: () => Promise<NodeType[]>, stableStates: string[], interval: number): NodeType[] => {
+const usePolling = (
+	fetchData: () => Promise<NodeType[]>,
+	stableStates: string[],
+	interval: number,
+	dependency: any[]
+): NodeType[] => {
 	const [data, setData] = useState<NodeType[]>([]);
 	const stopPollingRef = useRef<Function>();
 
@@ -39,7 +44,7 @@ const usePolling = (fetchData: () => Promise<NodeType[]>, stableStates: string[]
 			}
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, dependency);
 
 	return data;
 };

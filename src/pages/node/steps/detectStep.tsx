@@ -23,7 +23,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
-import useStore, { usePersistStore } from '@/store/store';
+import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
@@ -32,20 +32,18 @@ import useStepLogic from '@/hooks/useStepLogic';
 import { NodeType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'parseList'; // 当前步骤页面基于上一步的输入和选择生成
-const stepName = 'detectStep';
+const stepName = 'detectStep'; // 当前步骤结束时需要存储步骤数据
+
 const DetectStep: React.FC = memo(
 	forwardRef((_props, ref) => {
 		const { stateText, stableState, setCurrentPageDisabled } = useStore();
 		const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
-		const { useGetSepData } = useStepLogic();
-		const {
-			userInfo: { userId }
-		} = usePersistStore();
+		const [detectState, setDetectState] = useState(false);
+		const { useGetSepData, useSetStepData } = useStepLogic();
+		const { webState, selectedList } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
 		const { t } = useTranslation();
 		const [searchParams] = useSearchParams();
 		const id = searchParams.get('id');
-		const apiSpeed = APIConfig.detectList;
-		// let preStepSelectList = [];
 		const columns: ColumnsType<NodeType> = [
 			{
 				title: t('node.node'),
@@ -63,57 +61,23 @@ const DetectStep: React.FC = memo(
 				render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 			}
 		];
-		const rowSelection = {
-			selectedRowKeys: selectedRowsList.map(row => row.Hostname),
-			onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
-				setSelectedRowsList(selectedRows);
-			},
-			getCheckboxProps: (record: NodeType) => ({
-				disabled: record.NodeState === 'INACTIVE' // 状态不是ACTIVE不可选
-			})
-		};
 		useImperativeHandle(ref, () => ({
 			handleOk
 		}));
-		const handleOk = async () => {
-			// const apiCheck = APIConfig.check;
-			// const params = {
-			// 	ClusterId: id,
-			// 	NodeActionTypeEnum: 'CHECK',
-			// 	NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			// 	SshPort: tableData[0].SshPort
-			// };
-			// const jobData = await RequestHttp.post(apiCheck, params);
-			// setSelectedRowsList(selectedRowsList);
-			// return Promise.resolve(jobData);
-			const api = APIConfig.webStateSave;
-			try {
-				const values = selectedRowsList;
-				const data = await RequestHttp.post(api, {
-					ClusterId: id,
-					UserId: userId,
-					WebKey: stepName,
-					WebValue: btoa(JSON.stringify(values))
-				});
-				return Promise.resolve(data.Code === '00000');
-			} catch (error) {
-				return Promise.reject(error);
-			}
-		};
-		const detect = async (initNodeData: NodeType[]) => {
+		const handleOk = useSetStepData(stepName, null, selectedRowsList);
+		const detect = async () => {
 			const apiDetect = APIConfig.detect;
 			const params3 = {
 				ClusterId: id,
 				NodeActionTypeEnum: 'DETECT',
-				NodeInfoList: initNodeData.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-				SshPort: initNodeData[0].SshPort
+				NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+				SshPort: webState[preStepName][0].SshPort
 			};
-			await RequestHttp.post(apiDetect, params3);
-			return Promise.resolve();
+			const data = await RequestHttp.post(apiDetect, params3);
+			setDetectState(data.Code === '00000');
 		};
-		const { webState, selectedList } = useGetSepData(preStepName, stepName);
-		detect(webState[preStepName]);
-		const getSpeed = async (selectedList: NodeType[]) => {
+		const getList = async (selectedList: NodeType[]) => {
+			const apiSpeed = APIConfig.detectList;
 			const params = {
 				ClusterId: id,
 				NodeInfoList: selectedList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
@@ -125,16 +89,29 @@ const DetectStep: React.FC = memo(
 			setCurrentPageDisabled({
 				next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
 			});
-			// 用不等于INACTIVE作为过滤条件，而不是等于ACTIVE，因为可能从后边流程退回到这一步，状态不是ACTIVE
-			setSelectedRowsList(NodeInitDetailList.filter((row: NodeType) => row.NodeState !== 'INACTIVE')); // 更新选中项数据
+			// 过滤掉不可用数据
+			setSelectedRowsList(NodeInitDetailList.filter((row: NodeType) => row.NodeState === 'ACTIVE'));
 			return NodeInitDetailList;
 		};
-		const tableData = usePolling(() => getSpeed(selectedList), stableState, 1000);
-		useEffect(() => {
-			setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
-			// getSpeed();
-		}, [selectedRowsList, setCurrentPageDisabled]);
+		const tableData = usePolling(() => getList(webState[preStepName]), stableState, 1000, [detectState, webState]);
 
+		useEffect(() => {
+			webState[preStepName] && detect();
+			// 拉去存储的选中项，可能是上一步，也可能是下一步，因此不能只在getList中设定
+			setSelectedRowsList(selectedList.filter((row: NodeType) => row.NodeState === 'ACTIVE'));
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, [webState]);
+
+		const rowSelection = {
+			selectedRowKeys: selectedRowsList.map(row => row.Hostname),
+			onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
+				setSelectedRowsList(selectedRows);
+				setCurrentPageDisabled({ next: selectedRows.length === 0 });
+			},
+			getCheckboxProps: (record: NodeType) => ({
+				disabled: record.NodeState === 'INACTIVE' // 状态不是ACTIVE不可选
+			})
+		};
 		return (
 			<Table
 				rowSelection={{

@@ -14,30 +14,40 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { forwardRef, useImperativeHandle, useEffect } from 'react';
+/**
+ * DispatchStep - 第五步
+ * @author Tracy.Guo
+ */
+import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Progress, Space, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
-import useStore from '@/store/store';
+import useStore, { usePersistStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
+import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import { NodeType } from '@/api/interface';
 
 const { Text } = Typography;
 
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
-const preStepName = 'PROCEDURE_CHECK';
-const stepName = 'PROCEDURE_DISPATCH';
+const preStepName = 'checkStep'; // 当前步骤页面基于上一步的输入和选择生成
+const stepName = 'dispatchStep'; // 当前步骤结束时需要存储步骤数据
 const DispatchStep: React.FC = forwardRef((_props, ref) => {
-	const { jobNodeId, selectedRowsList, setSelectedRowsList, stableState, setCurrentPageDisabled } = useStore();
+	const { jobNodeId, setJobNodeId, stableState, setCurrentPageDisabled } = useStore();
+	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
+	const [dispatchState, setDispatchState] = useState(false);
+	const { useGetSepData } = useStepLogic();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const apiSpeed = APIConfig.dispatchList;
-	const apiProgress = APIConfig.dispatchProgress;
+	const {
+		userInfo: { userId }
+	} = usePersistStore();
+	const { webState, selectedList } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -102,38 +112,49 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 			render: (text: string, record) => <ItemConfigInfo text={text} record={record} />
 		}
 	];
-	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
-			setSelectedRowsList(stepName, selectedRows);
-		},
-		defaultSelectedRowKeys: selectedRowsList[preStepName].map(({ NodeId }) => {
-			return NodeId;
-		}),
-		getCheckboxProps: (record: NodeType) => ({
-			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
-		})
-	};
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
 	const handleOk = async () => {
-		const apiStartWorker = APIConfig.startWorker;
-		const params = {
-			ClusterId: id,
-			NodeActionTypeEnum: 'START_WORKER',
-			NodeInfoList: selectedRowsList[stepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: tableData[0].SshPort
-		};
-		const jobData = await RequestHttp.post(apiStartWorker, params);
-		return Promise.resolve(jobData);
+		const api = APIConfig.webStateSave;
+		try {
+			const values = selectedRowsList;
+			const data = await RequestHttp.post(api, {
+				ClusterId: id,
+				UserId: userId,
+				WebKey: stepName,
+				WebValue: btoa(JSON.stringify(values))
+			});
+			return Promise.resolve(data.Code === '00000');
+		} catch (error) {
+			return Promise.reject(error);
+		}
 	};
 
-	const getSpeed = async () => {
+	const dispatch = async () => {
+		const apiDispatch = APIConfig.dispatch;
 		const params = {
 			ClusterId: id,
-			NodeInfoList: selectedRowsList[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+			NodeActionTypeEnum: 'DISPATCH',
+			NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
+			SshPort: webState[preStepName][0].SshPort
 		};
-		const data = await RequestHttp.post(apiSpeed, params);
+		const {
+			Code,
+			Data: { NodeJobId }
+		} = await RequestHttp.post(apiDispatch, params);
+		setJobNodeId(NodeJobId);
+		setDispatchState(Code === '00000');
+	};
+
+	const getList = async () => {
+		const apiList = APIConfig.dispatchList;
+		const apiProgress = APIConfig.dispatchProgress;
+		const params = {
+			ClusterId: id,
+			NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+		};
+		const data = await RequestHttp.post(apiList, params);
 		const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });
 		const {
 			Data: { ExecStateEnum, NodeInitDetailList }
@@ -150,15 +171,34 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 				return item1;
 			}
 		});
-		setCurrentPageDisabled({ next: ExecStateEnum !== 'OK' && ExecStateEnum !== 'NOT_EXIST' });
+		setCurrentPageDisabled({
+			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
+		});
+		// 用不等于INACTIVE作为过滤条件，而不是等于ACTIVE，因为可能从后边流程退回到这一步，状态不是ACTIVE
+		// setSelectedRowsList(NodeInitDetailList.filter((row: NodeType) => row.NodeState !== 'INACTIVE')); // 更新选中项数据
 		return mergedData;
 	};
 
-	const tableData = usePolling(getSpeed, stableState, 1000);
 	useEffect(() => {
-		setCurrentPageDisabled({ next: true });
+		setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
+	}, [selectedRowsList, setCurrentPageDisabled]);
+	useEffect(() => {
+		//基于上一步的数据重新执行当前页面步骤
+		webState[preStepName] && dispatch();
+		setSelectedRowsList(selectedList);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [webState, selectedList]);
+	// dispatch之后拉取得dispatchList
+	const tableData = usePolling(getList, stableState, 1000, [dispatchState, webState]);
+	const rowSelection = {
+		selectedRowKeys: selectedRowsList.map(row => row.NodeId),
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
+			setSelectedRowsList(selectedRows);
+		},
+		getCheckboxProps: (record: NodeType) => ({
+			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+		})
+	};
 	return (
 		<Table
 			rowSelection={{

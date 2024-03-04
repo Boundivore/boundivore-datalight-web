@@ -60,42 +60,65 @@ const useStepLogic = (step: number = 0) => {
 		}, []);
 	};
 	// 获取当前步骤数据
-	const useGetSepData = (preStepName: string, stepName: string) => {
+	const useGetSepData = (preStepName: string = '', stepName: string) => {
 		const [webState, setWebState] = useState<NodeDataType>({});
 		const [selectedList, setSelectedList] = useState<NodeType[]>([]);
 		const getWebState = async (preStepName: string, stepName: string) => {
 			const api = APIConfig.webStateGet;
 			const params = {
 				ClusterId: id,
-				UserId: userId,
-				WebKey: preStepName
+				UserId: userId
 			};
 			const data = await RequestHttp.get(api, { params });
 			const {
-				Data: { KVMap }
+				Data: { KVMap },
+				Code
 			} = data;
-			// TODO 接口没问题之后，合并
-			const params2 = {
-				ClusterId: id,
-				UserId: userId,
-				WebKey: stepName
-			};
-			const data2 = await RequestHttp.get(api, { params: params2 });
 			// 如果当前步骤有数据说明之前操作过，则按当前步骤的数据显示选中节点，如果之前没有，则默认选中上一步选择的节点
-			if (data2.Code === '00000') {
-				setSelectedList(JSON.parse(atob(data2.Data.KVMap[stepName])));
-			} else {
-				setSelectedList(JSON.parse(atob(KVMap[preStepName])));
+			if (Code === '00000') {
+				KVMap[stepName]
+					? setSelectedList(JSON.parse(atob(KVMap[stepName])))
+					: setSelectedList(JSON.parse(atob(KVMap[preStepName])));
 			}
-			setWebState({ [preStepName]: JSON.parse(atob(KVMap[preStepName])) });
+			preStepName && setWebState({ [preStepName]: JSON.parse(atob(KVMap[preStepName])) });
 		};
 		useEffect(() => {
 			getWebState(preStepName, stepName);
 		}, [preStepName, stepName]);
 		return { webState, selectedList };
 	};
+	// 设置当前步骤数据
+	const useSetStepData = (stepName: string, form: { validateFields: () => any } | null, selectedRowsList: NodeType[] | null) => {
+		const setStepState = async () => {
+			let values;
+			if (form) {
+				// 如果传入了form，则通过表单验证获取values
+				values = await form.validateFields();
+			} else if (selectedRowsList) {
+				// 如果传入了selectedRowsList，则直接使用这个值
+				values = selectedRowsList;
+			} else {
+				// 如果两者都没有，抛出错误或做其他处理
+				throw new Error('No values provided for saving state');
+			}
 
-	return { useStepEffect, useGetSepData };
+			const api = APIConfig.webStateSave;
+			try {
+				const data = await RequestHttp.post(api, {
+					ClusterId: id,
+					UserId: userId,
+					WebKey: stepName,
+					WebValue: btoa(JSON.stringify(values))
+				});
+				return Promise.resolve(data.Code === '00000');
+			} catch (error) {
+				return Promise.reject(error);
+			}
+		};
+		return setStepState;
+	};
+
+	return { useStepEffect, useGetSepData, useSetStepData };
 };
 
 export default useStepLogic;

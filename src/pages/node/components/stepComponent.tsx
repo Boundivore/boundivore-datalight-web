@@ -49,6 +49,7 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 	const { navigateToClusterList } = useNavigater();
 	const { stepCurrent, setStepCurrent, currentPageDisabled } = useStore();
 	const { next: nextDisabled } = currentPageDisabled;
+	console.log(99999, nextDisabled);
 	const stepConfig = config[stepCurrent];
 	const next = async () => {
 		// 不配置nextStep，默认进入下一步页面
@@ -71,15 +72,27 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 		// setStepCurrent(stepCurrent - 1);
 	};
 	const cancel = async () => {
-		const api = APIConfig.removeProcedure;
+		const apiRemove = APIConfig.removeProcedure;
+		const apiClear = APIConfig.webStateClear;
 		const params = {
 			ClusterId: id
 		};
-		const data = await RequestHttp.post(api, params);
-		const { Code } = data;
-		(Code === '00000' || Code === 'D1001') && navigateToClusterList();
-	};
 
+		// 同时发起两个请求
+		const [removeResponse, clearResponse] = await Promise.all([
+			RequestHttp.post(apiRemove, params),
+			RequestHttp.post(apiClear, params)
+		]);
+
+		// 分别从两个响应中提取 Code
+		const { Code: removeCode } = removeResponse;
+		const { Code: clearCode } = clearResponse;
+
+		// 检查 Code，如果满足条件，则导航到集群列表
+		if ((removeCode === '00000' || removeCode === 'D1001') && clearCode === '00000') {
+			navigateToClusterList();
+		}
+	};
 	return (
 		<>
 			<Card className="h-full" title={stepConfig.title}>
@@ -103,7 +116,11 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 										{t('retry')}
 									</Button>
 								)}
-								{stepCurrent > 0 && stepCurrent < config.length - 1 && <Button onClick={prev}>{t('previous')}</Button>}
+								{stepCurrent > 0 && stepCurrent < config.length - 1 && (
+									<Button onClick={prev} disabled={nextDisabled}>
+										{t('previous')}
+									</Button>
+								)}
 								{stepCurrent < config.length - 1 && !stepConfig.hideNext && (
 									<Button type="primary" onClick={next} disabled={nextDisabled}>
 										{t('next')}

@@ -25,7 +25,7 @@ import { Table, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import useStore, { usePersistStore } from '@/store/store';
+import useStore from '@/store/store';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
@@ -36,15 +36,14 @@ const stepName = 'parseList';
 
 const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
-	const {
-		userInfo: { userId }
-	} = usePersistStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { stateText, stableState, setCurrentPageDisabled } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
-	const [initialWebStateFetched, setInitialWebStateFetched] = useState(false);
-	const { useGetSepData } = useStepLogic();
+	const [defaultRowsList, setDefaultRowsList] = useState<NodeType[]>([]);
+	const [parseState, setParseState] = useState(false);
+	const { useGetSepData, useSetStepData } = useStepLogic();
+	const { webState, selectedList } = useGetSepData(preStepName, stepName);
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -63,11 +62,14 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		}
 	];
 	const rowSelection = {
-		selectedRowKeys: selectedRowsList.map(row => {
-			return row.Hostname;
-		}),
+		selectedRowKeys: defaultRowsList.length
+			? defaultRowsList.map(row => {
+					return row.Hostname;
+			  })
+			: [],
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
+			setDefaultRowsList(selectedRows);
 		},
 		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
@@ -75,11 +77,6 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	};
 
 	const getState = async () => {
-		// getWebState只执行一次，不参与轮询
-		if (!initialWebStateFetched) {
-			await getWebState(webState, selectedList);
-			setInitialWebStateFetched(true);
-		}
 		const apiState = APIConfig.nodeInitList;
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
 		const {
@@ -90,46 +87,32 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		});
 		return NodeInitDetailList;
 	};
-	const tableData: NodeType[] = usePolling(getState, stableState, 1000);
-
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
-	const handleOk = async () => {
-		// const apiDetect = APIConfig.detect;
-		// const params = {
-		// 	ClusterId: id,
-		// 	NodeActionTypeEnum: 'DETECT',
-		// 	NodeInfoList: selectedRowsList[nextStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-		// 	SshPort: tableData[0].SshPort
-		// };
-		// const jobData = await RequestHttp.post(apiDetect, params);
-		// return Promise.resolve(jobData);
-		const api = APIConfig.webStateSave;
-		try {
-			const values = selectedRowsList;
-			const data = await RequestHttp.post(api, {
-				ClusterId: id,
-				UserId: userId,
-				WebKey: stepName,
-				WebValue: btoa(JSON.stringify(values))
-			});
-			return Promise.resolve(data.Code === '00000');
-		} catch (error) {
-			return Promise.reject(error);
-		}
-	};
-	const { webState, selectedList } = useGetSepData(preStepName, stepName);
+	const handleOk = useSetStepData(stepName, null, selectedRowsList);
 
-	const getWebState = async (webState: { [key: string]: NodeType[] | ParseHostnameType }, selectedList: NodeType[]) => {
-		setSelectedRowsList(selectedList);
+	const parseHostname = async (webState: { [key: string]: NodeType[] | ParseHostnameType }, selectedList: NodeType[]) => {
+		setDefaultRowsList(selectedList);
 		const apiParse = APIConfig.parseHostname;
 		const { Hostname, SshPort } = webState[preStepName] as ParseHostnameType;
-		await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
+		const data = await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
+		setParseState(data.Code === '00000');
 	};
 	useEffect(() => {
 		setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
 	}, [selectedRowsList, setCurrentPageDisabled]);
+	useEffect(() => {
+		webState[preStepName] && parseHostname(webState, selectedList);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [webState]);
+	const tableData: NodeType[] = usePolling(getState, stableState, 1000, [parseState]);
+	useEffect(() => {
+		if (defaultRowsList.length) {
+			const defaultSelectedRows = tableData.filter(data => defaultRowsList.some(obj => obj.Hostname === data.Hostname));
+			setSelectedRowsList(defaultSelectedRows);
+		}
+	}, [tableData, defaultRowsList]);
 
 	return (
 		<Table

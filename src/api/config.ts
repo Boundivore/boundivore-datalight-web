@@ -69,7 +69,8 @@ const APIConfig: Actions = {
 	saveByGroup: '/v1/master/config/saveByGroup',
 	//前端状态缓存相关
 	webStateGet: '/v1/master/web/state/get',
-	webStateSave: '/v1/master/web/state/save'
+	webStateSave: '/v1/master/web/state/save',
+	webStateClear: '/v1/master/web/state/clearByClusterId'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];
