@@ -33,10 +33,12 @@ const usePolling = (
 	const stopPollingRef = useRef<Function>();
 
 	useEffect(() => {
-		const callback = (stateData: NodeType[]) => {
-			setData(stateData);
-		};
-		stopPollingRef.current = pollRequest(fetchData, callback, stableStates, interval);
+		if (dependency[0]) {
+			const callback = (stateData: NodeType[]) => {
+				setData(stateData);
+			};
+			stopPollingRef.current = pollRequest(fetchData, callback, stableStates, interval);
+		}
 
 		return () => {
 			if (stopPollingRef.current) {

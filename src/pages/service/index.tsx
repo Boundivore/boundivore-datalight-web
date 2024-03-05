@@ -25,14 +25,7 @@ import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
-
-interface DataType {
-	Desc: string;
-	ServiceName: string;
-	ServiceType: string;
-	SCStateEnum: string;
-	ComponentNodeList: [];
-}
+import { ClusterType, ServiceItemType } from '@/api/interface';
 
 const ServiceManage: React.FC = () => {
 	const { t } = useTranslation();
@@ -44,7 +37,7 @@ const ServiceManage: React.FC = () => {
 	// const { modal } = App.useApp();
 
 	// 单条操作按钮配置
-	const buttonConfigItem = (record: DataType) => {
+	const buttonConfigItem = (record: ServiceItemType) => {
 		const { ServiceName } = record;
 		return [
 			{
@@ -62,7 +55,7 @@ const ServiceManage: React.FC = () => {
 			}
 		];
 	};
-	const columns: ColumnsType<DataType> = [
+	const columns: ColumnsType<ServiceItemType> = [
 		{
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceName',
@@ -109,8 +102,15 @@ const ServiceManage: React.FC = () => {
 			};
 		});
 		setLoading(false);
-		setDefaultSelectValue(listData[0].value);
 		setSelectData(listData);
+		const currentViewCluster = ClusterList.find((cluster: ClusterType) => cluster.IsCurrentView === true);
+		if (currentViewCluster) {
+			// 如果找到了，设置setSelectCluster为该项的ClusterId
+			setDefaultSelectValue(currentViewCluster.ClusterId);
+		} else {
+			// 如果没有找到，则使用第一项的ClusterId
+			ClusterList.length > 0 ? setDefaultSelectValue(ClusterList[0].ClusterId) : setDefaultSelectValue(''); // 确保数组不为空
+		}
 		// getNodeList(id);
 	};
 	const getServiceList = async (id: string | number) => {

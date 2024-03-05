@@ -37,6 +37,7 @@ export interface ClusterType {
 	ClusterType: ClusterNewRequestClusterTypeEnum;
 	DlcVersion: string;
 	RelativeClusterId: number;
+	IsCurrentView: boolean;
 }
 
 /**

@@ -18,7 +18,7 @@
  * PreconfigStep - 预配置步骤
  * @author Tracy.Guo
  */
-import React, { useImperativeHandle, useEffect, useState, useRef } from 'react';
+import React, { useImperativeHandle, useEffect, useState, useRef, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input, Collapse, Col, Button, Space } from 'antd';
 import { DoubleRightOutlined } from '@ant-design/icons';
@@ -29,17 +29,15 @@ import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import DeployOverviewModal from '../components/deployOverviewModal';
+import { ServiceItemType } from '@/api/interface';
 
 const layout = {
 	labelCol: { span: 8 },
 	wrapperCol: { span: 16 }
 };
-const PreconfigStep: React.ForwardRefRenderFunction<
-	{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> },
-	any
-> = (_props, ref) => {
+const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
-	const [serviceList, setServiceList] = useState([]);
+	const [serviceList, setServiceList] = useState<ServiceItemType[]>([]);
 	const [items, setItems] = useState([]);
 	const [keys, setKeys] = useState<string[]>([]);
 	const [cachedKeys, setCachedKeys] = useState<string[]>([]);
@@ -119,7 +117,7 @@ const PreconfigStep: React.ForwardRefRenderFunction<
 			Data: { ConfigPreServiceList }
 		} = data;
 		setServiceList(ConfigPreServiceList);
-		ConfigPreServiceList.map(service => {
+		ConfigPreServiceList.map((service: ServiceItemType) => {
 			serviceNameList.current.push(service.ServiceName);
 		});
 	};
@@ -176,5 +174,5 @@ const PreconfigStep: React.ForwardRefRenderFunction<
 			{isModalOpen ? <DeployOverviewModal isModalOpen={isModalOpen} handleCancel={handleModalCancel} /> : null}
 		</>
 	);
-};
+});
 export default PreconfigStep;

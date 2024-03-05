@@ -33,6 +33,7 @@ import DoneStep from './steps/doneStep';
 import SelectServiceStep from './steps/selectServiceStep';
 import SelectComStep from './steps/selectComStep';
 import PreconfigStep from './steps/preconfigStep';
+import PreviewconfigStep from './steps/previewconfigStep';
 import DeployStep from './steps/deployStep';
 import useStepLogic from '@/hooks/useStepLogic';
 import useNavigater from '@/hooks/useNavigater';
@@ -42,8 +43,9 @@ import useNavigater from '@/hooks/useNavigater';
 const InitNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
 	const { stepCurrent } = useStore();
-	const { useStepEffect } = useStepLogic();
+	const { useStepEffect, useClearStepData } = useStepLogic();
 	const { navigateToHome } = useNavigater();
+	const clearData = useClearStepData();
 	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const parseListStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const detectStepRef = useRef<{ handleOk: () => void } | null>(null);
@@ -53,6 +55,7 @@ const InitNode: React.FC = forwardRef(() => {
 	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
 	const PreconfigStepRef = useRef<{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> }>(null);
+	const PreviewconfigStepRef = useRef<{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> }>(null);
 	const DeployStepRef = useRef(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
 	const steps = [
@@ -97,11 +100,16 @@ const InitNode: React.FC = forwardRef(() => {
 			key: 9
 		},
 		{
-			title: t('service.deployStep'),
+			title: t('service.deployOverview'),
 			key: 10
+		},
+		{
+			title: t('service.deployStep'),
+			key: 11
 		}
 	];
 	const nextList = async () => await parseStepRef.current?.handleOk();
+	const retryList = async () => await parseStepRef.current?.parseHostname();
 	const nextDetect = async () => await parseListStepRef.current?.handleOk();
 	const nextCheck = async () => await detectStepRef.current?.handleOk();
 	const nextDispatch = async () => await checkStepRef.current?.handleOk();
@@ -110,20 +118,19 @@ const InitNode: React.FC = forwardRef(() => {
 	const nextComponent = async () => await selectServiceRef.current?.handleOk();
 	const nextPreconfig = async () => await selectComponentRef.current?.handleOk();
 	const nextDeploy = async () => await PreconfigStepRef.current?.handleOk();
-	const preview = async () => await PreconfigStepRef.current?.onFinish(true);
+	// const preview = async () => await PreconfigStepRef.current?.onFinish(true);
 
 	const stepConfig = [
 		{
 			title: t('node.parseHostname'),
 			content: <ParseStep ref={parseStepRef} />,
-			nextStep: nextList,
-			retry: nextList
+			nextStep: nextList
 		},
 		{
 			title: t('node.chooseHostname'),
 			content: <ParseList ref={parseListStepRef} />,
 			nextStep: nextDetect,
-			retry: nextList
+			retry: retryList
 		},
 		{
 			title: t('node.detect'),
@@ -143,7 +150,8 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('node.startWorker'),
 			content: <StartWorkerStep ref={startWorkerStepRef} />,
-			nextStep: nextAdd
+			nextStep: nextAdd,
+			nextText: t('node.addNodeToCluster')
 		},
 		{
 			title: t('node.add'),
@@ -157,7 +165,8 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('service.selectService'),
 			content: <SelectServiceStep ref={selectServiceRef} />,
-			nextStep: nextComponent
+			nextStep: nextComponent,
+			hideRetry: true
 		},
 		{
 			title: t('service.selectComponent'),
@@ -168,18 +177,31 @@ const InitNode: React.FC = forwardRef(() => {
 			title: t('service.preConfig'),
 			content: <PreconfigStep ref={PreconfigStepRef} />,
 			nextStep: nextDeploy,
-			hideInitButton: true,
-			operations: [
-				{ label: t('preview'), callback: preview },
-				{ label: t('startDeploy') } // 不传callback默认进行一下步
-			]
+			// hideInitButton: true,
+			nextText: t('preview')
+			// operations: [{ label: t('preview'), callback: preview }]
+		},
+		{
+			title: t('service.preConfig'),
+			content: <PreviewconfigStep ref={PreviewconfigStepRef} />,
+			nextStep: nextDeploy,
+			// hideInitButton: true,
+			nextText: t('preview')
+			// operations: [{ label: t('preview'), callback: preview }]
 		},
 		{
 			title: t('service.deployStep'),
 			content: <DeployStep ref={DeployStepRef} />,
-			operations: [{ label: t('backHome'), callback: navigateToHome }],
+			operations: [
+				{
+					label: t('backHome'),
+					callback: () => {
+						clearData();
+						navigateToHome();
+					}
+				}
+			],
 			hideNext: true
-			// nextStep: nextComponent
 		}
 	];
 	// 使用新的 Hook 中的 useEffect, 获取进度，定位到当前步骤

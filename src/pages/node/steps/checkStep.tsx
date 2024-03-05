@@ -23,6 +23,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
+import _ from 'lodash';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -77,8 +78,8 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'CHECK',
-			NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: webState[preStepName][0].SshPort
+			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			SshPort: (webState[preStepName] as NodeType[])[0].SshPort
 		};
 		const data = await RequestHttp.post(apiCheck, params);
 		setCheckState(data.Code === '00000');
@@ -88,7 +89,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		const apiList = APIConfig.checkList;
 		const params = {
 			ClusterId: id,
-			NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId }))
+			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(apiList, params);
 		const {
@@ -97,16 +98,21 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		setCurrentPageDisabled({
 			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
 		});
+		setSelectedRowsList(selectedList);
+		// selectedList和NodeInitDetailList取交集，并过滤掉不可用数据，只选中状态为CHECK_OK的进行下一步
+		// selectedList为计算了上一步和下一步的选中项，NodeInitDetailList用来获取最新状态
+		const intersection = _.intersectionWith(
+			NodeInitDetailList,
+			selectedList,
+			(obj1: NodeType, obj2) => obj1.Hostname === obj2.Hostname
+		);
+		setSelectedRowsList(intersection.filter((row: NodeType) => row.NodeState === 'CHECK_OK'));
 		return NodeInitDetailList;
 	};
 
 	useEffect(() => {
-		setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
-	}, [selectedRowsList, setCurrentPageDisabled]);
-	useEffect(() => {
 		//基于上一步的数据重新执行当前页面步骤
 		webState[preStepName] && check();
-		setSelectedRowsList(selectedList);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState]);
 	// check之后拉取得checkList
@@ -115,6 +121,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		selectedRowKeys: selectedRowsList.map(row => row.NodeId),
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
+			setCurrentPageDisabled({ next: selectedRows.length === 0 });
 		},
 		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked

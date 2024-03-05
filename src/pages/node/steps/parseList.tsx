@@ -40,7 +40,6 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	const id = searchParams.get('id');
 	const { stateText, stableState, setCurrentPageDisabled } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
-	const [defaultRowsList, setDefaultRowsList] = useState<NodeType[]>([]);
 	const [parseState, setParseState] = useState(false);
 	const { useGetSepData, useSetStepData } = useStepLogic();
 	const { webState, selectedList } = useGetSepData(preStepName, stepName);
@@ -61,59 +60,57 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		}
 	];
-	const rowSelection = {
-		selectedRowKeys: defaultRowsList.length
-			? defaultRowsList.map(row => {
-					return row.Hostname;
-			  })
-			: [],
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
-			setSelectedRowsList(selectedRows);
-			setDefaultRowsList(selectedRows);
-		},
-		getCheckboxProps: (record: NodeType) => ({
-			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
-		})
-	};
 
-	const getState = async () => {
+	const getList = async () => {
 		const apiState = APIConfig.nodeInitList;
 		const data = await RequestHttp.get(apiState, { params: { ClusterId: id } });
 		const {
 			Data: { ExecStateEnum, NodeInitDetailList }
 		} = data;
 		setCurrentPageDisabled({
-			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
+			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND' || selectedList.length === 0
 		});
 		return NodeInitDetailList;
 	};
 	useImperativeHandle(ref, () => ({
-		handleOk
+		handleOk,
+		parseHostname
 	}));
 	const handleOk = useSetStepData(stepName, null, selectedRowsList);
 
-	const parseHostname = async (webState: { [key: string]: NodeType[] | ParseHostnameType }, selectedList: NodeType[]) => {
-		setDefaultRowsList(selectedList);
+	const parseHostname = async () => {
 		const apiParse = APIConfig.parseHostname;
 		const { Hostname, SshPort } = webState[preStepName] as ParseHostnameType;
 		const data = await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
 		setParseState(data.Code === '00000');
+		return Promise.resolve(data.Code === '00000');
 	};
+
 	useEffect(() => {
-		setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
-	}, [selectedRowsList, setCurrentPageDisabled]);
-	useEffect(() => {
-		webState[preStepName] && parseHostname(webState, selectedList);
+		webState[preStepName] && parseHostname();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState]);
-	const tableData: NodeType[] = usePolling(getState, stableState, 1000, [parseState]);
+	const tableData: NodeType[] = usePolling(getList, stableState, 1000, [parseState]);
 	useEffect(() => {
-		if (defaultRowsList.length) {
-			const defaultSelectedRows = tableData.filter(data => defaultRowsList.some(obj => obj.Hostname === data.Hostname));
-			setSelectedRowsList(defaultSelectedRows);
+		// parse重新生成的tableData与下一步会退回来选中项defaultRowsList 是不同的数据，只是Hostname相同
+		// 所以 需要整合两部分数据，作为最终的selectedRowsList
+		// 这里和其他步骤不同，其他步骤不涉及到重新parse
+		// 同时，需要过滤掉不可用的状态
+		if (selectedList.length) {
+			const mergeSelectedRows = tableData.filter(data => selectedList.some(obj => obj.Hostname === data.Hostname));
+			setSelectedRowsList(mergeSelectedRows.filter((row: NodeType) => row.NodeState === 'RESOLVED'));
 		}
-	}, [tableData, defaultRowsList]);
-
+	}, [tableData, selectedList]);
+	const rowSelection = {
+		selectedRowKeys: selectedRowsList.map(row => row.Hostname),
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
+			setSelectedRowsList(selectedRows);
+			setCurrentPageDisabled({ next: selectedRows.length === 0 });
+		},
+		getCheckboxProps: (record: NodeType) => ({
+			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+		})
+	};
 	return (
 		<Table
 			rowSelection={{

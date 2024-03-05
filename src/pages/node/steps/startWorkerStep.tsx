@@ -23,13 +23,14 @@ import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
+import _ from 'lodash';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
-import { NodeType } from '@/api/interface';
+import { NodeType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'dispatchStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'startWorkerStep'; // 当前步骤结束时需要存储步骤数据
@@ -59,7 +60,7 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 			title: t('node.state'),
 			dataIndex: 'NodeState',
 			key: 'NodeState',
-			render: (text: string) => <Badge status={stateText[text].status} text={t(stateText[text].label)} />
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		}
 	];
 
@@ -71,8 +72,8 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'ADD',
-			NodeInfoList: selectedRowsList[stepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: tableData[0].SshPort
+			NodeInfoList: selectedRowsList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			SshPort: selectedRowsList[0].SshPort
 		};
 		const jobData = await RequestHttp.post(apiAdd, params);
 		return Promise.resolve(jobData);
@@ -82,8 +83,8 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'START_WORKER',
-			NodeInfoList: webState[stepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: webState[stepName][0].SshPort
+			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			SshPort: (webState[preStepName] as NodeType[])[0].SshPort
 		};
 		const { Code } = await RequestHttp.post(apiStartWorker, params);
 		setStartWorkerState(Code === '00000');
@@ -91,7 +92,7 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 	const getList = async () => {
 		const params = {
 			ClusterId: id,
-			NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(APIConfig.startWorkerList, params);
 		const {
@@ -100,28 +101,32 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 		setCurrentPageDisabled({
 			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
 		});
-		// 用不等于INACTIVE作为过滤条件，而不是等于ACTIVE，因为可能从后边流程退回到这一步，状态不是ACTIVE
-		setSelectedRowsList(NodeInitDetailList.filter((row: NodeType) => row.NodeState !== 'INACTIVE')); // 更新选中项数据
+		// selectedList和NodeInitDetailList取交集，并过滤掉不可用数据，只选中状态为CHECK_OK的进行下一步
+		// selectedList为计算了上一步和下一步的选中项，NodeInitDetailList用来获取最新状态
+		const intersection = _.intersectionWith(
+			NodeInitDetailList,
+			selectedList,
+			(obj1: NodeType, obj2) => obj1.Hostname === obj2.Hostname
+		);
+		setSelectedRowsList(intersection.filter((row: NodeType) => row.NodeState === 'START_WORKER_OK'));
 		return NodeInitDetailList;
 	};
-	useEffect(() => {
-		setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
-	}, [selectedRowsList, setCurrentPageDisabled]);
+
 	useEffect(() => {
 		//基于上一步的数据重新执行当前页面步骤
 		webState[preStepName] && startWorker();
-		setSelectedRowsList(selectedList);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [webState, selectedList]);
+	}, [webState]);
 	// dispatch之后拉取得dispatchList
 	const tableData = usePolling(getList, stableState, 1000, [startWorkerState, webState]);
 	const rowSelection = {
 		selectedRowKeys: selectedRowsList.map(row => row.NodeId),
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
+			setCurrentPageDisabled({ next: selectedRows.length === 0 });
 		},
 		getCheckboxProps: (record: NodeType) => ({
-			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+			disabled: !stableState.includes(record.NodeState)
 		})
 	};
 	return (

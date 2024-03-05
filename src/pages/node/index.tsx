@@ -27,6 +27,7 @@ import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 import useStore from '@/store/store';
 import ItemConfigInfo from '@/components/itemConfigInfo';
+import { updateCurrentView } from '@/utils/helper';
 import { NodeType, NodeWithComponent, ClusterType, BadgeStatus } from '@/api/interface';
 
 const ManageList: React.FC = () => {
@@ -188,8 +189,16 @@ const ManageList: React.FC = () => {
 			};
 		});
 		setLoading(false);
-		setSelectCluster(listData[0].value);
 		setSelectData(listData);
+
+		const currentViewCluster = ClusterList.find((cluster: ClusterType) => cluster.IsCurrentView === true);
+		if (currentViewCluster) {
+			// 如果找到了，设置setSelectCluster为该项的ClusterId
+			setSelectCluster(currentViewCluster.ClusterId);
+		} else {
+			// 如果没有找到，则使用第一项的ClusterId
+			ClusterList.length > 0 ? setSelectCluster(ClusterList[0].ClusterId) : setSelectCluster(''); // 确保数组不为空
+		}
 	};
 	const getNodeList = async (id: string | number) => {
 		const api = APIConfig.nodeListWithComponent;
@@ -203,7 +212,8 @@ const ManageList: React.FC = () => {
 		});
 		setTableData(listData);
 	};
-	const handleChange = (value: string) => {
+	const handleChange = async (value: string) => {
+		await updateCurrentView(value);
 		setSelectCluster(value);
 	};
 	useEffect(() => {

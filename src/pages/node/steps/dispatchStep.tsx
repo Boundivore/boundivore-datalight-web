@@ -23,6 +23,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Table, Progress, Space, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
+import _ from 'lodash';
 import useStore, { usePersistStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -67,12 +68,12 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 						{text ? (
 							<>
 								<Space>
-									{/* {Number(text?.TotalProgress) !== 100 ? <LoadingOutlined /> : null} */}
+									{/* {parseFloat(text?.TotalProgress) !== 100 ? <LoadingOutlined /> : null} */}
 									<Text ellipsis={true} className="w-[150px]">
 										{t('node.fileProgress')}
 										{`${record?.FileCountProgress.TotalTransferFileCount}/${record?.FileCountProgress.TotalFileCount}`}
 									</Text>
-									{Number(text?.TotalProgress) !== 100 ? (
+									{parseFloat(text?.TotalProgress) !== 100 ? (
 										<Text ellipsis={true} className="w-[150px]">
 											{t('node.fileName')}
 											{record?.CurrentFileProgress.CurrentFilename}
@@ -83,7 +84,7 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 										{record?.CurrentFileProgress.CurrentPrintSpeed}
 									</Text>
 								</Space>
-								<Progress percent={Number(text?.TotalProgress).toFixed(2)} strokeColor={twoColors} />
+								<Progress percent={parseFloat(parseFloat(text?.TotalProgress).toFixed(2))} strokeColor={twoColors} />
 							</>
 						) : (
 							<>
@@ -136,8 +137,8 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		const params = {
 			ClusterId: id,
 			NodeActionTypeEnum: 'DISPATCH',
-			NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
-			SshPort: webState[preStepName][0].SshPort
+			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
+			SshPort: (webState[preStepName] as NodeType[])[0].SshPort
 		};
 		const {
 			Code,
@@ -148,11 +149,12 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 	};
 
 	const getList = async () => {
+		console.log('webState[preStepName]', webState[preStepName]);
 		const apiList = APIConfig.dispatchList;
 		const apiProgress = APIConfig.dispatchProgress;
 		const params = {
 			ClusterId: id,
-			NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 		};
 		const data = await RequestHttp.post(apiList, params);
 		const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });
@@ -163,7 +165,7 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 			Data: { NodeJobTransferProgressList }
 		} = progressData;
 
-		let mergedData = NodeInitDetailList.map(item1 => {
+		let mergedData = NodeInitDetailList.map((item1: NodeType) => {
 			let item2 = NodeJobTransferProgressList.filter(item2 => item2.NodeId === item1.NodeId);
 			if (item2.length > 0) {
 				return { ...item1, ...item2[0] };
@@ -174,26 +176,25 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		setCurrentPageDisabled({
 			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
 		});
-		// 用不等于INACTIVE作为过滤条件，而不是等于ACTIVE，因为可能从后边流程退回到这一步，状态不是ACTIVE
-		// setSelectedRowsList(NodeInitDetailList.filter((row: NodeType) => row.NodeState !== 'INACTIVE')); // 更新选中项数据
+		// selectedList和NodeInitDetailList取交集，并过滤掉不可用数据，只选中状态为CHECK_OK的进行下一步
+		// selectedList为计算了上一步和下一步的选中项，NodeInitDetailList用来获取最新状态
+		const intersection = _.intersectionWith(mergedData, selectedList, (obj1: NodeType, obj2) => obj1.Hostname === obj2.Hostname);
+		setSelectedRowsList(intersection.filter((row: NodeType) => row.NodeState === 'PUSH_OK'));
 		return mergedData;
 	};
 
 	useEffect(() => {
-		setCurrentPageDisabled({ next: selectedRowsList.length === 0 });
-	}, [selectedRowsList, setCurrentPageDisabled]);
-	useEffect(() => {
 		//基于上一步的数据重新执行当前页面步骤
 		webState[preStepName] && dispatch();
-		setSelectedRowsList(selectedList);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState, selectedList]);
 	// dispatch之后拉取得dispatchList
-	const tableData = usePolling(getList, stableState, 1000, [dispatchState, webState]);
+	const tableData = usePolling(getList, stableState, 1000, [dispatchState, webState, jobNodeId]);
 	const rowSelection = {
 		selectedRowKeys: selectedRowsList.map(row => row.NodeId),
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
+			setCurrentPageDisabled({ next: selectedRows.length === 0 });
 		},
 		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked

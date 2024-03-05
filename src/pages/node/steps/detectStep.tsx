@@ -23,6 +23,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
+import _ from 'lodash';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -67,20 +68,20 @@ const DetectStep: React.FC = memo(
 		const handleOk = useSetStepData(stepName, null, selectedRowsList);
 		const detect = async () => {
 			const apiDetect = APIConfig.detect;
-			const params3 = {
+			const params = {
 				ClusterId: id,
 				NodeActionTypeEnum: 'DETECT',
-				NodeInfoList: webState[preStepName].map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-				SshPort: webState[preStepName][0].SshPort
+				NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+				SshPort: (webState[preStepName] as NodeType[])[0].SshPort
 			};
-			const data = await RequestHttp.post(apiDetect, params3);
+			const data = await RequestHttp.post(apiDetect, params);
 			setDetectState(data.Code === '00000');
 		};
-		const getList = async (selectedList: NodeType[]) => {
+		const getList = async () => {
 			const apiSpeed = APIConfig.detectList;
 			const params = {
 				ClusterId: id,
-				NodeInfoList: selectedList.map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
+				NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId }))
 			};
 			const data = await RequestHttp.post(apiSpeed, params);
 			const {
@@ -89,16 +90,19 @@ const DetectStep: React.FC = memo(
 			setCurrentPageDisabled({
 				next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
 			});
-			// 过滤掉不可用数据
-			setSelectedRowsList(NodeInitDetailList.filter((row: NodeType) => row.NodeState === 'ACTIVE'));
+			// selectedList和NodeInitDetailList取交集，并过滤掉不可用数据
+			const intersection = _.intersectionWith(
+				NodeInitDetailList,
+				selectedList,
+				(obj1: NodeType, obj2) => obj1.Hostname === obj2.Hostname
+			);
+			setSelectedRowsList(intersection.filter((row: NodeType) => row.NodeState === 'ACTIVE'));
 			return NodeInitDetailList;
 		};
-		const tableData = usePolling(() => getList(webState[preStepName]), stableState, 1000, [detectState, webState]);
+		const tableData = usePolling(getList, stableState, 1000, [detectState, webState]);
 
 		useEffect(() => {
 			webState[preStepName] && detect();
-			// 拉去存储的选中项，可能是上一步，也可能是下一步，因此不能只在getList中设定
-			setSelectedRowsList(selectedList.filter((row: NodeType) => row.NodeState === 'ACTIVE'));
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [webState]);
 

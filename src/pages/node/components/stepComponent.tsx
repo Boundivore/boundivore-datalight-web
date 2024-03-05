@@ -32,7 +32,10 @@ interface StepConfig {
 	nextStep?: () => string;
 	retry?: () => string;
 	hideInitButton?: boolean; // 是否隐藏初始化按钮，包括上一步、下一步、重试和取消
+	hideRetry?: boolean; // 是否单独隐藏重试按钮
+	hidePrev?: boolean; // 是否单独隐藏上一步按钮
 	hideNext?: boolean; // 是否单独隐藏下一步按钮
+	nextText?: string; // 重置下一步文案
 	operations?: {
 		label: string;
 		callback?: () => void;
@@ -102,7 +105,7 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 						{stepConfig?.operations?.length
 							? stepConfig.operations.map(operation => {
 									return (
-										<Button type="primary" onClick={operation.callback || next}>
+										<Button type="primary" onClick={operation.callback || next} disabled={nextDisabled}>
 											{operation.label}
 										</Button>
 									);
@@ -111,19 +114,19 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 						{!stepConfig.hideInitButton ? (
 							<>
 								{/* TODO 添加重试操作*/}
-								{stepCurrent < config.length - 1 && (
+								{stepCurrent < config.length && !stepConfig.hideRetry && (
 									<Button onClick={retry} disabled={nextDisabled}>
 										{t('retry')}
 									</Button>
 								)}
-								{stepCurrent > 0 && stepCurrent < config.length - 1 && (
+								{stepCurrent > 0 && stepCurrent < config.length && !stepConfig.hidePrev && (
 									<Button onClick={prev} disabled={nextDisabled}>
 										{t('previous')}
 									</Button>
 								)}
 								{stepCurrent < config.length - 1 && !stepConfig.hideNext && (
 									<Button type="primary" onClick={next} disabled={nextDisabled}>
-										{t('next')}
+										{stepConfig.nextText || t('next')}
 									</Button>
 								)}
 								{stepCurrent < config.length - 1 && (

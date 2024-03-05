@@ -117,8 +117,23 @@ const useStepLogic = (step: number = 0) => {
 		};
 		return setStepState;
 	};
+	// 清除当前步骤数据
+	const useClearStepData = () => {
+		const clearStepState = async () => {
+			const api = APIConfig.webStateClear;
+			try {
+				const data = await RequestHttp.post(api, {
+					ClusterId: id
+				});
+				return Promise.resolve(data.Code === '00000');
+			} catch (error) {
+				return Promise.reject(error);
+			}
+		};
+		return clearStepState;
+	};
 
-	return { useStepEffect, useGetSepData, useSetStepData };
+	return { useStepEffect, useGetSepData, useSetStepData, useClearStepData };
 };
 
 export default useStepLogic;

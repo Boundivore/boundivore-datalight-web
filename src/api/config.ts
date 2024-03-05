@@ -44,6 +44,7 @@ const APIConfig: Actions = {
 	setProcedure: '/v1/master/init/procedure/persist',
 	removeProcedure: '/v1/master/init/procedure/remove',
 	removeCluster: '/v1/master/cluster/remove',
+	updateCurrentView: '/v1/master/cluster/updateCurrentView',
 	//节点相关
 	nodeList: '/v1/master/node/list',
 	nodeListWithComponent: '/v1/master/node/listWithComponent',

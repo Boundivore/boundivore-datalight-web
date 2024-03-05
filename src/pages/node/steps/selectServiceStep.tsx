@@ -96,7 +96,7 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 		return Promise.resolve(jobData);
 	};
 
-	const getSpeed = async () => {
+	const getList = async () => {
 		const params = {
 			ClusterId: id
 		};
@@ -107,7 +107,7 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 		setSelectedRowKeys(defaultSelectedKeys);
 	};
 	useEffect(() => {
-		getSpeed();
+		getList();
 		setCurrentPageDisabled({ next: true });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);

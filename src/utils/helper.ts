@@ -14,6 +14,8 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+import RequestHttp from '@/api';
+import APIConfig from '@/api/config';
 //轮询
 export const pollRequest = (
 	pollFunction: () => Promise<Array<any>>,
@@ -46,4 +48,11 @@ export const pollRequest = (
 	intervalFunction();
 	poller = setInterval(intervalFunction, interval);
 	return () => clearInterval(poller);
+};
+
+// 更新当前集群
+export const updateCurrentView = async (clusterId: string | number) => {
+	const api = APIConfig.updateCurrentView;
+	const data = await RequestHttp.post(api, { ClusterId: clusterId });
+	return Promise.resolve(data);
 };

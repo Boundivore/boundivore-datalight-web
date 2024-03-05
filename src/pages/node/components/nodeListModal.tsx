@@ -46,6 +46,8 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 	const { nodeList } = useComponentAndNodeStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
+	// const [selectedRowKeys, setSelectedRowKeys] = useState(nodeList[id][component]?.map(({ NodeId }) => NodeId));
+
 	const { t } = useTranslation();
 
 	const columns: ColumnsType<NodeType> = [
@@ -63,6 +65,7 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		}
 	];
 	const rowSelection = {
+		// selectedRowKeys,
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedNodeList(selectedRows);
 		},
@@ -85,15 +88,15 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		});
 		setTableData(listData);
 	};
-	const selectRow = (record: NodeType) => {
-		const selectedRowKeys = [...selectedNodeList];
-		if (selectedRowKeys.indexOf(record.key) >= 0) {
-			selectedRowKeys.splice(selectedRowKeys.indexOf(record.key), 1);
-		} else {
-			selectedRowKeys.push(record.key);
-		}
-		setSelectedNodeList(selectedRowKeys);
-	};
+	// const selectRow = (record: NodeType) => {
+	// 	const selectedKeys = [...selectedRowKeys];
+	// 	if (selectedKeys.indexOf(record.NodeId) >= 0) {
+	// 		selectedKeys.splice(selectedKeys.indexOf(record.NodeId), 1);
+	// 	} else {
+	// 		selectedKeys.push(record.NodeId);
+	// 	}
+	// 	setSelectedRowKeys(selectedKeys);
+	// };
 	useEffect(() => {
 		getList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,11 +110,11 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 				rowKey="NodeId"
 				dataSource={tableData}
 				columns={columns}
-				onRow={record => {
-					return {
-						onClick: () => selectRow(record) // 点击行
-					};
-				}}
+				// onRow={record => {
+				// 	return {
+				// 		onClick: () => selectRow(record) // 点击行
+				// 	};
+				// }}
 			/>
 		</Modal>
 	);
