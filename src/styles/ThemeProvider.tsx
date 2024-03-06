@@ -41,6 +41,14 @@ export default function ThemeProvider(props: ThemeProviderProps) {
 		<ConfigProvider
 			theme={{
 				components: {
+					Button: {
+						defaultBg: '#51c2fe',
+						defaultColor: '#fff',
+						defaultHoverBg: '#51c2fe',
+						defaultHoverColor: '#fff'
+						// defaultBorderColor: '#51c2fe'
+						// primaryColor: '#51c2fe'
+					},
 					Layout: {
 						/* here is your component tokens */
 						headerBg: '#fff',

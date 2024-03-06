@@ -114,7 +114,8 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		}
 	];
 	useImperativeHandle(ref, () => ({
-		handleOk
+		handleOk,
+		dispatch
 	}));
 	const handleOk = async () => {
 		const api = APIConfig.webStateSave;
@@ -133,6 +134,7 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 	};
 
 	const dispatch = async () => {
+		setDispatchState(false);
 		const apiDispatch = APIConfig.dispatch;
 		const params = {
 			ClusterId: id,
@@ -149,7 +151,6 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 	};
 
 	const getList = async () => {
-		console.log('webState[preStepName]', webState[preStepName]);
 		const apiList = APIConfig.dispatchList;
 		const apiProgress = APIConfig.dispatchProgress;
 		const params = {

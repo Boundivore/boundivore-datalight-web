@@ -98,3 +98,9 @@ export interface ServiceItemType {
  * @type BadgeStatus 徽标状态
  */
 export type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
+
+export interface UserInfoType {
+	userId: string;
+	nickName: string;
+	realName: string;
+}

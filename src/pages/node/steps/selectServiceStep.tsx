@@ -53,44 +53,39 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		}
 	];
-	const rowSelection = {
-		onChange: (selectedRowKeys: [], selectedRows: NodeType[]) => {
-			setSelectedRowKeys(selectedRowKeys);
-			setSelectedServiceRowsList(
-				_.cloneDeep([...selectedRows]).map(item => {
-					item.SCStateEnum = 'SELECTED';
-					return item;
-				})
-			);
-		},
-		selectedRowKeys: selectedRowKeys
-	};
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
 	const handleOk = async () => {
 		const apiSelect = APIConfig.selectService;
 		// 合并原始数据和本次操作选择的数据, tableData和selectedServiceRowsList位置不能互换
-		const combinedArray = [...tableData, ...selectedServiceRowsList];
-		// 加工数据，以ServiceName为key
-		const groupedByServiceName = combinedArray.reduce((groups, item) => {
-			const key = item.ServiceName;
-			(groups[key] = groups[key] || []).push(item);
-			return groups;
-		}, {});
-		// 加工数据
-		const result = Object.values(groupedByServiceName).map(group => {
-			if (group.length === 2) {
-				// 从"UNSELECTED"到"SELECTED"， 保留"SELECTED"
-				return group[1];
-			} else {
-				// 从"SELECTED"变为"UNSELECTED"将 SCStateEnum 改为 "UNSELECTED"
-				return { ...group[0], SCStateEnum: 'UNSELECTED' };
-			}
-		});
+		console.log('selectedServiceRowsList', selectedServiceRowsList);
+		// const combinedArray = [...tableData, ...selectedServiceRowsList];
+		// // 加工数据，以ServiceName为key
+		// const groupedByServiceName = combinedArray.reduce((groups, item) => {
+		// 	const key = item.ServiceName;
+		// 	(groups[key] = groups[key] || []).push(item);
+		// 	return groups;
+		// }, {});
+		// // 加工数据
+		// const result = Object.values(groupedByServiceName).map(group => {
+		// 	if (group.length === 2) {
+		// 		// 从"UNSELECTED"到"SELECTED"， 保留"SELECTED"
+		// 		return group[1];
+		// 	} else {
+		// 		// 从"SELECTED"变为"UNSELECTED"将 SCStateEnum 改为 "UNSELECTED"
+		// 		return { ...group[0], SCStateEnum: 'UNSELECTED' };
+		// 	}
+		// });
+		const combinedArray = selectedServiceRowsList
+			.concat(tableData.filter(itemA => !selectedServiceRowsList.some(itemB => itemA.ServiceName === itemB.ServiceName)))
+			.map(item => ({ ...item, SCStateEnum: 'UNSELECTED' }));
+		console.log('combinedArray', combinedArray);
+		// console.log('result', result);
+		console.log('tableData', tableData);
 		const params = {
 			ClusterId: id,
-			ServiceList: result.map(({ SCStateEnum, ServiceName }) => ({ SCStateEnum, ServiceName }))
+			ServiceList: combinedArray.map(({ SCStateEnum, ServiceName }) => ({ SCStateEnum, ServiceName }))
 		};
 		const jobData = await RequestHttp.post(apiSelect, params);
 		return Promise.resolve(jobData);
@@ -115,6 +110,18 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 		setCurrentPageDisabled({ next: !selectedRowKeys.length });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedRowKeys]);
+	const rowSelection = {
+		selectedRowKeys,
+		onChange: (selectedRowKeys: [], selectedRows: NodeType[]) => {
+			setSelectedRowKeys(selectedRowKeys);
+			setSelectedServiceRowsList(
+				_.cloneDeep(selectedRows).map(item => {
+					item.SCStateEnum = 'SELECTED';
+					return item;
+				})
+			);
+		}
+	};
 	return (
 		<Table
 			rowSelection={{

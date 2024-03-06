@@ -70,10 +70,12 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		}
 	];
 	useImperativeHandle(ref, () => ({
-		handleOk
+		handleOk,
+		check
 	}));
 	const handleOk = useSetStepData(stepName, null, selectedRowsList);
 	const check = async () => {
+		setCheckState(false);
 		const apiCheck = APIConfig.check;
 		const params = {
 			ClusterId: id,

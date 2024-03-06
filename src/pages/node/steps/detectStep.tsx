@@ -63,10 +63,12 @@ const DetectStep: React.FC = memo(
 			}
 		];
 		useImperativeHandle(ref, () => ({
-			handleOk
+			handleOk,
+			detect
 		}));
 		const handleOk = useSetStepData(stepName, null, selectedRowsList);
 		const detect = async () => {
+			setDetectState(false);
 			const apiDetect = APIConfig.detect;
 			const params = {
 				ClusterId: id,

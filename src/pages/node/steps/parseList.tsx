@@ -79,11 +79,11 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	const handleOk = useSetStepData(stepName, null, selectedRowsList);
 
 	const parseHostname = async () => {
+		setParseState(false);
 		const apiParse = APIConfig.parseHostname;
 		const { Hostname, SshPort } = webState[preStepName] as ParseHostnameType;
 		const data = await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
 		setParseState(data.Code === '00000');
-		return Promise.resolve(data.Code === '00000');
 	};
 
 	useEffect(() => {

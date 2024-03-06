@@ -65,7 +65,8 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 	];
 
 	useImperativeHandle(ref, () => ({
-		handleOk
+		handleOk,
+		startWorker
 	}));
 	const handleOk = async () => {
 		const apiAdd = APIConfig.add;
@@ -79,6 +80,7 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 		return Promise.resolve(jobData);
 	};
 	const startWorker = async () => {
+		setStartWorkerState(false);
 		const apiStartWorker = APIConfig.startWorker;
 		const params = {
 			ClusterId: id,

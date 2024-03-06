@@ -109,8 +109,9 @@ const InitNode: React.FC = forwardRef(() => {
 		}
 	];
 	const nextList = async () => await parseStepRef.current?.handleOk();
-	const retryList = async () => await parseStepRef.current?.parseHostname();
+	const retryParseList = async () => await parseListStepRef.current?.parseHostname();
 	const nextDetect = async () => await parseListStepRef.current?.handleOk();
+	const retryDetectList = async () => await detectStepRef.current?.detect();
 	const nextCheck = async () => await detectStepRef.current?.handleOk();
 	const nextDispatch = async () => await checkStepRef.current?.handleOk();
 	const nextStartWorker = async () => await dispatchStepRef.current?.handleOk();
@@ -124,18 +125,20 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('node.parseHostname'),
 			content: <ParseStep ref={parseStepRef} />,
-			nextStep: nextList
+			nextStep: nextList,
+			hideRetry: true
 		},
 		{
 			title: t('node.chooseHostname'),
 			content: <ParseList ref={parseListStepRef} />,
 			nextStep: nextDetect,
-			retry: retryList
+			retry: retryParseList
 		},
 		{
 			title: t('node.detect'),
 			content: <DetectStep ref={detectStepRef} />,
-			nextStep: nextCheck
+			nextStep: nextCheck,
+			retry: retryDetectList
 		},
 		{
 			title: t('node.check'),

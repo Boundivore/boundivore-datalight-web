@@ -24,7 +24,8 @@ export default {
 		confirmLogout: '您确定退出登录吗？',
 		changePassword: '请修改密码',
 		changePasswordText: '请前往修改密码页面修改密码',
-		inputPassword: '请输入您的密码'
+		inputPassword: '请输入您的密码',
+		forgotPassword: '忘记密码'
 	},
 	account: {
 		oldPassword: '旧密码',
@@ -140,7 +141,11 @@ export default {
 		backListPage: '回到节点列表页',
 		removeConfirm: '您确认删除节点吗？',
 		restartConfirm: '您确认重启节点吗？',
-		addSuccessTitle: '您已经成功添加节点到该集群'
+		addSuccessTitle: '您已经成功添加节点到该集群',
+		errorText1: '请选择{{min}}个节点',
+		errorText2: '请选择至少{{min}}个节点，最多{{max}}个节点',
+		errorText3: '请选择至少{{min}}个节点',
+		errorText4: '请选择最多{{max}}个节点'
 	},
 	service: {
 		selectService: '选择服务',

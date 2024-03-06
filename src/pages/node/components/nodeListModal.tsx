@@ -24,7 +24,7 @@
  * @author Tracy.Guo
  */
 import { useState, useEffect } from 'react';
-import { Modal, Table } from 'antd';
+import { Modal, Table, Alert } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -42,6 +42,9 @@ interface NodeListModalProps {
 
 const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component }) => {
 	const [tableData, setTableData] = useState([]);
+	const [initialLoad, setInitialLoad] = useState(true);
+	const [openAlert, setOpenAlert] = useState(false);
+	const [errorText, setErrorText] = useState('');
 	const [selectedNodeList, setSelectedNodeList] = useState<NodeType[]>([]);
 	const { nodeList } = useComponentAndNodeStore();
 	const [searchParams] = useSearchParams();
@@ -69,7 +72,7 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedNodeList(selectedRows);
 		},
-		defaultSelectedRowKeys: nodeList[id][component]?.map(({ NodeId }) => {
+		defaultSelectedRowKeys: nodeList[id][component].componentNodeList?.map(({ NodeId }) => {
 			return NodeId;
 		})
 	};
@@ -101,8 +104,38 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		getList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	useEffect(() => {
+		if (!initialLoad && !openAlert) {
+			handleOk(selectedNodeList);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [initialLoad, openAlert]);
+
 	return (
-		<Modal title={t('selectNode')} open={isModalOpen} onOk={() => handleOk(selectedNodeList)} onCancel={handleCancel}>
+		<Modal
+			title={t('selectNode')}
+			open={isModalOpen}
+			onOk={() => {
+				const { max, min } = nodeList[id][component];
+				if (max == min && max == -1) {
+					setOpenAlert(false);
+				} else {
+					setOpenAlert(selectedNodeList.length > max || selectedNodeList.length < min);
+				}
+				setInitialLoad(false);
+				if (max === min && max != -1) {
+					setErrorText(t('node.errorText1', { min }));
+				} else if (max != min && max == -1) {
+					setErrorText(t('node.errorText3', { min }));
+				} else if (max != min && min == -1) {
+					setErrorText(t('node.errorText4', { max }));
+				} else {
+					setErrorText(t('node.errorText2', { min, max }));
+				}
+			}}
+			onCancel={handleCancel}
+		>
+			{openAlert ? <Alert message={errorText} type="error" /> : null}
 			<Table
 				rowSelection={{
 					...rowSelection

@@ -27,6 +27,7 @@ import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import NodeListModal from '../components/nodeListModal';
+import { NodeType } from '@/api/interface';
 
 const SelectComStep: React.FC = forwardRef((_props, ref) => {
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
@@ -82,8 +83,12 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		setIsModalOpen(true);
 		setCurrentComponent(componentName);
 	};
-	const handleModalOk = selectedRows => {
-		setNodeList({ [id]: { ...nodeList[id], [currentComponent]: selectedRows } });
+	const handleModalOk = (selectedRows: NodeType) => {
+		console.log('id', selectedRows);
+		console.log('nodeList[id]', nodeList[id]);
+		setNodeList({
+			[id]: { ...nodeList[id], [currentComponent]: { ...nodeList[id][currentComponent], componentNodeList: selectedRows } }
+		});
 		setIsModalOpen(false);
 	};
 
@@ -114,10 +119,12 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		let tempList = {};
 		transformedData.map(item => {
 			item.ComponentSummaryList.map(component => {
-				tempList[id] = { ...tempList[id], [component.ComponentName]: component.ComponentNodeList };
+				tempList[id] = {
+					...tempList[id],
+					[component.ComponentName]: { componentNodeList: component.ComponentNodeList, min: component.Min, max: component.Max }
+				};
+				console.log('tempList[id]', tempList[id]);
 				setNodeList(tempList);
-				const nameArray = { ...tempList[id], ...nodeList[id] }[component.ComponentName]?.map(node => node.Hostname);
-				console.log(component.ComponentName, nameArray);
 			});
 		});
 	};
@@ -130,9 +137,20 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 				children: (
 					<Flex wrap="wrap">
 						{item.ComponentSummaryList.map(component => {
-							tempList[id] = { ...tempList[id], [component.ComponentName]: component.ComponentNodeList };
+							tempList[id] = {
+								...tempList[id],
+								[component.ComponentName]: {
+									componentNodeList: component.ComponentNodeList,
+									min: component.Min,
+									max: component.Max
+								}
+							};
 							// setNodeList(tempList);
-							const nameArray = (nodeList[id] || tempList[id])[component.ComponentName]?.map(node => node.Hostname);
+							const nameArray = (nodeList[id] || tempList[id])[component.ComponentName].componentNodeList?.map(
+								node => node.Hostname
+							);
+							console.log(111, tempList[id]);
+							console.log(222, nameArray);
 							return (
 								<div className="w-1/4">
 									<p>{component.ComponentName}</p>

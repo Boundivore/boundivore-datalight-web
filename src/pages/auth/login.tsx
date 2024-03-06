@@ -20,13 +20,14 @@
  */
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Form, Input, Col, Row, Space } from 'antd';
+import { Button, Form, Input, Col, Row, Space, App } from 'antd';
 import { md5 } from 'js-md5';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore, { usePersistStore } from '@/store/store';
 import Logo from '@/assets/logo.png';
 import useNavigater from '@/hooks/useNavigater';
+import { UserInfoType } from '@/api/interface';
 
 type FieldType = {
 	Principal?: string;
@@ -39,6 +40,7 @@ const LoginPage: React.FC = () => {
 	const { navigateToHome } = useNavigater();
 	const { setIsNeedChangePassword } = useStore();
 	const { userInfo, setUserInfo } = usePersistStore();
+	const { modal } = App.useApp();
 	const onFinish = async (values: any) => {
 		const { Credential, Principal } = values;
 		const hexHash = md5(Credential);
@@ -69,15 +71,20 @@ const LoginPage: React.FC = () => {
 		const loginData = await RequestHttp.get(apiIsLogin);
 		loginData.Data && navigateToHome();
 	};
+	const forgotPassword = () => {
+		modal.info({ title: '忘记密码', content: '请联系管理员' });
+	};
 	useEffect(() => {
-		(userInfo as any).userId && isLogin();
+		(userInfo as UserInfoType).userId && isLogin();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<div className="min-w-[1200px] bg-[url('/loginBg.jpg')] bg-cover bg-center h-screen flex">
-			<Row className="w-8/12 height-[150] m-auto p-auto border border-blue-500 shadow-2xl shadow-blue-500">
-				<Col span={12} className="pt-20 pb-10 px-10 flex items-center justify-center flex-col">
-					<Space direction="vertical" align="center" size="large">
+		<div className="min-w-[1200px] bg-[#e9effb] bg-cover bg-center h-screen flex">
+			<Row className="w-7/12 height-[500] m-auto p-auto border border-blue-500 shadow-blue-300 shadow-2xl">
+				{/* <Row className="w-7/12 height-[500] m-auto p-auto border border-blue-500 shadow-2xl shadow-blue-100"> */}
+				<Col span={12} className="bg-[#51c2fe] bg-cover bg-center"></Col>
+				<Col span={12} className="pt-20 pb-10 px-10 flex items-center justify-center flex-col bg-[#e9effb]">
+					<Space direction="vertical" align="center" size="small">
 						<img src={Logo} height={60} className="m-auto p-auto" />
 						<Form
 							className="w-[300px]"
@@ -90,6 +97,7 @@ const LoginPage: React.FC = () => {
 							requiredMark={false}
 						>
 							<Form.Item<FieldType>
+								className="text-[#2e436b]"
 								label={t('login.principal')}
 								name="Principal"
 								rules={[{ required: true, message: t('account.inputPrincipal') }]}
@@ -97,22 +105,27 @@ const LoginPage: React.FC = () => {
 								<Input />
 							</Form.Item>
 							<Form.Item<FieldType>
+								className="text-[#2e436b] mb-[5px]"
 								label={t('login.credential')}
 								name="Credential"
 								rules={[{ required: true, message: t('login.inputPassword') }]}
 							>
 								<Input.Password />
 							</Form.Item>
-							<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-								<Button type="primary" htmlType="submit">
+							<Form.Item>
+								<a className="float-right text-[#51c2fe]" onClick={forgotPassword}>
+									{t('login.forgotPassword')}
+								</a>
+							</Form.Item>
+							<Form.Item className="flex justify-center">
+								<Button htmlType="submit" className="w-[200px]">
 									{t('login.confirm')}
 								</Button>
 							</Form.Item>
 						</Form>
-						<span className="font-bold">{t('poweredBy')}</span>
+						<span className="font-bold text-[#2e436b]">{t('poweredBy')}</span>
 					</Space>
 				</Col>
-				<Col span={12} className="bg-[url('/login.png')] bg-cover bg-center"></Col>
 			</Row>
 		</div>
 	);

@@ -45,7 +45,7 @@ const ParseStep: React.FC = forwardRef((_props, ref) => {
 	const handleOk = useSetStepData(stepName, form, null);
 	useEffect(() => {
 		setCurrentPageDisabled({ next: false });
-		form.setFieldsValue(webState[stepName]);
+		webState[stepName] && form.setFieldsValue(webState[stepName]);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState]);
 
