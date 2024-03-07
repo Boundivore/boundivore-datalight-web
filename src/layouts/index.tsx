@@ -101,7 +101,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 				{!hideSider ? (
 					<div className="relative bg-[#fff]" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 						<Sider
-							className={`${collapsed ? 'w-[80px]' : 'w-[250px]'}`}
+							className={`${collapsed ? 'w-[80px]' : 'w-[250px]'} pt-[15px]`}
 							theme="light"
 							collapsible
 							collapsed={collapsed}
