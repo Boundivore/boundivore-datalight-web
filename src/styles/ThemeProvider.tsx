@@ -55,6 +55,10 @@ export default function ThemeProvider(props: ThemeProviderProps) {
 						footerBg: '#fff',
 						boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.08)'
 					}
+				},
+				token: {
+					colorPrimary: '#51c2fe',
+					colorTextBase: '#2e436b'
 				}
 			}}
 			layout={{ className: 'my-layout' }}
