@@ -118,7 +118,7 @@ const LoginPage: React.FC = () => {
 								</a>
 							</Form.Item>
 							<Form.Item className="flex justify-center">
-								<Button type="primary" htmlType="submit" className="w-[200px]">
+								<Button type="primary" shape="round" htmlType="submit" className="w-[200px]">
 									{t('login.confirm')}
 								</Button>
 							</Form.Item>
