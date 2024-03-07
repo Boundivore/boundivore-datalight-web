@@ -108,7 +108,7 @@ const AddComponent: React.FC = forwardRef(() => {
 	//获取进度，定位到当前步骤
 	useStepEffect();
 	return (
-		<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
+		<Row className="min-h-[calc(100%-50px)] m-[20px] pb-[50px]">
 			<Col span={6}>
 				<Card className="h-full">
 					<Steps size="small" current={stepCurrent} direction="vertical" items={steps} />

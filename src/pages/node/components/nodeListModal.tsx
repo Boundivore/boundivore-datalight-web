@@ -117,8 +117,12 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 			open={isModalOpen}
 			onOk={() => {
 				const { max, min } = nodeList[id][component];
-				if (max == min && max == -1) {
+				if (max == min && (max == -1 || min == -1)) {
 					setOpenAlert(false);
+				} else if (max == -1) {
+					setOpenAlert(selectedNodeList.length < min);
+				} else if (min == -1) {
+					setOpenAlert(selectedNodeList.length > max);
 				} else {
 					setOpenAlert(selectedNodeList.length > max || selectedNodeList.length < min);
 				}

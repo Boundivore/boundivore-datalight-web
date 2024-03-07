@@ -89,7 +89,7 @@ const CreateCluster: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Card className="min-h-[calc(100%-100px)] m-[20px]" title={t('cluster.create')}>
+		<Card className="min-h-[calc(100%-50px)] m-[20px]" title={t('cluster.create')}>
 			{!success ? (
 				<Form
 					form={form}

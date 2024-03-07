@@ -18,68 +18,99 @@
  * PreviewconfigStep - 预览配置
  * @author Tracy.Guo
  */
-import React, { useImperativeHandle, useEffect, useRef, forwardRef } from 'react';
+import React, { useImperativeHandle, useEffect, useState, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Space } from 'antd';
-// import { useTranslation } from 'react-i18next';
+import { Card, Space, Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { useTranslation } from 'react-i18next';
 // import _ from 'lodash';
-import useStore from '@/store/store';
+// import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import useStore from '@/store/store';
+
+interface DataType {
+	ServiceName: string;
+	ComponentName: string;
+}
 
 const PreviewconfigStep: React.FC = forwardRef((_props, ref) => {
-	// const { t } = useTranslation();
-	// const [serviceList, setServiceList] = useState([]);
-	const { setJobId } = useStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	let serviceNameList = useRef<string[]>([]);
-
-	// 获取预配置项
-	const getPreconfigList = async () => {
-		const api = APIConfig.preconfigList;
-		const data = await RequestHttp.get(api, { params: { ClusterId: id } });
-		const {
-			Data: { ConfigPreServiceList }
-		} = data;
-		// setServiceList(ConfigPreServiceList);
-		ConfigPreServiceList.map(service => {
-			serviceNameList.current.push(service.ServiceName);
-		});
-	};
+	const { t } = useTranslation();
+	const [serviceTable, setServiceTable] = useState([]);
+	const { setJobId } = useStore();
+	const serviceColumn: ColumnsType<DataType> = [
+		{
+			title: t('service.serviceName'),
+			dataIndex: 'ServiceSummary',
+			render: text => <a>{text?.ServiceName}</a>
+		},
+		{
+			title: t('service.componentName'),
+			dataIndex: 'ComponentName',
+			render: text => <p>{text}</p>
+		},
+		{
+			title: t('nodeNum'),
+			dataIndex: 'ComponentNodeList',
+			render: (text: []) => <span>{text?.length}</span>
+		}
+	];
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
-
 	const handleOk = async () => {
 		const api = APIConfig.deploy;
+		const serviceNameList = serviceTable.map(item => item.rowKey);
 		const params = {
 			ActionTypeEnum: 'DEPLOY',
 			ClusterId: id,
 			IsOneByOne: false,
-			ServiceNameList: [...new Set(serviceNameList.current)] // 数组去重
+			ServiceNameList: serviceNameList
 		};
 		const data = await RequestHttp.post(api, params);
 		setJobId(data.Data.JobId);
 		return Promise.resolve(data);
 	};
-
+	const getInfo = async () => {
+		const apiList = APIConfig.componentList;
+		const params = {
+			ClusterId: id
+		};
+		const data = await RequestHttp.get(apiList, { params });
+		const {
+			Data: { ServiceComponentSummaryList }
+		} = data;
+		const tableData = ServiceComponentSummaryList.map(
+			(item: { rowKey: string; ServiceSummary: { ServiceName: string }; children: []; ComponentSummaryList: [] }) => {
+				item.rowKey = item.ServiceSummary.ServiceName;
+				item.children = item.ComponentSummaryList;
+				return item;
+			}
+		);
+		setServiceTable(tableData);
+	};
 	useEffect(() => {
-		getPreconfigList();
+		getInfo();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (
 		<Space direction="vertical" size={16}>
-			<Card title="Default size card" extra={<a href="#">More</a>} style={{ width: 300 }}>
+			<Card title="集群信息">
 				<p>Card content</p>
 				<p>Card content</p>
 				<p>Card content</p>
 			</Card>
-			<Card size="small" title="Small size card" extra={<a href="#">More</a>} style={{ width: 300 }}>
-				<p>Card content</p>
-				<p>Card content</p>
-				<p>Card content</p>
+			<Card title="服务信息">
+				<Table
+					expandable={{ defaultExpandAllRows: true }}
+					rowKey="rowKey"
+					columns={serviceColumn}
+					dataSource={serviceTable}
+					scroll={{ y: '400px' }}
+				></Table>
 			</Card>
 		</Space>
 	);

@@ -83,7 +83,7 @@ const LoginPage: React.FC = () => {
 			<Row className="w-6/12 height-[500] m-auto p-auto border border-grey-500 shadow-grey-100 shadow-md">
 				{/* <Row className="w-7/12 height-[500] m-auto p-auto border border-blue-500 shadow-2xl shadow-blue-100"> */}
 				<Col span={9} className="bg-[#51c2fe] bg-[url('@/assets/login.png')] bg-[length:90%_40%] bg-no-repeat bg-center"></Col>
-				<Col span={15} className="pt-20 pb-10 px-10 flex items-center justify-center flex-col bg-[#e9effb]">
+				<Col span={15} className="pt-20 pb-10 px-10 flex items-center justify-center flex-col bg-[#fff]">
 					<Space direction="vertical" align="center" size="small">
 						<img src={Logo} height={50} className="m-auto p-auto" />
 						<Form

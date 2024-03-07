@@ -43,8 +43,7 @@ const RequestHttp = axios.create(config);
 const requestSuccess = (response: AxiosResponse) => {
 	const { data }: { data: BackendResponse } = response;
 	const { Code, Message } = data;
-	//D1001 表示procedure无对应记录, B1001表示web/state/get未找到缓存信息
-	if (Code !== '00000' && Code !== 'D1001' && Code !== 'B1001') {
+	if (Code !== '00000') {
 		handleError(Message);
 		Code[0] === 'H' && (window.location.href = '/login'); // ‘H’前缀代表鉴权失效，跳转至登录页
 		return Promise.reject(new Error(Message || 'Error'));

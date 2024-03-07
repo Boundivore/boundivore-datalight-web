@@ -67,7 +67,7 @@ const ChangePassword: React.FC = () => {
 		}
 	};
 	return (
-		<Card className="min-h-[calc(100%-100px)] m-[20px]" title={t('tabs.changePassword')}>
+		<Card className="min-h-[calc(100%-50px)] m-[20px]" title={t('tabs.changePassword')}>
 			<Form
 				className="w-[600px]"
 				name="basic"

@@ -58,31 +58,15 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 	}));
 	const handleOk = async () => {
 		const apiSelect = APIConfig.selectService;
-		// 合并原始数据和本次操作选择的数据, tableData和selectedServiceRowsList位置不能互换
+		// 合并原数据和本次操作选择的数据
 		console.log('selectedServiceRowsList', selectedServiceRowsList);
-		// const combinedArray = [...tableData, ...selectedServiceRowsList];
-		// // 加工数据，以ServiceName为key
-		// const groupedByServiceName = combinedArray.reduce((groups, item) => {
-		// 	const key = item.ServiceName;
-		// 	(groups[key] = groups[key] || []).push(item);
-		// 	return groups;
-		// }, {});
-		// // 加工数据
-		// const result = Object.values(groupedByServiceName).map(group => {
-		// 	if (group.length === 2) {
-		// 		// 从"UNSELECTED"到"SELECTED"， 保留"SELECTED"
-		// 		return group[1];
-		// 	} else {
-		// 		// 从"SELECTED"变为"UNSELECTED"将 SCStateEnum 改为 "UNSELECTED"
-		// 		return { ...group[0], SCStateEnum: 'UNSELECTED' };
-		// 	}
-		// });
-		const combinedArray = selectedServiceRowsList
-			.concat(tableData.filter(itemA => !selectedServiceRowsList.some(itemB => itemA.ServiceName === itemB.ServiceName)))
-			.map(item => ({ ...item, SCStateEnum: 'UNSELECTED' }));
-		console.log('combinedArray', combinedArray);
-		// console.log('result', result);
 		console.log('tableData', tableData);
+		const combinedArray = selectedServiceRowsList.concat(
+			tableData
+				.filter(itemA => !selectedServiceRowsList.some(itemB => itemA.ServiceName === itemB.ServiceName))
+				.map(item => ({ ...item, SCStateEnum: 'UNSELECTED' }))
+		);
+		console.log('combinedArray', combinedArray);
 		const params = {
 			ClusterId: id,
 			ServiceList: combinedArray.map(({ SCStateEnum, ServiceName }) => ({ SCStateEnum, ServiceName }))
@@ -100,6 +84,7 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 		setTableData(serviceData);
 		const defaultSelectedKeys = serviceData.filter(item => item.SCStateEnum === 'SELECTED').map(item => item.ServiceName);
 		setSelectedRowKeys(defaultSelectedKeys);
+		setSelectedServiceRowsList(serviceData.filter(item => item.SCStateEnum === 'SELECTED'));
 	};
 	useEffect(() => {
 		getList();

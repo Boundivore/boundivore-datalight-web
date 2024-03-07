@@ -55,7 +55,7 @@ const InitNode: React.FC = forwardRef(() => {
 	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
 	const PreconfigStepRef = useRef<{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> }>(null);
-	const PreviewconfigStepRef = useRef<{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> }>(null);
+	const PreviewconfigStepRef = useRef<{ handleOk: () => void }>(null);
 	const DeployStepRef = useRef(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
 	const steps = [
@@ -118,8 +118,8 @@ const InitNode: React.FC = forwardRef(() => {
 	const nextAdd = async () => await startWorkerStepRef.current?.handleOk();
 	const nextComponent = async () => await selectServiceRef.current?.handleOk();
 	const nextPreconfig = async () => await selectComponentRef.current?.handleOk();
-	const nextDeploy = async () => await PreconfigStepRef.current?.handleOk();
-	// const preview = async () => await PreconfigStepRef.current?.onFinish(true);
+	const nextDeploy = async () => await PreviewconfigStepRef.current?.handleOk();
+	const nextPreview = async () => await PreconfigStepRef.current?.onFinish(true);
 
 	const stepConfig = [
 		{
@@ -179,17 +179,17 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('service.preConfig'),
 			content: <PreconfigStep ref={PreconfigStepRef} />,
-			nextStep: nextDeploy,
+			nextStep: nextPreview,
 			// hideInitButton: true,
 			nextText: t('preview')
 			// operations: [{ label: t('preview'), callback: preview }]
 		},
 		{
-			title: t('service.preConfig'),
+			title: t('service.deployOverview'),
 			content: <PreviewconfigStep ref={PreviewconfigStepRef} />,
 			nextStep: nextDeploy,
 			// hideInitButton: true,
-			nextText: t('preview')
+			nextText: t('startDeploy')
 			// operations: [{ label: t('preview'), callback: preview }]
 		},
 		{
@@ -204,13 +204,14 @@ const InitNode: React.FC = forwardRef(() => {
 					}
 				}
 			],
-			hideNext: true
+			hideNext: true,
+			hideRetry: true
 		}
 	];
 	// 使用新的 Hook 中的 useEffect, 获取进度，定位到当前步骤
 	useStepEffect();
 	return (
-		<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
+		<Row className="min-h-[calc(100%-50px)] m-[20px] pb-[50px]">
 			<Col span={6}>
 				<Card className="h-full">
 					<Steps size="small" current={stepCurrent} direction="vertical" items={steps} />

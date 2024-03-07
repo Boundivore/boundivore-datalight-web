@@ -39,14 +39,17 @@ export default {
 		inputConfirmPassword: '请确认您的新密码'
 	},
 	tabs: {
-		clusterManage: '集群管理',
-		nodeManage: '节点管理',
-		serviceManage: '服务管理',
+		home: '集群管理',
+		cluster: '集群管理',
+		node: '节点管理',
+		service: '服务管理',
 		config: '配置',
 		myAccount: '我的账号',
 		changePassword: '修改密码',
 		closeOther: '关闭其它',
-		closeAll: '关闭所有'
+		closeAll: '关闭所有',
+		init: '集群引导',
+		addNode: '新增节点'
 	},
 	header: {
 		componentSize: '组件大小',

@@ -30,12 +30,12 @@ import StepComponent from './components/stepComponent';
 import DispatchStep from './steps/dispatchStep';
 import StartWorkerStep from './steps/startWorkerStep';
 import DoneStep from './steps/doneStep';
-import useStepLogic from '@/hooks/useStepLogic';
+// import useStepLogic from '@/hooks/useStepLogic';
 import useNavigater from '@/hooks/useNavigater';
 
 const AddNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
-	const { useStepEffect } = useStepLogic();
+	// const { useStepEffect } = useStepLogic();
 	const { stepCurrent } = useStore();
 	const { navigateToNodeList } = useNavigater();
 	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
@@ -136,9 +136,10 @@ const AddNode: React.FC = forwardRef(() => {
 		}
 	];
 	//获取进度，定位到当前步骤
-	useStepEffect();
+	// useStepEffect();
+	console.log('stepConfig', stepConfig);
 	return (
-		<Row className="min-h-[calc(100%-100px)] m-[20px] pb-[50px]">
+		<Row className="min-h-[calc(100%-50px)] m-[20px] pb-[50px]">
 			<Col span={6}>
 				<Card className="h-full">
 					<Steps size="small" current={stepCurrent} direction="vertical" items={steps} />

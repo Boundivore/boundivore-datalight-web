@@ -83,7 +83,7 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 		form.setFieldsValue(initialValues);
 	}, [serviceList, form]);
 
-	const onFinish = async (openModal: boolean) => {
+	const onFinish = async () => {
 		// 将表单数据回填到原始数据中
 		const values = form.getFieldsValue();
 		const updatedData = _.cloneDeep([...serviceList]);
@@ -100,7 +100,6 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 			});
 		});
 		// setServiceList(updatedData);
-		openModal && setIsModalOpen(true);
 		const api = APIConfig.preconfigSave;
 		const params = {
 			ClusterId: id,
@@ -134,7 +133,6 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 			IsOneByOne: false,
 			ServiceNameList: [...new Set(serviceNameList.current)] // 数组去重
 		};
-		await onFinish(false);
 		const data = await RequestHttp.post(api, params);
 		setJobId(data.Data.JobId);
 		return Promise.resolve(data);

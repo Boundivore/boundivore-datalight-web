@@ -283,7 +283,7 @@ const ComponentManage: React.FC = () => {
 		setDefaultExpandedRowKeys(expandedRowKeys);
 	}, [tableData]);
 	return (
-		<Card className="min-h-[calc(100%-100px)] m-[20px]">
+		<Card className="min-h-[calc(100%-50px)] m-[20px]">
 			{contextHolder}
 			<Space>
 				{buttonConfigTop.map(button => (

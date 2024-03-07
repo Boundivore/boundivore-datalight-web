@@ -47,7 +47,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		const apiSelect = APIConfig.selectComponent;
 		// 将 nodeList 转换为以 ComponentName 为 key 的对象
 		const nodeMap = Object.entries(nodeList[id]).reduce((acc, [componentName, nodes]) => {
-			Object.values(nodes).forEach(node => {
+			Object.values(nodes.componentNodeList).forEach(node => {
 				if (!acc[componentName]) {
 					acc[componentName] = [];
 				}

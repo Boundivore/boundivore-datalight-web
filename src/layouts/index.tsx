@@ -19,12 +19,12 @@
  * @author Tracy.Guo
  */
 import { useState, Suspense } from 'react';
-import { Layout, Avatar, Popover, Menu, Breadcrumb, App, Spin } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Layout, Avatar, Popover, Menu, App, Spin, Button, Breadcrumb } from 'antd';
+import { UserOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import routes from '~react-pages';
 import LayoutMenu from './components/menu';
 import { useTranslation } from 'react-i18next';
-import { useRoutes } from 'react-router-dom';
+import { useRoutes, useLocation } from 'react-router-dom';
 import Logo from '@/assets/logo.png';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -40,6 +40,8 @@ interface MyComponentProps {
 const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const { t } = useTranslation();
 	const [collapsed, setCollapsed] = useState(false);
+	const [isVisible, setIsVisible] = useState(false);
+	const location = useLocation();
 	const { navigateToLogin } = useNavigater();
 	const { modal } = App.useApp();
 	const apiLogout = APIConfig.logout;
@@ -70,10 +72,22 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 			}}
 		></Menu>
 	);
+	const handleMouseEnter = () => {
+		setIsVisible(true);
+	};
+
+	const handleMouseLeave = () => {
+		setIsVisible(false);
+	};
+	const breadcrumbItems = () => {
+		const parts = location.pathname.split('/');
+		const path = parts[parts.length - 1];
+		return [{ title: t(`tabs.${path}`) }];
+	};
 	return (
 		<Layout className="w-full min-w-[1200px] h-[calc(100vh)]">
 			<Header className="flex items-center justify-between">
-				<img src={Logo} height={60} />
+				<img src={Logo} height={40} />
 				<Popover content={content}>
 					<Avatar
 						className="bg-[#87d068]"
@@ -85,15 +99,33 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 			</Header>
 			<Layout>
 				{!hideSider ? (
-					<Sider theme="light" collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
-						{/* <Header>Logo</Header> */}
-						<LayoutMenu />
-					</Sider>
+					<div className="relative bg-[#fff]" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+						<Sider
+							className={`${collapsed ? 'w-[80px]' : 'w-[250px]'}`}
+							theme="light"
+							collapsible
+							collapsed={collapsed}
+							trigger={null}
+						>
+							<LayoutMenu />
+							<Footer className="fixed bottom-0 bg-white p-6 font-bold">{t('poweredBy')}</Footer>
+						</Sider>
+						{isVisible && (
+							<Button
+								className={`absolute top-[40%] w-[18px] h-[35px] z-[999] border-l-0 rounded-bl-none rounded-tl-none ${
+									collapsed ? 'left-[80px]' : 'left-[250px]'
+								}`}
+								icon={collapsed ? <RightOutlined className="text-[12px]" /> : <LeftOutlined className="text-[12px]" />}
+								onClick={() => setCollapsed(!collapsed)}
+								type="primary"
+								ghost
+							></Button>
+						)}
+					</div>
 				) : null}
 				<Content>
-					<Breadcrumb />
+					<Breadcrumb className="ml-[44px] mt-[20px] font-bold text-[18px]" items={breadcrumbItems()} />
 					<Suspense fallback={<Spin fullscreen />}>{useRoutes(routes)}</Suspense>
-					<Footer className="fixed bottom-0 w-full bg-white p-4 shadow-md font-bold">{t('poweredBy')}</Footer>
 				</Content>
 			</Layout>
 		</Layout>
