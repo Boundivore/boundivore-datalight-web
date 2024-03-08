@@ -98,11 +98,11 @@ const PreviewconfigStep: React.FC = forwardRef((_props, ref) => {
 
 	return (
 		<Space direction="vertical" size={16}>
-			<Card title="集群信息">
+			{/* <Card title="集群信息">
 				<p>Card content</p>
 				<p>Card content</p>
 				<p>Card content</p>
-			</Card>
+			</Card> */}
 			<Card title="服务信息">
 				<Table
 					expandable={{ defaultExpandAllRows: true }}

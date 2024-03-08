@@ -49,7 +49,9 @@ export default {
 		closeOther: '关闭其它',
 		closeAll: '关闭所有',
 		init: '集群引导',
-		addNode: '新增节点'
+		addNode: '新增节点',
+		modifyConfig: '修改配置',
+		componentManage: '组件管理'
 	},
 	header: {
 		componentSize: '组件大小',

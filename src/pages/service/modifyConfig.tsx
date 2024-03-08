@@ -52,7 +52,7 @@ const ModifyConfig: React.FC = () => {
 
 	const editorRef = useRef(null);
 
-	let paramData = null; // 最终保存修改时提交的数据
+	// let paramData = null; // 最终保存修改时提交的数据
 
 	const getConfigFile = async () => {
 		// setLoading(true);
@@ -86,15 +86,13 @@ const ModifyConfig: React.FC = () => {
 			Data: { ConfigGroupList }
 		} = data;
 		// setLoading(false);
-		paramData = ConfigGroupList;
-		console.log(paramData);
+		// paramData = ConfigGroupList;
 		const copyData = _.cloneDeep(ConfigGroupList);
 		const codeData = atob(copyData[0].ConfigData);
 		setActiveContent(copyData);
 		setCodeEdit(codeData);
 		// setGroupList(copyData);
 		setConfigGroupInfo(copyData);
-		console.log(activeContent);
 	};
 	useEffect(() => {
 		getConfigFile();
@@ -119,7 +117,7 @@ const ModifyConfig: React.FC = () => {
 	};
 	const changeFile = () => {
 		if (editorRef.current) {
-			const editorValue = editorRef.current.editor.getValue();
+			const editorValue = editorRef.current?.handleSave();
 			const base64Data = btoa(editorValue);
 			const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
 			setConfigGroupInfo([
@@ -135,7 +133,7 @@ const ModifyConfig: React.FC = () => {
 	};
 	const saveChange = async () => {
 		const api = APIConfig.saveByGroup;
-		const editorValue = editorRef.current.editor.getValue();
+		const editorValue = editorRef.current?.handleSave();
 		const base64Data = btoa(unescape(encodeURIComponent(editorValue)));
 		const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
 		_.merge(configGroupInfo[currentGroupIndex], { Sha256: hashDigest, ConfigData: base64Data });
@@ -165,7 +163,7 @@ const ModifyConfig: React.FC = () => {
 			/>
 			{/* <div>{activeContent}</div> */}
 			<Row>
-				<Col span={8}>
+				<Col span={5}>
 					<Space direction="vertical">
 						{configGroupInfo.map((_group, index) => {
 							return (
@@ -188,8 +186,8 @@ const ModifyConfig: React.FC = () => {
 						})}
 					</Space>
 				</Col>
-				<Col className="min-h-[500px]" span={16}>
-					{codeEdit ? <CodeEditor editorRef={editorRef} data={codeEdit} mode={activeMode} changeFile={changeFile} /> : null}
+				<Col className="min-h-[500px]" span={19}>
+					{codeEdit ? <CodeEditor ref={editorRef} data={codeEdit} mode={activeMode} changeFile={changeFile} /> : null}
 				</Col>
 			</Row>
 			{isModalOpen ? (

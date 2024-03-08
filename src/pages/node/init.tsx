@@ -208,7 +208,6 @@ const InitNode: React.FC = forwardRef(() => {
 			hideRetry: true
 		}
 	];
-	// 使用新的 Hook 中的 useEffect, 获取进度，定位到当前步骤
 	useStepEffect();
 	return (
 		<Row className="min-h-[calc(100%-50px)] m-[20px] pb-[50px]">

@@ -47,11 +47,9 @@ const useStepLogic = (step: number = 0) => {
 				Data: { JobId, NodeJobId, ProcedureState }
 			} = data;
 			if (Code === '00000') {
-				setStepCurrent(stepMap[ProcedureState] - step);
+				data.Data !== null ? setStepCurrent(stepMap[ProcedureState] - step) : setStepCurrent(0);
 				setJobNodeId(NodeJobId);
 				setJobId(JobId);
-			} else if (Code === 'D1001') {
-				setStepCurrent(0);
 			}
 		};
 		useEffect(() => {

@@ -83,7 +83,7 @@ const useStore = create<MyStore>(set => ({
 		PROCEDURE_SELECT_SERVICE: 7,
 		PROCEDURE_SELECT_COMPONENT: 8,
 		PROCEDURE_PRE_CONFIG: 9,
-		PROCEDURE_DEPLOYING: 11 //部署信息总览只是前端页面，不是后端步骤，所以跳过11
+		PROCEDURE_DEPLOYING: 11 //部署信息总览只是前端页面，不是后端步骤，所以跳过10
 	},
 	stateText: {
 		STARTED: {

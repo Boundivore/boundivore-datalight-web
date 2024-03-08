@@ -38,11 +38,13 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const { stateText, stableState, setCurrentPageDisabled } = useStore();
+	const { stateText, stableState, setCurrentPageDisabled, stepCurrent } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [parseState, setParseState] = useState(false);
-	const { useGetSepData, useSetStepData } = useStepLogic();
+	const { useStepEffect, useGetSepData, useSetStepData } = useStepLogic();
 	const { webState, selectedList } = useGetSepData(preStepName, stepName);
+	// 自定义hook获取进度，定位到当前步骤
+	useStepEffect();
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -87,7 +89,7 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	};
 
 	useEffect(() => {
-		webState[preStepName] && parseHostname();
+		webState[preStepName] && stepCurrent === 1 && parseHostname();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState]);
 	const tableData: NodeType[] = usePolling(getList, stableState, 1000, [parseState]);
