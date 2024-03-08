@@ -24,14 +24,16 @@
  * @author Tracy.Guo
  */
 import { useState, useEffect } from 'react';
-import { Modal, Table, Alert } from 'antd';
+import { Modal, Table, Alert, Tag, Flex } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import { extractUpperCaseAndNumbers } from '@/utils/helper';
 import { NodeType, NodeWithComponent } from '@/api/interface';
+// const { Text } = Typography;
 
 interface NodeListModalProps {
 	isModalOpen: boolean;
@@ -64,7 +66,17 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 			title: t('includeComponent'),
 			dataIndex: 'ComponentName',
 			key: 'ComponentName',
-			render: (text: string[]) => text.map(component => component)
+			render: (text: string[]) => (
+				// <Text style={{ width: 200 }} ellipsis={{ tooltip: text.map(component => `${extractUpperCaseAndNumbers(component)}`) }}>
+				<Flex wrap="wrap" gap="small">
+					{text.map(component => (
+						<Tag bordered={false} color="processing">
+							{extractUpperCaseAndNumbers(component)}
+						</Tag>
+					))}
+				</Flex>
+				// </Text>
+			)
 		}
 	];
 	const rowSelection = {
@@ -141,6 +153,7 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		>
 			{openAlert ? <Alert message={errorText} type="error" /> : null}
 			<Table
+				className="data-light-table"
 				rowSelection={{
 					...rowSelection
 				}}

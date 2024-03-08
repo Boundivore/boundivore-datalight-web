@@ -34,7 +34,7 @@ const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 // const preStepName = 'dispachStep'; // 当前步骤页面基于上一步的输入和选择生成
 // const stepName = 'deployStep'; // 当前步骤结束时需要存储步骤数据
 const DeployStep: React.FC = () => {
-	const { stableState, jobId } = useStore();
+	const { stableState, jobId, setCurrentPageDisabled } = useStore();
 	// const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const { t } = useTranslation();
 	const columns: ColumnsType<NodeType> = [
@@ -69,18 +69,18 @@ const DeployStep: React.FC = () => {
 			}
 		}
 	];
-	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], _selectedRows: NodeType[]) => {
-			console.log(_selectedRows);
-			// setSelectedRowsList(selectedRows);
-		},
-		// defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
-		// 	return NodeId;
-		// }),
-		getCheckboxProps: (record: NodeType) => ({
-			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
-		})
-	};
+	// const rowSelection = {
+	// 	onChange: (_selectedRowKeys: React.Key[], _selectedRows: NodeType[]) => {
+	// 		console.log(_selectedRows);
+	// 		// setSelectedRowsList(selectedRows);
+	// 	},
+	// 	// defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
+	// 	// 	return NodeId;
+	// 	// }),
+	// 	getCheckboxProps: (record: NodeType) => ({
+	// 		disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
+	// 	})
+	// };
 	const getList = async () => {
 		const api = APIConfig.jobProgress;
 		const progressData = await RequestHttp.get(api, { params: { JobId: jobId } });
@@ -91,8 +91,11 @@ const DeployStep: React.FC = () => {
 		} = progressData;
 		const updatedArray = ExecProgressPerNodeList.map(obj => ({
 			...obj, // 展开当前对象
-			...JobExecStateEnum // 展开新键值对，这将合并到当前对象中
+			JobExecStateEnum // 展开新键值对，这将合并到当前对象中
 		}));
+		setCurrentPageDisabled({
+			next: JobExecStateEnum === 'RUNNING' || JobExecStateEnum === 'SUSPEND'
+		});
 		return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 	};
 
@@ -100,9 +103,6 @@ const DeployStep: React.FC = () => {
 	return (
 		<Table
 			className="data-light-table" //使用自定义class重定义table行高
-			rowSelection={{
-				...rowSelection
-			}}
 			rowKey="NodeId"
 			columns={columns}
 			dataSource={tableData}

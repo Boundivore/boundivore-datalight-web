@@ -42,18 +42,19 @@ export default function ThemeProvider(props: ThemeProviderProps) {
 			theme={{
 				components: {
 					Button: {
-						defaultBg: '#51c2fe',
-						defaultColor: '#fff',
-						defaultHoverBg: '#51c2fe',
-						defaultHoverColor: '#fff'
-						// defaultBorderColor: '#51c2fe'
-						// primaryColor: '#51c2fe'
+						// defaultBg: '#51c2fe',
+						// defaultColor: '#fff',
+						// defaultHoverBg: '#51c2fe',
+						// defaultHoverColor: '#fff'
 					},
 					Layout: {
 						/* here is your component tokens */
 						headerBg: '#fff',
 						footerBg: '#fff',
 						boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.08)'
+					},
+					Select: {
+						multipleItemBg: '#e6f4ff'
 					}
 				},
 				token: {

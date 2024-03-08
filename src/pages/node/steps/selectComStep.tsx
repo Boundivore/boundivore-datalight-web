@@ -57,20 +57,26 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		}, {});
 
 		// 合并数据并计算 ComponentList
-		const paramsComponentList = componentListRef.current.flatMap(service => {
-			const serviceName = service.ServiceSummary.ServiceName;
-			return service.ComponentSummaryList.map(component => {
-				const componentName = component.ComponentName;
-				const nodeIds = nodeMap[componentName] || [];
-				const scStateEnum = service.ServiceSummary.SCStateEnum; // 根据实际逻辑设置状态
-				return {
-					ComponentName: componentName,
-					NodeIdList: nodeIds,
-					SCStateEnum: scStateEnum,
-					ServiceName: serviceName
-				};
+		const paramsComponentList = componentListRef.current
+			.filter(component => {
+				return (
+					component.ServiceSummary.SCStateEnum === 'SELECTED_ADDITION' || component.ServiceSummary.SCStateEnum === 'SELECTED'
+				);
+			}) // 过滤出这两种状态的数据提交
+			.flatMap(service => {
+				const serviceName = service.ServiceSummary.ServiceName;
+				return service.ComponentSummaryList.map(component => {
+					const componentName = component.ComponentName;
+					const nodeIds = nodeMap[componentName] || [];
+					const scStateEnum = service.ServiceSummary.SCStateEnum; // 根据实际逻辑设置状态
+					return {
+						ComponentName: componentName,
+						NodeIdList: nodeIds,
+						SCStateEnum: scStateEnum,
+						ServiceName: serviceName
+					};
+				});
 			});
-		});
 
 		const params = {
 			ClusterId: id,

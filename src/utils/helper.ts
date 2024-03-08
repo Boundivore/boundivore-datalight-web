@@ -56,3 +56,13 @@ export const updateCurrentView = async (clusterId: string | number) => {
 	const data = await RequestHttp.post(api, { ClusterId: clusterId });
 	return Promise.resolve(data);
 };
+// 截取字符串中的大写字母和数字，组成新的字符串，用处：例如组件名称的缩写
+export const extractUpperCaseAndNumbers = (str: string) => {
+	// 正则表达式匹配大写字母和数字
+	const regex = /[A-Z0-9]/g;
+	// 使用match方法找到所有匹配项
+	const matches = str.match(regex);
+	// 如果找到匹配项，使用join方法将它们组合成一个新字符串
+	// 否则，返回一个空字符串
+	return matches ? matches.join('') : '';
+};

@@ -26,18 +26,20 @@ import StepComponent from '@/pages/node/components/stepComponent';
 import SelectServiceStep from '@/pages/node/steps/selectServiceStep';
 import SelectComStep from '@/pages/node/steps/selectComStep';
 import PreconfigStep from '@/pages/node/steps/preconfigStep';
+import PreviewconfigStep from '@/pages/node/steps/previewconfigStep';
 import DeployStep from '@/pages/node/steps/deployStep';
-import useStepLogic from '@/hooks/useStepLogic';
+// import useStepLogic from '@/hooks/useStepLogic';
 import useNavigater from '@/hooks/useNavigater';
 
 const AddComponent: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
-	const { useStepEffect } = useStepLogic(8);
+	// const { useStepEffect } = useStepLogic(8);
 	const { stepCurrent, setStepCurrent } = useStore();
 	const { navigateToHome } = useNavigater();
 	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
 	const PreconfigStepRef = useRef<{ handleOk: () => void } | null>(null);
+	const PreviewconfigStepRef = useRef<{ handleOk: () => void }>(null);
 	const DeployStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const steps = [
 		{
@@ -53,26 +55,18 @@ const AddComponent: React.FC = forwardRef(() => {
 			key: 2
 		},
 		{
-			title: t('service.deployStep'),
+			title: t('service.deployOverview'),
 			key: 3
+		},
+		{
+			title: t('service.deployStep'),
+			key: 4
 		}
 	];
-	const nextComponent = async () => {
-		const callbackData = await selectServiceRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextPreconfig = async () => {
-		const callbackData = await selectComponentRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextDeploy = async () => {
-		const callbackData = await PreconfigStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const preview = async () => {
-		const callbackData = await PreconfigStepRef.current?.onFinish(true);
-		return callbackData;
-	};
+	const nextComponent = async () => await selectServiceRef.current?.handleOk();
+	const nextPreconfig = async () => await selectComponentRef.current?.handleOk();
+	const nextDeploy = async () => await PreviewconfigStepRef.current?.handleOk();
+	const nextPreview = async () => await PreconfigStepRef.current?.onFinish(true);
 	useEffect(() => {
 		setStepCurrent(0);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,32 +75,49 @@ const AddComponent: React.FC = forwardRef(() => {
 		{
 			title: t('service.selectService'),
 			content: <SelectServiceStep ref={selectServiceRef} />,
-			nextStep: nextComponent
+			nextStep: nextComponent,
+			hideRetry: true
 		},
 		{
 			title: t('service.selectComponent'),
 			content: <SelectComStep ref={selectComponentRef} />,
-			nextStep: nextPreconfig
+			nextStep: nextPreconfig,
+			hideRetry: true
 		},
 		{
 			title: t('service.preConfig'),
 			content: <PreconfigStep ref={PreconfigStepRef} />,
+			nextStep: nextPreview,
+			hideRetry: true,
+			nextText: t('preview')
+			// operations: [{ label: t('preview'), callback: preview }]
+		},
+		{
+			title: t('service.deployOverview'),
+			content: <PreviewconfigStep ref={PreviewconfigStepRef} />,
 			nextStep: nextDeploy,
-			hideNext: true,
-			operations: [
-				{ label: t('preview'), callback: preview },
-				{ label: t('startDeploy') } // 不传callback默认进行一下步
-			]
+			hideRetry: true,
+			nextText: t('startDeploy')
+			// operations: [{ label: t('preview'), callback: preview }]
 		},
 		{
 			title: t('service.deployStep'),
 			content: <DeployStep ref={DeployStepRef} />,
-			operations: [{ label: t('backHome'), callback: navigateToHome }]
-			// nextStep: nextComponent
+			operations: [
+				{
+					label: t('backHome'),
+					callback: () => {
+						clearData();
+						navigateToHome();
+					}
+				}
+			],
+			hideNext: true,
+			hideRetry: true
 		}
 	];
 	//获取进度，定位到当前步骤
-	useStepEffect();
+	// useStepEffect();
 	return (
 		<Row className="min-h-[calc(100%-50px)] m-[20px] pb-[50px]">
 			<Col span={6}>

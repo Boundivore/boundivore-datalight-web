@@ -50,7 +50,7 @@ const ParseStep: React.FC = forwardRef((_props, ref) => {
 	}, [webState]);
 
 	return (
-		<Form form={form} name="basic" {...layout} style={{ maxWidth: 600 }} initialValues={{ SshPort: 22 }} autoComplete="off">
+		<Form form={form} name="basic" {...layout} style={{ maxWidth: 800 }} initialValues={{ SshPort: 22 }} autoComplete="off">
 			<Form.Item<ParseHostnameType>
 				label={t('node.hostName')}
 				name="Hostname"

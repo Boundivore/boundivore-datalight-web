@@ -64,7 +64,8 @@ const ServiceManage: React.FC = () => {
 		{
 			title: t('service.serviceType'),
 			dataIndex: 'ServiceType',
-			key: 'ServiceType'
+			key: 'ServiceType',
+			render: text => t(text.toLowerCase())
 		},
 		{
 			title: t('description'),
@@ -138,7 +139,7 @@ const ServiceManage: React.FC = () => {
 					<Select className="w-[200px]" options={selectData} value={defaultSelectValue} onChange={handleChange} />
 				</div>
 			</Flex>
-			<Table className="mt-[20px]" rowKey="NodeId" columns={columns} dataSource={tableData} loading={loading} />
+			<Table className="mt-[20px]" rowKey="ServiceName" columns={columns} dataSource={tableData} loading={loading} />
 		</Card>
 	);
 };

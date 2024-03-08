@@ -19,7 +19,8 @@
  * @author Tracy.Guo
  */
 import { useState, Suspense } from 'react';
-import { Layout, Avatar, Popover, Menu, App, Spin, Button, Breadcrumb } from 'antd';
+import { Layout, Avatar, Dropdown, App, Spin, Button, Breadcrumb } from 'antd';
+import type { MenuProps } from 'antd';
 import { UserOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import routes from '~react-pages';
 import LayoutMenu from './components/menu';
@@ -45,33 +46,32 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const { navigateToLogin } = useNavigater();
 	const { modal } = App.useApp();
 	const apiLogout = APIConfig.logout;
-	const content = (
-		<Menu
-			items={[
-				{
-					label: t('header.myAccount'),
-					key: '1'
-				},
-				{
-					label: t('header.logout'),
-					key: '2'
-				}
-			]}
-			onClick={({ key }) => {
-				if (key === '2') {
-					modal.confirm({
-						title: t('login.confirmLogout'),
-						okText: t('confirm'),
-						cancelText: t('cancel'),
-						onOk: async () => {
-							const data = await RequestHttp.get(apiLogout);
-							data.Code === '00000' && navigateToLogin();
-						}
-					});
-				}
-			}}
-		></Menu>
-	);
+	const items: MenuProps['items'] = [
+		{
+			label: t('header.myAccount'),
+			key: '1'
+		},
+		{
+			label: (
+				<div
+					onClick={() => {
+						modal.confirm({
+							title: t('login.confirmLogout'),
+							okText: t('confirm'),
+							cancelText: t('cancel'),
+							onOk: async () => {
+								const data = await RequestHttp.get(apiLogout);
+								data.Code === '00000' && navigateToLogin();
+							}
+						});
+					}}
+				>
+					{t('header.logout')}
+				</div>
+			),
+			key: '2'
+		}
+	];
 	const handleMouseEnter = () => {
 		setIsVisible(true);
 	};
@@ -88,14 +88,14 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 		<Layout className="w-full min-w-[1200px] h-[calc(100vh)]">
 			<Header className="flex items-center justify-between">
 				<img src={Logo} height={40} />
-				<Popover content={content}>
+				<Dropdown menu={{ items }}>
 					<Avatar
 						className="bg-[#87d068]"
 						src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
 						size="large"
 						icon={<UserOutlined />}
 					/>
-				</Popover>
+				</Dropdown>
 			</Header>
 			<Layout>
 				{!hideSider ? (
@@ -108,7 +108,9 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 							trigger={null}
 						>
 							<LayoutMenu />
-							<Footer className="fixed bottom-0 bg-white p-6 font-bold">{t('poweredBy')}</Footer>
+							<Footer className={`fixed bottom-0 bg-white p-6 font-bold ${collapsed ? 'hidden' : 'w-[250px]'}`}>
+								{t('poweredBy')}
+							</Footer>
 						</Sider>
 						{isVisible && (
 							<Button

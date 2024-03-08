@@ -111,10 +111,13 @@ const InitNode: React.FC = forwardRef(() => {
 	const nextList = async () => await parseStepRef.current?.handleOk();
 	const retryParseList = async () => await parseListStepRef.current?.parseHostname();
 	const nextDetect = async () => await parseListStepRef.current?.handleOk();
-	const retryDetectList = async () => await detectStepRef.current?.detect();
+	const retryDetect = async () => await detectStepRef.current?.detect();
 	const nextCheck = async () => await detectStepRef.current?.handleOk();
+	const retryCheck = async () => await checkStepRef.current?.check();
 	const nextDispatch = async () => await checkStepRef.current?.handleOk();
+	const retryDispatch = async () => await dispatchStepRef.current?.dispatch();
 	const nextStartWorker = async () => await dispatchStepRef.current?.handleOk();
+	const retryStartWorker = async () => await startWorkerStepRef.current?.startWorker();
 	const nextAdd = async () => await startWorkerStepRef.current?.handleOk();
 	const nextComponent = async () => await selectServiceRef.current?.handleOk();
 	const nextPreconfig = async () => await selectComponentRef.current?.handleOk();
@@ -137,22 +140,25 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('node.detect'),
 			content: <DetectStep ref={detectStepRef} />,
-			nextStep: nextCheck,
-			retry: retryDetectList
+			retry: retryDetect,
+			nextStep: nextCheck
 		},
 		{
 			title: t('node.check'),
 			content: <CheckStep ref={checkStepRef} />,
+			retry: retryCheck,
 			nextStep: nextDispatch
 		},
 		{
 			title: t('node.dispatch'),
 			content: <DispatchStep ref={dispatchStepRef} />,
+			retry: retryDispatch,
 			nextStep: nextStartWorker
 		},
 		{
 			title: t('node.startWorker'),
 			content: <StartWorkerStep ref={startWorkerStepRef} />,
+			retry: retryStartWorker,
 			nextStep: nextAdd,
 			nextText: t('node.addNodeToCluster')
 		},
@@ -174,13 +180,14 @@ const InitNode: React.FC = forwardRef(() => {
 		{
 			title: t('service.selectComponent'),
 			content: <SelectComStep ref={selectComponentRef} />,
-			nextStep: nextPreconfig
+			nextStep: nextPreconfig,
+			hideRetry: true
 		},
 		{
 			title: t('service.preConfig'),
 			content: <PreconfigStep ref={PreconfigStepRef} />,
 			nextStep: nextPreview,
-			// hideInitButton: true,
+			hideRetry: true,
 			nextText: t('preview')
 			// operations: [{ label: t('preview'), callback: preview }]
 		},
@@ -188,7 +195,7 @@ const InitNode: React.FC = forwardRef(() => {
 			title: t('service.deployOverview'),
 			content: <PreviewconfigStep ref={PreviewconfigStepRef} />,
 			nextStep: nextDeploy,
-			// hideInitButton: true,
+			hideRetry: true,
 			nextText: t('startDeploy')
 			// operations: [{ label: t('preview'), callback: preview }]
 		},

@@ -34,9 +34,24 @@ function App() {
 					<Router>
 						<Routes>
 							{/* 匹配 /login 路径时，只渲染 Login 组件，不使用 Layouts */}
-							<Route path="/login" element={<Login />} />
+							{/* AppAnt包裹, 定制design token才能对modal生效 */}
+							<Route
+								path="/login"
+								element={
+									<AppAnt>
+										<Login />
+									</AppAnt>
+								}
+							/>
 							{/* 其他路径使用 Layouts 包裹 */}
-							<Route path="/*" element={<Layouts />} />
+							<Route
+								path="/*"
+								element={
+									<AppAnt>
+										<Layouts />
+									</AppAnt>
+								}
+							/>
 							{/* 跟路径重定向至home页 */}
 							<Route path="/" element={<Navigate to="/login" replace />} />
 						</Routes>

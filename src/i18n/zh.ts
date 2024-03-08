@@ -51,7 +51,8 @@ export default {
 		init: '集群引导',
 		addNode: '新增节点',
 		modifyConfig: '修改配置',
-		componentManage: '组件管理'
+		componentManage: '组件管理',
+		addComponent: '新增组件'
 	},
 	header: {
 		componentSize: '组件大小',
