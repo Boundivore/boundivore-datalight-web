@@ -99,10 +99,12 @@ const ModifyConfig: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	useEffect(() => {
-		getFileContent();
+		activeTab && getFileContent();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
-	const handleClick = () => {
+	const handleClick = index => {
+		setCurrentGroupIndex(index);
+		setCodeEdit(atob(activeContent[index].ConfigData));
 		setIsModalOpen(true);
 		// changeFile(currentIndex);
 	};

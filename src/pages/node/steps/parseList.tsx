@@ -30,6 +30,7 @@ import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import { NodeType, ParseHostnameType, BadgeStatus } from '@/api/interface';
+import { getNavigationType } from '@/utils/helper';
 
 const preStepName = 'parseStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'parseList';
@@ -43,6 +44,7 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	const [parseState, setParseState] = useState(false);
 	const { useGetSepData, useSetStepData } = useStepLogic();
 	const { webState, selectedList } = useGetSepData(preStepName, stepName);
+
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -80,10 +82,19 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 
 	const parseHostname = async () => {
 		setParseState(false);
-		const apiParse = APIConfig.parseHostname;
-		const { Hostname, SshPort } = webState[preStepName] as ParseHostnameType;
-		const data = await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
-		setParseState(data.Code === '00000');
+		// 判断是否是刷新后的新加载
+		const type = getNavigationType();
+
+		if (type === 1 || type === 'reload') {
+			// 页面是通过刷新（reload）加载的
+			setParseState(true);
+		} else {
+			// 页面是通过其他方式（如直接访问、前进/后退等）加载的
+			const apiParse = APIConfig.parseHostname;
+			const { Hostname, SshPort } = webState[preStepName] as ParseHostnameType;
+			const data = await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
+			setParseState(data.Code === '00000');
+		}
 	};
 
 	useEffect(() => {

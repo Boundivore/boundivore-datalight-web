@@ -39,18 +39,20 @@ interface NodeListModalProps {
 	isModalOpen: boolean;
 	handleOk: (list: NodeType[]) => void;
 	handleCancel: () => void;
-	component: [];
+	component: string;
+	disableSelectedNode: boolean; // 是否禁用已经选择的节点
 }
 
-const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component }) => {
+const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component, disableSelectedNode }) => {
+	const [searchParams] = useSearchParams();
+	const id = searchParams.get('id');
 	const [tableData, setTableData] = useState([]);
 	const [initialLoad, setInitialLoad] = useState(true);
 	const [openAlert, setOpenAlert] = useState(false);
 	const [errorText, setErrorText] = useState('');
-	const [selectedNodeList, setSelectedNodeList] = useState<NodeType[]>([]);
 	const { nodeList } = useComponentAndNodeStore();
-	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id');
+	const [selectedNodeList, setSelectedNodeList] = useState<NodeType[]>(nodeList[id][component].componentNodeList);
+
 	// const [selectedRowKeys, setSelectedRowKeys] = useState(nodeList[id][component]?.map(({ NodeId }) => NodeId));
 
 	const { t } = useTranslation();
@@ -86,6 +88,10 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		},
 		defaultSelectedRowKeys: nodeList[id][component].componentNodeList?.map(({ NodeId }) => {
 			return NodeId;
+		}),
+		getCheckboxProps: (record: NodeType) => ({
+			disabled:
+				nodeList[id][component].componentNodeList?.map(({ NodeId }) => NodeId).includes(record.NodeId) && disableSelectedNode
 		})
 	};
 	const getList = async () => {

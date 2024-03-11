@@ -26,6 +26,7 @@ import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useNavigater from '@/hooks/useNavigater';
+
 interface StepConfig {
 	title: string;
 	content: ReactElement;
@@ -52,7 +53,6 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 	const { navigateToClusterList } = useNavigater();
 	const { stepCurrent, setStepCurrent, currentPageDisabled } = useStore();
 	const { next: nextDisabled } = currentPageDisabled;
-	console.log(99999, nextDisabled);
 	const stepConfig = config[stepCurrent];
 	const next = async () => {
 		// 不配置nextStep，默认进入下一步页面

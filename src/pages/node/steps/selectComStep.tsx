@@ -20,7 +20,7 @@
  */
 import { forwardRef, useEffect, useImperativeHandle, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Collapse, Flex, Select } from 'antd';
+import { Collapse, Flex, Select, Spin } from 'antd';
 // import { useTranslation } from 'react-i18next';
 // import type { CollapseProps } from 'antd';
 import { useComponentAndNodeStore } from '@/store/store';
@@ -35,6 +35,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 	const [serviceNames, setServiceNames] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentComponent, setCurrentComponent] = useState('');
+	const [disableSelectedNode, setDisableSelectedNode] = useState(false);
 	const [tempData, setTempData] = useState([]);
 	// const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
@@ -85,9 +86,10 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		const jobData = await RequestHttp.post(apiSelect, params);
 		return Promise.resolve(jobData);
 	};
-	const handleFocus = (componentName: string) => {
+	const handleFocus = (componentName: string, disableSelected: boolean) => {
 		setIsModalOpen(true);
 		setCurrentComponent(componentName);
+		setDisableSelectedNode(disableSelected);
 	};
 	const handleModalOk = (selectedRows: NodeType) => {
 		console.log('id', selectedRows);
@@ -137,40 +139,44 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 	useEffect(() => {
 		const cdata = tempData.map(item => {
 			let tempList = {};
+			// 是否禁用已经选择的节点
+			let disableSelected = item.SCStateEnum === 'SELECTED_ADDITION';
 			return {
 				key: item.ServiceName,
 				label: item.ServiceName,
 				children: (
-					<Flex wrap="wrap">
-						{item.ComponentSummaryList.map(component => {
-							tempList[id] = {
-								...tempList[id],
-								[component.ComponentName]: {
-									componentNodeList: component.ComponentNodeList,
-									min: component.Min,
-									max: component.Max
-								}
-							};
-							// setNodeList(tempList);
-							const nameArray = (nodeList[id] || tempList[id])[component.ComponentName].componentNodeList?.map(
-								node => node.Hostname
-							);
-							console.log(111, tempList[id]);
-							console.log(222, nameArray);
-							return (
-								<div className="w-1/4">
-									<p>{component.ComponentName}</p>
-									<Select
-										value={nameArray}
-										mode="multiple"
-										className="w-4/5 data-light"
-										tagRender={customTagRender}
-										onFocus={() => handleFocus(component.ComponentName)}
-									/>
-								</div>
-							);
-						})}
-					</Flex>
+					<Spin indicator={<span></span>} spinning={item.SCStateEnum !== 'SELECTED' && item.SCStateEnum !== 'SELECTED_ADDITION'}>
+						<Flex wrap="wrap">
+							{item.ComponentSummaryList.map(component => {
+								tempList[id] = {
+									...tempList[id],
+									[component.ComponentName]: {
+										componentNodeList: component.ComponentNodeList,
+										min: component.Min,
+										max: component.Max
+									}
+								};
+								// setNodeList(tempList);
+								const nameArray = (nodeList[id] || tempList[id])[component.ComponentName].componentNodeList?.map(
+									node => node.Hostname
+								);
+								console.log(111, tempList[id]);
+								console.log(222, nameArray);
+								return (
+									<div className="w-1/4">
+										<p>{component.ComponentName}</p>
+										<Select
+											value={nameArray}
+											mode="multiple"
+											className="w-4/5 data-light"
+											tagRender={customTagRender}
+											onFocus={() => handleFocus(component.ComponentName, disableSelected)}
+										/>
+									</div>
+								);
+							})}
+						</Flex>
+					</Spin>
 				)
 			};
 		});
@@ -192,6 +198,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 					handleOk={handleModalOk}
 					handleCancel={handleModalCancel}
 					component={currentComponent}
+					disableSelectedNode={disableSelectedNode}
 					// nodeList={nodeList}
 				/>
 			) : null}

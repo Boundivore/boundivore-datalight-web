@@ -56,6 +56,7 @@ export const updateCurrentView = async (clusterId: string | number) => {
 	const data = await RequestHttp.post(api, { ClusterId: clusterId });
 	return Promise.resolve(data);
 };
+
 // 截取字符串中的大写字母和数字，组成新的字符串，用处：例如组件名称的缩写
 export const extractUpperCaseAndNumbers = (str: string) => {
 	// 正则表达式匹配大写字母和数字
@@ -65,4 +66,23 @@ export const extractUpperCaseAndNumbers = (str: string) => {
 	// 如果找到匹配项，使用join方法将它们组合成一个新字符串
 	// 否则，返回一个空字符串
 	return matches ? matches.join('') : '';
+};
+
+export const getNavigationType = () => {
+	let navigationType;
+	let navigationEntry;
+
+	if (typeof performance.navigation !== 'undefined') {
+		// Safari 和一些其他浏览器支持 performance.navigation
+		navigationType = performance.navigation.type;
+	} else if (performance.getEntriesByType && typeof performance.getEntriesByType('navigation') !== 'undefined') {
+		// Chrome、Edge 等基于 Chromium 的浏览器可能使用这种方法
+		navigationEntry = performance.getEntriesByType('navigation')[0];
+		if (navigationEntry) {
+			navigationType = navigationEntry.type;
+		}
+	}
+
+	// 返回导航类型，如果没有获取到则返回 undefined
+	return navigationType;
 };
