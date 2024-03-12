@@ -152,7 +152,8 @@ const ComponentManage: React.FC = () => {
 		{
 			title: t('service.componentState'),
 			dataIndex: 'SCStateEnum',
-			key: 'SCStateEnum'
+			key: 'SCStateEnum',
+			render: (text: string) => text && t(text.toLowerCase())
 		},
 		{
 			title: t('operation'),

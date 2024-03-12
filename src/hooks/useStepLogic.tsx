@@ -78,6 +78,7 @@ const useStepLogic = (step: number = 0) => {
 					? setSelectedList(JSON.parse(atob(KVMap[stepName])))
 					: setSelectedList(JSON.parse(atob(KVMap[preStepName])));
 			}
+			stepName === 'parseStep' && setWebState({ [stepName]: JSON.parse(atob(KVMap[stepName])) });
 			preStepName && setWebState({ [preStepName]: JSON.parse(atob(KVMap[preStepName])) });
 		};
 		useEffect(() => {

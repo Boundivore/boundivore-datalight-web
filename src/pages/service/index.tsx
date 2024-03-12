@@ -65,7 +65,22 @@ const ServiceManage: React.FC = () => {
 			title: t('service.serviceType'),
 			dataIndex: 'ServiceType',
 			key: 'ServiceType',
-			render: text => t(text.toLowerCase())
+			render: text => t(text.toLowerCase()),
+			filters: [
+				{
+					text: t('base'),
+					value: 'BASE'
+				},
+				{
+					text: t('storage'),
+					value: 'STORAGE'
+				},
+				{
+					text: t('compute'),
+					value: 'COMPUTE'
+				}
+			],
+			onFilter: (value: string, record) => record.ServiceType.indexOf(value) === 0
 		},
 		{
 			title: t('description'),

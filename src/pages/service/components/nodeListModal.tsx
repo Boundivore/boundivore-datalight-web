@@ -65,7 +65,7 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 			render: (text: string[]) => (
 				<Flex wrap="wrap" gap="small">
 					{text.map(component => (
-						<Tag bordered={false} color="processing">
+						<Tag bordered={false} color="processing" key={component}>
 							{extractUpperCaseAndNumbers(component)}
 						</Tag>
 					))}
@@ -87,7 +87,10 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 	const mergeData = (n, newDataArr) => {
 		// Copy the original data
 		const updatedConfigGroupList = _.cloneDeep(configGroupInfo);
-		_.pull(updatedConfigGroupList[groupIndex].ConfigNodeList, newDataArr);
+		_.remove(updatedConfigGroupList[groupIndex].ConfigNodeList, itemA =>
+			_.some(newDataArr, itemB => itemA.NodeId === itemB.NodeId)
+		);
+
 		if (updatedConfigGroupList[n]) {
 			updatedConfigGroupList[n].ConfigNodeList.push(...newDataArr);
 		} else {
@@ -125,17 +128,25 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 
 	useEffect(() => {
 		let items = [];
-		const validGroup = configGroupInfo.filter((_group, filterIndex) => filterIndex !== groupIndex);
+		const validGroup = configGroupInfo
+			.map((group, index) => {
+				group.name = t('group', { name: index + 1 });
+				group.key = index;
+				return group;
+			})
+			.filter((_group, filterIndex) => {
+				return filterIndex !== groupIndex;
+			});
 		console.log('selectedNodeList----33', selectedNodeList);
-		validGroup.map((_group, index) => {
+		validGroup.map(group => {
 			items.push({
-				key: index,
-				label: <div className="w-[115px]">{t('group', { name: index + 1 })}</div>
+				key: group.key,
+				label: <div className="w-[115px]">{group.name}</div>
 				// nodeList: []
 			});
 		});
 		items.push({
-			key: validGroup.length + 1,
+			key: configGroupInfo.length + 1,
 			label: <div className="w-[115px]">创建新的分组</div>
 			// nodeList: []
 		});

@@ -14,7 +14,7 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { ConfigProvider, App as AppAnt } from 'antd';
 import type { Locale } from 'antd/es/locale';
@@ -23,9 +23,24 @@ import zhCN from 'antd/locale/zh_CN';
 import ThemeProvider from './styles/ThemeProvider';
 import Login from '@/pages/auth/login';
 import Layouts from '@/layouts';
+import { getNavigationType } from '@/utils/helper';
+// import useStore from '@/store/store';
+import useStore from '@/store/store';
 
 function App() {
 	const [locale] = useState<Locale>(zhCN);
+	const { setIsRefresh } = useStore();
+
+	useEffect(() => {
+		const type = getNavigationType();
+		if (type === 1 || type === 'reload') {
+			// 页面是通过刷新（reload）加载的
+			setIsRefresh(false);
+		} else {
+			setIsRefresh(false);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<AppAnt>

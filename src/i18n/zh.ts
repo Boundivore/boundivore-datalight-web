@@ -212,5 +212,10 @@ export default {
 	expandAll: '展开全部',
 	unexpandAll: '收起全部',
 	selectNode: '选择节点',
-	includeComponent: '包含组件'
+	includeComponent: '包含组件',
+	started: '已启动',
+	restarting: '重启中',
+	removed: '已移除',
+	selected: '选择部署',
+	unselected: '取消选择部署'
 };

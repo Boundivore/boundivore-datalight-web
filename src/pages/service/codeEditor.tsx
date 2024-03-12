@@ -48,28 +48,6 @@ const CodeEditor: React.FC<Props> = forwardRef(({ data, mode }, ref) => {
 	// };
 
 	return (
-		// <AceEditor
-		// 	ref={editorRef}
-		// 	mode={mode}
-		// 	theme="github"
-		// 	name="code-editor"
-		// 	fontSize={14}
-		// 	width="100%"
-		// 	value={data}
-		// 	showPrintMargin={false}
-		// 	editorProps={{ $blockScrolling: Infinity, $useWorker: true }}
-		// 	setOptions={{
-		// 		enableBasicAutocompletion: true,
-		// 		enableLiveAutocompletion: true,
-		// 		enableSnippets: true,
-		// 		showLineNumbers: true,
-		// 		tabSize: 2,
-		// 		fontFamily: 'sans-serif',
-		// 		fontSize: '14px',
-		// 		charset: 'utf-8'
-		// 	}}
-		// 	onChange={(value, e) => handleChange(value, e)}
-		// />
 		<CodeMirror
 			value={value}
 			height="500px"

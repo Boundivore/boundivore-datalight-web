@@ -37,6 +37,8 @@ interface MyStore {
 	setConfigGroupInfo: (group: object[]) => void;
 	currentPageDisabled: PageDisabledType; // 当前页面操作的置灰状态
 	setCurrentPageDisabled: (state: PageDisabledType) => void;
+	isRefresh: boolean; // 页面是否刷新
+	setIsRefresh: (isRefresh: boolean) => void;
 }
 interface PageDisabledType {
 	next: boolean;
@@ -176,7 +178,9 @@ const useStore = create<MyStore>(set => ({
 	configGroupInfo: [],
 	setConfigGroupInfo: (group: object[]) => set({ configGroupInfo: group }),
 	currentPageDisabled: { next: true },
-	setCurrentPageDisabled: (state: PageDisabledType) => set({ currentPageDisabled: state })
+	setCurrentPageDisabled: (state: PageDisabledType) => set({ currentPageDisabled: state }),
+	isRefresh: false,
+	setIsRefresh: (isRefresh: boolean) => set({ isRefresh })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

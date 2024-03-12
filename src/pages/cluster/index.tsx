@@ -93,7 +93,8 @@ const Home: React.FC = () => {
 			title: t('cluster.state'),
 			dataIndex: 'ClusterState',
 			key: 'ClusterState',
-			width: '10%'
+			width: '10%',
+			render: (text: string) => <a>{t(text.toLowerCase())}</a>
 		},
 		{
 			title: t('operation'),

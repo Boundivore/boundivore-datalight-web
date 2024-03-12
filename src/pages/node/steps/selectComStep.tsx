@@ -27,16 +27,18 @@ import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import NodeListModal from '../components/nodeListModal';
-import { NodeType } from '@/api/interface';
+import { NodeType, ServiceItemType } from '@/api/interface';
+
+const notSelectedStates = ['SELECTED', 'SELECTED_ADDITION'];
 
 const SelectComStep: React.FC = forwardRef((_props, ref) => {
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
-	const [serviceList, setServiceList] = useState([]);
-	const [serviceNames, setServiceNames] = useState([]);
+	const [serviceList, setServiceList] = useState<ServiceItemType[]>([]);
+	const [serviceNames, setServiceNames] = useState<string[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentComponent, setCurrentComponent] = useState('');
 	const [disableSelectedNode, setDisableSelectedNode] = useState(false);
-	const [tempData, setTempData] = useState([]);
+	const [tempData, setTempData] = useState<ServiceItemType[]>([]);
 	// const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -50,9 +52,14 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		const nodeMap = Object.entries(nodeList[id]).reduce((acc, [componentName, nodes]) => {
 			Object.values(nodes.componentNodeList).forEach(node => {
 				if (!acc[componentName]) {
-					acc[componentName] = [];
+					acc[componentName] = {};
 				}
-				acc[componentName].push(node.NodeId);
+				// 根据状态将节点分为两组
+				if (node.SCStateEnum === 'UNSELECTED') {
+					(acc[componentName].unselected || (acc[componentName].unselected = [])).push(node.NodeId);
+				} else {
+					(acc[componentName].selected || (acc[componentName].selected = [])).push(node.NodeId);
+				}
 			});
 			return acc;
 		}, {});
@@ -60,22 +67,34 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		// 合并数据并计算 ComponentList
 		const paramsComponentList = componentListRef.current
 			.filter(component => {
-				return (
-					component.ServiceSummary.SCStateEnum === 'SELECTED_ADDITION' || component.ServiceSummary.SCStateEnum === 'SELECTED'
-				);
+				return ['SELECTED_ADDITION', 'SELECTED'].includes(component.ServiceSummary.SCStateEnum);
 			}) // 过滤出这两种状态的数据提交
 			.flatMap(service => {
 				const serviceName = service.ServiceSummary.ServiceName;
-				return service.ComponentSummaryList.map(component => {
+				return service.ComponentSummaryList.flatMap(component => {
 					const componentName = component.ComponentName;
-					const nodeIds = nodeMap[componentName] || [];
-					const scStateEnum = service.ServiceSummary.SCStateEnum; // 根据实际逻辑设置状态
-					return {
+					// const nodeIds = nodeMap[componentName] || [];
+					// const scStateEnum = service.ServiceSummary.SCStateEnum; // 根据实际逻辑设置状态
+					const result1 = {
 						ComponentName: componentName,
-						NodeIdList: nodeIds,
-						SCStateEnum: scStateEnum,
+						NodeIdList: nodeMap[componentName] === undefined ? [] : nodeMap[componentName].selected,
+						SCStateEnum: 'SELECTED',
 						ServiceName: serviceName
 					};
+
+					const result2 = {
+						ComponentName: componentName,
+						NodeIdList: nodeMap[componentName] === undefined ? [] : nodeMap[componentName].unselected,
+						SCStateEnum: 'UNSELECTED',
+						ServiceName: serviceName
+					};
+					if (nodeMap[componentName]?.selected?.length && nodeMap[componentName]?.unselected?.length) {
+						return [result1, result2];
+					} else if (!nodeMap[componentName]?.selected?.length) {
+						return result2;
+					} else {
+						return result1;
+					}
 				});
 			});
 
@@ -108,6 +127,9 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 			{label}
 		</span>
 	);
+	const handleChange = (names: string[]) => {
+		setServiceNames(names);
+	};
 
 	const getList = async () => {
 		const apiList = APIConfig.componentList;
@@ -140,12 +162,13 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		const cdata = tempData.map(item => {
 			let tempList = {};
 			// 是否禁用已经选择的节点
-			let disableSelected = item.SCStateEnum === 'SELECTED_ADDITION';
+			// let disableSelected = item.SCStateEnum === 'SELECTED_ADDITION';
+			let disableSelected = false;
 			return {
 				key: item.ServiceName,
 				label: item.ServiceName,
 				children: (
-					<Spin indicator={<span></span>} spinning={item.SCStateEnum !== 'SELECTED' && item.SCStateEnum !== 'SELECTED_ADDITION'}>
+					<Spin indicator={<span></span>} spinning={!notSelectedStates.includes(item.SCStateEnum)}>
 						<Flex wrap="wrap">
 							{item.ComponentSummaryList.map(component => {
 								tempList[id] = {
@@ -157,9 +180,9 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 									}
 								};
 								// setNodeList(tempList);
-								const nameArray = (nodeList[id] || tempList[id])[component.ComponentName].componentNodeList?.map(
-									node => node.Hostname
-								);
+								const nameArray = (nodeList[id] || tempList[id])[component.ComponentName].componentNodeList
+									?.filter((item: ServiceItemType) => item.SCStateEnum !== 'UNSELECTED')
+									.map((node: NodeType) => node.Hostname);
 								console.log(111, tempList[id]);
 								console.log(222, nameArray);
 								return (
@@ -180,7 +203,9 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 				)
 			};
 		});
-		const serviceNamesList = tempData.map(item => item.ServiceName);
+		const serviceNamesList = tempData
+			.filter(service => notSelectedStates.includes(service.SCStateEnum))
+			.map(item => item.ServiceName);
 		setServiceNames(serviceNamesList);
 		setServiceList(cdata);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,7 +216,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 	}, []);
 	return (
 		<>
-			<Collapse items={serviceList} activeKey={serviceNames} />
+			<Collapse items={serviceList} activeKey={serviceNames} onChange={name => handleChange(name)} />
 			{isModalOpen ? (
 				<NodeListModal
 					isModalOpen={isModalOpen}

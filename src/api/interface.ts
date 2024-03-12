@@ -62,7 +62,7 @@ export interface ParseHostnameType {
  */
 export interface NodeType {
 	[x: string]: any;
-	NodeId: string | number;
+	NodeId: string;
 	Hostname: string;
 	CpuCores: number;
 	CpuArch: string;

@@ -41,7 +41,7 @@ const ModifyConfig: React.FC = () => {
 	const [tabsData, setTabsData] = useState([]);
 	const [activeTab, setActiveTab] = useState('');
 	const [activeMode, setActiveMode] = useState('');
-	const [activeContent, setActiveContent] = useState({});
+	const [activeContent, setActiveContent] = useState([]);
 	const [codeEdit, setCodeEdit] = useState('');
 	// const [groupList, setGroupList] = useState([]);
 	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
@@ -94,6 +94,9 @@ const ModifyConfig: React.FC = () => {
 		// setGroupList(copyData);
 		setConfigGroupInfo(copyData);
 	};
+	useEffect(() => {
+		setActiveContent(configGroupInfo);
+	}, [configGroupInfo]);
 	useEffect(() => {
 		getConfigFile();
 		// eslint-disable-next-line react-hooks/exhaustive-deps

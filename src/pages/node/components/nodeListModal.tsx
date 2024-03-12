@@ -33,17 +33,16 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import { extractUpperCaseAndNumbers } from '@/utils/helper';
 import { NodeType, NodeWithComponent } from '@/api/interface';
-// const { Text } = Typography;
 
 interface NodeListModalProps {
 	isModalOpen: boolean;
 	handleOk: (list: NodeType[]) => void;
 	handleCancel: () => void;
 	component: string;
-	disableSelectedNode: boolean; // 是否禁用已经选择的节点
+	disableSelectedNode?: boolean; // 是否禁用已经选择的节点
 }
 
-const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component, disableSelectedNode }) => {
+const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [tableData, setTableData] = useState([]);
@@ -51,7 +50,8 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 	const [openAlert, setOpenAlert] = useState(false);
 	const [errorText, setErrorText] = useState('');
 	const { nodeList } = useComponentAndNodeStore();
-	const [selectedNodeList, setSelectedNodeList] = useState<NodeType[]>(nodeList[id][component].componentNodeList);
+	const defaultNodeList = nodeList[id][component].componentNodeList;
+	const [selectedNodeList, setSelectedNodeList] = useState<NodeType[]>(defaultNodeList);
 
 	// const [selectedRowKeys, setSelectedRowKeys] = useState(nodeList[id][component]?.map(({ NodeId }) => NodeId));
 
@@ -68,8 +68,8 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 			title: t('includeComponent'),
 			dataIndex: 'ComponentName',
 			key: 'ComponentName',
+			width: '60%',
 			render: (text: string[]) => (
-				// <Text style={{ width: 200 }} ellipsis={{ tooltip: text.map(component => `${extractUpperCaseAndNumbers(component)}`) }}>
 				<Flex wrap="wrap" gap="small">
 					{text.map(component => (
 						<Tag bordered={false} color="processing">
@@ -77,8 +77,13 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 						</Tag>
 					))}
 				</Flex>
-				// </Text>
 			)
+		},
+		{
+			title: t('node.state'),
+			dataIndex: 'NodeState',
+			key: 'NodeState',
+			render: (text: string) => <a>{t(text.toLowerCase())}</a>
 		}
 	];
 	const rowSelection = {
@@ -86,13 +91,22 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedNodeList(selectedRows);
 		},
-		defaultSelectedRowKeys: nodeList[id][component].componentNodeList?.map(({ NodeId }) => {
-			return NodeId;
-		}),
-		getCheckboxProps: (record: NodeType) => ({
-			disabled:
-				nodeList[id][component].componentNodeList?.map(({ NodeId }) => NodeId).includes(record.NodeId) && disableSelectedNode
-		})
+		defaultSelectedRowKeys: defaultNodeList
+			?.filter(node => node.SCStateEnum !== 'UNSELECTED')
+			?.map(({ NodeId }) => {
+				return NodeId;
+			}),
+		getCheckboxProps: (record: NodeType) => {
+			const findItem = defaultNodeList.find(node => {
+				return node.NodeId === record.NodeId;
+			});
+			const disabled = !['REMOVED', 'SELECTED', 'UNSELECTED'].includes(
+				findItem?.SCStateEnum === undefined ? 'UNSELECTED' : findItem.SCStateEnum
+			);
+			console.log(disabled);
+			return { disabled };
+			// defaultNodeList?.map(({ NodeId }) => NodeId).includes(record.NodeId) && disableSelectedNode
+		}
 	};
 	const getList = async () => {
 		const apiList = APIConfig.nodeListWithComponent;
@@ -124,7 +138,21 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 	}, []);
 	useEffect(() => {
 		if (!initialLoad && !openAlert) {
-			handleOk(selectedNodeList);
+			const reformatRows = selectedNodeList.map(row => {
+				row.SCStateEnum = 'SELECTED';
+				return row;
+			});
+			// 提取defaultNodeList中存在，reformatRows中不存在的条目
+			// 这些条目就是从‘已选’状态变为‘未选’状态的数据
+			const result = defaultNodeList
+				.filter(itemA => {
+					return !reformatRows.some(itemB => itemB.NodeId === itemA.NodeId);
+				})
+				.map(item => {
+					return { ...item, SCStateEnum: 'UNSELECTED' };
+				});
+			const mergedResult = [...result, ...reformatRows];
+			handleOk(mergedResult);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [initialLoad, openAlert]);
