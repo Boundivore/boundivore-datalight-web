@@ -19,8 +19,8 @@
  * @author Tracy.Guo
  */
 import { useEffect, useState } from 'react';
-import { Card, Button, Form, Input, Select, List, Tabs } from 'antd';
-import { useTranslation, Trans } from 'react-i18next';
+import { Card, Button, Form, Input, Select, List, Tabs, Result } from 'antd';
+import { useTranslation } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
@@ -35,7 +35,7 @@ const layout = {
 };
 
 const CreateCluster: React.FC = () => {
-	const { navigateToHome } = useNavigater();
+	const { navigateToHome, navigateToNodeInit } = useNavigater();
 	const [success, setSuccess] = useState(false);
 	const [DLCVersion] = useState('');
 	const [serviceList, setServiceList] = useState<ServiceItemType[]>([]);
@@ -112,8 +112,12 @@ const CreateCluster: React.FC = () => {
 						rules={[{ required: true, message: `${t('cluster.typeCheck')}` }]}
 					>
 						<Select onChange={value => handleTypeChange(value)} allowClear>
-							<Option value="COMPUTE">{t('cluster.compute')}</Option>
-							<Option value="MIXED">{t('cluster.mixed')}</Option>
+							<Option key="MIXED" value="MIXED">
+								{t('cluster.mixed')}
+							</Option>
+							<Option key="COMPUTE" value="COMPUTE">
+								{t('cluster.compute')}
+							</Option>
 						</Select>
 					</Form.Item>
 					<Form.Item
@@ -177,15 +181,22 @@ const CreateCluster: React.FC = () => {
 					</Form.Item>
 				</Form>
 			) : (
-				<div style={{ fontSize: '40px', textAlign: 'center' }}>
-					<p>
-						<Trans i18nKey="cluster.createSucc">
+				<div style={{ fontSize: '30px', textAlign: 'center' }}>
+					{/* <Trans i18nKey="cluster.createSucc">
 							This should be a <a href={`/node/init?id=${jobClusterId}`}>link</a>
-						</Trans>
-					</p>
-					<Button type="primary" onClick={navigateToHome}>
-						{t('cluster.backToList')}
-					</Button>
+						</Trans> */}
+					<Result
+						status="success"
+						title={t('cluster.createSucc')}
+						extra={[
+							<Button key="continue" type="primary" onClick={() => navigateToNodeInit(jobClusterId)}>
+								{t('cluster.continue')}
+							</Button>,
+							<Button key="backToList" type="primary" onClick={navigateToHome}>
+								{t('cluster.backToList')}
+							</Button>
+						]}
+					/>
 				</div>
 			)}
 		</Card>

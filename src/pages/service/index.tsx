@@ -34,7 +34,6 @@ const ServiceManage: React.FC = () => {
 	const [selectData, setSelectData] = useState([]);
 	const [defaultSelectValue, setDefaultSelectValue] = useState('');
 	const { navigateToComManage, navigateToConfig } = useNavigater();
-	// const { modal } = App.useApp();
 
 	// 单条操作按钮配置
 	const buttonConfigItem = (record: ServiceItemType) => {
@@ -80,7 +79,7 @@ const ServiceManage: React.FC = () => {
 					value: 'COMPUTE'
 				}
 			],
-			onFilter: (value: string, record) => record.ServiceType.indexOf(value) === 0
+			onFilter: (value: any, record) => record.ServiceType.indexOf(value) === 0
 		},
 		{
 			title: t('description'),
@@ -127,7 +126,6 @@ const ServiceManage: React.FC = () => {
 			// 如果没有找到，则使用第一项的ClusterId
 			ClusterList.length > 0 ? setDefaultSelectValue(ClusterList[0].ClusterId) : setDefaultSelectValue(''); // 确保数组不为空
 		}
-		// getNodeList(id);
 	};
 	const getServiceList = async (id: string | number) => {
 		const api = APIConfig.serviceList;

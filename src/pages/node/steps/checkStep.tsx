@@ -35,7 +35,7 @@ import { NodeType, BadgeStatus } from '@/api/interface';
 const preStepName = 'detectStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'checkStep'; // 当前步骤结束时需要存储步骤数据
 const CheckStep: React.FC = forwardRef((_props, ref) => {
-	const { stateText, stableState, setCurrentPageDisabled } = useStore();
+	const { stateText, stableState, setCurrentPageDisabled, setIsRefresh, isRefresh } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [checkState, setCheckState] = useState(false);
 	const { useGetSepData, useSetStepData } = useStepLogic();
@@ -76,15 +76,19 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 	const handleOk = useSetStepData(stepName, null, selectedRowsList);
 	const check = async () => {
 		setCheckState(false);
-		const apiCheck = APIConfig.check;
-		const params = {
-			ClusterId: id,
-			NodeActionTypeEnum: 'CHECK',
-			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-			SshPort: (webState[preStepName] as NodeType[])[0].SshPort
-		};
-		const data = await RequestHttp.post(apiCheck, params);
-		setCheckState(data.Code === '00000');
+		if (isRefresh) {
+			setCheckState(true);
+		} else {
+			const apiCheck = APIConfig.check;
+			const params = {
+				ClusterId: id,
+				NodeActionTypeEnum: 'CHECK',
+				NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+				SshPort: (webState[preStepName] as NodeType[])[0].SshPort
+			};
+			const data = await RequestHttp.post(apiCheck, params);
+			setCheckState(data.Code === '00000');
+		}
 	};
 
 	const getList = async () => {
@@ -117,6 +121,13 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		webState[preStepName] && check();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState]);
+	useEffect(() => {
+		// 离开当前页面时重置isRefresh为true，再次进入该页面不进行check操作，除非通过上一步，下一步将isRefresh设为false
+		return () => {
+			setIsRefresh(true);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	// check之后拉取得checkList
 	const tableData: NodeType[] = usePolling(getList, stableState, 1000, [checkState, webState]);
 	const rowSelection = {

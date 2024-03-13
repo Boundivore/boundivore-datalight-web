@@ -20,6 +20,8 @@
  */
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import Base64 from 'crypto-js/enc-base64';
+import Utf8 from 'crypto-js/enc-utf8';
 import useStore, { usePersistStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -75,11 +77,11 @@ const useStepLogic = (step: number = 0) => {
 			// 如果当前步骤有数据说明之前操作过，则按当前步骤的数据显示选中节点，如果之前没有，则默认选中上一步选择的节点
 			if (Code === '00000') {
 				KVMap[stepName]
-					? setSelectedList(JSON.parse(atob(KVMap[stepName])))
-					: setSelectedList(JSON.parse(atob(KVMap[preStepName])));
+					? setSelectedList(JSON.parse(Utf8.stringify(Base64.parse(KVMap[stepName]))))
+					: setSelectedList(JSON.parse(Utf8.stringify(Base64.parse(KVMap[preStepName]))));
 			}
-			stepName === 'parseStep' && setWebState({ [stepName]: JSON.parse(atob(KVMap[stepName])) });
-			preStepName && setWebState({ [preStepName]: JSON.parse(atob(KVMap[preStepName])) });
+			stepName === 'parseStep' && setWebState({ [stepName]: JSON.parse(Utf8.stringify(Base64.parse(KVMap[stepName]))) });
+			preStepName && setWebState({ [preStepName]: JSON.parse(Utf8.stringify(Base64.parse(KVMap[preStepName]))) });
 		};
 		useEffect(() => {
 			getWebState(preStepName, stepName);

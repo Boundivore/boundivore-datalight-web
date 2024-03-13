@@ -39,7 +39,7 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const { stateText, stableState, setCurrentPageDisabled, isRefresh } = useStore();
+	const { stateText, stableState, setCurrentPageDisabled, isRefresh, setIsRefresh } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [parseState, setParseState] = useState(false);
 	const { useGetSepData, useSetStepData } = useStepLogic();
@@ -70,7 +70,11 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 			Data: { ExecStateEnum, NodeInitDetailList }
 		} = data;
 		setCurrentPageDisabled({
-			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND' || selectedList.length === 0
+			next:
+				ExecStateEnum === 'RUNNING' ||
+				ExecStateEnum === 'SUSPEND' ||
+				selectedList.length === 0 ||
+				selectedList.length === undefined
 		});
 		return NodeInitDetailList;
 	};
@@ -83,14 +87,6 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 	const parseHostname = async () => {
 		setParseState(false);
 		// 判断是否是刷新后的新加载
-
-		// const type = getNavigationType();
-
-		// if (type === 1 || type === 'reload') {
-		// 	// 页面是通过刷新（reload）加载的
-		// 	setParseState(true);
-		// } else {
-		// 页面是通过其他方式（如直接访问、前进/后退等）加载的
 		if (isRefresh) {
 			setParseState(true);
 		} else {
@@ -102,11 +98,18 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 
 		// }
 	};
+	useEffect(() => {
+		// 离开当前页面时重置isRefresh为true，再次进入该页面不进行parse操作，除非通过上一步，下一步将isRefresh设为false
+		return () => {
+			setIsRefresh(true);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	useEffect(() => {
 		webState[preStepName] && parseHostname();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [webState]);
+	}, [webState, isRefresh]);
 	const tableData: NodeType[] = usePolling(getList, stableState, 1000, [parseState]);
 	useEffect(() => {
 		// parse重新生成的tableData与下一步会退回来选中项defaultRowsList 是不同的数据，只是Hostname相同

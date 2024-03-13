@@ -51,7 +51,7 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { navigateToClusterList } = useNavigater();
-	const { stepCurrent, setStepCurrent, currentPageDisabled } = useStore();
+	const { stepCurrent, setStepCurrent, currentPageDisabled, setIsRefresh } = useStore();
 	const { next: nextDisabled } = currentPageDisabled;
 	const stepConfig = config[stepCurrent];
 	const next = async () => {
@@ -63,12 +63,14 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 			const goNext = await stepConfig.nextStep();
 			if (goNext) {
 				setStepCurrent(stepCurrent + 1);
+				setIsRefresh(false); // 点击上一步，重置isRefresh状态, 可以激活异步页面的执行操作，如parse，detect等
 			}
 		}
 	};
 
 	const prev = () => {
 		setStepCurrent(stepCurrent - 1);
+		setIsRefresh(false); // 点击下一步，重置isRefresh状态, 可以激活异步页面的执行操作，如parse，detect等
 	};
 	const retry = async () => {
 		await stepConfig.retry();

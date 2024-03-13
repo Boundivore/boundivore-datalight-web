@@ -16,6 +16,7 @@
 		]
 	},
 	"dependencies": {
+		"@uiw/codemirror-extensions-langs": "^4.21.24",
 		"@uiw/react-codemirror": "^4.21.24",
 		"ace-builds": "^1.32.5",
 		"antd": "^5.15.0",

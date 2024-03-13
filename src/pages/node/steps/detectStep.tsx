@@ -37,7 +37,7 @@ const stepName = 'detectStep'; // 当前步骤结束时需要存储步骤数据
 
 const DetectStep: React.FC = memo(
 	forwardRef((_props, ref) => {
-		const { stateText, stableState, setCurrentPageDisabled } = useStore();
+		const { stateText, stableState, setCurrentPageDisabled, setIsRefresh, isRefresh } = useStore();
 		const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 		const [detectState, setDetectState] = useState(false);
 		const { useGetSepData, useSetStepData } = useStepLogic();
@@ -69,15 +69,19 @@ const DetectStep: React.FC = memo(
 		const handleOk = useSetStepData(stepName, null, selectedRowsList);
 		const detect = async () => {
 			setDetectState(false);
-			const apiDetect = APIConfig.detect;
-			const params = {
-				ClusterId: id,
-				NodeActionTypeEnum: 'DETECT',
-				NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-				SshPort: (webState[preStepName] as NodeType[])[0].SshPort
-			};
-			const data = await RequestHttp.post(apiDetect, params);
-			setDetectState(data.Code === '00000');
+			if (isRefresh) {
+				setDetectState(true);
+			} else {
+				const apiDetect = APIConfig.detect;
+				const params = {
+					ClusterId: id,
+					NodeActionTypeEnum: 'DETECT',
+					NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+					SshPort: (webState[preStepName] as NodeType[])[0].SshPort
+				};
+				const data = await RequestHttp.post(apiDetect, params);
+				setDetectState(data.Code === '00000');
+			}
 		};
 		const getList = async () => {
 			const apiSpeed = APIConfig.detectList;
@@ -106,7 +110,14 @@ const DetectStep: React.FC = memo(
 		useEffect(() => {
 			webState[preStepName] && detect();
 			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [webState]);
+		}, [webState, isRefresh]);
+		useEffect(() => {
+			// 离开当前页面时重置isRefresh为true，再次进入该页面不进行detect操作，除非通过上一步，下一步将isRefresh设为false
+			return () => {
+				setIsRefresh(true);
+			};
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, []);
 
 		const rowSelection = {
 			selectedRowKeys: selectedRowsList.map(row => row.Hostname),

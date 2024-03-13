@@ -38,7 +38,7 @@ const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 const preStepName = 'checkStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'dispatchStep'; // 当前步骤结束时需要存储步骤数据
 const DispatchStep: React.FC = forwardRef((_props, ref) => {
-	const { jobNodeId, setJobNodeId, stableState, setCurrentPageDisabled } = useStore();
+	const { jobNodeId, setJobNodeId, stableState, setCurrentPageDisabled, setIsRefresh, isRefresh } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [dispatchState, setDispatchState] = useState(false);
 	const { useGetSepData } = useStepLogic();
@@ -135,19 +135,23 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 
 	const dispatch = async () => {
 		setDispatchState(false);
-		const apiDispatch = APIConfig.dispatch;
-		const params = {
-			ClusterId: id,
-			NodeActionTypeEnum: 'DISPATCH',
-			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
-			SshPort: (webState[preStepName] as NodeType[])[0].SshPort
-		};
-		const {
-			Code,
-			Data: { NodeJobId }
-		} = await RequestHttp.post(apiDispatch, params);
-		setJobNodeId(NodeJobId);
-		setDispatchState(Code === '00000');
+		if (isRefresh) {
+			setDispatchState(true);
+		} else {
+			const apiDispatch = APIConfig.dispatch;
+			const params = {
+				ClusterId: id,
+				NodeActionTypeEnum: 'DISPATCH',
+				NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
+				SshPort: (webState[preStepName] as NodeType[])[0].SshPort
+			};
+			const {
+				Code,
+				Data: { NodeJobId }
+			} = await RequestHttp.post(apiDispatch, params);
+			setJobNodeId(NodeJobId);
+			setDispatchState(Code === '00000');
+		}
 	};
 
 	const getList = async () => {
@@ -189,6 +193,13 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		webState[preStepName] && dispatch();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState, selectedList]);
+	useEffect(() => {
+		// 离开当前页面时重置isRefresh为true，再次进入该页面不进行dispatch操作，除非通过上一步，下一步将isRefresh设为false
+		return () => {
+			setIsRefresh(true);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	// dispatch之后拉取得dispatchList
 	const tableData = usePolling(getList, stableState, 1000, [dispatchState, webState, jobNodeId]);
 	const rowSelection = {

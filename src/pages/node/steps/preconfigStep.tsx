@@ -91,9 +91,8 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 			service.PlaceholderInfoList.forEach((info, infoIndex) => {
 				info.ConfigPrePropertyList.forEach((property, propertyIndex) => {
 					const formKey = `${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`;
-					// 回填时设置为Value属性，删除 Default 属性
+					// 回填时设置为Value属性，并保留 Default 属性
 					property.Value = values[formKey];
-					// delete property.Default;
 				});
 				info.PropertyList = info.ConfigPrePropertyList;
 				delete info.ConfigPrePropertyList;

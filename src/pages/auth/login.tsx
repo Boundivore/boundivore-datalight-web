@@ -102,7 +102,7 @@ const LoginPage: React.FC = () => {
 								name="Principal"
 								rules={[{ required: true, message: t('account.inputPrincipal') }]}
 							>
-								<Input />
+								<Input className="rounded-none border-b-2 border-t-0 border-x-0" />
 							</Form.Item>
 							<Form.Item<FieldType>
 								className="text-[#2e436b] mb-[5px]"
@@ -110,7 +110,7 @@ const LoginPage: React.FC = () => {
 								name="Credential"
 								rules={[{ required: true, message: t('login.inputPassword') }]}
 							>
-								<Input.Password />
+								<Input.Password className="rounded-none border-b-2 border-t-0 border-x-0" />
 							</Form.Item>
 							<Form.Item>
 								<a className="float-right text-[#51c2fe]" onClick={forgotPassword}>

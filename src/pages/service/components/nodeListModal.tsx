@@ -25,6 +25,7 @@ import { useState, useEffect } from 'react';
 import _ from 'lodash';
 import { Modal, Table, Space, Button, Dropdown, Flex, Tag } from 'antd';
 // import type { MenuProps } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import { DownOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
@@ -34,7 +35,13 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import { NodeType } from '@/api/interface';
 
-const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCancel }) => {
+interface NodeListModalProps {
+	isModalOpen: boolean;
+	groupIndex: number | string;
+	handleOk: (index: number | string, data) => void;
+	handleCancel: () => void;
+}
+const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, handleOk, handleCancel }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [selectedNodeList, setSelectedNodeList] = useState([]);
@@ -52,7 +59,7 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 			callback: (index: number) => moveToOtherGroup(index)
 		}
 	];
-	const columns = [
+	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
@@ -74,19 +81,20 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 		}
 	];
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: []) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedNodeList(selectedRows);
 		}
 	};
 	const moveToOtherGroup = (targetGroupIndex: number) => {
 		const data = mergeData(targetGroupIndex, selectedNodeList);
-		console.log('selectedNodeList----22', selectedNodeList);
+		console.log('selectedNodeList----22', data);
 		setConfigGroupInfo(data);
-		handleOk(targetGroupIndex);
+		handleOk(targetGroupIndex, data);
 	};
 	const mergeData = (n, newDataArr) => {
 		// Copy the original data
 		const updatedConfigGroupList = _.cloneDeep(configGroupInfo);
+		// 移动当前分组中的节点到目标分组
 		_.remove(updatedConfigGroupList[groupIndex].ConfigNodeList, itemA =>
 			_.some(newDataArr, itemB => itemA.NodeId === itemB.NodeId)
 		);
@@ -97,6 +105,10 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 			let copyData = _.cloneDeep(updatedConfigGroupList[groupIndex]);
 			copyData.ConfigNodeList = newDataArr;
 			updatedConfigGroupList[n] = copyData;
+		}
+		// 移动之后将没有节点的分组删除
+		if (updatedConfigGroupList[groupIndex].ConfigNodeList.length === 0) {
+			updatedConfigGroupList.splice(groupIndex, 1);
 		}
 		return updatedConfigGroupList;
 	};
@@ -129,11 +141,11 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 	useEffect(() => {
 		let items = [];
 		const validGroup = configGroupInfo
-			.map((group, index) => {
-				group.name = t('group', { name: index + 1 });
-				group.key = index;
-				return group;
-			})
+			.map((group, index) => ({
+				...group,
+				name: t('group', { name: index + 1 }),
+				key: index
+			}))
 			.filter((_group, filterIndex) => {
 				return filterIndex !== groupIndex;
 			});
@@ -146,7 +158,7 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 			});
 		});
 		items.push({
-			key: configGroupInfo.length + 1,
+			key: configGroupInfo.length,
 			label: <div className="w-[115px]">创建新的分组</div>
 			// nodeList: []
 		});
@@ -165,14 +177,18 @@ const NodeListModal: React.FC = ({ isModalOpen, groupIndex, handleOk, handleCanc
 				{buttonConfigTop.map(button => {
 					console.log('selectedNodeList----66666', selectedNodeList);
 					return button.type === 'dropdown' ? (
-						<Dropdown.Button
-							icon={<DownOutlined />}
-							type="primary"
+						<Dropdown
+							key={button.id}
 							menu={{ items: groupList, onClick: ({ key }) => button.callback(Number(key)) }}
 							disabled={button.disabled}
 						>
-							{button.label}
-						</Dropdown.Button>
+							<Button type="primary">
+								<Space>
+									{button.label}
+									<DownOutlined />
+								</Space>
+							</Button>
+						</Dropdown>
 					) : (
 						<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
 							{button.label}

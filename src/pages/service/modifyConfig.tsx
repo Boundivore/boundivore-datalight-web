@@ -23,27 +23,29 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { Tabs, Card, Col, Row, Space, Button, message } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
+import type { TabsProps } from 'antd';
 import _ from 'lodash';
-import sha256 from 'crypto-js/sha256';
 import CryptoJS from 'crypto-js';
+import sha256 from 'crypto-js/sha256';
+import Base64 from 'crypto-js/enc-base64';
+import Utf8 from 'crypto-js/enc-utf8';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
 import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
+import { ConfigSummaryVo } from '@/api/interface';
 
 const ModifyConfig: React.FC = () => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const serviceName = searchParams.get('name');
-	const [tabsData, setTabsData] = useState([]);
+	const [tabsData, setTabsData] = useState<TabsProps['items']>([]);
 	const [activeTab, setActiveTab] = useState('');
-	const [activeMode, setActiveMode] = useState('');
 	const [activeContent, setActiveContent] = useState([]);
 	const [codeEdit, setCodeEdit] = useState('');
-	// const [groupList, setGroupList] = useState([]);
 	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { configGroupInfo, setConfigGroupInfo } = useStore();
@@ -63,23 +65,22 @@ const ModifyConfig: React.FC = () => {
 			Data: { ConfigSummaryList }
 		} = data;
 
-		const tempData = ConfigSummaryList.map(item => {
-			item.key = item.FileName;
-			item.label = item.FileName;
-			return item;
-		});
+		const tabs = (ConfigSummaryList as ConfigSummaryVo[]).map(item => ({
+			...item,
+			key: item.FileName,
+			label: item.FileName
+		}));
 		// setLoading(false);
-		setActiveTab(tempData[0].FileName); // 默认选中第一项
-		const fileExtension = tempData[0].FileName.split('.').pop();
-		setActiveMode(fileExtension);
-		setTabsData(tempData);
+		setActiveTab(tabs[0].key); // 默认选中第一项
+		setTabsData(tabs);
 	};
 	const getFileContent = async () => {
 		// setLoading(true);
 		const api = APIConfig.listByGroup;
-		const { ConfigPath } = tabsData.find(item => {
-			return item.key === activeTab;
-		});
+		const { ConfigPath } =
+			tabsData?.find(item => {
+				return item.key === activeTab;
+			}) ?? {};
 		const params = { ClusterId: id, ServiceName: serviceName, Filename: activeTab, ConfigPath };
 		const data = await RequestHttp.get(api, { params });
 		const {
@@ -88,7 +89,7 @@ const ModifyConfig: React.FC = () => {
 		// setLoading(false);
 		// paramData = ConfigGroupList;
 		const copyData = _.cloneDeep(ConfigGroupList);
-		const codeData = atob(copyData[0].ConfigData);
+		const codeData = Utf8.stringify(Base64.parse(copyData[0].ConfigData));
 		setActiveContent(copyData);
 		setCodeEdit(codeData);
 		// setGroupList(copyData);
@@ -107,35 +108,37 @@ const ModifyConfig: React.FC = () => {
 	}, [activeTab]);
 	const handleClick = index => {
 		setCurrentGroupIndex(index);
-		setCodeEdit(atob(activeContent[index].ConfigData));
+		setCodeEdit(Utf8.stringify(Base64.parse(activeContent[index].ConfigData)));
 		setIsModalOpen(true);
-		// changeFile(currentIndex);
 	};
-	const handleModalOk = () => {
+	const handleModalOk = (targetGroupIndex, data) => {
 		// 新建分组，添加到其他分组
 		setIsModalOpen(false);
-		// changeFile();
-		setCurrentGroupIndex(currentGroupIndex || configGroupInfo.length); // 移动时定位到currentIndex，新建时定位到最后一个分组
+		if (targetGroupIndex >= data.length) {
+			setCurrentGroupIndex(data.length - 1);
+		} else {
+			setCurrentGroupIndex(targetGroupIndex);
+		}
 	};
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
-	const changeFile = () => {
-		if (editorRef.current) {
-			const editorValue = editorRef.current?.handleSave();
-			const base64Data = btoa(editorValue);
-			const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
-			setConfigGroupInfo([
-				...configGroupInfo,
-				{
-					...configGroupInfo[currentGroupIndex],
-					Sha256: hashDigest,
-					ConfigData: base64Data
-				}
-			]);
-		}
-		setCurrentGroupIndex(currentGroupIndex || configGroupInfo.length); // 移动时定位到currentIndex，新建时定位到最后一个分组
-	};
+	// const changeFile = () => {
+	// 	if (editorRef.current) {
+	// 		const editorValue = editorRef.current?.handleSave();
+	// 		const base64Data = btoa(editorValue);
+	// 		const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
+	// 		setConfigGroupInfo([
+	// 			...configGroupInfo,
+	// 			{
+	// 				...configGroupInfo[currentGroupIndex],
+	// 				Sha256: hashDigest,
+	// 				ConfigData: base64Data
+	// 			}
+	// 		]);
+	// 	}
+	// 	setCurrentGroupIndex(currentGroupIndex || configGroupInfo.length); // 移动时定位到currentIndex，新建时定位到最后一个分组
+	// };
 	const saveChange = async () => {
 		const api = APIConfig.saveByGroup;
 		const editorValue = editorRef.current?.handleSave();
@@ -162,17 +165,14 @@ const ModifyConfig: React.FC = () => {
 				items={tabsData}
 				onChange={activeKey => {
 					setActiveTab(activeKey);
-					const fileExtension = activeKey.split('.').pop();
-					setActiveMode(fileExtension);
 				}}
 			/>
-			{/* <div>{activeContent}</div> */}
 			<Row>
 				<Col span={5}>
 					<Space direction="vertical">
 						{configGroupInfo.map((_group, index) => {
 							return (
-								<Space>
+								<Space key={index}>
 									<Button
 										key={index}
 										size="middle"
@@ -180,7 +180,7 @@ const ModifyConfig: React.FC = () => {
 										shape="round"
 										onClick={() => {
 											setCurrentGroupIndex(index);
-											setCodeEdit(atob(activeContent[index].ConfigData));
+											setCodeEdit(Utf8.stringify(Base64.parse(activeContent[index].ConfigData)));
 										}}
 									>
 										{t('group', { name: index + 1 })}
@@ -192,7 +192,7 @@ const ModifyConfig: React.FC = () => {
 					</Space>
 				</Col>
 				<Col className="min-h-[500px]" span={19}>
-					{codeEdit ? <CodeEditor ref={editorRef} data={codeEdit} mode={activeMode} changeFile={changeFile} /> : null}
+					{codeEdit ? <CodeEditor ref={editorRef} data={codeEdit} /> : null}
 				</Col>
 			</Row>
 			{isModalOpen ? (

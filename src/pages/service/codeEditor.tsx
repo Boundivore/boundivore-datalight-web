@@ -5,16 +5,18 @@
 // import 'ace-builds/src-noconflict/worker-javascript';
 import { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
+// import { langs } from '@uiw/codemirror-extensions-langs';
+import { StreamLanguage } from '@codemirror/language';
+import { shell } from '@codemirror/legacy-modes/mode/shell';
+import { yaml } from '@codemirror/legacy-modes/mode/yaml';
 
 // const modified = 'ace-changed';
 interface Props {
 	data: string;
-	mode: string;
 }
-const CodeEditor: React.FC<Props> = forwardRef(({ data, mode }, ref) => {
-	console.log('mode', mode);
+const CodeEditor: React.FC<Props> = forwardRef(({ data }, ref) => {
 	const [value, setValue] = useState(data);
-	const handleChange = val => {
+	const handleChange = (val: string) => {
 		setValue(val);
 	};
 	const handleSave = () => {
@@ -25,7 +27,7 @@ const CodeEditor: React.FC<Props> = forwardRef(({ data, mode }, ref) => {
 	}));
 	useEffect(() => {
 		setValue(data);
-	}, [data]); // 确保包含所有相关的props
+	}, [data]);
 
 	// const handleChange = value => {
 	// 标记修改
@@ -51,7 +53,7 @@ const CodeEditor: React.FC<Props> = forwardRef(({ data, mode }, ref) => {
 		<CodeMirror
 			value={value}
 			height="500px"
-			// extensions={['javascript']}
+			extensions={[StreamLanguage.define(shell), StreamLanguage.define(yaml)]}
 			onChange={handleChange}
 		/>
 	);

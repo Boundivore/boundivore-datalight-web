@@ -43,7 +43,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const [collapsed, setCollapsed] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
 	const location = useLocation();
-	const { navigateToLogin } = useNavigater();
+	const { navigateToLogin, navigateToHome } = useNavigater();
 	const { modal } = App.useApp();
 	const apiLogout = APIConfig.logout;
 	const items: MenuProps['items'] = [
@@ -87,7 +87,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	return (
 		<Layout className="w-full min-w-[1200px] h-[calc(100vh)]">
 			<Header className="flex items-center justify-between">
-				<img src={Logo} height={40} />
+				<img className="cursor-pointer" src={Logo} height={40} onClick={navigateToHome} />
 				<Dropdown menu={{ items }}>
 					<Avatar
 						className="bg-[#87d068]"

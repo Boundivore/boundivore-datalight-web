@@ -26,8 +26,8 @@ import useStore from '@/store/store';
 import { ParseHostnameType } from '@/api/interface';
 
 const layout = {
-	labelCol: { span: 8 },
-	wrapperCol: { span: 16 }
+	labelCol: { span: 4 },
+	wrapperCol: { span: 20 }
 };
 const { TextArea } = Input;
 
@@ -50,7 +50,7 @@ const ParseStep: React.FC = forwardRef((_props, ref) => {
 	}, [webState]);
 
 	return (
-		<Form form={form} name="basic" {...layout} style={{ maxWidth: 800 }} initialValues={{ SshPort: 22 }} autoComplete="off">
+		<Form form={form} name="basic" {...layout} initialValues={{ SshPort: 22 }} autoComplete="off">
 			<Form.Item<ParseHostnameType>
 				label={t('node.hostName')}
 				name="Hostname"

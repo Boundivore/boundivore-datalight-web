@@ -52,7 +52,8 @@ export default {
 		addNode: '新增节点',
 		modifyConfig: '修改配置',
 		componentManage: '组件管理',
-		addComponent: '新增组件'
+		addComponent: '新增组件',
+		create: '创建集群'
 	},
 	header: {
 		componentSize: '组件大小',
@@ -80,7 +81,9 @@ export default {
 		idCheck: '请输入关联集群ID',
 		dlcVersion: 'DLC版本',
 		relativeClusterId: '关联集群ID',
-		createSucc: '集群创建成功！<1>继续集群引导</1>',
+		// createSucc: '集群创建成功！<1>继续集群引导</1>',
+		createSucc: '集群创建成功！',
+		continue: '继续集群引导',
 		backToList: '返回集群列表',
 		compute: '计算型',
 		mixed: '混合型',
@@ -217,5 +220,7 @@ export default {
 	restarting: '重启中',
 	removed: '已移除',
 	selected: '选择部署',
-	unselected: '取消选择部署'
+	unselected: '取消选择部署',
+	stopping: '停止中',
+	stopped: '已停止'
 };

@@ -211,8 +211,8 @@ const InitNode: React.FC = forwardRef(() => {
 					}
 				}
 			],
-			hideNext: true,
-			hideRetry: true
+			retry: nextDeploy,
+			hideNext: true
 		}
 	];
 	useStepEffect();
