@@ -14,6 +14,10 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+/**
+ * DoneStep - 第七步
+ * @author Tracy.Guo
+ */
 import { Result } from 'antd';
 import { useTranslation } from 'react-i18next';
 

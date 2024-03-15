@@ -37,8 +37,11 @@ const { Text } = Typography;
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 const preStepName = 'checkStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'dispatchStep'; // 当前步骤结束时需要存储步骤数据
+const disabledState = ['RUNNING', 'SUSPEND'];
+const operation = 'DISPATCH'; // 当前步骤操作，NodeActionTypeEnum
+
 const DispatchStep: React.FC = forwardRef((_props, ref) => {
-	const { jobNodeId, setJobNodeId, stableState, setCurrentPageDisabled, setIsRefresh, isRefresh } = useStore();
+	const { jobNodeId, setJobNodeId, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [dispatchState, setDispatchState] = useState(false);
 	const { useGetSepData } = useStepLogic();
@@ -89,7 +92,6 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 						) : (
 							<>
 								<Space>
-									{/* <LoadingOutlined /> */}
 									<span>
 										{t('node.fileProgress')}
 										{0}
@@ -135,23 +137,20 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 
 	const dispatch = async () => {
 		setDispatchState(false);
-		if (isRefresh) {
-			setDispatchState(true);
-		} else {
-			const apiDispatch = APIConfig.dispatch;
-			const params = {
-				ClusterId: id,
-				NodeActionTypeEnum: 'DISPATCH',
-				NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
-				SshPort: (webState[preStepName] as NodeType[])[0].SshPort
-			};
-			const {
-				Code,
-				Data: { NodeJobId }
-			} = await RequestHttp.post(apiDispatch, params);
-			setJobNodeId(NodeJobId);
-			setDispatchState(Code === '00000');
-		}
+
+		const apiDispatch = APIConfig.dispatch;
+		const params = {
+			ClusterId: id,
+			NodeActionTypeEnum: operation,
+			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }: any) => ({ Hostname, NodeId })),
+			SshPort: (webState[preStepName] as NodeType[])[0].SshPort
+		};
+		const {
+			Code,
+			Data: { NodeJobId }
+		} = await RequestHttp.post(apiDispatch, params);
+		setJobNodeId(NodeJobId);
+		setDispatchState(Code === '00000');
 	};
 
 	const getList = async () => {
@@ -178,8 +177,12 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 				return item1;
 			}
 		});
+		const basicDisabled = disabledState.includes(ExecStateEnum);
 		setCurrentPageDisabled({
-			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
+			nextDisabled: basicDisabled,
+			retryDisabled: basicDisabled,
+			prevDisabled: basicDisabled,
+			cancelDisabled: basicDisabled
 		});
 		// selectedList和NodeInitDetailList取交集，并过滤掉不可用数据，只选中状态为CHECK_OK的进行下一步
 		// selectedList为计算了上一步和下一步的选中项，NodeInitDetailList用来获取最新状态
@@ -190,23 +193,23 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 
 	useEffect(() => {
 		//基于上一步的数据重新执行当前页面步骤
-		webState[preStepName] && dispatch();
+		if (webState[preStepName]) {
+			// 判断是否是刷新后的新加载
+			if (isRefresh) {
+				setDispatchState(true);
+			} else {
+				dispatch();
+			}
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [webState, selectedList]);
-	useEffect(() => {
-		// 离开当前页面时重置isRefresh为true，再次进入该页面不进行dispatch操作，除非通过上一步，下一步将isRefresh设为false
-		return () => {
-			setIsRefresh(true);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [webState, selectedList, isRefresh]);
 	// dispatch之后拉取得dispatchList
 	const tableData = usePolling(getList, stableState, 1000, [dispatchState, webState, jobNodeId]);
 	const rowSelection = {
 		selectedRowKeys: selectedRowsList.map(row => row.NodeId),
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
-			setCurrentPageDisabled({ next: selectedRows.length === 0 });
+			setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: selectedRows.length === 0 });
 		},
 		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked

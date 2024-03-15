@@ -34,12 +34,13 @@ import { NodeType, ParseHostnameType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'parseStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'parseList';
+const disabledState = ['RUNNING', 'SUSPEND'];
 
 const ParseList: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const { stateText, stableState, setCurrentPageDisabled, isRefresh, setIsRefresh } = useStore();
+	const { stateText, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [parseState, setParseState] = useState(false);
 	const { useGetSepData, useSetStepData } = useStepLogic();
@@ -69,12 +70,12 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		const {
 			Data: { ExecStateEnum, NodeInitDetailList }
 		} = data;
+		const basicDisabled = disabledState.includes(ExecStateEnum);
 		setCurrentPageDisabled({
-			next:
-				ExecStateEnum === 'RUNNING' ||
-				ExecStateEnum === 'SUSPEND' ||
-				selectedList.length === 0 ||
-				selectedList.length === undefined
+			nextDisabled: basicDisabled || selectedList.length === 0 || selectedList.length === undefined,
+			retryDisabled: basicDisabled,
+			prevDisabled: basicDisabled,
+			cancelDisabled: basicDisabled
 		});
 		return NodeInitDetailList;
 	};
@@ -86,28 +87,21 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 
 	const parseHostname = async () => {
 		setParseState(false);
-		// 判断是否是刷新后的新加载
-		if (isRefresh) {
-			setParseState(true);
-		} else {
-			const apiParse = APIConfig.parseHostname;
-			const { Hostname, SshPort } = webState[preStepName] as ParseHostnameType;
-			const data = await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
-			setParseState(data.Code === '00000');
-		}
 
-		// }
+		const apiParse = APIConfig.parseHostname;
+		const { Hostname, SshPort } = webState[preStepName] as ParseHostnameType;
+		const data = await RequestHttp.post(apiParse, { ClusterId: id, HostnameBase64: btoa(Hostname), SshPort });
+		setParseState(data.Code === '00000');
 	};
 	useEffect(() => {
-		// 离开当前页面时重置isRefresh为true，再次进入该页面不进行parse操作，除非通过上一步，下一步将isRefresh设为false
-		return () => {
-			setIsRefresh(true);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	useEffect(() => {
-		webState[preStepName] && parseHostname();
+		// 判断是否是刷新后的新加载
+		if (webState[preStepName]) {
+			if (isRefresh) {
+				setParseState(true);
+			} else {
+				parseHostname();
+			}
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState, isRefresh]);
 	const tableData: NodeType[] = usePolling(getList, stableState, 1000, [parseState]);
@@ -125,7 +119,7 @@ const ParseList: React.FC = forwardRef((_props, ref) => {
 		selectedRowKeys: selectedRowsList.map(row => row.Hostname),
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
-			setCurrentPageDisabled({ next: selectedRows.length === 0 });
+			setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: selectedRows.length === 0 });
 		},
 		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked

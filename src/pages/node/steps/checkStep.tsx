@@ -34,8 +34,11 @@ import { NodeType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'detectStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'checkStep'; // 当前步骤结束时需要存储步骤数据
+const disabledState = ['RUNNING', 'SUSPEND'];
+const operation = 'CHECK'; // 当前步骤操作，NodeActionTypeEnum
+
 const CheckStep: React.FC = forwardRef((_props, ref) => {
-	const { stateText, stableState, setCurrentPageDisabled, setIsRefresh, isRefresh } = useStore();
+	const { stateText, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [checkState, setCheckState] = useState(false);
 	const { useGetSepData, useSetStepData } = useStepLogic();
@@ -76,19 +79,16 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 	const handleOk = useSetStepData(stepName, null, selectedRowsList);
 	const check = async () => {
 		setCheckState(false);
-		if (isRefresh) {
-			setCheckState(true);
-		} else {
-			const apiCheck = APIConfig.check;
-			const params = {
-				ClusterId: id,
-				NodeActionTypeEnum: 'CHECK',
-				NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-				SshPort: (webState[preStepName] as NodeType[])[0].SshPort
-			};
-			const data = await RequestHttp.post(apiCheck, params);
-			setCheckState(data.Code === '00000');
-		}
+
+		const apiCheck = APIConfig.check;
+		const params = {
+			ClusterId: id,
+			NodeActionTypeEnum: operation,
+			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+			SshPort: (webState[preStepName] as NodeType[])[0].SshPort
+		};
+		const data = await RequestHttp.post(apiCheck, params);
+		setCheckState(data.Code === '00000');
 	};
 
 	const getList = async () => {
@@ -101,9 +101,14 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		const {
 			Data: { ExecStateEnum, NodeInitDetailList }
 		} = data;
+		const basicDisabled = disabledState.includes(ExecStateEnum);
 		setCurrentPageDisabled({
-			next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
+			nextDisabled: basicDisabled,
+			retryDisabled: basicDisabled,
+			prevDisabled: basicDisabled,
+			cancelDisabled: basicDisabled
 		});
+
 		setSelectedRowsList(selectedList);
 		// selectedList和NodeInitDetailList取交集，并过滤掉不可用数据，只选中状态为CHECK_OK的进行下一步
 		// selectedList为计算了上一步和下一步的选中项，NodeInitDetailList用来获取最新状态
@@ -118,23 +123,23 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 
 	useEffect(() => {
 		//基于上一步的数据重新执行当前页面步骤
-		webState[preStepName] && check();
+		if (webState[preStepName]) {
+			// 判断是否是刷新后的新加载
+			if (isRefresh) {
+				setCheckState(true);
+			} else {
+				check();
+			}
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [webState]);
-	useEffect(() => {
-		// 离开当前页面时重置isRefresh为true，再次进入该页面不进行check操作，除非通过上一步，下一步将isRefresh设为false
-		return () => {
-			setIsRefresh(true);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [webState, isRefresh]);
 	// check之后拉取得checkList
 	const tableData: NodeType[] = usePolling(getList, stableState, 1000, [checkState, webState]);
 	const rowSelection = {
 		selectedRowKeys: selectedRowsList.map(row => row.NodeId),
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
-			setCurrentPageDisabled({ next: selectedRows.length === 0 });
+			setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: selectedRows.length === 0 });
 		},
 		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked

@@ -24,7 +24,6 @@ import ThemeProvider from './styles/ThemeProvider';
 import Login from '@/pages/auth/login';
 import Layouts from '@/layouts';
 import { getNavigationType } from '@/utils/helper';
-// import useStore from '@/store/store';
 import useStore from '@/store/store';
 
 function App() {
@@ -35,7 +34,7 @@ function App() {
 		const type = getNavigationType();
 		if (type === 1 || type === 'reload') {
 			// 页面是通过刷新（reload）加载的
-			setIsRefresh(false);
+			setIsRefresh(true);
 		} else {
 			setIsRefresh(false);
 		}

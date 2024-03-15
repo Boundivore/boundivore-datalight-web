@@ -35,7 +35,7 @@ const stepName = 'parseStep';
 
 const ParseStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
-	const { setCurrentPageDisabled } = useStore();
+	const { setCurrentPageDisabled, currentPageDisabled } = useStore();
 	const { useGetSepData, useSetStepData } = useStepLogic();
 	const { webState } = useGetSepData('', stepName);
 	const [form] = Form.useForm();
@@ -44,7 +44,7 @@ const ParseStep: React.FC = forwardRef((_props, ref) => {
 	}));
 	const handleOk = useSetStepData(stepName, form, null);
 	useEffect(() => {
-		setCurrentPageDisabled({ next: false });
+		setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: false, cancelDisabled: false });
 		webState[stepName] && form.setFieldsValue(webState[stepName]);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState]);

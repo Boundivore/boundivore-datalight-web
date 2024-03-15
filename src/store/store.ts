@@ -17,11 +17,13 @@
 // store.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { ServiceItemType } from '@/api/interface';
+
 interface MyStore {
 	isNeedChangePassword: boolean; //当前用户是否需要修改密码
 	setIsNeedChangePassword: (changePassword: boolean) => void;
-	selectedServiceRowsList: object[]; // 已选择的服务列表
-	setSelectedServiceRowsList: (rows: object[]) => void;
+	selectedServiceRowsList: ServiceItemType[]; // 已选择的服务列表
+	setSelectedServiceRowsList: (rows: ServiceItemType[]) => void;
 	jobClusterId: string; //当前操作的集群id
 	setJobClusterId: (id: string) => void;
 	jobNodeId: string; // 当前操作的节点id
@@ -41,7 +43,10 @@ interface MyStore {
 	setIsRefresh: (isRefresh: boolean) => void;
 }
 interface PageDisabledType {
-	next: boolean;
+	nextDisabled: boolean;
+	retryDisabled: boolean;
+	prevDisabled: boolean;
+	cancelDisabled: boolean;
 	// 如果将来还有其他属性，可以在这里添加
 }
 interface UserInfoType {
@@ -64,7 +69,7 @@ const useStore = create<MyStore>(set => ({
 	isNeedChangePassword: false,
 	setIsNeedChangePassword: (changePassword: boolean) => set({ isNeedChangePassword: changePassword }),
 	selectedServiceRowsList: [],
-	setSelectedServiceRowsList: (rows: object[]) => set({ selectedServiceRowsList: rows }),
+	setSelectedServiceRowsList: (rows: ServiceItemType[]) => set({ selectedServiceRowsList: rows }),
 	jobClusterId: '',
 	setJobClusterId: (id: string) => set({ jobClusterId: id }),
 	jobNodeId: '',
@@ -177,7 +182,7 @@ const useStore = create<MyStore>(set => ({
 	],
 	configGroupInfo: [],
 	setConfigGroupInfo: (group: object[]) => set({ configGroupInfo: group }),
-	currentPageDisabled: { next: true },
+	currentPageDisabled: { nextDisabled: true, retryDisabled: true, prevDisabled: true, cancelDisabled: true },
 	setCurrentPageDisabled: (state: PageDisabledType) => set({ currentPageDisabled: state }),
 	isRefresh: false,
 	setIsRefresh: (isRefresh: boolean) => set({ isRefresh })

@@ -18,7 +18,7 @@
  * InitNode - 节点初始化
  * @author Tracy.Guo
  */
-import React, { useRef, forwardRef } from 'react';
+import React, { useRef, forwardRef, useEffect } from 'react';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
@@ -42,8 +42,8 @@ import useNavigater from '@/hooks/useNavigater';
 
 const InitNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
-	const { stepCurrent } = useStore();
-	const { useStepEffect, useClearStepData } = useStepLogic();
+	const { stepCurrent, setIsRefresh } = useStore();
+	const { useStepEffect, useClearStepData, useCancelProcedure } = useStepLogic();
 	const { navigateToHome } = useNavigater();
 	const clearData = useClearStepData();
 	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
@@ -108,21 +108,21 @@ const InitNode: React.FC = forwardRef(() => {
 			key: 11
 		}
 	];
-	const nextList = async () => await parseStepRef.current?.handleOk();
-	const retryParseList = async () => await parseListStepRef.current?.parseHostname();
-	const nextDetect = async () => await parseListStepRef.current?.handleOk();
-	const retryDetect = async () => await detectStepRef.current?.detect();
-	const nextCheck = async () => await detectStepRef.current?.handleOk();
-	const retryCheck = async () => await checkStepRef.current?.check();
-	const nextDispatch = async () => await checkStepRef.current?.handleOk();
-	const retryDispatch = async () => await dispatchStepRef.current?.dispatch();
-	const nextStartWorker = async () => await dispatchStepRef.current?.handleOk();
-	const retryStartWorker = async () => await startWorkerStepRef.current?.startWorker();
-	const nextAdd = async () => await startWorkerStepRef.current?.handleOk();
-	const nextComponent = async () => await selectServiceRef.current?.handleOk();
-	const nextPreconfig = async () => await selectComponentRef.current?.handleOk();
-	const nextDeploy = async () => await PreviewconfigStepRef.current?.handleOk();
-	const nextPreview = async () => await PreconfigStepRef.current?.onFinish(true);
+	const nextList = () => parseStepRef.current?.handleOk();
+	const retryParseList = () => parseListStepRef.current?.parseHostname();
+	const nextDetect = () => parseListStepRef.current?.handleOk();
+	const retryDetect = () => detectStepRef.current?.detect();
+	const nextCheck = () => detectStepRef.current?.handleOk();
+	const retryCheck = () => checkStepRef.current?.check();
+	const nextDispatch = () => checkStepRef.current?.handleOk();
+	const retryDispatch = () => dispatchStepRef.current?.dispatch();
+	const nextStartWorker = () => dispatchStepRef.current?.handleOk();
+	const retryStartWorker = () => startWorkerStepRef.current?.startWorker();
+	const nextAdd = () => startWorkerStepRef.current?.handleOk();
+	const nextComponent = () => selectServiceRef.current?.handleOk();
+	const nextPreconfig = () => selectComponentRef.current?.handleOk();
+	const nextDeploy = () => PreviewconfigStepRef.current?.handleOk();
+	const nextPreview = () => PreconfigStepRef.current?.onFinish(true);
 
 	const stepConfig = [
 		{
@@ -167,7 +167,8 @@ const InitNode: React.FC = forwardRef(() => {
 			content: <DoneStep />,
 			operations: [
 				{ label: t('node.deployService') }, // 不传callback默认进行一下步
-				{ label: t('backHome'), callback: navigateToHome }
+				{ label: t('backHomeTemp'), callback: navigateToHome },
+				{ label: t('done'), callback: useCancelProcedure() }
 			],
 			hideInitButton: true
 		},
@@ -216,6 +217,13 @@ const InitNode: React.FC = forwardRef(() => {
 		}
 	];
 	useStepEffect();
+	useEffect(() => {
+		// 离开当前页面时重置isRefresh为true，再次进入该页面不进行parse操作，除非通过上一步，下一步将isRefresh设为false
+		return () => {
+			setIsRefresh(true);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	return (
 		<Row className="min-h-[calc(100%-50px)] m-[20px] pb-[50px]">
 			<Col span={6}>

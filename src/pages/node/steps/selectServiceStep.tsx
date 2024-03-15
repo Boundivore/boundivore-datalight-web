@@ -18,7 +18,7 @@
  * SelectServiceStep - 选择服务步骤
  * @author Tracy.Guo
  */
-import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
+import { FC, forwardRef, useImperativeHandle, useEffect, useState, Key } from 'react';
 import _ from 'lodash';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
@@ -27,17 +27,17 @@ import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { NodeType, BadgeStatus } from '@/api/interface';
+import { BadgeStatus, ServiceItemType } from '@/api/interface';
 
-const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
-	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText, setCurrentPageDisabled } = useStore();
-	const [tableData, setTableData] = useState([]);
-	const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+const SelectServiceStep: FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const apiSpeed = APIConfig.serviceList;
-	const columns: ColumnsType<NodeType> = [
+	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText, setCurrentPageDisabled, currentPageDisabled } =
+		useStore();
+	const [tableData, setTableData] = useState<ServiceItemType[]>([]);
+	const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
+	const columns: ColumnsType<ServiceItemType> = [
 		{
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceName',
@@ -76,11 +76,12 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 	};
 
 	const getList = async () => {
+		const apiList = APIConfig.serviceList;
 		const params = {
 			ClusterId: id
 		};
-		const data = await RequestHttp.get(apiSpeed, { params });
-		const serviceData = data.Data.ServiceSummaryList;
+		const data = await RequestHttp.get(apiList, { params });
+		const serviceData: ServiceItemType[] = data.Data.ServiceSummaryList;
 		setTableData(serviceData);
 		const defaultSelectedKeys = serviceData.filter(item => item.SCStateEnum === 'SELECTED').map(item => item.ServiceName);
 		setSelectedRowKeys(defaultSelectedKeys);
@@ -88,16 +89,16 @@ const SelectServiceStep: React.FC = forwardRef((_props, ref) => {
 	};
 	useEffect(() => {
 		getList();
-		setCurrentPageDisabled({ next: true });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	useEffect(() => {
-		setCurrentPageDisabled({ next: !selectedRowKeys.length });
+		// 该页面没有异步轮询操作，可以取消流程，cancelDisabled直接置为false
+		setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: !selectedRowKeys.length, cancelDisabled: false });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedRowKeys]);
 	const rowSelection = {
 		selectedRowKeys,
-		onChange: (selectedRowKeys: [], selectedRows: NodeType[]) => {
+		onChange: (selectedRowKeys: Key[], selectedRows: ServiceItemType[]) => {
 			setSelectedRowKeys(selectedRowKeys);
 			setSelectedServiceRowsList(
 				_.cloneDeep(selectedRows).map(item => {

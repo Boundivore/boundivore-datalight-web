@@ -18,14 +18,11 @@
  * StepComponent -Step步骤操作封装
  * @author Tracy.Guo
  */
-import { ReactElement } from 'react';
+import { ReactElement, FC } from 'react';
 import { Button, Col, Card, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
 import useStore from '@/store/store';
-import APIConfig from '@/api/config';
-import RequestHttp from '@/api';
-import useNavigater from '@/hooks/useNavigater';
+import useStepLogic from '@/hooks/useStepLogic';
 
 interface StepConfig {
 	title: string;
@@ -46,13 +43,11 @@ interface StepConfig {
 interface MyComponentProps {
 	config: StepConfig[];
 }
-const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
+const StepComponent: FC<MyComponentProps> = ({ config }) => {
 	const { t } = useTranslation();
-	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id');
-	const { navigateToClusterList } = useNavigater();
+	const { useCancelProcedure } = useStepLogic();
 	const { stepCurrent, setStepCurrent, currentPageDisabled, setIsRefresh } = useStore();
-	const { next: nextDisabled } = currentPageDisabled;
+	const { nextDisabled, retryDisabled, prevDisabled, cancelDisabled } = currentPageDisabled;
 	const stepConfig = config[stepCurrent];
 	const next = async () => {
 		// 不配置nextStep，默认进入下一步页面
@@ -62,42 +57,20 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 			// 配置的nextStep操作成功才进入下一步页面
 			const goNext = await stepConfig.nextStep();
 			if (goNext) {
-				setStepCurrent(stepCurrent + 1);
 				setIsRefresh(false); // 点击上一步，重置isRefresh状态, 可以激活异步页面的执行操作，如parse，detect等
+				setStepCurrent(stepCurrent + 1);
 			}
 		}
 	};
 
 	const prev = () => {
-		setStepCurrent(stepCurrent - 1);
 		setIsRefresh(false); // 点击下一步，重置isRefresh状态, 可以激活异步页面的执行操作，如parse，detect等
+		setStepCurrent(stepCurrent - 1);
 	};
 	const retry = async () => {
-		await stepConfig.retry();
-		// setStepCurrent(stepCurrent - 1);
+		stepConfig.retry && (await stepConfig.retry());
 	};
-	const cancel = async () => {
-		const apiRemove = APIConfig.removeProcedure;
-		const apiClear = APIConfig.webStateClear;
-		const params = {
-			ClusterId: id
-		};
-
-		// 同时发起两个请求
-		const [removeResponse, clearResponse] = await Promise.all([
-			RequestHttp.post(apiRemove, params),
-			RequestHttp.post(apiClear, params)
-		]);
-
-		// 分别从两个响应中提取 Code
-		const { Code: removeCode } = removeResponse;
-		const { Code: clearCode } = clearResponse;
-
-		// 检查 Code，如果满足条件，则导航到集群列表
-		if ((removeCode === '00000' || removeCode === 'D1001') && clearCode === '00000') {
-			navigateToClusterList();
-		}
-	};
+	const cancel = useCancelProcedure();
 	return (
 		<>
 			<Card className="h-full" title={stepConfig.title}>
@@ -117,12 +90,12 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 							<>
 								{/* TODO 添加重试操作*/}
 								{stepCurrent < config.length && !stepConfig.hideRetry && (
-									<Button onClick={retry} disabled={nextDisabled}>
+									<Button onClick={retry} disabled={retryDisabled}>
 										{t('retry')}
 									</Button>
 								)}
 								{stepCurrent > 0 && stepCurrent < config.length && !stepConfig.hidePrev && (
-									<Button onClick={prev} disabled={nextDisabled}>
+									<Button onClick={prev} disabled={prevDisabled}>
 										{t('previous')}
 									</Button>
 								)}
@@ -132,7 +105,7 @@ const StepComponent: React.FC<MyComponentProps> = ({ config }) => {
 									</Button>
 								)}
 								{stepCurrent < config.length - 1 && (
-									<Button onClick={cancel} disabled={nextDisabled}>
+									<Button onClick={cancel} disabled={cancelDisabled}>
 										{t('cancel')}
 									</Button>
 								)}

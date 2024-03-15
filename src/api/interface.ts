@@ -30,7 +30,7 @@ export interface BackendResponse {
  */
 export interface ClusterType {
 	HasAlreadyNode: boolean;
-	ClusterId: number;
+	ClusterId: string;
 	ClusterState: string;
 	ClusterDesc: string;
 	ClusterName: string;
@@ -103,4 +103,49 @@ export interface UserInfoType {
 	userId: string;
 	nickName: string;
 	realName: string;
+}
+
+/**
+ * ConfigSummaryVo
+ * @export
+ * @interface ConfigSummaryVo
+ */
+export interface ConfigSummaryVo {
+	/**
+	 *
+	 * @type {string}
+	 * @memberof ConfigSummaryVo
+	 */
+	ConfigPath: string;
+	/**
+	 *
+	 * @type {string}
+	 * @memberof ConfigSummaryVo
+	 */
+	FileName: string;
+}
+/**
+ * ConfigSummaryListVo
+ * @export
+ * @interface ConfigSummaryListVo
+ */
+export interface ConfigSummaryListVo {
+	/**
+	 *
+	 * @type {number}
+	 * @memberof ConfigSummaryListVo
+	 */
+	ClusterId: number;
+	/**
+	 *
+	 * @type {Array<ConfigSummaryVo>}
+	 * @memberof ConfigSummaryListVo
+	 */
+	ConfigSummaryList: Array<ConfigSummaryVo>;
+	/**
+	 *
+	 * @type {string}
+	 * @memberof ConfigSummaryListVo
+	 */
+	ServiceName: string;
 }

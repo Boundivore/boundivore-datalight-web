@@ -34,10 +34,11 @@ import { NodeType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'parseList'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'detectStep'; // 当前步骤结束时需要存储步骤数据
+const disabledState = ['RUNNING', 'SUSPEND'];
 
 const DetectStep: React.FC = memo(
 	forwardRef((_props, ref) => {
-		const { stateText, stableState, setCurrentPageDisabled, setIsRefresh, isRefresh } = useStore();
+		const { stateText, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
 		const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 		const [detectState, setDetectState] = useState(false);
 		const { useGetSepData, useSetStepData } = useStepLogic();
@@ -69,19 +70,16 @@ const DetectStep: React.FC = memo(
 		const handleOk = useSetStepData(stepName, null, selectedRowsList);
 		const detect = async () => {
 			setDetectState(false);
-			if (isRefresh) {
-				setDetectState(true);
-			} else {
-				const apiDetect = APIConfig.detect;
-				const params = {
-					ClusterId: id,
-					NodeActionTypeEnum: 'DETECT',
-					NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
-					SshPort: (webState[preStepName] as NodeType[])[0].SshPort
-				};
-				const data = await RequestHttp.post(apiDetect, params);
-				setDetectState(data.Code === '00000');
-			}
+
+			const apiDetect = APIConfig.detect;
+			const params = {
+				ClusterId: id,
+				NodeActionTypeEnum: 'DETECT',
+				NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
+				SshPort: (webState[preStepName] as NodeType[])[0].SshPort
+			};
+			const data = await RequestHttp.post(apiDetect, params);
+			setDetectState(data.Code === '00000');
 		};
 		const getList = async () => {
 			const apiSpeed = APIConfig.detectList;
@@ -93,8 +91,12 @@ const DetectStep: React.FC = memo(
 			const {
 				Data: { ExecStateEnum, NodeInitDetailList }
 			} = data;
+			const basicDisabled = disabledState.includes(ExecStateEnum);
 			setCurrentPageDisabled({
-				next: ExecStateEnum === 'RUNNING' || ExecStateEnum === 'SUSPEND'
+				nextDisabled: basicDisabled,
+				retryDisabled: basicDisabled,
+				prevDisabled: basicDisabled,
+				cancelDisabled: basicDisabled
 			});
 			// selectedList和NodeInitDetailList取交集，并过滤掉不可用数据
 			const intersection = _.intersectionWith(
@@ -108,22 +110,22 @@ const DetectStep: React.FC = memo(
 		const tableData = usePolling(getList, stableState, 1000, [detectState, webState]);
 
 		useEffect(() => {
-			webState[preStepName] && detect();
+			if (webState[preStepName]) {
+				// 判断是否是刷新后的新加载
+				if (isRefresh) {
+					setDetectState(true);
+				} else {
+					detect();
+				}
+			}
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [webState, isRefresh]);
-		useEffect(() => {
-			// 离开当前页面时重置isRefresh为true，再次进入该页面不进行detect操作，除非通过上一步，下一步将isRefresh设为false
-			return () => {
-				setIsRefresh(true);
-			};
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, []);
 
 		const rowSelection = {
 			selectedRowKeys: selectedRowsList.map(row => row.Hostname),
 			onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
 				setSelectedRowsList(selectedRows);
-				setCurrentPageDisabled({ next: selectedRows.length === 0 });
+				setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: selectedRows.length === 0 });
 			},
 			getCheckboxProps: (record: NodeType) => ({
 				disabled: record.NodeState === 'INACTIVE' // 状态不是ACTIVE不可选

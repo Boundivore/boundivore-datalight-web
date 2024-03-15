@@ -18,23 +18,53 @@
  * 服务管理列表页
  * @author Tracy.Guo
  */
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Select, Flex, Space } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Table, Button, Card, Select, Flex, Space, App } from 'antd';
+import type { TableColumnsType, SelectProps } from 'antd';
+import { DefaultOptionType } from 'antd/es/select';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
+import { updateCurrentView } from '@/utils/helper';
 import { ClusterType, ServiceItemType } from '@/api/interface';
 
-const ServiceManage: React.FC = () => {
+const ServiceManage: FC = () => {
 	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
-	const [tableData, setTableData] = useState([]);
-	const [selectData, setSelectData] = useState([]);
+	const [tableData, setTableData] = useState<ServiceItemType[]>([]);
+	const [selectData, setSelectData] = useState<SelectProps['options']>([]);
 	const [defaultSelectValue, setDefaultSelectValue] = useState('');
-	const { navigateToComManage, navigateToConfig } = useNavigater();
-
+	const [allowAdd, setAllowAdd] = useState(false); // 是否允许新增服务操作,默认不允许
+	const { navigateToComManage, navigateToConfig, navigateToAddComponent } = useNavigater();
+	const { modal } = App.useApp();
+	// 顶部操作按钮配置
+	const buttonConfigTop = [
+		{
+			id: 1,
+			label: t('service.addService'),
+			callback: () => addService(),
+			disabled: false
+		}
+		// {
+		// 	id: 2,
+		// 	label: t('service.startService'),
+		// 	callback: () => operateComponent('START', selectComponent),
+		// 	disabled: startDisabled
+		// },
+		// {
+		// 	id: 3,
+		// 	label: t('service.stopService'),
+		// 	callback: () => operateComponent('STOP', selectComponent),
+		// 	disabled: stopDisabled
+		// },
+		// {
+		// 	id: 4,
+		// 	label: t('service.restartService'),
+		// 	callback: () => operateComponent('RESTART', selectComponent),
+		// 	disabled: selectComponent.length === 0
+		// }
+	];
 	// 单条操作按钮配置
 	const buttonConfigItem = (record: ServiceItemType) => {
 		const { ServiceName } = record;
@@ -54,7 +84,7 @@ const ServiceManage: React.FC = () => {
 			}
 		];
 	};
-	const columns: ColumnsType<ServiceItemType> = [
+	const columns: TableColumnsType<ServiceItemType> = [
 		{
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceName',
@@ -103,28 +133,38 @@ const ServiceManage: React.FC = () => {
 			}
 		}
 	];
+	const addService = () => {
+		if (allowAdd) {
+			navigateToAddComponent(defaultSelectValue);
+		} else {
+			modal.info({
+				title: '当前不支持新增服务操作，请优先服役节点到指定集群'
+			});
+		}
+	};
 	const getClusterList = async () => {
 		setLoading(true);
 		const api = APIConfig.getClusterList;
-		const data = await RequestHttp.get(api);
-		const {
-			Data: { ClusterList }
-		} = data;
-		const listData = ClusterList.map((item: { ClusterId: string; ClusterName: string }) => {
+		const { Data } = await RequestHttp.get(api);
+		const clusterList: ClusterType[] = Data.ClusterList;
+		const listData = clusterList.map(item => {
 			return {
 				value: item.ClusterId,
-				label: item.ClusterName
+				label: item.ClusterName,
+				hasAlreadyNode: item.HasAlreadyNode
 			};
 		});
 		setLoading(false);
 		setSelectData(listData);
-		const currentViewCluster = ClusterList.find((cluster: ClusterType) => cluster.IsCurrentView === true);
+		const currentViewCluster = clusterList.find(cluster => cluster.IsCurrentView === true);
 		if (currentViewCluster) {
 			// 如果找到了，设置setSelectCluster为该项的ClusterId
 			setDefaultSelectValue(currentViewCluster.ClusterId);
+			setAllowAdd(currentViewCluster.HasAlreadyNode);
 		} else {
 			// 如果没有找到，则使用第一项的ClusterId
-			ClusterList.length > 0 ? setDefaultSelectValue(ClusterList[0].ClusterId) : setDefaultSelectValue(''); // 确保数组不为空
+			clusterList.length > 0 ? setDefaultSelectValue(clusterList[0].ClusterId) : setDefaultSelectValue(''); // 确保数组不为空
+			clusterList.length > 0 ? setAllowAdd(clusterList[0].HasAlreadyNode) : setAllowAdd(false); // 确保数组不为空
 		}
 	};
 	const getServiceList = async (id: string | number) => {
@@ -135,8 +175,16 @@ const ServiceManage: React.FC = () => {
 		} = data;
 		setTableData(ServiceSummaryList);
 	};
-	const handleChange = (value: string) => {
+	const handleChange = async (value: string, option: DefaultOptionType | DefaultOptionType[]) => {
+		await updateCurrentView(value);
 		setDefaultSelectValue(value);
+		if (Array.isArray(option)) {
+			// 如果 option 是数组，则处理数组中的第一个元素
+			setAllowAdd(option[0].hasAlreadyNode);
+		} else {
+			// 如果 option 不是数组，则直接处理
+			setAllowAdd(option.hasAlreadyNode);
+		}
 	};
 	useEffect(() => {
 		defaultSelectValue && getServiceList(defaultSelectValue);
@@ -147,6 +195,13 @@ const ServiceManage: React.FC = () => {
 	return (
 		<Card className="min-h-[calc(100%-50px)] m-[20px]">
 			<Flex justify="space-between">
+				<Space>
+					{buttonConfigTop.map(button => (
+						<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+							{button.label}
+						</Button>
+					))}
+				</Space>
 				<div>
 					{t('node.currentCluster')}
 					<Select className="w-[200px]" options={selectData} value={defaultSelectValue} onChange={handleChange} />

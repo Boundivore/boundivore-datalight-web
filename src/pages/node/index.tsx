@@ -18,10 +18,11 @@
  * 节点管理列表页
  * @author Tracy.Guo
  */
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState, Key } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Table, Button, Card, Select, Flex, Space, App, message, Badge } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { TableColumnsType, SelectProps } from 'antd';
+import { DefaultOptionType } from 'antd/es/select';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
@@ -30,14 +31,15 @@ import ItemConfigInfo from '@/components/itemConfigInfo';
 import { updateCurrentView } from '@/utils/helper';
 import { NodeType, NodeWithComponent, ClusterType, BadgeStatus } from '@/api/interface';
 
-const ManageList: React.FC = () => {
+const ManageList: FC = () => {
 	const { t } = useTranslation();
 	const { stateText } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState([]);
-	const [selectData, setSelectData] = useState([]);
-	const [selectCluster, setSelectCluster] = useState('');
+	const [selectData, setSelectData] = useState<SelectProps['options']>([]);
+	const [selectCluster, setSelectCluster] = useState<string>('');
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
+	const [allowAdd, setAllowAdd] = useState(false); // 是否允许新增节点操作,默认不允许
 	const { navigateToAddNode } = useNavigater();
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
 	const [messageApi, contextHolder] = message.useMessage();
@@ -47,8 +49,8 @@ const ManageList: React.FC = () => {
 		{
 			id: 1,
 			label: t('node.addNode'),
-			callback: () => navigateToAddNode(selectCluster),
-			disabled: !selectData.length
+			callback: () => addNode(),
+			disabled: !selectData!.length
 		},
 		{
 			id: 2,
@@ -85,7 +87,7 @@ const ManageList: React.FC = () => {
 			}
 		];
 	};
-	const columns: ColumnsType<NodeType> = [
+	const columns: TableColumnsType<NodeType> = [
 		{
 			title: t('node.name'),
 			dataIndex: 'Hostname',
@@ -131,6 +133,15 @@ const ManageList: React.FC = () => {
 			}
 		}
 	];
+	const addNode = () => {
+		if (allowAdd) {
+			navigateToAddNode(selectCluster);
+		} else {
+			modal.info({
+				title: '当前不支持新增组件操作'
+			});
+		}
+	};
 	const restartNode = (nodeList: object[], sshPort: string | number) => {
 		modal.confirm({
 			title: t('node.restart'),
@@ -179,25 +190,24 @@ const ManageList: React.FC = () => {
 		setLoading(true);
 		const api = APIConfig.getClusterList;
 		const data = await RequestHttp.get(api);
-		const {
-			Data: { ClusterList }
-		} = data;
-		const listData = ClusterList.map((item: ClusterType) => {
-			return {
-				value: item.ClusterId,
-				label: item.ClusterName
-			};
-		});
+		const clusterList: ClusterType[] = data.Data.ClusterList;
+		const listData = clusterList.map(item => ({
+			value: item.ClusterId,
+			label: item.ClusterName,
+			hasAlreadyNode: item.HasAlreadyNode
+		}));
 		setLoading(false);
 		setSelectData(listData);
 
-		const currentViewCluster = ClusterList.find((cluster: ClusterType) => cluster.IsCurrentView === true);
+		const currentViewCluster = clusterList.find(cluster => cluster.IsCurrentView === true);
 		if (currentViewCluster) {
 			// 如果找到了，设置setSelectCluster为该项的ClusterId
 			setSelectCluster(currentViewCluster.ClusterId);
+			setAllowAdd(!currentViewCluster.HasAlreadyNode);
 		} else {
 			// 如果没有找到，则使用第一项的ClusterId
-			ClusterList.length > 0 ? setSelectCluster(ClusterList[0].ClusterId) : setSelectCluster(''); // 确保数组不为空
+			clusterList.length > 0 ? setSelectCluster(clusterList[0].ClusterId) : setSelectCluster(''); // 确保数组不为空
+			clusterList.length > 0 ? setAllowAdd(!clusterList[0].HasAlreadyNode) : setAllowAdd(false); // 确保数组不为空
 		}
 	};
 	const getNodeList = async (id: string | number) => {
@@ -212,9 +222,16 @@ const ManageList: React.FC = () => {
 		});
 		setTableData(listData);
 	};
-	const handleChange = async (value: string) => {
+	const handleChange = async (value: string, option: DefaultOptionType | DefaultOptionType[]) => {
 		await updateCurrentView(value);
 		setSelectCluster(value);
+		if (Array.isArray(option)) {
+			// 如果 option 是数组，则处理数组中的第一个元素
+			setAllowAdd(!option[0].hasAlreadyNode);
+		} else {
+			// 如果 option 不是数组，则直接处理
+			setAllowAdd(!option.hasAlreadyNode);
+		}
 	};
 	useEffect(() => {
 		selectCluster && getNodeList(selectCluster);
@@ -230,7 +247,7 @@ const ManageList: React.FC = () => {
 		getClusterList();
 	}, []);
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
+		onChange: (_selectedRowKeys: Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
 		}
 	};
