@@ -27,6 +27,7 @@ import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import NodeListModal from '../components/nodeListModal';
+import useStore from '@/store/store';
 import { NodeType, ServiceItemType } from '@/api/interface';
 
 const notSelectedStates = ['SELECTED', 'SELECTED_ADDITION'];
@@ -38,6 +39,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentComponent, setCurrentComponent] = useState('');
 	const [disableSelectedNode, setDisableSelectedNode] = useState(false);
+	const { setCurrentPageDisabled, currentPageDisabled } = useStore();
 	const [tempData, setTempData] = useState<ServiceItemType[]>([]);
 	// const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
@@ -67,7 +69,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		// 合并数据并计算 ComponentList
 		const paramsComponentList = componentListRef.current
 			.filter(component => {
-				return ['SELECTED_ADDITION', 'SELECTED'].includes(component.ServiceSummary.SCStateEnum);
+				return notSelectedStates.includes(component.ServiceSummary.SCStateEnum);
 			}) // 过滤出这两种状态的数据提交
 			.flatMap(service => {
 				const serviceName = service.ServiceSummary.ServiceName;
@@ -157,6 +159,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 				setNodeList(tempList);
 			});
 		});
+		setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: false, prevDisabled: false });
 	};
 	useEffect(() => {
 		const cdata = tempData.map(item => {

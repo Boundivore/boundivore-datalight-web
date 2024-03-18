@@ -26,6 +26,7 @@ import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
+import usePolling from '@/hooks/usePolling';
 
 const { Text } = Typography;
 
@@ -46,8 +47,7 @@ const ComponentManage: React.FC = () => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const serviceName = searchParams.get('name');
-	const [loading, setLoading] = useState(false);
-	const [tableData, setTableData] = useState([]);
+	// const [loading, setLoading] = useState(false);
 	const [selectComponent, setSelectComponent] = useState<DataType[]>([]);
 	const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState<string[]>([]);
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
@@ -61,7 +61,7 @@ const ComponentManage: React.FC = () => {
 		{
 			id: 1,
 			label: t('service.addComponent'),
-			callback: () => navigateToAddComponent(id),
+			callback: () => navigateToAddComponent(id, serviceName),
 			disabled: false
 		},
 		{
@@ -120,14 +120,14 @@ const ComponentManage: React.FC = () => {
 		];
 	};
 	useEffect(() => {
-		// 检查 状态是否为'STOPPED'
-		const removeAbled = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum === 'STOPPED');
-		const startAbled = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum === 'STOPPED');
+		// 检查所有组件是否都处于'STOPPED'状态
+		const allStopped = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum === 'STOPPED');
 		const stopAbled = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum !== 'STOPPED');
+
 		// 更新按钮的禁用状态
-		setStartDisabled(!startAbled);
-		setStopDisabled(!stopAbled);
-		setRemoveDisabled(!removeAbled);
+		setStartDisabled(!allStopped); // 如果不全是'STOPPED'，则开始按钮禁用
+		setStopDisabled(!stopAbled); // 如果全是'STOPPED'，则停止按钮禁用
+		setRemoveDisabled(!allStopped); // 如果不全是'STOPPED'，则移除按钮禁用
 	}, [selectComponent]); // 在 selectComponent 变化时触发
 	const columns: ColumnsType<DataType> = [
 		{
@@ -236,13 +236,13 @@ const ComponentManage: React.FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
-					getComponentList();
+					// getComponentList(); // 这里不用调接口了，轮询替代了
 				}
 			}
 		});
 	};
 	const getComponentList = async () => {
-		setLoading(true);
+		// setLoading(true);
 		const api = APIConfig.componentListByServiceName;
 		const params = { ClusterId: id, ServiceName: serviceName };
 		const data = await RequestHttp.get(api, { params });
@@ -261,21 +261,12 @@ const ComponentManage: React.FC = () => {
 				return item;
 			}
 		);
-		setLoading(false);
-		setTableData(tempData);
+		// setLoading(false);
+		return tempData;
+		// setTableData(tempData);
 	};
-	const rowSelection = {
-		checkStrictly: false,
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			const filteredselectedRows = selectedRows.filter(item => item.ComponentId);
-			setSelectComponent(filteredselectedRows);
-		}
-	};
+	const tableData = usePolling(getComponentList, [], 1000, [serviceName]);
 
-	useEffect(() => {
-		getComponentList();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 	useEffect(() => {
 		const expandedRowKeys: string[] = [];
 		tableData.map((data: DataType) => {
@@ -283,6 +274,13 @@ const ComponentManage: React.FC = () => {
 		});
 		setDefaultExpandedRowKeys(expandedRowKeys);
 	}, [tableData]);
+	const rowSelection = {
+		checkStrictly: false,
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+			const filteredselectedRows = selectedRows.filter(item => item.ComponentId);
+			setSelectComponent(filteredselectedRows);
+		}
+	};
 	return (
 		<Card className="min-h-[calc(100%-50px)] m-[20px]">
 			{contextHolder}
@@ -301,7 +299,6 @@ const ComponentManage: React.FC = () => {
 				rowKey="rowKey"
 				columns={columns}
 				dataSource={tableData}
-				loading={loading}
 				expandable={{ expandedRowKeys: defaultExpandedRowKeys }}
 			/>
 		</Card>

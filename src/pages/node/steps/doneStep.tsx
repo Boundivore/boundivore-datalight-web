@@ -18,11 +18,18 @@
  * DoneStep - 第七步
  * @author Tracy.Guo
  */
+import { FC, useEffect } from 'react';
 import { Result } from 'antd';
 import { useTranslation } from 'react-i18next';
+import useStore from '@/store/store';
 
-const DoneStep: React.FC = () => {
+const DoneStep: FC = () => {
 	const { t } = useTranslation();
+	const { setCurrentPageDisabled, currentPageDisabled } = useStore();
+	useEffect(() => {
+		setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: false });
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	return <Result status="success" title={t('node.addSuccessTitle')} />;
 };
 export default DoneStep;

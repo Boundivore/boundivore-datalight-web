@@ -54,6 +54,7 @@ const APIConfig: Actions = {
 	serviceList: '/v1/master/service/list',
 	selectService: '/v1/master/service/select',
 	operateService: '/v1/master/operate/jobDetail',
+	operateJob: '/v1/master/operate/job',
 	// 组件相关
 	componentList: '/v1/master/component/list',
 	componentListByServiceName: '/v1/master/component/listByServiceName',

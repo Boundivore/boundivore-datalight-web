@@ -21,20 +21,14 @@
  */
 import { useEffect, useState, useRef } from 'react';
 import { pollRequest } from '@/utils/helper';
-import { NodeType } from '@/api/interface';
 
-const usePolling = (
-	fetchData: () => Promise<NodeType[]>,
-	stableStates: string[],
-	interval: number,
-	dependency: any[]
-): NodeType[] => {
-	const [data, setData] = useState<NodeType[]>([]);
+const usePolling = (fetchData: () => Promise<[]>, stableStates: string[], interval: number, dependency: any[]) => {
+	const [data, setData] = useState([]);
 	const stopPollingRef = useRef<Function>();
 
 	useEffect(() => {
 		if (dependency[0]) {
-			const callback = (stateData: NodeType[]) => {
+			const callback = (stateData: []) => {
 				setData(stateData);
 			};
 			stopPollingRef.current = pollRequest(fetchData, callback, stableStates, interval);

@@ -29,10 +29,12 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import { BadgeStatus, ServiceItemType } from '@/api/interface';
 
+const selectedStates = ['SELECTED', 'SELECTED_ADDITION']; // 默认选中的状态
 const SelectServiceStep: FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
+	const serviceName = searchParams.get('service');
 	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText, setCurrentPageDisabled, currentPageDisabled } =
 		useStore();
 	const [tableData, setTableData] = useState<ServiceItemType[]>([]);
@@ -83,9 +85,17 @@ const SelectServiceStep: FC = forwardRef((_props, ref) => {
 		const data = await RequestHttp.get(apiList, { params });
 		const serviceData: ServiceItemType[] = data.Data.ServiceSummaryList;
 		setTableData(serviceData);
-		const defaultSelectedKeys = serviceData.filter(item => item.SCStateEnum === 'SELECTED').map(item => item.ServiceName);
-		setSelectedRowKeys(defaultSelectedKeys);
-		setSelectedServiceRowsList(serviceData.filter(item => item.SCStateEnum === 'SELECTED'));
+		if (serviceName) {
+			setSelectedRowKeys([serviceName]);
+		} else {
+			const defaultSelectedKeys = serviceData
+				.filter(item => selectedStates.includes(item.SCStateEnum))
+				.map(item => item.ServiceName);
+			setSelectedRowKeys(defaultSelectedKeys);
+		}
+		setSelectedServiceRowsList(
+			serviceData.filter(item => selectedStates.includes(item.SCStateEnum)).map(item => ({ ...item, SCStateEnum: 'SELECTED' }))
+		);
 	};
 	useEffect(() => {
 		getList();
@@ -106,7 +116,10 @@ const SelectServiceStep: FC = forwardRef((_props, ref) => {
 					return item;
 				})
 			);
-		}
+		},
+		getCheckboxProps: () => ({
+			disabled: serviceName ? true : false // Column configuration not to be checked
+		})
 	};
 	return (
 		<Table

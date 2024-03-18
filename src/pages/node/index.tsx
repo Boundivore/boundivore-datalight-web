@@ -26,6 +26,7 @@ import { DefaultOptionType } from 'antd/es/select';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
+import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import { updateCurrentView } from '@/utils/helper';
@@ -35,7 +36,6 @@ const ManageList: FC = () => {
 	const { t } = useTranslation();
 	const { stateText } = useStore();
 	const [loading, setLoading] = useState(false);
-	const [tableData, setTableData] = useState([]);
 	const [selectData, setSelectData] = useState<SelectProps['options']>([]);
 	const [selectCluster, setSelectCluster] = useState<string>('');
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
@@ -138,7 +138,7 @@ const ManageList: FC = () => {
 			navigateToAddNode(selectCluster);
 		} else {
 			modal.info({
-				title: '当前不支持新增组件操作'
+				title: '当前不支持新增节点操作'
 			});
 		}
 	};
@@ -160,7 +160,7 @@ const ManageList: FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
-					getNodeList(selectCluster);
+					getNodeList();
 				}
 			}
 		});
@@ -181,7 +181,7 @@ const ManageList: FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
-					getNodeList(selectCluster);
+					getNodeList();
 				}
 			}
 		});
@@ -210,9 +210,9 @@ const ManageList: FC = () => {
 			clusterList.length > 0 ? setAllowAdd(!clusterList[0].HasAlreadyNode) : setAllowAdd(false); // 确保数组不为空
 		}
 	};
-	const getNodeList = async (id: string | number) => {
+	const getNodeList = async () => {
 		const api = APIConfig.nodeListWithComponent;
-		const data = await RequestHttp.get(api, { params: { ClusterId: id } });
+		const data = await RequestHttp.get(api, { params: { ClusterId: selectCluster } });
 		const {
 			Data: { NodeWithComponentList }
 		} = data;
@@ -220,7 +220,8 @@ const ManageList: FC = () => {
 			node.NodeDetail.ComponentName = node.ComponentName;
 			return node.NodeDetail;
 		});
-		setTableData(listData);
+		return listData;
+		// setTableData(listData);
 	};
 	const handleChange = async (value: string, option: DefaultOptionType | DefaultOptionType[]) => {
 		await updateCurrentView(value);
@@ -233,9 +234,11 @@ const ManageList: FC = () => {
 			setAllowAdd(!option.hasAlreadyNode);
 		}
 	};
-	useEffect(() => {
-		selectCluster && getNodeList(selectCluster);
-	}, [selectCluster]);
+	const tableData: NodeType[] = usePolling(getNodeList, [], 1000, [selectCluster]);
+
+	// useEffect(() => {
+	// 	selectCluster && getNodeList(selectCluster);
+	// }, [selectCluster]);
 	useEffect(() => {
 		// 检查 ComponentName 数组是否为空
 		const isButtonAbled = selectedRowsList.length > 0 && selectedRowsList.every(item => item.ComponentName.length === 0);

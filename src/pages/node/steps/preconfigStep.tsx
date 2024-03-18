@@ -20,7 +20,7 @@
  */
 import React, { useImperativeHandle, useEffect, useState, useRef, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Form, Input, Collapse, Col, Button, Space } from 'antd';
+import { Form, Input, Collapse, Col, Button, Space, Result } from 'antd';
 import { DoubleRightOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
@@ -28,7 +28,6 @@ import type { CollapseProps } from 'antd';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import DeployOverviewModal from '../components/deployOverviewModal';
 import { ServiceItemType } from '@/api/interface';
 
 const layout = {
@@ -41,7 +40,6 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 	const [items, setItems] = useState([]);
 	const [keys, setKeys] = useState<string[]>([]);
 	const [cachedKeys, setCachedKeys] = useState<string[]>([]);
-	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { setJobId } = useStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -85,27 +83,31 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 
 	const onFinish = async () => {
 		// 将表单数据回填到原始数据中
-		const values = form.getFieldsValue();
-		const updatedData = _.cloneDeep([...serviceList]);
-		updatedData.forEach((service, serviceIndex) => {
-			service.PlaceholderInfoList.forEach((info, infoIndex) => {
-				info.ConfigPrePropertyList.forEach((property, propertyIndex) => {
-					const formKey = `${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`;
-					// 回填时设置为Value属性，并保留 Default 属性
-					property.Value = values[formKey];
+		if (serviceList.length) {
+			const values = form.getFieldsValue();
+			const updatedData = _.cloneDeep([...serviceList]);
+			updatedData.forEach((service, serviceIndex) => {
+				service.PlaceholderInfoList.forEach((info, infoIndex) => {
+					info.ConfigPrePropertyList.forEach((property, propertyIndex) => {
+						const formKey = `${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`;
+						// 回填时设置为Value属性，并保留 Default 属性
+						property.Value = values[formKey];
+					});
+					info.PropertyList = info.ConfigPrePropertyList;
+					delete info.ConfigPrePropertyList;
 				});
-				info.PropertyList = info.ConfigPrePropertyList;
-				delete info.ConfigPrePropertyList;
 			});
-		});
-		// setServiceList(updatedData);
-		const api = APIConfig.preconfigSave;
-		const params = {
-			ClusterId: id,
-			ServiceList: updatedData
-		};
-		const data = await RequestHttp.post(api, params);
-		return Promise.resolve(data);
+			// setServiceList(updatedData);
+			const api = APIConfig.preconfigSave;
+			const params = {
+				ClusterId: id,
+				ServiceList: updatedData
+			};
+			const data = await RequestHttp.post(api, params);
+			return Promise.resolve(data);
+		} else {
+			return true; // 没有可修改的配置信息，无需保存，直接到下一步预览页
+		}
 	};
 	// 获取预配置项
 	const getPreconfigList = async () => {
@@ -136,9 +138,6 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 		setJobId(data.Data.JobId);
 		return Promise.resolve(data);
 	};
-	const handleModalCancel = () => {
-		setIsModalOpen(false);
-	};
 	const handleExpand = () => {
 		setKeys(cachedKeys);
 	};
@@ -155,20 +154,25 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 
 	return (
 		<>
-			<Col className="mb-[20px]" span={24}>
-				<Space className="flex justify-end">
-					<Button size="middle" icon={<DoubleRightOutlined rotate={90} />} onClick={handleExpand}>
-						{t('expandAll')}
-					</Button>
-					<Button size="middle" icon={<DoubleRightOutlined rotate={270} />} onClick={handleUnexpand}>
-						{t('unexpandAll')}
-					</Button>
-				</Space>
-			</Col>
-			<Form {...layout} form={form}>
-				<Collapse items={items} activeKey={keys} onChange={keyArr => handleChange(keyArr)} />
-			</Form>
-			{isModalOpen ? <DeployOverviewModal isModalOpen={isModalOpen} handleCancel={handleModalCancel} /> : null}
+			{serviceList.length ? (
+				<>
+					<Col className="mb-[20px]" span={24}>
+						<Space className="flex justify-end">
+							<Button size="middle" icon={<DoubleRightOutlined rotate={90} />} onClick={handleExpand}>
+								{t('expandAll')}
+							</Button>
+							<Button size="middle" icon={<DoubleRightOutlined rotate={270} />} onClick={handleUnexpand}>
+								{t('unexpandAll')}
+							</Button>
+						</Space>
+					</Col>
+					<Form {...layout} form={form}>
+						<Collapse items={items} activeKey={keys} onChange={keyArr => handleChange(keyArr)} />
+					</Form>
+				</>
+			) : (
+				<Result title={t('service.preconfigInfo')} />
+			)}
 		</>
 	);
 });

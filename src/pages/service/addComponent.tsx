@@ -18,7 +18,7 @@
  * AddComponent - 新增组件
  * @author Tracy.Guo
  */
-import React, { useRef, forwardRef, useEffect } from 'react';
+import React, { useRef, forwardRef } from 'react';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
@@ -28,14 +28,16 @@ import SelectComStep from '@/pages/node/steps/selectComStep';
 import PreconfigStep from '@/pages/node/steps/preconfigStep';
 import PreviewconfigStep from '@/pages/node/steps/previewconfigStep';
 import DeployStep from '@/pages/node/steps/deployStep';
-// import useStepLogic from '@/hooks/useStepLogic';
+import useStepLogic from '@/hooks/useStepLogic';
 import useNavigater from '@/hooks/useNavigater';
 
 const AddComponent: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
-	// const { useStepEffect } = useStepLogic(8);
-	const { stepCurrent, setStepCurrent } = useStore();
+	const { useStepEffect } = useStepLogic(7);
+	const { stepCurrent } = useStore();
 	const { navigateToHome } = useNavigater();
+	const { useClearStepData } = useStepLogic();
+	const clearData = useClearStepData();
 	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
 	const PreconfigStepRef = useRef<{ handleOk: () => void } | null>(null);
@@ -63,14 +65,10 @@ const AddComponent: React.FC = forwardRef(() => {
 			key: 4
 		}
 	];
-	const nextComponent = async () => await selectServiceRef.current?.handleOk();
-	const nextPreconfig = async () => await selectComponentRef.current?.handleOk();
-	const nextDeploy = async () => await PreviewconfigStepRef.current?.handleOk();
-	const nextPreview = async () => await PreconfigStepRef.current?.onFinish(true);
-	useEffect(() => {
-		setStepCurrent(0);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	const nextComponent = () => selectServiceRef.current?.handleOk();
+	const nextPreconfig = () => selectComponentRef.current?.handleOk();
+	const nextDeploy = () => PreviewconfigStepRef.current?.handleOk();
+	const nextPreview = () => PreconfigStepRef.current?.onFinish(true);
 	const stepConfig = [
 		{
 			title: t('service.selectService'),
@@ -117,7 +115,7 @@ const AddComponent: React.FC = forwardRef(() => {
 		}
 	];
 	//获取进度，定位到当前步骤
-	// useStepEffect();
+	useStepEffect();
 	return (
 		<Row className="min-h-[calc(100%-50px)] m-[20px] pb-[50px]">
 			<Col span={6}>

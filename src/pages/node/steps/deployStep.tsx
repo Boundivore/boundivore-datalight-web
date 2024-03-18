@@ -18,7 +18,8 @@
  * DeployStep - 部署步骤
  * @author Tracy.Guo
  */
-// import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Table, Progress, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
@@ -26,17 +27,27 @@ import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
+import useStepLogic from '@/hooks/useStepLogic';
 import { NodeType } from '@/api/interface';
 
 const { Text } = Typography;
 
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
+const disabledState = ['RUNNING', 'SUSPEND'];
+const preStepName = 'previewStep'; // 当前步骤页面基于上一步的输入和选择生成
+const stepName = 'deployStep'; // 当前步骤结束时需要存储步骤数据
+const operation = 'DEPLOY'; // 当前步骤操作，NodeActionTypeEnum
 // const preStepName = 'dispachStep'; // 当前步骤页面基于上一步的输入和选择生成
 // const stepName = 'deployStep'; // 当前步骤结束时需要存储步骤数据
 const DeployStep: React.FC = () => {
-	const { stableState, jobId, setCurrentPageDisabled } = useStore();
-	// const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const { t } = useTranslation();
+	const [searchParams] = useSearchParams();
+	const id = searchParams.get('id');
+	const { stableState, jobId, setJobId, setCurrentPageDisabled, isRefresh } = useStore();
+	// const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
+	const [deployState, setDeployState] = useState(false);
+	const { useGetSepData } = useStepLogic();
+	const { webState } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -81,6 +92,21 @@ const DeployStep: React.FC = () => {
 	// 		disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
 	// 	})
 	// };
+	const deploy = async () => {
+		setDeployState(false);
+		const api = APIConfig.deploy;
+		const serviceNameList = webState[preStepName];
+		const params = {
+			ActionTypeEnum: operation,
+			ClusterId: id,
+			IsOneByOne: false,
+			ServiceNameList: serviceNameList
+		};
+		const data = await RequestHttp.post(api, params);
+		setJobId(data.Data.JobId);
+		setDeployState(data.Code === '00000');
+	};
+
 	const getList = async () => {
 		const api = APIConfig.jobProgress;
 		const progressData = await RequestHttp.get(api, { params: { JobId: jobId } });
@@ -93,13 +119,28 @@ const DeployStep: React.FC = () => {
 			...obj, // 展开当前对象
 			JobExecStateEnum // 展开新键值对，这将合并到当前对象中
 		}));
+		const basicDisabled = disabledState.includes(JobExecStateEnum);
 		setCurrentPageDisabled({
-			next: JobExecStateEnum === 'RUNNING' || JobExecStateEnum === 'SUSPEND'
+			nextDisabled: basicDisabled,
+			retryDisabled: basicDisabled,
+			prevDisabled: basicDisabled,
+			cancelDisabled: basicDisabled
 		});
 		return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 	};
-
-	const tableData = usePolling(getList, stableState, 1000, [true]);
+	useEffect(() => {
+		//基于上一步的数据重新执行当前页面步骤
+		if (webState[preStepName]) {
+			// 判断是否是刷新后的新加载
+			if (isRefresh) {
+				setDeployState(true);
+			} else {
+				deploy();
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [webState, isRefresh]);
+	const tableData = usePolling(getList, stableState, 1000, [deployState, webState]);
 	return (
 		<Table
 			className="data-light-table" //使用自定义class重定义table行高

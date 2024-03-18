@@ -161,9 +161,49 @@ const useStore = create<MyStore>(set => ({
 			label: 'service.deployed',
 			status: 'success'
 		},
+		UNDEPLOYED: {
+			label: 'service.undeployed',
+			status: 'error'
+		},
 		SELECTED_ADDITION: {
-			label: 'service.selected',
+			label: 'service.selected_addition',
 			status: 'success'
+		},
+		DEPLOYING: {
+			label: 'service.deploying',
+			status: 'processing'
+		},
+		STARTING: {
+			label: 'service.starting',
+			status: 'processing'
+		},
+		STOPPING: {
+			label: 'service.stopping',
+			status: 'processing'
+		},
+		STOPPED: {
+			label: 'service.stopped',
+			status: 'error'
+		},
+		RESTARTING: {
+			label: 'service.restarting',
+			status: 'processing'
+		},
+		BEING_DECOMMISSIONED: {
+			label: 'service.decommissioning',
+			status: 'processing'
+		},
+		DECOMMISSIONED: {
+			label: 'service.decommissioned',
+			status: 'error'
+		},
+		CHANGING: {
+			label: 'service.changing',
+			status: 'processing'
+		},
+		REMOVED: {
+			label: 'service.removed',
+			status: 'error'
 		}
 	},
 	// 配置停止轮询的条件

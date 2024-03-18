@@ -27,19 +27,26 @@ import { useTranslation } from 'react-i18next';
 // import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import useStepLogic from '@/hooks/useStepLogic';
 import useStore from '@/store/store';
 
 interface DataType {
 	ServiceName: string;
 	ComponentName: string;
 }
-
+// const deployedState = [];
+const undeployedState = ['REMOVED', 'SELECTED', 'UNSELECTED'];
+const serviceDeployState = ['SELECTED', 'SELECTED_ADDITION'];
+// const preStepName = 'previewStep'; // 当前步骤页面基于上一步的输入和选择生成
+const stepName = 'previewStep';
 const PreviewconfigStep: React.FC = forwardRef((_props, ref) => {
+	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const { t } = useTranslation();
 	const [serviceTable, setServiceTable] = useState([]);
-	const { setJobId } = useStore();
+	const [filterData, setFilterData] = useState([]);
+	const { setCurrentPageDisabled, currentPageDisabled } = useStore();
+	const { useSetStepData } = useStepLogic();
 	const serviceColumn: ColumnsType<DataType> = [
 		{
 			title: t('service.serviceName'),
@@ -52,6 +59,16 @@ const PreviewconfigStep: React.FC = forwardRef((_props, ref) => {
 			render: text => <p>{text}</p>
 		},
 		{
+			title: t('undeployedNodeNum'),
+			dataIndex: 'ComponentNodeList',
+			render: (text: []) => <span>{text?.filter(node => undeployedState.includes(node.SCStateEnum)).length}</span>
+		},
+		{
+			title: t('deployedNodeNum'),
+			dataIndex: 'ComponentNodeList',
+			render: (text: []) => <span>{text?.filter(node => !undeployedState.includes(node.SCStateEnum)).length}</span>
+		},
+		{
 			title: t('nodeNum'),
 			dataIndex: 'ComponentNodeList',
 			render: (text: []) => <span>{text?.length}</span>
@@ -60,19 +77,7 @@ const PreviewconfigStep: React.FC = forwardRef((_props, ref) => {
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
-	const handleOk = async () => {
-		const api = APIConfig.deploy;
-		const serviceNameList = serviceTable.map(item => item.rowKey);
-		const params = {
-			ActionTypeEnum: 'DEPLOY',
-			ClusterId: id,
-			IsOneByOne: false,
-			ServiceNameList: serviceNameList
-		};
-		const data = await RequestHttp.post(api, params);
-		setJobId(data.Data.JobId);
-		return Promise.resolve(data);
-	};
+	const handleOk = useSetStepData(stepName, null, filterData);
 	const getInfo = async () => {
 		const apiList = APIConfig.componentList;
 		const params = {
@@ -83,13 +88,29 @@ const PreviewconfigStep: React.FC = forwardRef((_props, ref) => {
 			Data: { ServiceComponentSummaryList }
 		} = data;
 		const tableData = ServiceComponentSummaryList.map(
-			(item: { rowKey: string; ServiceSummary: { ServiceName: string }; children: []; ComponentSummaryList: [] }) => {
-				item.rowKey = item.ServiceSummary.ServiceName;
-				item.children = item.ComponentSummaryList;
-				return item;
-			}
+			(item: { rowKey: string; ServiceSummary: { ServiceName: string }; children: []; ComponentSummaryList: [] }) => ({
+				...item,
+				rowKey: item.ServiceSummary.ServiceName,
+				children: item.ComponentSummaryList
+			})
 		);
+		console.log(121212, tableData);
+		const filterServiceName = tableData
+			.filter(item1 => {
+				return serviceDeployState.includes(item1.ServiceSummary.SCStateEnum);
+			})
+			.map(item2 => {
+				return item2.ServiceSummary.ServiceName;
+			});
+		console.log('filterData', filterServiceName);
+		setFilterData(filterServiceName);
 		setServiceTable(tableData);
+		setCurrentPageDisabled({
+			...currentPageDisabled,
+			nextDisabled: !filterServiceName.length,
+			prevDisabled: false,
+			cancelDisabled: false
+		});
 	};
 	useEffect(() => {
 		getInfo();
