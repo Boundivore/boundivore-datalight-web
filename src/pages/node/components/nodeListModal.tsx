@@ -23,7 +23,7 @@
  * @param {string} component - 关联的组件名称
  * @author Tracy.Guo
  */
-import { useState, useEffect } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { Modal, Table, Alert, Tag, Flex } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
@@ -42,7 +42,8 @@ interface NodeListModalProps {
 	disableSelectedNode?: boolean; // 是否禁用已经选择的节点
 }
 
-const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component }) => {
+const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component }) => {
+	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [tableData, setTableData] = useState([]);
@@ -50,12 +51,10 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, handleOk, ha
 	const [openAlert, setOpenAlert] = useState(false);
 	const [errorText, setErrorText] = useState('');
 	const { nodeList } = useComponentAndNodeStore();
-	const defaultNodeList = nodeList[id][component].componentNodeList;
+	const defaultNodeList: NodeType[] = nodeList[id][component].componentNodeList;
 	const [selectedNodeList, setSelectedNodeList] = useState<NodeType[]>(defaultNodeList);
 
 	// const [selectedRowKeys, setSelectedRowKeys] = useState(nodeList[id][component]?.map(({ NodeId }) => NodeId));
-
-	const { t } = useTranslation();
 
 	const columns: ColumnsType<NodeType> = [
 		{

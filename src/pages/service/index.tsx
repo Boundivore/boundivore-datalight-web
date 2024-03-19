@@ -36,7 +36,6 @@ const ServiceManage: FC = () => {
 	const { t } = useTranslation();
 	const { stateText } = useStore();
 	const [loading, setLoading] = useState(false);
-	// const [tableData, setTableData] = useState<ServiceItemType[]>([]);
 	const [selectData, setSelectData] = useState<SelectProps['options']>([]);
 	const [selectService, setSelectService] = useState<ServiceItemType[]>([]);
 	const [defaultSelectValue, setDefaultSelectValue] = useState('');
@@ -166,7 +165,6 @@ const ServiceManage: FC = () => {
 					return record.SCStateEnum === value;
 				}
 			}
-			// onFilter: (value: any, record) => record.SCStateEnum.indexOf(value) === 0
 		},
 		{
 			title: t('operation'),
