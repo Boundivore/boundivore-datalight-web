@@ -17,7 +17,7 @@
 import { Menu } from 'antd';
 import { AppstoreOutlined, SettingOutlined, ApartmentOutlined, ClusterOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -44,18 +44,18 @@ const LayoutMenu: React.FC = () => {
 	const items: MenuProps['items'] = [
 		getItem(<NavLink to="/home">{t('tabs.cluster')}</NavLink>, '/home', <ClusterOutlined />),
 		getItem(<NavLink to="/node">{t('tabs.node')}</NavLink>, '/node', <ApartmentOutlined />),
-		getItem(<Link to="/service">{t('tabs.service')}</Link>, '/service', <AppstoreOutlined />),
+		getItem(<NavLink to="/service">{t('tabs.service')}</NavLink>, '/service', <AppstoreOutlined />),
 		// getItem(<Link to="/home">{t('tabs.config')}</Link>, 'sub5', <AppstoreOutlined />),
 
 		{ type: 'divider' },
 
 		getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
-			getItem(<Link to="/auth/changePassword">{t('tabs.changePassword')}</Link>, '/changePassword"')
+			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"')
 		])
 	];
 	return (
 		<div className="menu">
-			<Menu mode="inline" theme="light" triggerSubMenuAction="click" selectedKeys={[location.pathname]} items={items}></Menu>
+			<Menu mode="horizontal" theme="light" triggerSubMenuAction="click" selectedKeys={[location.pathname]} items={items}></Menu>
 		</div>
 	);
 };

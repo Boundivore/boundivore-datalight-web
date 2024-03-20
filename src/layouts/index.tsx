@@ -86,9 +86,12 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	};
 	return (
 		<Layout className="w-full min-w-[1200px] h-[calc(100vh)]">
-			<Header className="flex items-center justify-between">
+			<Header className="flex items-center">
 				<img className="cursor-pointer" src={Logo} height={40} onClick={navigateToHome} />
-				<Dropdown menu={{ items }}>
+				<div className="relative left-[50px]">
+					<LayoutMenu />
+				</div>
+				<Dropdown menu={{ items }} className="absolute right-[50px]">
 					<Avatar
 						className="bg-[#87d068]"
 						src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
@@ -130,6 +133,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 					<Suspense fallback={<Spin fullscreen />}>{useRoutes(routes)}</Suspense>
 				</Content>
 			</Layout>
+			<Footer className={`text-center bg-white font-bold ${collapsed ? 'hidden' : 'w-full'}`}>{t('poweredBy')}</Footer>
 		</Layout>
 	);
 };

@@ -62,7 +62,7 @@ function App() {
 								path="/*"
 								element={
 									<AppAnt>
-										<Layouts />
+										<Layouts hideSider={true} />
 									</AppAnt>
 								}
 							/>
