@@ -30,6 +30,7 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import useStepLogic from '@/hooks/useStepLogic';
+import CheckLogModal from '../components/checkLogModal';
 import { NodeType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'detectStep'; // 当前步骤页面基于上一步的输入和选择生成
@@ -38,11 +39,12 @@ const disabledState = ['RUNNING', 'SUSPEND'];
 const operation = 'CHECK'; // 当前步骤操作，NodeActionTypeEnum
 
 const CheckStep: React.FC = forwardRef((_props, ref) => {
+	const { t } = useTranslation();
 	const { stateText, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [checkState, setCheckState] = useState(false);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { useGetSepData, useSetStepData } = useStepLogic();
-	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { webState, selectedList } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
@@ -69,7 +71,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 			title: t('node.log'),
 			dataIndex: 'NodeState',
 			key: 'NodeState',
-			render: () => <a> {t('node.viewLog')}</a>
+			render: () => <a onClick={viewLog}> {t('node.viewLog')}</a>
 		}
 	];
 	useImperativeHandle(ref, () => ({
@@ -77,6 +79,12 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		check
 	}));
 	const handleOk = useSetStepData(stepName, null, selectedRowsList);
+	const viewLog = () => {
+		setIsModalOpen(true);
+	};
+	const handleModalCancel = () => {
+		setIsModalOpen(false);
+	};
 	const check = async () => {
 		setCheckState(false);
 
@@ -146,14 +154,17 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		})
 	};
 	return (
-		<Table
-			rowSelection={{
-				...rowSelection
-			}}
-			rowKey="NodeId"
-			columns={columns}
-			dataSource={tableData}
-		/>
+		<>
+			<Table
+				rowSelection={{
+					...rowSelection
+				}}
+				rowKey="NodeId"
+				columns={columns}
+				dataSource={tableData}
+			/>
+			{isModalOpen ? <CheckLogModal isModalOpen={isModalOpen} handleCancel={handleModalCancel} /> : null}
+		</>
 	);
 });
 export default CheckStep;

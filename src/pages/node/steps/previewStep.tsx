@@ -30,7 +30,7 @@ import RequestHttp from '@/api';
 import useStepLogic from '@/hooks/useStepLogic';
 import useStore from '@/store/store';
 import { NodeType } from '@/api/interface';
-import JobPlanModal from '../components/jobPlanModal';
+import JobPlanModal from '../../../components/jobPlanModal';
 
 interface DataType {
 	ServiceName: string;
@@ -41,7 +41,8 @@ const undeployedState = ['REMOVED', 'SELECTED', 'UNSELECTED'];
 const serviceDeployState = ['SELECTED', 'SELECTED_ADDITION'];
 // const preStepName = 'previewStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'previewStep';
-const PreviewconfigStep: React.FC = forwardRef((_props, ref) => {
+const operation = 'DEPLOY';
+const PreviewStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -84,14 +85,30 @@ const PreviewconfigStep: React.FC = forwardRef((_props, ref) => {
 	const setStepData = useSetStepData(stepName, null, filterDataRef.current);
 	const handleOk = async () => {
 		setStepData();
+		await deploy();
 		const api = APIConfig.nodeJobPlan;
 		const data = await RequestHttp.get(api);
 		const {
 			Data: { PlanProgress }
 		} = data;
+		console.log(PlanProgress);
 		PlanProgress !== '100' && setIsModalOpen(true);
 	};
+	const deploy = async () => {
+		const api = APIConfig.deploy;
+		const params = {
+			ActionTypeEnum: operation,
+			ClusterId: id,
+			IsOneByOne: false,
+			ServiceNameList: filterDataRef.current
+		};
+		await RequestHttp.post(api, params);
+		// setJobId(data.Data.JobId);
+	};
 	const handleModalOk = () => {
+		setIsModalOpen(false);
+	};
+	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
 
@@ -158,10 +175,11 @@ const PreviewconfigStep: React.FC = forwardRef((_props, ref) => {
 				<JobPlanModal
 					isModalOpen={isModalOpen}
 					handleOk={handleModalOk}
+					handleCancel={handleModalCancel}
 					// nodeList={nodeList}
 				/>
 			) : null}
 		</Space>
 	);
 });
-export default PreviewconfigStep;
+export default PreviewStep;

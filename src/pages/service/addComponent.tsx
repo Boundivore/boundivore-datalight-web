@@ -26,7 +26,7 @@ import StepComponent from '@/pages/node/components/stepComponent';
 import SelectServiceStep from '@/pages/node/steps/selectServiceStep';
 import SelectComStep from '@/pages/node/steps/selectComStep';
 import PreconfigStep from '@/pages/node/steps/preconfigStep';
-import PreviewconfigStep from '@/pages/node/steps/previewconfigStep';
+import PreviewconfigStep from '@/pages/node/steps/previewStep';
 import DeployStep from '@/pages/node/steps/deployStep';
 import useStepLogic from '@/hooks/useStepLogic';
 import useNavigater from '@/hooks/useNavigater';

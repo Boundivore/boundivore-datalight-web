@@ -30,6 +30,7 @@ import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import { updateCurrentView } from '@/utils/helper';
+import JobPlanModal from '@/components/jobPlanModal';
 import { NodeType, NodeWithComponent, ClusterType, BadgeStatus } from '@/api/interface';
 
 const ManageList: FC = () => {
@@ -42,6 +43,7 @@ const ManageList: FC = () => {
 	const [allowAdd, setAllowAdd] = useState(false); // 是否允许新增节点操作,默认不允许
 	const { navigateToAddNode } = useNavigater();
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [messageApi, contextHolder] = message.useMessage();
 	const { modal } = App.useApp();
 	// 顶部操作按钮配置
@@ -160,7 +162,8 @@ const ManageList: FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
-					getNodeList();
+					setIsModalOpen(true);
+					// getNodeList(); // 这里不用调接口了，轮询替代了
 				}
 			}
 		});
@@ -181,7 +184,6 @@ const ManageList: FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
-					getNodeList();
 				}
 			}
 		});
@@ -234,6 +236,12 @@ const ManageList: FC = () => {
 			setAllowAdd(!option.hasAlreadyNode);
 		}
 	};
+	const handleModalOk = () => {
+		setIsModalOpen(false);
+	};
+	const handleModalCancel = () => {
+		setIsModalOpen(false);
+	};
 	const tableData: NodeType[] = usePolling(getNodeList, [], 1000, [selectCluster]);
 
 	// useEffect(() => {
@@ -256,32 +264,42 @@ const ManageList: FC = () => {
 	};
 
 	return (
-		<Card className="min-h-[calc(100%-50px)] m-[20px]">
-			{contextHolder}
-			<Flex justify="space-between">
-				<Space>
-					{buttonConfigTop.map(button => (
-						<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
-							{button.label}
-						</Button>
-					))}
-				</Space>
-				<div>
-					{t('node.currentCluster')}
-					<Select className="w-[200px]" options={selectData} value={selectCluster} onChange={handleChange} />
-				</div>
-			</Flex>
-			<Table
-				className="mt-[20px]"
-				rowKey="NodeId"
-				rowSelection={{
-					...rowSelection
-				}}
-				columns={columns}
-				dataSource={tableData}
-				loading={loading}
-			/>
-		</Card>
+		<>
+			<Card className="min-h-[calc(100%-50px)] m-[20px]">
+				{contextHolder}
+				<Flex justify="space-between">
+					<Space>
+						{buttonConfigTop.map(button => (
+							<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+								{button.label}
+							</Button>
+						))}
+					</Space>
+					<div>
+						{t('node.currentCluster')}
+						<Select className="w-[200px]" options={selectData} value={selectCluster} onChange={handleChange} />
+					</div>
+				</Flex>
+				<Table
+					className="mt-[20px]"
+					rowKey="NodeId"
+					rowSelection={{
+						...rowSelection
+					}}
+					columns={columns}
+					dataSource={tableData}
+					loading={loading}
+				/>
+			</Card>
+			{isModalOpen ? (
+				<JobPlanModal
+					isModalOpen={isModalOpen}
+					handleOk={handleModalOk}
+					handleCancel={handleModalCancel}
+					// nodeList={nodeList}
+				/>
+			) : null}
+		</>
 	);
 };
 

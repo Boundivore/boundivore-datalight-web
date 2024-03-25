@@ -27,6 +27,7 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 import usePolling from '@/hooks/usePolling';
+import JobPlanModal from '@/components/jobPlanModal';
 
 const { Text } = Typography;
 
@@ -53,6 +54,7 @@ const ComponentManage: React.FC = () => {
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
 	const [startDisabled, setStartDisabled] = useState(true); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(true); // 是否禁用批量停止
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { navigateToAddComponent } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
@@ -236,10 +238,17 @@ const ComponentManage: React.FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
+					operation === 'RESTART' && setIsModalOpen(true);
 					// getComponentList(); // 这里不用调接口了，轮询替代了
 				}
 			}
 		});
+	};
+	const handleModalOk = () => {
+		setIsModalOpen(false);
+	};
+	const handleModalCancel = () => {
+		setIsModalOpen(false);
 	};
 	const getComponentList = async () => {
 		// setLoading(true);
@@ -282,26 +291,31 @@ const ComponentManage: React.FC = () => {
 		}
 	};
 	return (
-		<Card className="min-h-[calc(100%-50px)] m-[20px]">
-			{contextHolder}
-			<Space>
-				{buttonConfigTop.map(button => (
-					<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
-						{button.label}
-					</Button>
-				))}
-			</Space>
-			<Table
-				rowSelection={{
-					...rowSelection
-				}}
-				className="mt-[20px]"
-				rowKey="rowKey"
-				columns={columns}
-				dataSource={tableData}
-				expandable={{ expandedRowKeys: defaultExpandedRowKeys }}
-			/>
-		</Card>
+		<>
+			<Card className="min-h-[calc(100%-50px)] m-[20px]">
+				{contextHolder}
+				<Space>
+					{buttonConfigTop.map(button => (
+						<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+							{button.label}
+						</Button>
+					))}
+				</Space>
+				<Table
+					rowSelection={{
+						...rowSelection
+					}}
+					className="mt-[20px]"
+					rowKey="rowKey"
+					columns={columns}
+					dataSource={tableData}
+					expandable={{ expandedRowKeys: defaultExpandedRowKeys }}
+				/>
+			</Card>
+			{isModalOpen ? (
+				<JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} handleCancel={handleModalCancel} type="jobPlan" />
+			) : null}
+		</>
 	);
 };
 

@@ -27,32 +27,34 @@ import { useTranslation } from 'react-i18next';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
-import { NodeType } from '@/api/interface';
+import useStore from '@/store/store';
 
 interface JobPlanModalProps {
 	isModalOpen: boolean;
-	handleOk: (list: NodeType[]) => void;
+	handleOk: () => void;
 	handleCancel: () => void;
-	component: string;
+	type?: string;
 }
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 
-const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, handleOk, handleCancel }) => {
+const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, handleOk, handleCancel, type = 'nodeJobPlan' }) => {
 	const { t } = useTranslation();
 	// const [openAlert, setOpenAlert] = useState(false);
 	// const [errorText, setErrorText] = useState('');
+	const { stableState } = useStore();
 
 	const getJobPlan = async () => {
-		const api = APIConfig.nodeJobPlan;
+		const api = APIConfig[type];
 		const data = await RequestHttp.get(api);
 		const {
 			Data: { PlanProgress }
 		} = data;
-		PlanProgress === '100' && handleOk();
-		return PlanProgress;
+		console.log(handleOk);
+		// PlanProgress === '100' && handleOk();
+		return [{ PlanProgress, SCStateEnum: PlanProgress === '100' ? 'OK' : 'processing' }];
 	};
-	const progressData = usePolling(getJobPlan, stableState, 1000, []);
-
+	const progressData = usePolling(getJobPlan, stableState, 1000, [true]);
+	console.log('progressData', progressData);
 	// useEffect(() => {
 	// 	getJobPlan();
 	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,7 +83,7 @@ const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, handleOk, handleCanc
 	return (
 		<Modal title={t('selectNode')} open={isModalOpen} onCancel={handleCancel}>
 			{/* {openAlert ? <Alert message={errorText} type="error" /> : null} */}
-			<Progress percent={parseFloat(parseFloat(progressData).toFixed(2))} strokeColor={twoColors} />
+			<Progress percent={parseFloat(parseFloat(progressData[0]?.PlanProgress).toFixed(2))} strokeColor={twoColors} />
 		</Modal>
 	);
 };

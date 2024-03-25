@@ -163,7 +163,7 @@ export default {
 		deployOverview: '部署概览',
 		deployStep: '部署进度',
 		deploySuccess: '部署成功，完成',
-		unselected: '取消选择部署',
+		unselected: '未部署',
 		selected: '选择部署',
 		selected_addition: '选择增量部署',
 		undeployed: '未部署',
@@ -239,7 +239,7 @@ export default {
 	restarting: '重启中',
 	removed: '已移除',
 	selected: '选择部署',
-	unselected: '取消选择部署',
+	unselected: '未部署',
 	stopping: '停止中',
 	stopped: '已停止',
 	state: '状态'

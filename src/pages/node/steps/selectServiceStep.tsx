@@ -96,6 +96,12 @@ const SelectServiceStep: FC = forwardRef((_props, ref) => {
 		setSelectedServiceRowsList(
 			serviceData.filter(item => selectedStates.includes(item.SCStateEnum)).map(item => ({ ...item, SCStateEnum: 'SELECTED' }))
 		);
+		setCurrentPageDisabled({
+			nextDisabled: true,
+			retryDisabled: false,
+			prevDisabled: false,
+			cancelDisabled: false
+		});
 	};
 	useEffect(() => {
 		getList();

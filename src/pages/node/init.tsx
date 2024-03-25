@@ -33,7 +33,7 @@ import DoneStep from './steps/doneStep';
 import SelectServiceStep from './steps/selectServiceStep';
 import SelectComStep from './steps/selectComStep';
 import PreconfigStep from './steps/preconfigStep';
-import PreviewconfigStep from './steps/previewconfigStep';
+import PreviewconfigStep from './steps/previewStep';
 import DeployStep from './steps/deployStep';
 import useStepLogic from '@/hooks/useStepLogic';
 import useNavigater from '@/hooks/useNavigater';
@@ -55,7 +55,7 @@ const InitNode: React.FC = forwardRef(() => {
 	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
 	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
 	const PreconfigStepRef = useRef<{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> }>(null);
-	const PreviewconfigStepRef = useRef<{ handleOk: () => void }>(null);
+	const PreviewStepRef = useRef<{ handleOk: () => void }>(null);
 	const DeployStepRef = useRef(null);
 	// const addStepRef = useRef<HTMLDivElement>(null);
 	const steps = [
@@ -121,8 +121,9 @@ const InitNode: React.FC = forwardRef(() => {
 	const nextAdd = () => startWorkerStepRef.current?.handleOk();
 	const nextComponent = () => selectServiceRef.current?.handleOk();
 	const nextPreconfig = () => selectComponentRef.current?.handleOk();
-	const nextDeploy = () => PreviewconfigStepRef.current?.handleOk();
 	const nextPreview = () => PreconfigStepRef.current?.onFinish(true);
+	const nextDeploy = () => PreviewStepRef.current?.handleOk();
+	const retryDeploy = () => DeployStepRef.current?.deploy();
 
 	const stepConfig = [
 		{
@@ -194,7 +195,7 @@ const InitNode: React.FC = forwardRef(() => {
 		},
 		{
 			title: t('service.deployOverview'),
-			content: <PreviewconfigStep ref={PreviewconfigStepRef} />,
+			content: <PreviewconfigStep ref={PreviewStepRef} />,
 			nextStep: nextDeploy,
 			hideRetry: true,
 			nextText: t('startDeploy')
@@ -212,7 +213,7 @@ const InitNode: React.FC = forwardRef(() => {
 					}
 				}
 			],
-			retry: nextDeploy,
+			retry: retryDeploy,
 			hideNext: true
 		}
 	];

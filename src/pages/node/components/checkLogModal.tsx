@@ -21,23 +21,26 @@
  * @param {function} handleCancel - 弹窗取消的回调函数
  * @author Tracy.Guo
  */
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Modal } from 'antd';
+import { Modal, List } from 'antd';
 import { useTranslation } from 'react-i18next';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
+import { NodeJobLogVo } from '@/api/interface';
 
 interface CheckLogModalProps {
 	isModalOpen: boolean;
+	handleCancel: () => void;
 }
 
-const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen }) => {
+const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen, handleCancel }) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { jobNodeId } = useStore();
+	const [logData, setLogData] = useState<NodeJobLogVo[]>([]);
 	// const [openAlert, setOpenAlert] = useState(false);
 	// const [errorText, setErrorText] = useState('');
 
@@ -52,6 +55,7 @@ const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen }) => {
 			Data: { NodeJobLogList }
 		} = data;
 		console.log(NodeJobLogList);
+		setLogData(NodeJobLogList);
 	};
 	useEffect(() => {
 		getLog();
@@ -59,8 +63,17 @@ const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen }) => {
 	}, []);
 
 	return (
-		<Modal title={t('selectNode')} open={isModalOpen}>
+		<Modal title={t('node.log')} open={isModalOpen} onCancel={handleCancel}>
 			{/* {openAlert ? <Alert message={errorText} type="error" /> : null} */}
+			<List
+				itemLayout="horizontal"
+				dataSource={logData}
+				renderItem={item => (
+					<List.Item>
+						<List.Item.Meta title={item.LogErrOut} description={item.LogStdOut} />
+					</List.Item>
+				)}
+			/>
 		</Modal>
 	);
 };

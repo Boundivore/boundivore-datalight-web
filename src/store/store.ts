@@ -62,8 +62,6 @@ interface PersistStore {
 interface ComponentAndNodeStore {
 	nodeList: object;
 	setNodeList: (info: object) => void;
-	selectedRowsList: object; // 已选择的节点列表, 这个列表是集群引导全流程中的每一步里都可能不相同，因此需要记录所有
-	setSelectedRowsList: (key: string, rows: object[]) => void;
 }
 const useStore = create<MyStore>(set => ({
 	isNeedChangePassword: false,
@@ -218,7 +216,8 @@ const useStore = create<MyStore>(set => ({
 		'START_WORKER_OK',
 		'START_WORKER_ERROR',
 		'UNSELECTED',
-		'ERROR'
+		'ERROR',
+		'OK'
 	],
 	configGroupInfo: [],
 	setConfigGroupInfo: (group: object[]) => set({ configGroupInfo: group }),
@@ -242,16 +241,7 @@ export const useComponentAndNodeStore = create<ComponentAndNodeStore>()(
 	persist(
 		set => ({
 			nodeList: {},
-			setNodeList: (node: object) => set({ nodeList: node }),
-			selectedRowsList: {
-				PROCEDURE_PARSE_HOSTNAME: [],
-				PROCEDURE_DETECT: [],
-				PROCEDURE_CHECK: [],
-				PROCEDURE_DISPATCH: [],
-				PROCEDURE_START_WORKER: []
-			},
-			setSelectedRowsList: (key: string, rows: object[]) =>
-				set(state => ({ selectedRowsList: { ...state.selectedRowsList, [key]: rows } }))
+			setNodeList: (node: object) => set({ nodeList: node })
 		}),
 		{
 			name: 'node-storage', // name of the item in the storage (must be unique)

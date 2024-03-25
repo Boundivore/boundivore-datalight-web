@@ -23,7 +23,7 @@ import i18n from '@/i18n';
 
 const config = {
 	timeout: 1000 * 10,
-	withCredentials: true
+	withCredentials: false
 };
 let lastErrorTimestamp = 0;
 let errorTime = 5000;

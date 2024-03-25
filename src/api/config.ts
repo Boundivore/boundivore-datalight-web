@@ -51,6 +51,7 @@ const APIConfig: Actions = {
 	removeNode: '/v1/master/node/removeBatchByIds', // 支持批量删除
 	operateNode: '/v1/master/node/operate',
 	getNodeLog: '/v1/master/job/getNodeJobLogList',
+	nodeJobProgress: '/v1/master/node/job/progress',
 	// 服务相关
 	serviceList: '/v1/master/service/list',
 	selectService: '/v1/master/service/select',

@@ -149,3 +149,15 @@ export interface ConfigSummaryListVo {
 	 */
 	ServiceName: string;
 }
+
+/**
+ * NodeJobLogVo
+ */
+export interface NodeJobLogVo {
+	LogErrOut: string;
+	LogStdOut: string;
+	NodeJobId: number;
+	NodeTaskId: number;
+	StepId: number;
+	[property: string]: any;
+}
