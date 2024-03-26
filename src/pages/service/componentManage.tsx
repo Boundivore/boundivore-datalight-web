@@ -21,13 +21,14 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Button, Card, Space, App, message, Typography } from 'antd';
+import { Table, Button, Card, Space, App, message, Typography, Flex } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 import usePolling from '@/hooks/usePolling';
 import JobPlanModal from '@/components/jobPlanModal';
+import ViewActivrJobModal from '@/components/viewActiveJobModal';
 
 const { Text } = Typography;
 
@@ -55,6 +56,7 @@ const ComponentManage: React.FC = () => {
 	const [startDisabled, setStartDisabled] = useState(true); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(true); // 是否禁用批量停止
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const { navigateToAddComponent } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
@@ -244,10 +246,25 @@ const ComponentManage: React.FC = () => {
 			}
 		});
 	};
-	const handleModalOk = () => {
-		setIsModalOpen(false);
+	const viewActiveJob = async () => {
+		const apiList = APIConfig.getActiveJobId;
+		const data = await RequestHttp.get(apiList);
+		const {
+			Data: { ClusterId, NodeJobId }
+		} = data;
+		console.log('ClusterId', ClusterId);
+		console.log('NodeJobId', NodeJobId);
+		id === ClusterId
+			? setIsActiveJobModalOpen(true)
+			: modal.info({
+					title: '当前没有活跃的任务'
+			  });
+		// ? setIsActiveJobModalOpen(true)
+		// : modal.info({
+		// 		title: '当前没有活跃的任务'
+		//   });
 	};
-	const handleModalCancel = () => {
+	const handleModalOk = () => {
 		setIsModalOpen(false);
 	};
 	const getComponentList = async () => {
@@ -294,13 +311,20 @@ const ComponentManage: React.FC = () => {
 		<>
 			<Card className="min-h-[calc(100%-50px)] m-[20px]">
 				{contextHolder}
-				<Space>
-					{buttonConfigTop.map(button => (
-						<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
-							{button.label}
+				<Flex justify="space-between">
+					<Space>
+						{buttonConfigTop.map(button => (
+							<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+								{button.label}
+							</Button>
+						))}
+					</Space>
+					<Space>
+						<Button type="primary" onClick={viewActiveJob}>
+							{t('viewActiveJob')}
 						</Button>
-					))}
-				</Space>
+					</Space>
+				</Flex>
 				<Table
 					rowSelection={{
 						...rowSelection
@@ -312,9 +336,15 @@ const ComponentManage: React.FC = () => {
 					expandable={{ expandedRowKeys: defaultExpandedRowKeys }}
 				/>
 			</Card>
-			{isModalOpen ? (
-				<JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} handleCancel={handleModalCancel} type="jobPlan" />
+			{isActiveJobModalOpen ? (
+				<ViewActivrJobModal
+					isModalOpen={isModalOpen}
+					handleOk={handleModalOk}
+					handleCancel={handleModalOk}
+					// nodeList={nodeList}
+				/>
 			) : null}
+			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null}
 		</>
 	);
 };

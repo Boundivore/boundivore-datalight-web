@@ -18,7 +18,7 @@
  * PreviewconfigStep - 预览配置
  * @author Tracy.Guo
  */
-import React, { useImperativeHandle, useEffect, useState, forwardRef, useRef } from 'react';
+import React, { useImperativeHandle, useEffect, useState, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -29,7 +29,7 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStepLogic from '@/hooks/useStepLogic';
 import useStore from '@/store/store';
-import { NodeType } from '@/api/interface';
+// import { NodeType } from '@/api/interface';
 import JobPlanModal from '../../../components/jobPlanModal';
 
 interface DataType {
@@ -49,9 +49,8 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 	const [serviceTable, setServiceTable] = useState([]);
 	const [filterData, setFilterData] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const { setCurrentPageDisabled, currentPageDisabled } = useStore();
+	const { setCurrentPageDisabled, currentPageDisabled, setJobId } = useStore();
 	const { useSetStepData } = useStepLogic();
-	const filterDataRef = useRef<NodeType[] | null>(null);
 	const serviceColumn: ColumnsType<DataType> = [
 		{
 			title: t('service.serviceName'),
@@ -82,33 +81,24 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 	useImperativeHandle(ref, () => ({
 		handleOk
 	}));
-	const setStepData = useSetStepData(stepName, null, filterDataRef.current);
+	const setStepData = useSetStepData(stepName, null, filterData);
 	const handleOk = async () => {
 		setStepData();
-		await deploy();
-		const api = APIConfig.nodeJobPlan;
-		const data = await RequestHttp.get(api);
-		const {
-			Data: { PlanProgress }
-		} = data;
-		console.log(PlanProgress);
-		PlanProgress !== '100' && setIsModalOpen(true);
+		deploy();
 	};
 	const deploy = async () => {
+		setIsModalOpen(true);
 		const api = APIConfig.deploy;
 		const params = {
 			ActionTypeEnum: operation,
 			ClusterId: id,
 			IsOneByOne: false,
-			ServiceNameList: filterDataRef.current
+			ServiceNameList: filterData
 		};
-		await RequestHttp.post(api, params);
-		// setJobId(data.Data.JobId);
+		const { Data: JobId } = RequestHttp.post(api, params);
+		setJobId(JobId);
 	};
 	const handleModalOk = () => {
-		setIsModalOpen(false);
-	};
-	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
 
@@ -147,10 +137,6 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 		});
 	};
 	useEffect(() => {
-		// 在 filterData 变化时更新 ref
-		filterDataRef.current = filterData;
-	}, [filterData]);
-	useEffect(() => {
 		getInfo();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -175,7 +161,6 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 				<JobPlanModal
 					isModalOpen={isModalOpen}
 					handleOk={handleModalOk}
-					handleCancel={handleModalCancel}
 					// nodeList={nodeList}
 				/>
 			) : null}

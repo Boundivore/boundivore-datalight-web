@@ -52,6 +52,7 @@ const APIConfig: Actions = {
 	operateNode: '/v1/master/node/operate',
 	getNodeLog: '/v1/master/job/getNodeJobLogList',
 	nodeJobProgress: '/v1/master/node/job/progress',
+	getActiveNodeJobId: '/v1/master/job/getActiveNodeJobId',
 	// 服务相关
 	serviceList: '/v1/master/service/list',
 	selectService: '/v1/master/service/select',
@@ -69,6 +70,7 @@ const APIConfig: Actions = {
 	jobProgress: '/v1/master/job/progress',
 	nodeJobPlan: '/v1/master/job/activeNodeJobPlanProgress', // 查询节点异步任务计划生成的进度
 	jobPlan: '/v1/master/job/activeJobPlanProgress', // 查询服务组件部署时异步任务计划生成的进度
+	getActiveJobId: '/v1/master/job/getActiveJobId',
 	// 配置相关
 	listSummary: '/v1/master/config/listSummary',
 	listByGroup: '/v1/master/config/listByGroup',

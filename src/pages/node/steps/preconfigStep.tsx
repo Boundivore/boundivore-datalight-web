@@ -83,7 +83,7 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 
 	const onFinish = async () => {
 		// 将表单数据回填到原始数据中
-		if (serviceList.length) {
+		if (serviceList.length && items.length) {
 			const values = form.getFieldsValue();
 			const updatedData = _.cloneDeep([...serviceList]);
 			updatedData.forEach((service, serviceIndex) => {
@@ -154,7 +154,7 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 
 	return (
 		<>
-			{serviceList.length ? (
+			{serviceList.length && items.length ? (
 				<>
 					<Col className="mb-[20px]" span={24}>
 						<Space className="flex justify-end">

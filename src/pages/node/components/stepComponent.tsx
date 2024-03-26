@@ -43,12 +43,15 @@ interface StepConfig {
 interface MyComponentProps {
 	config: StepConfig[];
 }
+// 适配集群引导和新增组件，新增组件重新定义步骤进度，将前边节点相关步骤减去
+const stepNum = 7;
+
 const StepComponent: FC<MyComponentProps> = ({ config }) => {
 	const { t } = useTranslation();
 	const { useCancelProcedure } = useStepLogic();
 	const { stepCurrent, setStepCurrent, currentPageDisabled, setIsRefresh } = useStore();
 	const { nextDisabled, retryDisabled, prevDisabled, cancelDisabled } = currentPageDisabled;
-	const stepConfig = config[stepCurrent];
+	const stepConfig = config[stepCurrent] || config[stepCurrent - stepNum]; // 适配集群引导和新增组件
 	const next = async () => {
 		// 不配置nextStep，默认进入下一步页面
 		if (!stepConfig.nextStep) {
@@ -71,6 +74,8 @@ const StepComponent: FC<MyComponentProps> = ({ config }) => {
 		stepConfig.retry && (await stepConfig.retry());
 	};
 	const cancel = useCancelProcedure();
+	console.log('stepCurrent', stepCurrent);
+	console.log('stepConfig', stepConfig);
 	return (
 		<>
 			<Card className="h-full" title={stepConfig.title}>
@@ -104,7 +109,7 @@ const StepComponent: FC<MyComponentProps> = ({ config }) => {
 										{stepConfig.nextText || t('next')}
 									</Button>
 								)}
-								{stepCurrent < config.length - 1 && (
+								{stepCurrent < config.length && (
 									<Button onClick={cancel} disabled={cancelDisabled}>
 										{t('cancel')}
 									</Button>

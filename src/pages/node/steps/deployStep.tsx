@@ -20,7 +20,7 @@
  */
 import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Progress, Typography } from 'antd';
+import { Table, Progress, Typography, Alert } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
@@ -46,6 +46,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const id = searchParams.get('id');
 	const { stableState, jobId, setJobId, setCurrentPageDisabled, isRefresh } = useStore();
 	// const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
+	const [openAlert, setOpenAlert] = useState(false);
 	const [deployState, setDeployState] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { useGetSepData } = useStepLogic();
@@ -100,11 +101,9 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const handleModalOk = () => {
 		setIsModalOpen(false);
 	};
-	const handleModalCancel = () => {
-		setIsModalOpen(false);
-	};
 	const deploy = async () => {
 		setDeployState(false);
+		setIsModalOpen(true);
 		const api = APIConfig.deploy;
 		const serviceNameList = webState[preStepName];
 		const params = {
@@ -116,16 +115,6 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 		const data = await RequestHttp.post(api, params);
 		setJobId(data.Data.JobId);
 		setDeployState(data.Code === '00000');
-		await getJobPlan();
-	};
-	const getJobPlan = async () => {
-		const api = APIConfig.nodeJobPlan;
-		const data = await RequestHttp.get(api);
-		const {
-			Data: { PlanProgress }
-		} = data;
-		console.log(PlanProgress);
-		PlanProgress !== '100' && setIsModalOpen(true);
 	};
 
 	const getList = async () => {
@@ -141,6 +130,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			JobExecStateEnum // 展开新键值对，这将合并到当前对象中
 		}));
 		const basicDisabled = disabledState.includes(JobExecStateEnum);
+		setOpenAlert(basicDisabled);
 		setCurrentPageDisabled({
 			nextDisabled: basicDisabled,
 			retryDisabled: basicDisabled,
@@ -164,13 +154,14 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const tableData = usePolling(getList, stableState, 1000, [deployState, webState]);
 	return (
 		<>
+			{openAlert ? <Alert message={errorText} type="error" /> : null}
 			<Table
 				className="data-light-table" //使用自定义class重定义table行高
 				rowKey="NodeId"
 				columns={columns}
 				dataSource={tableData}
 			/>
-			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} handleCancel={handleModalCancel} /> : null}
+			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} /> : null}
 		</>
 	);
 });

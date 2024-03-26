@@ -242,5 +242,7 @@ export default {
 	unselected: '未部署',
 	stopping: '停止中',
 	stopped: '已停止',
-	state: '状态'
+	state: '状态',
+	planProgress: '计划进度',
+	viewActiveJob: '查看活跃任务'
 };

@@ -29,6 +29,7 @@ import useNavigater from '@/hooks/useNavigater';
 import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
 import ItemConfigInfo from '@/components/itemConfigInfo';
+import ViewActivrJobModal from '@/components/viewActiveJobModal';
 import { updateCurrentView } from '@/utils/helper';
 import JobPlanModal from '@/components/jobPlanModal';
 import { NodeType, NodeWithComponent, ClusterType, BadgeStatus } from '@/api/interface';
@@ -44,6 +45,7 @@ const ManageList: FC = () => {
 	const { navigateToAddNode } = useNavigater();
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const [messageApi, contextHolder] = message.useMessage();
 	const { modal } = App.useApp();
 	// 顶部操作按钮配置
@@ -162,7 +164,7 @@ const ManageList: FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
-					setIsModalOpen(true);
+					// setIsModalOpen(true); // 暂时先不展示
 					// getNodeList(); // 这里不用调接口了，轮询替代了
 				}
 			}
@@ -187,6 +189,19 @@ const ManageList: FC = () => {
 				}
 			}
 		});
+	};
+	const viewActiveJob = async () => {
+		const apiList = APIConfig.getActiveNodeJobId;
+		const data = await RequestHttp.get(apiList);
+		const {
+			Data: { ClusterId, NodeJobId }
+		} = data;
+		console.log('NodeJobId', NodeJobId);
+		selectCluster === ClusterId
+			? setIsActiveJobModalOpen(true)
+			: modal.info({
+					title: '当前没有活跃的任务'
+			  });
 	};
 	const getClusterList = async () => {
 		setLoading(true);
@@ -275,10 +290,15 @@ const ManageList: FC = () => {
 							</Button>
 						))}
 					</Space>
-					<div>
-						{t('node.currentCluster')}
-						<Select className="w-[200px]" options={selectData} value={selectCluster} onChange={handleChange} />
-					</div>
+					<Space>
+						<>
+							{t('node.currentCluster')}
+							<Select className="w-[200px]" options={selectData} value={selectCluster} onChange={handleChange} />
+						</>
+						<Button type="primary" onClick={viewActiveJob}>
+							{t('viewActiveJob')}
+						</Button>
+					</Space>
 				</Flex>
 				<Table
 					className="mt-[20px]"
@@ -291,6 +311,14 @@ const ManageList: FC = () => {
 					loading={loading}
 				/>
 			</Card>
+			{isActiveJobModalOpen ? (
+				<ViewActivrJobModal
+					isModalOpen={isModalOpen}
+					handleOk={handleModalOk}
+					handleCancel={handleModalCancel}
+					// nodeList={nodeList}
+				/>
+			) : null}
 			{isModalOpen ? (
 				<JobPlanModal
 					isModalOpen={isModalOpen}
