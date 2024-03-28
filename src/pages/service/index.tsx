@@ -145,7 +145,8 @@ const ServiceManage: FC = () => {
 			filters: [
 				{
 					text: t('service.undeployed'),
-					value: stateArray
+					// 这里与antd中ColumnFilterItem无法保持一致，用any兼容
+					value: stateArray as any
 				},
 				{
 					text: t('service.changing'),

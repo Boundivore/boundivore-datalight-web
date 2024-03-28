@@ -29,12 +29,12 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStepLogic from '@/hooks/useStepLogic';
 import useStore from '@/store/store';
-// import { NodeType } from '@/api/interface';
+import { ServiceComponentSummaryVo, ComponentNodeVo } from '@/api/interface';
 import JobPlanModal from '../../../components/jobPlanModal';
 
-interface DataType {
-	ServiceName: string;
-	ComponentName: string;
+interface TableDataType extends ServiceComponentSummaryVo {
+	rowKey: string;
+	children: [];
 }
 // const deployedState = [];
 const undeployedState = ['REMOVED', 'SELECTED', 'UNSELECTED'];
@@ -46,12 +46,12 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const [serviceTable, setServiceTable] = useState([]);
-	const [filterData, setFilterData] = useState([]);
+	const [serviceTable, setServiceTable] = useState<TableDataType[]>([]);
+	const [filterData, setFilterData] = useState<string[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { setCurrentPageDisabled, currentPageDisabled, setJobId } = useStore();
 	const { useSetStepData } = useStepLogic();
-	const serviceColumn: ColumnsType<DataType> = [
+	const serviceColumn: ColumnsType<TableDataType> = [
 		{
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceSummary',
@@ -65,12 +65,12 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 		{
 			title: t('undeployedNodeNum'),
 			dataIndex: 'ComponentNodeList',
-			render: (text: []) => <span>{text?.filter(node => undeployedState.includes(node.SCStateEnum)).length}</span>
+			render: (text: ComponentNodeVo[]) => <span>{text?.filter(node => undeployedState.includes(node.SCStateEnum)).length}</span>
 		},
 		{
 			title: t('deployedNodeNum'),
 			dataIndex: 'ComponentNodeList',
-			render: (text: []) => <span>{text?.filter(node => !undeployedState.includes(node.SCStateEnum)).length}</span>
+			render: (text: ComponentNodeVo[]) => <span>{text?.filter(node => !undeployedState.includes(node.SCStateEnum)).length}</span>
 		},
 		{
 			title: t('nodeNum'),
@@ -95,8 +95,8 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 			IsOneByOne: false,
 			ServiceNameList: filterData
 		};
-		const { Data: JobId } = RequestHttp.post(api, params);
-		setJobId(JobId);
+		const data = await RequestHttp.post(api, params);
+		setJobId(data.Data.JobId);
 	};
 	const handleModalOk = () => {
 		setIsModalOpen(false);
@@ -111,14 +111,11 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 		const {
 			Data: { ServiceComponentSummaryList }
 		} = data;
-		const tableData = ServiceComponentSummaryList.map(
-			(item: { rowKey: string; ServiceSummary: { ServiceName: string }; children: []; ComponentSummaryList: [] }) => ({
-				...item,
-				rowKey: item.ServiceSummary.ServiceName,
-				children: item.ComponentSummaryList
-			})
-		);
-		console.log(121212, tableData);
+		const tableData: TableDataType[] = ServiceComponentSummaryList.map((item: ServiceComponentSummaryVo) => ({
+			...item,
+			rowKey: item.ServiceSummary.ServiceName,
+			children: item.ComponentSummaryList
+		}));
 		const filterServiceName = tableData
 			.filter(item1 => {
 				return serviceDeployState.includes(item1.ServiceSummary.SCStateEnum);
@@ -126,7 +123,6 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 			.map(item2 => {
 				return item2.ServiceSummary.ServiceName;
 			});
-		console.log('filterData', filterServiceName);
 		setFilterData(filterServiceName);
 		setServiceTable(tableData);
 		setCurrentPageDisabled({

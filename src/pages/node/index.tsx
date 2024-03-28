@@ -323,7 +323,6 @@ const ManageList: FC = () => {
 				<JobPlanModal
 					isModalOpen={isModalOpen}
 					handleOk={handleModalOk}
-					handleCancel={handleModalCancel}
 					// nodeList={nodeList}
 				/>
 			) : null}

@@ -38,7 +38,7 @@ import { NodeType } from '@/api/interface';
 interface NodeListModalProps {
 	isModalOpen: boolean;
 	groupIndex: number | string;
-	handleOk: (index: number | string, data) => void;
+	handleOk: (index: number, data: []) => void;
 	handleCancel: () => void;
 }
 const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, handleOk, handleCancel }) => {

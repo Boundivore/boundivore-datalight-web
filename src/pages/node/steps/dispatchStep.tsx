@@ -30,7 +30,7 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
-import { NodeType } from '@/api/interface';
+import { NodeType, NodeJobTransferProgressVo } from '@/api/interface';
 
 const { Text } = Typography;
 
@@ -170,7 +170,7 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		} = progressData;
 
 		let mergedData = NodeInitDetailList.map((item1: NodeType) => {
-			let item2 = NodeJobTransferProgressList.filter(item2 => item2.NodeId === item1.NodeId);
+			let item2 = NodeJobTransferProgressList.filter((item2: NodeJobTransferProgressVo) => item2.NodeId === item1.NodeId);
 			if (item2.length > 0) {
 				return { ...item1, ...item2[0] };
 			} else {

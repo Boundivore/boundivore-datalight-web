@@ -35,7 +35,7 @@ import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
 import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
-import { ConfigSummaryVo } from '@/api/interface';
+import { ConfigSummaryVo, ConfigGroupVo } from '@/api/interface';
 
 const ModifyConfig: React.FC = () => {
 	const { t } = useTranslation();
@@ -44,7 +44,7 @@ const ModifyConfig: React.FC = () => {
 	const serviceName = searchParams.get('name');
 	const [tabsData, setTabsData] = useState<TabsProps['items']>([]);
 	const [activeTab, setActiveTab] = useState('');
-	const [activeContent, setActiveContent] = useState([]);
+	const [activeContent, setActiveContent] = useState<ConfigGroupVo[]>([]);
 	const [codeEdit, setCodeEdit] = useState('');
 	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,9 +52,7 @@ const ModifyConfig: React.FC = () => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const { navigateToService } = useNavigater();
 
-	const editorRef = useRef(null);
-
-	// let paramData = null; // 最终保存修改时提交的数据
+	const editorRef = useRef<{ handleSave: () => string } | null>(null);
 
 	const getConfigFile = async () => {
 		// setLoading(true);
@@ -65,7 +63,7 @@ const ModifyConfig: React.FC = () => {
 			Data: { ConfigSummaryList }
 		} = data;
 
-		const tabs = (ConfigSummaryList as ConfigSummaryVo[]).map(item => ({
+		const tabs = ConfigSummaryList.map((item: ConfigSummaryVo) => ({
 			...item,
 			key: item.FileName,
 			label: item.FileName
@@ -77,10 +75,7 @@ const ModifyConfig: React.FC = () => {
 	const getFileContent = async () => {
 		// setLoading(true);
 		const api = APIConfig.listByGroup;
-		const { ConfigPath } =
-			tabsData?.find(item => {
-				return item.key === activeTab;
-			}) ?? {};
+		const { ConfigPath } = tabsData?.find(item => item.key === activeTab) ?? {};
 		const params = { ClusterId: id, ServiceName: serviceName, Filename: activeTab, ConfigPath };
 		const data = await RequestHttp.get(api, { params });
 		const {
@@ -92,7 +87,6 @@ const ModifyConfig: React.FC = () => {
 		const codeData = Utf8.stringify(Base64.parse(copyData[0].ConfigData));
 		setActiveContent(copyData);
 		setCodeEdit(codeData);
-		// setGroupList(copyData);
 		setConfigGroupInfo(copyData);
 	};
 	useEffect(() => {
@@ -106,12 +100,12 @@ const ModifyConfig: React.FC = () => {
 		activeTab && getFileContent();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
-	const handleClick = index => {
+	const handleClick = (index: number) => {
 		setCurrentGroupIndex(index);
 		setCodeEdit(Utf8.stringify(Base64.parse(activeContent[index].ConfigData)));
 		setIsModalOpen(true);
 	};
-	const handleModalOk = (targetGroupIndex, data) => {
+	const handleModalOk = (targetGroupIndex: number, data: []) => {
 		// 新建分组，添加到其他分组
 		setIsModalOpen(false);
 		if (targetGroupIndex >= data.length) {
@@ -123,25 +117,9 @@ const ModifyConfig: React.FC = () => {
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
-	// const changeFile = () => {
-	// 	if (editorRef.current) {
-	// 		const editorValue = editorRef.current?.handleSave();
-	// 		const base64Data = btoa(editorValue);
-	// 		const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
-	// 		setConfigGroupInfo([
-	// 			...configGroupInfo,
-	// 			{
-	// 				...configGroupInfo[currentGroupIndex],
-	// 				Sha256: hashDigest,
-	// 				ConfigData: base64Data
-	// 			}
-	// 		]);
-	// 	}
-	// 	setCurrentGroupIndex(currentGroupIndex || configGroupInfo.length); // 移动时定位到currentIndex，新建时定位到最后一个分组
-	// };
 	const saveChange = async () => {
 		const api = APIConfig.saveByGroup;
-		const editorValue = editorRef.current?.handleSave();
+		const editorValue = editorRef.current?.handleSave() ?? '';
 		const base64Data = btoa(unescape(encodeURIComponent(editorValue)));
 		const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
 		_.merge(configGroupInfo[currentGroupIndex], { Sha256: hashDigest, ConfigData: base64Data });

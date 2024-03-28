@@ -17,7 +17,7 @@
 // store.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { ServiceItemType } from '@/api/interface';
+import { ServiceItemType, ConfigGroupVo } from '@/api/interface';
 
 interface MyStore {
 	isNeedChangePassword: boolean; //当前用户是否需要修改密码
@@ -32,11 +32,11 @@ interface MyStore {
 	setJobId: (id: string) => void;
 	stepCurrent: number; // 当前进度
 	setStepCurrent: (current: number) => void;
-	stepMap: Record<string, number>; // 或者具体的映射类型
+	stepMap: Record<string, number>;
 	stateText: Record<string, { label: string; status: string }>;
 	stableState: string[];
-	configGroupInfo: object[]; // 修改配置文件时的分组信息
-	setConfigGroupInfo: (group: object[]) => void;
+	configGroupInfo: ConfigGroupVo[]; // 修改配置文件时的分组信息
+	setConfigGroupInfo: (group: ConfigGroupVo[]) => void;
 	currentPageDisabled: PageDisabledType; // 当前页面操作的置灰状态
 	setCurrentPageDisabled: (state: PageDisabledType) => void;
 	isRefresh: boolean; // 页面是否刷新
@@ -60,7 +60,7 @@ interface PersistStore {
 	setUserInfo: (info: UserInfoType) => void;
 }
 interface ComponentAndNodeStore {
-	nodeList: object;
+	nodeList: { [key: string]: any };
 	setNodeList: (info: object) => void;
 }
 const useStore = create<MyStore>(set => ({
@@ -220,7 +220,7 @@ const useStore = create<MyStore>(set => ({
 		'OK'
 	],
 	configGroupInfo: [],
-	setConfigGroupInfo: (group: object[]) => set({ configGroupInfo: group }),
+	setConfigGroupInfo: (group: ConfigGroupVo[]) => set({ configGroupInfo: group }),
 	currentPageDisabled: { nextDisabled: true, retryDisabled: true, prevDisabled: true, cancelDisabled: true },
 	setCurrentPageDisabled: (state: PageDisabledType) => set({ currentPageDisabled: state }),
 	isRefresh: false,

@@ -93,13 +93,17 @@ const useStepLogic = (step: number = 0) => {
 		return { webState, selectedList };
 	};
 	// 设置当前步骤数据
-	const useSetStepData = (stepName: string, form: { validateFields: () => any } | null, selectedRowsList: NodeType[] | null) => {
+	const useSetStepData = (
+		stepName: string,
+		form: { validateFields: () => any } | null,
+		selectedRowsList: NodeType[] | string[] | null
+	) => {
 		const setStepState = async () => {
 			let values;
-			if (form) {
+			if (form !== null) {
 				// 如果传入了form，则通过表单验证获取values
 				values = await form.validateFields();
-			} else if (selectedRowsList) {
+			} else if (selectedRowsList !== null) {
 				// 如果传入了selectedRowsList，则直接使用这个值
 				values = selectedRowsList;
 			} else {

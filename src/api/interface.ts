@@ -22,6 +22,83 @@ export interface BackendResponse {
 	Message: string;
 	MessageType: string;
 	Timestamp: string;
+	[property: string]: any;
+}
+
+/**
+ * AllNodeJobTransferProgressVo
+ */
+export interface AllNodeJobTransferProgressVo {
+	ClusterId: number;
+	NodeJobId: number;
+	NodeJobTransferProgressList: NodeJobTransferProgressVo[];
+	[property: string]: any;
+}
+
+/**
+ * NodeJobTransferProgressVo
+ */
+export interface NodeJobTransferProgressVo {
+	CurrentFileProgress: CurrentFileProgressVo;
+	ExecState: ExecState;
+	FileBytesProgress: FileBytesProgressVo;
+	FileCountProgress: FileCountProgressVo;
+	Hostname: string;
+	NodeId: string;
+	NodeStepId: number;
+	NodeTaskId: number;
+	[property: string]: any;
+}
+
+/**
+ * CurrentFileProgressVo
+ */
+export interface CurrentFileProgressVo {
+	CurrentFileBytes: number;
+	CurrentFilename: string;
+	CurrentFileProgress: number;
+	CurrentFileTransferBytes: number;
+	CurrentPrintSpeed: string;
+	[property: string]: any;
+}
+
+export enum ExecState {
+	Error = 'ERROR',
+	NotExist = 'NOT_EXIST',
+	Ok = 'OK',
+	Running = 'RUNNING',
+	Suspend = 'SUSPEND'
+}
+
+/**
+ * FileBytesProgressVo
+ */
+export interface FileBytesProgressVo {
+	TotalBytes: number;
+	TotalProgress: number;
+	TotalTransferBytes: number;
+	[property: string]: any;
+}
+
+/**
+ * FileCountProgressVo
+ */
+export interface FileCountProgressVo {
+	TotalFileCount: number;
+	TotalFileCountProgress: number;
+	TotalTransferFileCount: number;
+	[property: string]: any;
+}
+
+/**
+ * Page
+ */
+export interface Page {
+	CurrentPage: number;
+	PageSize: number;
+	TotalPage: number;
+	TotalSize: number;
+	[property: string]: any;
 }
 /**
  * ClusterType
@@ -111,17 +188,7 @@ export interface UserInfoType {
  * @interface ConfigSummaryVo
  */
 export interface ConfigSummaryVo {
-	/**
-	 *
-	 * @type {string}
-	 * @memberof ConfigSummaryVo
-	 */
 	ConfigPath: string;
-	/**
-	 *
-	 * @type {string}
-	 * @memberof ConfigSummaryVo
-	 */
 	FileName: string;
 }
 /**
@@ -159,5 +226,217 @@ export interface NodeJobLogVo {
 	NodeJobId: number;
 	NodeTaskId: number;
 	StepId: number;
+	[property: string]: any;
+}
+
+/**
+ * JobProgressVo
+ */
+export interface JobProgressVo {
+	ClusterId: number;
+	JobExecProgress: JobExecProgressVo;
+	JobId: number;
+	JobPlanProgress: JobPlanProgressVo;
+	[property: string]: any;
+}
+
+/**
+ * JobExecProgressVo
+ */
+export interface JobExecProgressVo {
+	ClusterId: number;
+	ExecCurrent: number;
+	ExecProgress: number;
+	ExecProgressPerNodeList: ExecProgressPerNodeVo[];
+	ExecTotal: number;
+	JobExecStateEnum: StepExecState;
+	JobId: number;
+	[property: string]: any;
+}
+/**
+ * ExecProgressPerNodeVo
+ */
+export interface ExecProgressPerNodeVo {
+	ExecCurrent: number;
+	ExecProgress: number;
+	ExecProgressStepList: ExecProgressStepVo[];
+	ExecTotal: number;
+	Hostname: string;
+	NodeId: number;
+	NodeIp: string;
+	NodeTaskId: number;
+	NodeTaskName: string;
+	[property: string]: any;
+}
+
+/**
+ * ExecProgressStepVo
+ */
+export interface ExecProgressStepVo {
+	NodeStepId: number;
+	NodeStepName: string;
+	NodeStepType: NodeStepType;
+	StepExecState: StepExecState;
+	[property: string]: any;
+}
+
+/**
+ * JobPlanProgressVo
+ */
+export interface JobPlanProgressVo {
+	ActionType: ActionType;
+	ClusterId: number;
+	JobId: number;
+	PlanCurrent: number;
+	PlanName: string;
+	PlanProgress: number;
+	PlanTotal: number;
+	[property: string]: any;
+}
+export enum StepExecState {
+	Error = 'ERROR',
+	NotExist = 'NOT_EXIST',
+	Ok = 'OK',
+	Running = 'RUNNING',
+	Suspend = 'SUSPEND'
+}
+export enum ActionType {
+	Decommission = 'DECOMMISSION',
+	Deploy = 'DEPLOY',
+	Remove = 'REMOVE',
+	Restart = 'RESTART',
+	Start = 'START',
+	Stop = 'STOP'
+}
+export enum NodeStepType {
+	CheckEnv = 'CHECK_ENV',
+	Command = 'COMMAND',
+	Push = 'PUSH',
+	Scan = 'SCAN',
+	ScanResources = 'SCAN_RESOURCES',
+	Script = 'SCRIPT'
+}
+
+/**
+ * ServiceComponentSummaryVo
+ */
+export interface ServiceComponentSummaryVo {
+	ComponentSummaryList: ComponentSummaryVo[];
+	ServiceSummary: ServiceSummaryVo;
+	[property: string]: any;
+}
+
+/**
+ * ComponentSummaryVo
+ */
+export interface ComponentSummaryVo {
+	ComponentName: string;
+	ComponentNodeList: ComponentNodeVo[];
+	Max: number;
+	Min: number;
+	MutexesList: string[];
+	Priority: number;
+	[property: string]: any;
+}
+
+/**
+ * ComponentNodeVo
+ */
+export interface ComponentNodeVo {
+	ComponentId: number;
+	Hostname: string;
+	NeedRestart: boolean;
+	NodeId: number;
+	NodeIp: string;
+	NodeState: NodeState;
+	SCStateEnum: SCStateEnum;
+	[property: string]: any;
+}
+
+export enum NodeState {
+	Active = 'ACTIVE',
+	CheckError = 'CHECK_ERROR',
+	CheckOk = 'CHECK_OK',
+	Checking = 'CHECKING',
+	Detecting = 'DETECTING',
+	Inactive = 'INACTIVE',
+	Maintenance = 'MAINTENANCE',
+	MaintenanceAdd = 'MAINTENANCE_ADD',
+	MaintenanceAlter = 'MAINTENANCE_ALTER',
+	PushError = 'PUSH_ERROR',
+	PushOk = 'PUSH_OK',
+	Pushing = 'PUSHING',
+	Removed = 'REMOVED',
+	Resolved = 'RESOLVED',
+	Restarting = 'RESTARTING',
+	StartWorkerError = 'START_WORKER_ERROR',
+	StartWorkerOk = 'START_WORKER_OK',
+	Started = 'STARTED',
+	Starting = 'STARTING',
+	StartingWorker = 'STARTING_WORKER',
+	Stopped = 'STOPPED',
+	Stopping = 'STOPPING',
+	Unknown = 'UNKNOWN'
+}
+
+export enum SCStateEnum {
+	BeingDecommissioned = 'BEING_DECOMMISSIONED',
+	Changing = 'CHANGING',
+	Decommissioned = 'DECOMMISSIONED',
+	Deployed = 'DEPLOYED',
+	Deploying = 'DEPLOYING',
+	Removed = 'REMOVED',
+	Restarting = 'RESTARTING',
+	Selected = 'SELECTED',
+	SelectedAddition = 'SELECTED_ADDITION',
+	Started = 'STARTED',
+	Starting = 'STARTING',
+	Stopped = 'STOPPED',
+	Stopping = 'STOPPING',
+	Unselected = 'UNSELECTED'
+}
+
+/**
+ * ServiceSummaryVo
+ */
+export interface ServiceSummaryVo {
+	DependencyList: string[];
+	Desc: string;
+	Priority: number;
+	SCStateEnum: SCStateEnum;
+	ServiceName: string;
+	ServiceType: ServiceType;
+	Tgz: string;
+	Version: string;
+	[property: string]: any;
+}
+
+export enum ServiceType {
+	Base = 'BASE',
+	Compute = 'COMPUTE',
+	Monitor = 'MONITOR',
+	Others = 'OTHERS',
+	Storage = 'STORAGE'
+}
+
+/**
+ * ConfigGroupVo
+ */
+export interface ConfigGroupVo {
+	ConfigData: string;
+	ConfigNodeList: ConfigNodeVo[];
+	ConfigPath: string;
+	Filename: string;
+	Sha256: string;
+	[property: string]: any;
+}
+/**
+ * ConfigNodeVo
+ */
+export interface ConfigNodeVo {
+	ConfigVersion: number;
+	Hostname: string;
+	NodeId: number;
+	NodeIp: string;
 	[property: string]: any;
 }

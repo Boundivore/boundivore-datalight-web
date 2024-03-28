@@ -29,15 +29,12 @@ import useNavigater from '@/hooks/useNavigater';
 import usePolling from '@/hooks/usePolling';
 import JobPlanModal from '@/components/jobPlanModal';
 import ViewActivrJobModal from '@/components/viewActiveJobModal';
+import { ComponentSummaryVo, ComponentNodeVo } from '@/api/interface';
 
 const { Text } = Typography;
 
-interface DataType {
-	Hostname: string;
-	NodeId: string;
-	NodeIp: string;
+interface DataType extends ComponentNodeVo {
 	ComponentName: string;
-	SCStateEnum: string;
 	ComponentNodeList: {
 		ComponentId: string;
 	}[];
@@ -47,8 +44,8 @@ interface DataType {
 const ComponentManage: React.FC = () => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id');
-	const serviceName = searchParams.get('name');
+	const id = searchParams.get('id') || '';
+	const serviceName = searchParams.get('name') || '';
 	// const [loading, setLoading] = useState(false);
 	const [selectComponent, setSelectComponent] = useState<DataType[]>([]);
 	const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState<string[]>([]);
@@ -101,7 +98,7 @@ const ComponentManage: React.FC = () => {
 				id: 1,
 				label: t('start'),
 				callback: () => operateComponent('START', [record]),
-				disabled: record.SCStateEnum !== 'STOPPED' || record.SCStateEnum === 'STOPPING'
+				disabled: record.SCStateEnum === 'STARTED'
 			},
 			{
 				id: 2,
@@ -177,11 +174,9 @@ const ComponentManage: React.FC = () => {
 		}
 	];
 	const removeComponent = (componentList: DataType[]) => {
-		const idList = componentList.map(component => {
-			return {
-				ComponentId: component.ComponentId
-			};
-		});
+		const idList = componentList.map(component => ({
+			ComponentId: component.ComponentId
+		}));
 		modal.confirm({
 			title: t('remove'),
 			content: t('operationConfirm', { operation: t('remove') }),
@@ -275,18 +270,18 @@ const ComponentManage: React.FC = () => {
 		const {
 			Data: { ServiceComponentSummaryList }
 		} = data;
-		const tempData = ServiceComponentSummaryList[0].ComponentSummaryList.map(
-			(item: { rowKey: string; ComponentName: string; children: any[]; ComponentNodeList: any }) => {
-				item.rowKey = item.ComponentName;
-				item.children = item.ComponentNodeList;
-				item.children.map(child => {
-					child.operation = true;
-					child.rowKey = child.ComponentId;
-					child.ComponentName = item.ComponentName;
-				});
-				return item;
-			}
-		);
+		const tempData = ServiceComponentSummaryList[0].ComponentSummaryList.map((item: ComponentSummaryVo) => {
+			item.ComponentNodeList.map(child => ({
+				operation: true,
+				rowKey: child.ComponentId,
+				ComponentName: item.ComponentName
+			}));
+			return {
+				...item,
+				rowKey: item.ComponentName,
+				children: item.ComponentNodeList
+			};
+		});
 		// setLoading(false);
 		return tempData;
 		// setTableData(tempData);
@@ -337,12 +332,7 @@ const ComponentManage: React.FC = () => {
 				/>
 			</Card>
 			{isActiveJobModalOpen ? (
-				<ViewActivrJobModal
-					isModalOpen={isModalOpen}
-					handleOk={handleModalOk}
-					handleCancel={handleModalOk}
-					// nodeList={nodeList}
-				/>
+				<ViewActivrJobModal isModalOpen={isModalOpen} handleOk={handleModalOk} handleCancel={handleModalOk} />
 			) : null}
 			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null}
 		</>

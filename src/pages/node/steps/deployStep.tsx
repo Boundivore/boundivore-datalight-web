@@ -29,12 +29,12 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import JobPlanModal from '../../../components/jobPlanModal';
-import { NodeType } from '@/api/interface';
+import { NodeType, ExecProgressPerNodeVo, ExecProgressStepVo } from '@/api/interface';
 
 const { Text } = Typography;
 
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
-const disabledState = ['RUNNING', 'SUSPEND'];
+const disabledState = ['RUNNING', 'SUSPEND', 'ERROR'];
 const preStepName = 'previewStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'deployStep'; // 当前步骤结束时需要存储步骤数据
 const operation = 'DEPLOY'; // 当前步骤操作，NodeActionTypeEnum
@@ -51,6 +51,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { useGetSepData } = useStepLogic();
 	const { webState } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
+	const errorText = t('流程中存在未完成的收尾工作');
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -69,7 +70,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 		{
 			title: t('node.detail'),
 			dataIndex: 'ExecProgressStepList',
-			render: (text: []) => {
+			render: (text: ExecProgressStepVo[]) => {
 				const runningStep = text.find(step => step.StepExecState === 'RUNNING');
 				const errorStep = text.reverse().find(step => step.StepExecState === 'ERROR');
 				const okStep = text.reverse().find(step => step.StepExecState === 'OK');
@@ -125,7 +126,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 				JobExecProgress: { ExecProgressPerNodeList, JobExecStateEnum }
 			}
 		} = progressData;
-		const updatedArray = ExecProgressPerNodeList.map(obj => ({
+		const updatedArray = ExecProgressPerNodeList.map((obj: ExecProgressPerNodeVo) => ({
 			...obj, // 展开当前对象
 			JobExecStateEnum // 展开新键值对，这将合并到当前对象中
 		}));
