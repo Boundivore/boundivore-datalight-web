@@ -30,7 +30,7 @@ import RequestHttp from '@/api';
 import useStepLogic from '@/hooks/useStepLogic';
 import useStore from '@/store/store';
 import { ServiceComponentSummaryVo, ComponentNodeVo } from '@/api/interface';
-import JobPlanModal from '../../../components/jobPlanModal';
+import JobPlanModal from '@/components/jobPlanModal';
 
 interface TableDataType extends ServiceComponentSummaryVo {
 	rowKey: string;

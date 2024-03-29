@@ -18,31 +18,20 @@
  * AddComponent - 新增组件
  * @author Tracy.Guo
  */
-import React, { useRef, forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
-import StepComponent from '@/pages/node/components/stepComponent';
-import SelectServiceStep from '@/pages/node/steps/selectServiceStep';
-import SelectComStep from '@/pages/node/steps/selectComStep';
-import PreconfigStep from '@/pages/node/steps/preconfigStep';
-import PreviewconfigStep from '@/pages/node/steps/previewStep';
-import DeployStep from '@/pages/node/steps/deployStep';
+import StepComponent from '@/components/stepComponent';
 import useStepLogic from '@/hooks/useStepLogic';
-import useNavigater from '@/hooks/useNavigater';
+import useStepConfig from '@/components/steps/config/useStepConfig';
 
 const AddComponent: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
 	const { useStepEffect } = useStepLogic(7);
+	const { serviceStepConfig } = useStepConfig();
+
 	const { stepCurrent } = useStore();
-	const { navigateToHome } = useNavigater();
-	const { useClearStepData } = useStepLogic();
-	const clearData = useClearStepData();
-	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
-	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
-	const PreconfigStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const PreviewconfigStepRef = useRef<{ handleOk: () => void }>(null);
-	const DeployStepRef = useRef<{ handleOk: () => void } | null>(null);
 	const steps = [
 		{
 			title: t('service.selectService'),
@@ -65,55 +54,8 @@ const AddComponent: React.FC = forwardRef(() => {
 			key: 4
 		}
 	];
-	const nextComponent = () => selectServiceRef.current?.handleOk();
-	const nextPreconfig = () => selectComponentRef.current?.handleOk();
-	const nextDeploy = () => PreviewconfigStepRef.current?.handleOk();
-	const nextPreview = () => PreconfigStepRef.current?.onFinish(true);
-	const stepConfig = [
-		{
-			title: t('service.selectService'),
-			content: <SelectServiceStep ref={selectServiceRef} />,
-			nextStep: nextComponent,
-			hideRetry: true
-		},
-		{
-			title: t('service.selectComponent'),
-			content: <SelectComStep ref={selectComponentRef} />,
-			nextStep: nextPreconfig,
-			hideRetry: true
-		},
-		{
-			title: t('service.preConfig'),
-			content: <PreconfigStep ref={PreconfigStepRef} />,
-			nextStep: nextPreview,
-			hideRetry: true,
-			nextText: t('preview')
-			// operations: [{ label: t('preview'), callback: preview }]
-		},
-		{
-			title: t('service.deployOverview'),
-			content: <PreviewconfigStep ref={PreviewconfigStepRef} />,
-			nextStep: nextDeploy,
-			hideRetry: true,
-			nextText: t('startDeploy')
-			// operations: [{ label: t('preview'), callback: preview }]
-		},
-		{
-			title: t('service.deployStep'),
-			content: <DeployStep ref={DeployStepRef} />,
-			operations: [
-				{
-					label: t('backHome'),
-					callback: () => {
-						clearData();
-						navigateToHome();
-					}
-				}
-			],
-			hideNext: true,
-			hideRetry: true
-		}
-	];
+
+	const stepConfig = serviceStepConfig;
 	//获取进度，定位到当前步骤
 	useStepEffect();
 	return (

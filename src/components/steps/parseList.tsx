@@ -29,14 +29,14 @@ import useStore from '@/store/store';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
-import { NodeType, ParseHostnameType, BadgeStatus } from '@/api/interface';
+import { NodeType, ParseHostnameType, BadgeStatus, StepRefType } from '@/api/interface';
 // import { getNavigationType } from '@/utils/helper';
 
 const preStepName = 'parseStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'parseList';
 const disabledState = ['RUNNING', 'SUSPEND'];
 
-const ParseList: React.FC = forwardRef((_props, ref) => {
+const ParseList = forwardRef<StepRefType>((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');

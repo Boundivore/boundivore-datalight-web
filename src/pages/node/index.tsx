@@ -29,7 +29,7 @@ import useNavigater from '@/hooks/useNavigater';
 import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
 import ItemConfigInfo from '@/components/itemConfigInfo';
-import ViewActivrJobModal from '@/components/viewActiveJobModal';
+import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import { updateCurrentView } from '@/utils/helper';
 import JobPlanModal from '@/components/jobPlanModal';
 import { NodeType, NodeWithComponent, ClusterType, BadgeStatus } from '@/api/interface';
@@ -312,20 +312,14 @@ const ManageList: FC = () => {
 				/>
 			</Card>
 			{isActiveJobModalOpen ? (
-				<ViewActivrJobModal
+				<ViewActiveJobModal
 					isModalOpen={isModalOpen}
 					handleOk={handleModalOk}
 					handleCancel={handleModalCancel}
-					// nodeList={nodeList}
+					type="nodeJobProgress"
 				/>
 			) : null}
-			{isModalOpen ? (
-				<JobPlanModal
-					isModalOpen={isModalOpen}
-					handleOk={handleModalOk}
-					// nodeList={nodeList}
-				/>
-			) : null}
+			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} /> : null}
 		</>
 	);
 };

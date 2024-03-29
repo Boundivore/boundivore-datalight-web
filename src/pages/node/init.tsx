@@ -18,46 +18,22 @@
  * InitNode - 节点初始化
  * @author Tracy.Guo
  */
-import React, { useRef, forwardRef, useEffect } from 'react';
+import React, { forwardRef, useEffect } from 'react';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
-import ParseStep from './steps/parseStep';
-import DetectStep from './steps/detectStep';
-import CheckStep from './steps/checkStep';
-import ParseList from './steps/parseList';
-import StepComponent from './components/stepComponent';
-import DispatchStep from './steps/dispatchStep';
-import StartWorkerStep from './steps/startWorkerStep';
-import DoneStep from './steps/doneStep';
-import SelectServiceStep from './steps/selectServiceStep';
-import SelectComStep from './steps/selectComStep';
-import PreconfigStep from './steps/preconfigStep';
-import PreviewconfigStep from './steps/previewStep';
-import DeployStep from './steps/deployStep';
+import StepComponent from '@/components/stepComponent';
 import useStepLogic from '@/hooks/useStepLogic';
-import useNavigater from '@/hooks/useNavigater';
+import useStepConfig from '@/components/steps/config/useStepConfig';
 // const ParseStep = React.lazy(() => import('./steps/parseStep'));
 // const ParseList = React.lazy(() => import('./steps/parseList'));
 
 const InitNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
 	const { stepCurrent, setIsRefresh } = useStore();
-	const { useStepEffect, useClearStepData, useCancelProcedure } = useStepLogic();
-	const { navigateToHome } = useNavigater();
-	const clearData = useClearStepData();
-	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const parseListStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const detectStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const checkStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const dispatchStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const startWorkerStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const selectServiceRef = useRef<{ handleOk: () => void } | null>(null);
-	const selectComponentRef = useRef<{ handleOk: () => void } | null>(null);
-	const PreconfigStepRef = useRef<{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> }>(null);
-	const PreviewStepRef = useRef<{ handleOk: () => void }>(null);
-	const DeployStepRef = useRef(null);
-	// const addStepRef = useRef<HTMLDivElement>(null);
+	const { useStepEffect } = useStepLogic();
+	const { nodeStepConfig, serviceStepConfig } = useStepConfig();
+
 	const steps = [
 		{
 			title: t('node.parseHostname'),
@@ -108,115 +84,8 @@ const InitNode: React.FC = forwardRef(() => {
 			key: 11
 		}
 	];
-	const nextList = () => parseStepRef.current?.handleOk();
-	const retryParseList = () => parseListStepRef.current?.parseHostname();
-	const nextDetect = () => parseListStepRef.current?.handleOk();
-	const retryDetect = () => detectStepRef.current?.detect();
-	const nextCheck = () => detectStepRef.current?.handleOk();
-	const retryCheck = () => checkStepRef.current?.check();
-	const nextDispatch = () => checkStepRef.current?.handleOk();
-	const retryDispatch = () => dispatchStepRef.current?.dispatch();
-	const nextStartWorker = () => dispatchStepRef.current?.handleOk();
-	const retryStartWorker = () => startWorkerStepRef.current?.startWorker();
-	const nextAdd = () => startWorkerStepRef.current?.handleOk();
-	const nextComponent = () => selectServiceRef.current?.handleOk();
-	const nextPreconfig = () => selectComponentRef.current?.handleOk();
-	const nextPreview = () => PreconfigStepRef.current?.onFinish(true);
-	const nextDeploy = () => PreviewStepRef.current?.handleOk();
-	const retryDeploy = () => DeployStepRef.current?.deploy();
 
-	const stepConfig = [
-		{
-			title: t('node.parseHostname'),
-			content: <ParseStep ref={parseStepRef} />,
-			nextStep: nextList,
-			hideRetry: true
-		},
-		{
-			title: t('node.chooseHostname'),
-			content: <ParseList ref={parseListStepRef} />,
-			nextStep: nextDetect,
-			retry: retryParseList
-		},
-		{
-			title: t('node.detect'),
-			content: <DetectStep ref={detectStepRef} />,
-			retry: retryDetect,
-			nextStep: nextCheck
-		},
-		{
-			title: t('node.check'),
-			content: <CheckStep ref={checkStepRef} />,
-			retry: retryCheck,
-			nextStep: nextDispatch
-		},
-		{
-			title: t('node.dispatch'),
-			content: <DispatchStep ref={dispatchStepRef} />,
-			retry: retryDispatch,
-			nextStep: nextStartWorker
-		},
-		{
-			title: t('node.startWorker'),
-			content: <StartWorkerStep ref={startWorkerStepRef} />,
-			retry: retryStartWorker,
-			nextStep: nextAdd,
-			nextText: t('node.addNodeToCluster')
-		},
-		{
-			title: t('node.add'),
-			content: <DoneStep />,
-			operations: [
-				{ label: t('node.deployService') }, // 不传callback默认进行一下步
-				{ label: t('backHomeTemp'), callback: navigateToHome },
-				{ label: t('done'), callback: useCancelProcedure() }
-			],
-			hideInitButton: true
-		},
-		{
-			title: t('service.selectService'),
-			content: <SelectServiceStep ref={selectServiceRef} />,
-			nextStep: nextComponent,
-			hideRetry: true
-		},
-		{
-			title: t('service.selectComponent'),
-			content: <SelectComStep ref={selectComponentRef} />,
-			nextStep: nextPreconfig,
-			hideRetry: true
-		},
-		{
-			title: t('service.preConfig'),
-			content: <PreconfigStep ref={PreconfigStepRef} />,
-			nextStep: nextPreview,
-			hideRetry: true,
-			nextText: t('preview')
-			// operations: [{ label: t('preview'), callback: preview }]
-		},
-		{
-			title: t('service.deployOverview'),
-			content: <PreviewconfigStep ref={PreviewStepRef} />,
-			nextStep: nextDeploy,
-			hideRetry: true,
-			nextText: t('startDeploy')
-			// operations: [{ label: t('preview'), callback: preview }]
-		},
-		{
-			title: t('service.deployStep'),
-			content: <DeployStep ref={DeployStepRef} />,
-			operations: [
-				{
-					label: t('backHome'),
-					callback: () => {
-						clearData();
-						navigateToHome();
-					}
-				}
-			],
-			retry: retryDeploy,
-			hideNext: true
-		}
-	];
+	const stepConfig = [...nodeStepConfig, ...serviceStepConfig];
 	useStepEffect();
 	useEffect(() => {
 		// 离开当前页面时重置isRefresh为true，再次进入该页面不进行parse操作，除非通过上一步，下一步将isRefresh设为false

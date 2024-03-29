@@ -440,3 +440,18 @@ export interface ConfigNodeVo {
 	NodeIp: string;
 	[property: string]: any;
 }
+
+export interface StepRefType {
+	handleOk: () => void;
+}
+
+/**
+ * ComponentRequest
+ */
+export interface ComponentRequest {
+	ComponentName: string;
+	NodeIdList: number[];
+	SCStateEnum: SCStateEnum;
+	ServiceName: string;
+	[property: string]: any;
+}

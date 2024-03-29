@@ -23,7 +23,7 @@ import { Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStepLogic from '@/hooks/useStepLogic';
 import useStore from '@/store/store';
-import { ParseHostnameType } from '@/api/interface';
+import { ParseHostnameType, StepRefType } from '@/api/interface';
 
 const layout = {
 	labelCol: { span: 4 },
@@ -33,7 +33,7 @@ const { TextArea } = Input;
 
 const stepName = 'parseStep';
 
-const ParseStep: React.FC = forwardRef((_props, ref) => {
+const ParseStep = forwardRef<StepRefType>((_props, ref) => {
 	const { t } = useTranslation();
 	const { setCurrentPageDisabled, currentPageDisabled } = useStore();
 	const { useGetSepData, useSetStepData } = useStepLogic();

@@ -35,7 +35,7 @@ import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
 import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
-import { ConfigSummaryVo, ConfigGroupVo } from '@/api/interface';
+import { ConfigSummaryVo, ConfigGroupVo, ConfigNodeVo } from '@/api/interface';
 
 const ModifyConfig: React.FC = () => {
 	const { t } = useTranslation();
@@ -105,7 +105,7 @@ const ModifyConfig: React.FC = () => {
 		setCodeEdit(Utf8.stringify(Base64.parse(activeContent[index].ConfigData)));
 		setIsModalOpen(true);
 	};
-	const handleModalOk = (targetGroupIndex: number, data: []) => {
+	const handleModalOk = (targetGroupIndex: number, data: ConfigNodeVo[]) => {
 		// 新建分组，添加到其他分组
 		setIsModalOpen(false);
 		if (targetGroupIndex >= data.length) {

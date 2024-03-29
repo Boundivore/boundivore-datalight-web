@@ -44,7 +44,7 @@ interface NodeListModalProps {
 const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component }) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id');
+	const id: string = searchParams.get('id') || '';
 	const [tableData, setTableData] = useState([]);
 	const [initialLoad, setInitialLoad] = useState(true);
 	const [openAlert, setOpenAlert] = useState(false);

@@ -28,7 +28,7 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
-import JobPlanModal from '../../../components/jobPlanModal';
+import JobPlanModal from '@/components/jobPlanModal';
 import { NodeType, ExecProgressPerNodeVo, ExecProgressStepVo } from '@/api/interface';
 
 const { Text } = Typography;

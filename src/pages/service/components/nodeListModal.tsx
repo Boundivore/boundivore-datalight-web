@@ -24,7 +24,7 @@
 import { useState, useEffect } from 'react';
 import _ from 'lodash';
 import { Modal, Table, Space, Button, Dropdown, Flex, Tag } from 'antd';
-// import type { MenuProps } from 'antd';
+import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import { DownOutlined } from '@ant-design/icons';
@@ -33,21 +33,21 @@ import useStore from '@/store/store';
 import { extractUpperCaseAndNumbers } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { NodeType } from '@/api/interface';
+import { NodeWithComponent, ConfigNodeVo } from '@/api/interface';
 
 interface NodeListModalProps {
 	isModalOpen: boolean;
 	groupIndex: number | string;
-	handleOk: (index: number, data: []) => void;
+	handleOk: (index: number, data: ConfigNodeVo[]) => void;
 	handleCancel: () => void;
 }
 const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, handleOk, handleCancel }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const [selectedNodeList, setSelectedNodeList] = useState([]);
+	const [selectedNodeList, setSelectedNodeList] = useState<ConfigNodeVo[]>([]);
 	const { configGroupInfo, setConfigGroupInfo } = useStore();
-	const [groupList, setGroupList] = useState([]);
-	const [tableData, setTableData] = useState<NodeType[]>([]);
+	const [groupList, setGroupList] = useState<MenuProps['items']>([]);
+	const [tableData, setTableData] = useState<ConfigNodeVo[]>([]);
 	const { t } = useTranslation();
 	// 顶部操作按钮配置
 	const buttonConfigTop = [
@@ -59,7 +59,7 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 			callback: (index: number) => moveToOtherGroup(index)
 		}
 	];
-	const columns: ColumnsType<NodeType> = [
+	const columns: ColumnsType<ConfigNodeVo> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
@@ -81,30 +81,29 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 		}
 	];
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: ConfigNodeVo[]) => {
 			setSelectedNodeList(selectedRows);
 		}
 	};
 	const moveToOtherGroup = (targetGroupIndex: number) => {
 		const data = mergeData(targetGroupIndex, selectedNodeList);
-		console.log('selectedNodeList----22', data);
 		setConfigGroupInfo(data);
 		handleOk(targetGroupIndex, data);
 	};
-	const mergeData = (n, newDataArr) => {
+	const mergeData = (index: number, newDataArr: ConfigNodeVo[]) => {
 		// Copy the original data
 		const updatedConfigGroupList = _.cloneDeep(configGroupInfo);
 		// 移动当前分组中的节点到目标分组
-		_.remove(updatedConfigGroupList[groupIndex].ConfigNodeList, itemA =>
+		_.remove(updatedConfigGroupList[groupIndex].ConfigNodeList, (itemA: ConfigNodeVo) =>
 			_.some(newDataArr, itemB => itemA.NodeId === itemB.NodeId)
 		);
 
-		if (updatedConfigGroupList[n]) {
-			updatedConfigGroupList[n].ConfigNodeList.push(...newDataArr);
+		if (updatedConfigGroupList[index]) {
+			updatedConfigGroupList[index].ConfigNodeList.push(...newDataArr);
 		} else {
 			let copyData = _.cloneDeep(updatedConfigGroupList[groupIndex]);
 			copyData.ConfigNodeList = newDataArr;
-			updatedConfigGroupList[n] = copyData;
+			updatedConfigGroupList[index] = copyData;
 		}
 		// 移动之后将没有节点的分组删除
 		if (updatedConfigGroupList[groupIndex].ConfigNodeList.length === 0) {
@@ -129,7 +128,7 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 		const intersection = _.intersectionWith(
 			listData,
 			configNodeList,
-			(obj1: NodeType, obj2: NodeType) => obj1.Hostname === obj2.Hostname
+			(obj1: ConfigNodeVo, obj2: ConfigNodeVo) => obj1.Hostname === obj2.Hostname
 		);
 		setTableData(intersection);
 	};
@@ -175,7 +174,6 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 		>
 			<Space>
 				{buttonConfigTop.map(button => {
-					console.log('selectedNodeList----66666', selectedNodeList);
 					return button.type === 'dropdown' ? (
 						<Dropdown
 							key={button.id}

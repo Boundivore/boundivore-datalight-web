@@ -28,7 +28,7 @@ import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 import usePolling from '@/hooks/usePolling';
 import JobPlanModal from '@/components/jobPlanModal';
-import ViewActivrJobModal from '@/components/viewActiveJobModal';
+import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import { ComponentSummaryVo, ComponentNodeVo } from '@/api/interface';
 
 const { Text } = Typography;
@@ -332,7 +332,7 @@ const ComponentManage: React.FC = () => {
 				/>
 			</Card>
 			{isActiveJobModalOpen ? (
-				<ViewActivrJobModal isModalOpen={isModalOpen} handleOk={handleModalOk} handleCancel={handleModalOk} />
+				<ViewActiveJobModal isModalOpen={isModalOpen} handleOk={handleModalOk} handleCancel={handleModalOk} type="jobProgress" />
 			) : null}
 			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null}
 		</>

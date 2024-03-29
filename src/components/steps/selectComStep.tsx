@@ -18,32 +18,60 @@
  * SelectComStep - 选择组件步骤
  * @author Tracy.Guo
  */
-import { forwardRef, useEffect, useImperativeHandle, useState, useRef } from 'react';
+import { FC, forwardRef, useEffect, useImperativeHandle, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Collapse, Flex, Select, Spin } from 'antd';
 // import { useTranslation } from 'react-i18next';
-// import type { CollapseProps } from 'antd';
+import type { CollapseProps } from 'antd';
 import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import NodeListModal from '../components/nodeListModal';
+import NodeListModal from '../nodeListModal';
 import useStore from '@/store/store';
-import { NodeType, ServiceItemType } from '@/api/interface';
+import {
+	NodeType,
+	ServiceItemType,
+	ServiceComponentSummaryVo,
+	ComponentSummaryVo,
+	ServiceSummaryVo,
+	ComponentRequest
+} from '@/api/interface';
 
 const notSelectedStates = ['SELECTED', 'SELECTED_ADDITION'];
 
-const SelectComStep: React.FC = forwardRef((_props, ref) => {
+interface Node {
+	SCStateEnum: 'UNSELECTED' | 'SELECTED';
+	NodeId: string;
+	// 其他节点属性...
+}
+
+interface NodeList {
+	[componentName: string]: {
+		componentNodeList: {
+			[key: string]: Node;
+		};
+	};
+}
+
+interface NodeMap {
+	[componentName: string]: {
+		selected?: string[];
+		unselected?: string[];
+	};
+}
+type CustomTagRender = (props: { label?: React.ReactNode; value?: string }) => React.ReactElement;
+
+const SelectComStep: FC = forwardRef((_props, ref) => {
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
-	const [serviceList, setServiceList] = useState<ServiceItemType[]>([]);
-	const [serviceNames, setServiceNames] = useState<string[]>([]);
+	const [serviceList, setServiceList] = useState<CollapseProps['items']>([]);
+	const [serviceNames, setServiceNames] = useState<string[] | string>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentComponent, setCurrentComponent] = useState('');
 	const [disableSelectedNode, setDisableSelectedNode] = useState(false);
 	const { setCurrentPageDisabled, currentPageDisabled } = useStore();
 	const [tempData, setTempData] = useState<ServiceItemType[]>([]);
-	// const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id');
+	const id = searchParams.get('id') || '';
 	const componentListRef = useRef([]);
 	useImperativeHandle(ref, () => ({
 		handleOk
@@ -51,29 +79,29 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 	const handleOk = async () => {
 		const apiSelect = APIConfig.selectComponent;
 		// 将 nodeList 转换为以 ComponentName 为 key 的对象
-		const nodeMap = Object.entries(nodeList[id]).reduce((acc, [componentName, nodes]) => {
+		const nodeMap: NodeMap = Object.entries(nodeList[id] as NodeList).reduce((result: NodeMap, [componentName, nodes]) => {
 			Object.values(nodes.componentNodeList).forEach(node => {
-				if (!acc[componentName]) {
-					acc[componentName] = {};
+				if (!result[componentName]) {
+					result[componentName] = {};
 				}
 				// 根据状态将节点分为两组
 				if (node.SCStateEnum === 'UNSELECTED') {
-					(acc[componentName].unselected || (acc[componentName].unselected = [])).push(node.NodeId);
+					(result[componentName].unselected || (result[componentName].unselected = [])).push(node.NodeId);
 				} else {
-					(acc[componentName].selected || (acc[componentName].selected = [])).push(node.NodeId);
+					(result[componentName].selected || (result[componentName].selected = [])).push(node.NodeId);
 				}
 			});
-			return acc;
+			return result;
 		}, {});
 
 		// 合并数据并计算 ComponentList
-		const paramsComponentList = componentListRef.current
-			.filter(component => {
+		const paramsComponentList: ComponentRequest[] = componentListRef.current
+			.filter((component: ServiceComponentSummaryVo) => {
 				return notSelectedStates.includes(component.ServiceSummary.SCStateEnum);
 			}) // 过滤出这两种状态的数据提交
-			.flatMap(service => {
+			.flatMap((service: ServiceSummaryVo) => {
 				const serviceName = service.ServiceSummary.ServiceName;
-				return service.ComponentSummaryList.flatMap(component => {
+				return service.ComponentSummaryList.flatMap((component: ComponentSummaryVo) => {
 					const componentName = component.ComponentName;
 					// const nodeIds = nodeMap[componentName] || [];
 					// const scStateEnum = service.ServiceSummary.SCStateEnum; // 根据实际逻辑设置状态
@@ -112,9 +140,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		setCurrentComponent(componentName);
 		setDisableSelectedNode(disableSelected);
 	};
-	const handleModalOk = (selectedRows: NodeType) => {
-		console.log('id', selectedRows);
-		console.log('nodeList[id]', nodeList[id]);
+	const handleModalOk = (selectedRows: NodeType[]) => {
 		setNodeList({
 			[id]: { ...nodeList[id], [currentComponent]: { ...nodeList[id][currentComponent], componentNodeList: selectedRows } }
 		});
@@ -124,12 +150,8 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
 	};
-	const customTagRender = ({ label }) => (
-		<span className="ant-select-selection-item ant-select-selection-item-disabled" key={label} style={{ userSelect: 'none' }}>
-			{label}
-		</span>
-	);
-	const handleChange = (names: string[]) => {
+
+	const handleChange = (names: string[] | string) => {
 		setServiceNames(names);
 	};
 
@@ -140,7 +162,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 		};
 		const data = await RequestHttp.get(apiList, { params });
 		componentListRef.current = data.Data.ServiceComponentSummaryList;
-		const componentList = componentListRef.current;
+		const componentList: ServiceComponentSummaryVo[] = componentListRef.current;
 		const transformedData = componentList.map(item => {
 			return {
 				...item.ServiceSummary,
@@ -148,22 +170,26 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 			};
 		});
 		setTempData(transformedData);
-		let tempList = {};
+		let tempList = { [id]: {} }; // 初始化临时数据，用id作为唯一key值
 		transformedData.map(item => {
 			item.ComponentSummaryList.map(component => {
 				tempList[id] = {
 					...tempList[id],
 					[component.ComponentName]: { componentNodeList: component.ComponentNodeList, min: component.Min, max: component.Max }
 				};
-				console.log('tempList[id]', tempList[id]);
 				setNodeList(tempList);
 			});
 		});
 		setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: false, prevDisabled: false });
 	};
+	const customTagRender: CustomTagRender = ({ label, value }) => (
+		<span className="ant-select-selection-item ant-select-selection-item-disabled" key={value} style={{ userSelect: 'none' }}>
+			{label}
+		</span>
+	);
 	useEffect(() => {
 		const cdata = tempData.map(item => {
-			let tempList = {};
+			let tempList = { [id]: {} };
 			// 是否禁用已经选择的节点
 			// let disableSelected = item.SCStateEnum === 'SELECTED_ADDITION';
 			let disableSelected = false;
@@ -173,7 +199,7 @@ const SelectComStep: React.FC = forwardRef((_props, ref) => {
 				children: (
 					<Spin indicator={<span></span>} spinning={!notSelectedStates.includes(item.SCStateEnum)}>
 						<Flex wrap="wrap">
-							{item.ComponentSummaryList.map(component => {
+							{item.ComponentSummaryList.map((component: ComponentSummaryVo) => {
 								tempList[id] = {
 									...tempList[id],
 									[component.ComponentName]: {

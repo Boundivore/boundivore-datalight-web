@@ -19,7 +19,7 @@
  * @param {boolean} isModalOpen - 弹窗是否打开
  * @param {function} handleOk - 弹窗确定的回调函数
  * @param {function} handleCancel - 弹窗取消的回调函数
- * @param {string} component - 关联的组件名称
+ * @param {string} type - 对应的api，jobProgress和nodeJobProgress
  * @author Tracy.Guo
  */
 import { FC, useState, useEffect } from 'react';
@@ -35,6 +35,7 @@ interface ViewActiveJobProps {
 	isModalOpen: boolean;
 	handleOk: (list: NodeType[]) => void;
 	handleCancel: () => void;
+	type: string;
 }
 
 const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleOk, handleCancel, type }) => {

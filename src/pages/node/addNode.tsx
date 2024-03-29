@@ -18,32 +18,20 @@
  * AddNode - 新增节点
  * @author Tracy.Guo
  */
-import React, { useRef, forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 import { Card, Col, Row, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '@/store/store';
-import ParseStep from './steps/parseStep';
-import DetectStep from './steps/detectStep';
-import CheckStep from './steps/checkStep';
-import InitList from './steps/parseList';
-import StepComponent from './components/stepComponent';
-import DispatchStep from './steps/dispatchStep';
-import StartWorkerStep from './steps/startWorkerStep';
-import DoneStep from './steps/doneStep';
+import StepComponent from '../../components/stepComponent';
 import useStepLogic from '@/hooks/useStepLogic';
-import useNavigater from '@/hooks/useNavigater';
+import useStepConfig from '@/components/steps/config/useStepConfig';
 
 const AddNode: React.FC = forwardRef(() => {
 	const { t } = useTranslation();
 	const { useStepEffect } = useStepLogic();
+	const { nodeStepConfig } = useStepConfig();
 	const { stepCurrent } = useStore();
-	const { navigateToNodeList } = useNavigater();
-	const parseStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const initListStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const detectStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const checkStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const dispatchStepRef = useRef<{ handleOk: () => void } | null>(null);
-	const startWorkerStepRef = useRef<{ handleOk: () => void } | null>(null);
+
 	const steps = [
 		{
 			title: t('node.parseHostname'),
@@ -74,70 +62,11 @@ const AddNode: React.FC = forwardRef(() => {
 			key: 6
 		}
 	];
-	const nextList = async () => {
-		const callbackData = await parseStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextDetect = async () => {
-		const callbackData = await initListStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextCheck = async () => {
-		const callbackData = await detectStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextDispatch = async () => {
-		const callbackData = await checkStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextStartWorker = async () => {
-		const callbackData = await dispatchStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const nextAdd = async () => {
-		const callbackData = await startWorkerStepRef.current?.handleOk();
-		return callbackData;
-	};
-	const stepConfig = [
-		{
-			title: t('node.parseHostname'),
-			content: <ParseStep ref={parseStepRef} />,
-			nextStep: nextList
-		},
-		{
-			title: t('node.chooseHostname'),
-			content: <InitList ref={initListStepRef} />,
-			nextStep: nextDetect
-		},
-		{
-			title: t('node.detect'),
-			content: <DetectStep ref={detectStepRef} />,
-			nextStep: nextCheck
-		},
-		{
-			title: t('node.check'),
-			content: <CheckStep ref={checkStepRef} />,
-			nextStep: nextDispatch
-		},
-		{
-			title: t('node.dispatch'),
-			content: <DispatchStep ref={dispatchStepRef} />,
-			nextStep: nextStartWorker
-		},
-		{
-			title: t('node.startWorker'),
-			content: <StartWorkerStep ref={startWorkerStepRef} />,
-			nextStep: nextAdd
-		},
-		{
-			title: t('node.add'),
-			content: <DoneStep />,
-			operations: [{ label: t('node.backListPage'), callback: navigateToNodeList }]
-		}
-	];
+
+	const stepConfig = nodeStepConfig;
+
 	//获取进度，定位到当前步骤
 	useStepEffect();
-	console.log('stepConfig', stepConfig);
 	return (
 		<Row className="min-h-[calc(100%-50px)] m-[20px] pb-[50px]">
 			<Col span={6}>
