@@ -23,24 +23,27 @@
  */
 import { FC, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Modal, List } from 'antd';
+import { Modal, List, Collapse } from 'antd';
+// import type { CollapseProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
-import { NodeJobLogVo } from '@/api/interface';
+// import { NodeJobLogVo } from '@/api/interface';
 
 interface CheckLogModalProps {
 	isModalOpen: boolean;
+	nodeId: string;
 	handleCancel: () => void;
 }
 
-const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen, handleCancel }) => {
+const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCancel }) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { jobNodeId } = useStore();
-	const [logData, setLogData] = useState<NodeJobLogVo[]>([]);
+	// const [setLogData] = useState<NodeJobLogVo[]>([]);
+	const [itemsData, setItemsData] = useState([]);
 	// const [openAlert, setOpenAlert] = useState(false);
 	// const [errorText, setErrorText] = useState('');
 
@@ -48,32 +51,106 @@ const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen, handleCancel }) =>
 		const api = APIConfig.getNodeLog;
 		const params = {
 			ClusterId: id,
-			NodeJobId: jobNodeId
+			NodeJobId: jobNodeId,
+			NodeId: nodeId
 		};
 		const data = await RequestHttp.get(api, { params });
 		const {
 			Data: { NodeJobLogList }
 		} = data;
-		console.log(NodeJobLogList);
-		setLogData(NodeJobLogList);
+		const groupedByNodeTaskId = NodeJobLogList.reduce((result, item) => {
+			const taskId = item.NodeTaskId;
+			if (!result[taskId]) {
+				result[taskId] = []; // 初始化新数组，如果还没有的话
+			}
+			result[taskId].push(item); // 将当前项添加到对应taskId的数组中
+			return result;
+		}, {});
+
+		// 将分组后的对象转换为数组形式
+		const newArray = Object.values(groupedByNodeTaskId);
+		console.log(newArray);
+		setItemsData(newArray);
+		// setLogData(NodeJobLogList);
 	};
 	useEffect(() => {
 		getLog();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	const generateItems = [
+		{
+			key: '1',
+			label: '标准输出',
+			children: itemsData.map(item => (
+				<Collapse
+					items={[
+						{
+							label: `任务 ID: ${item[0].NodeTaskId}`,
+							children: (
+								<Collapse
+									items={[
+										{
+											label: `步骤 ID: ${item[0].StepId}`,
+											children: (
+												<List
+													itemLayout="horizontal"
+													dataSource={item}
+													renderItem={list => (
+														<List.Item>
+															<List.Item.Meta title={list.LogStdOut} />
+														</List.Item>
+													)}
+												/>
+											)
+										}
+									]}
+								/>
+							)
+						}
+					]}
+				/>
+			))
+		},
+		{
+			key: '2',
+			label: '错误输出',
+			children: itemsData.map(item => (
+				<Collapse
+					items={[
+						{
+							label: `任务id: ${item[0].NodeTaskId}`,
+							children: (
+								<Collapse
+									items={[
+										{
+											label: `步骤 ID: ${item[0].StepId}`,
+											children: (
+												<List
+													itemLayout="horizontal"
+													dataSource={item}
+													renderItem={list => (
+														<List.Item>
+															<List.Item.Meta title={list.LogErrOut} />
+														</List.Item>
+													)}
+												/>
+											)
+										}
+									]}
+								/>
+							)
+						}
+					]}
+				/>
+			))
+		}
+	];
 
 	return (
-		<Modal title={t('node.log')} open={isModalOpen} onCancel={handleCancel}>
+		<Modal className="h-[300px]" title={t('node.log')} open={isModalOpen} onCancel={handleCancel}>
 			{/* {openAlert ? <Alert message={errorText} type="error" /> : null} */}
-			<List
-				itemLayout="horizontal"
-				dataSource={logData}
-				renderItem={item => (
-					<List.Item>
-						<List.Item.Meta title={item.LogErrOut} description={item.LogStdOut} />
-					</List.Item>
-				)}
-			/>
+
+			<Collapse items={generateItems} />
 		</Modal>
 	);
 };

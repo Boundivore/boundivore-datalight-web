@@ -30,6 +30,7 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
+import CheckLogModal from '../checkLogModal';
 import { NodeType, NodeJobTransferProgressVo } from '@/api/interface';
 
 const { Text } = Typography;
@@ -41,13 +42,15 @@ const disabledState = ['RUNNING', 'SUSPEND'];
 const operation = 'DISPATCH'; // 当前步骤操作，NodeActionTypeEnum
 
 const DispatchStep: React.FC = forwardRef((_props, ref) => {
-	const { jobNodeId, setJobNodeId, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
-	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
-	const [dispatchState, setDispatchState] = useState(false);
-	const { useGetSepData } = useStepLogic();
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
+	const { jobNodeId, setJobNodeId, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
+	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
+	const [dispatchState, setDispatchState] = useState(false);
+	const [activeNodeId, setActiveNodeId] = useState('');
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const { useGetSepData } = useStepLogic();
 	const {
 		userInfo: { userId }
 	} = usePersistStore();
@@ -113,6 +116,12 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 			dataIndex: 'CpuCores',
 			key: 'CpuCores',
 			render: (text: string, record) => <ItemConfigInfo text={text} record={record} />
+		},
+		{
+			title: t('node.log'),
+			dataIndex: 'NodeState',
+			key: 'NodeState',
+			render: (_text, record) => <a onClick={() => viewLog(record.NodeId)}> {t('node.viewLog')}</a>
 		}
 	];
 	useImperativeHandle(ref, () => ({
@@ -151,6 +160,13 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		} = await RequestHttp.post(apiDispatch, params);
 		setJobNodeId(NodeJobId);
 		setDispatchState(Code === '00000');
+	};
+	const viewLog = (nodeId: string) => {
+		setIsModalOpen(true);
+		setActiveNodeId(nodeId);
+	};
+	const handleModalCancel = () => {
+		setIsModalOpen(false);
 	};
 
 	const getList = async () => {
@@ -216,14 +232,17 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 		})
 	};
 	return (
-		<Table
-			rowSelection={{
-				...rowSelection
-			}}
-			rowKey="NodeId"
-			columns={columns}
-			dataSource={tableData}
-		/>
+		<>
+			<Table
+				rowSelection={{
+					...rowSelection
+				}}
+				rowKey="NodeId"
+				columns={columns}
+				dataSource={tableData}
+			/>
+			{isModalOpen ? <CheckLogModal isModalOpen={isModalOpen} nodeId={activeNodeId} handleCancel={handleModalCancel} /> : null}
+		</>
 	);
 });
 export default DispatchStep;

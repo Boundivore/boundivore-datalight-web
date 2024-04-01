@@ -271,15 +271,18 @@ const ComponentManage: React.FC = () => {
 			Data: { ServiceComponentSummaryList }
 		} = data;
 		const tempData = ServiceComponentSummaryList[0].ComponentSummaryList.map((item: ComponentSummaryVo) => {
-			item.ComponentNodeList.map(child => ({
+			const componentNodeList = item.ComponentNodeList.map(child => ({
+				...child,
 				operation: true,
 				rowKey: child.ComponentId,
 				ComponentName: item.ComponentName
 			}));
+			// console.log(item.ComponentNodeList);
+			console.log(componentNodeList);
 			return {
 				...item,
 				rowKey: item.ComponentName,
-				children: item.ComponentNodeList
+				children: componentNodeList
 			};
 		});
 		// setLoading(false);

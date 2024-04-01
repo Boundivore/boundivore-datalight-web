@@ -40,10 +40,11 @@ const operation = 'CHECK'; // 当前步骤操作，NodeActionTypeEnum
 
 const CheckStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
-	const { stateText, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
+	const { stateText, setJobNodeId, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [checkState, setCheckState] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [activeNodeId, setActiveNodeId] = useState('');
 	const { useGetSepData, useSetStepData } = useStepLogic();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -71,7 +72,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 			title: t('node.log'),
 			dataIndex: 'NodeState',
 			key: 'NodeState',
-			render: () => <a onClick={viewLog}> {t('node.viewLog')}</a>
+			render: (_text, record) => <a onClick={() => viewLog(record.NodeId)}> {t('node.viewLog')}</a>
 		}
 	];
 	useImperativeHandle(ref, () => ({
@@ -79,8 +80,9 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		check
 	}));
 	const handleOk = useSetStepData(stepName, null, selectedRowsList);
-	const viewLog = () => {
+	const viewLog = (nodeId: string) => {
 		setIsModalOpen(true);
+		setActiveNodeId(nodeId);
 	};
 	const handleModalCancel = () => {
 		setIsModalOpen(false);
@@ -96,6 +98,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 			SshPort: (webState[preStepName] as NodeType[])[0].SshPort
 		};
 		const data = await RequestHttp.post(apiCheck, params);
+		setJobNodeId(data.Data.NodeJobId);
 		setCheckState(data.Code === '00000');
 	};
 
@@ -163,7 +166,7 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 				columns={columns}
 				dataSource={tableData}
 			/>
-			{isModalOpen ? <CheckLogModal isModalOpen={isModalOpen} handleCancel={handleModalCancel} /> : null}
+			{isModalOpen ? <CheckLogModal isModalOpen={isModalOpen} nodeId={activeNodeId} handleCancel={handleModalCancel} /> : null}
 		</>
 	);
 });

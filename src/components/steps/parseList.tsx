@@ -126,14 +126,16 @@ const ParseList = forwardRef<StepRefType>((_props, ref) => {
 		})
 	};
 	return (
-		<Table
-			rowSelection={{
-				...rowSelection
-			}}
-			rowKey="Hostname"
-			columns={columns}
-			dataSource={tableData}
-		/>
+		<>
+			<Table
+				rowSelection={{
+					...rowSelection
+				}}
+				rowKey="Hostname"
+				columns={columns}
+				dataSource={tableData}
+			/>
+		</>
 	);
 });
 

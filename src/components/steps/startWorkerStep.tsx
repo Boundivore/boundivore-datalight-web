@@ -30,6 +30,7 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
+import CheckLogModal from '../checkLogModal';
 import { NodeType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'dispatchStep'; // 当前步骤页面基于上一步的输入和选择生成
@@ -39,14 +40,16 @@ const operation = 'START_WORKER'; // 当前步骤操作，NodeActionTypeEnum
 const nextOperation = 'ADD'; // 下一步操作，NodeActionTypeEnum
 
 const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
-	const { stateText, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
-	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
-	const [startWorkerState, setStartWorkerState] = useState(false);
-	const { useGetSepData } = useStepLogic();
-	const { webState, selectedList } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
+	const { stateText, setJobNodeId, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
+	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
+	const [startWorkerState, setStartWorkerState] = useState(false);
+	const [activeNodeId, setActiveNodeId] = useState('');
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const { useGetSepData } = useStepLogic();
+	const { webState, selectedList } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -65,6 +68,12 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 			dataIndex: 'NodeState',
 			key: 'NodeState',
 			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
+		},
+		{
+			title: t('node.log'),
+			dataIndex: 'NodeState',
+			key: 'NodeState',
+			render: (_text, record) => <a onClick={() => viewLog(record.NodeId)}> {t('node.viewLog')}</a>
 		}
 	];
 
@@ -93,8 +102,19 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 			NodeInfoList: (webState[preStepName] as NodeType[]).map(({ Hostname, NodeId }) => ({ Hostname, NodeId })),
 			SshPort: (webState[preStepName] as NodeType[])[0].SshPort
 		};
-		const { Code } = await RequestHttp.post(apiStartWorker, params);
+		const {
+			Code,
+			Data: { NodeJobId }
+		} = await RequestHttp.post(apiStartWorker, params);
+		setJobNodeId(NodeJobId);
 		setStartWorkerState(Code === '00000');
+	};
+	const viewLog = (nodeId: string) => {
+		setIsModalOpen(true);
+		setActiveNodeId(nodeId);
+	};
+	const handleModalCancel = () => {
+		setIsModalOpen(false);
 	};
 	const getList = async () => {
 		const params = {
@@ -148,14 +168,17 @@ const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
 		})
 	};
 	return (
-		<Table
-			rowSelection={{
-				...rowSelection
-			}}
-			rowKey="NodeId"
-			columns={columns}
-			dataSource={tableData}
-		/>
+		<>
+			<Table
+				rowSelection={{
+					...rowSelection
+				}}
+				rowKey="NodeId"
+				columns={columns}
+				dataSource={tableData}
+			/>
+			{isModalOpen ? <CheckLogModal isModalOpen={isModalOpen} nodeId={activeNodeId} handleCancel={handleModalCancel} /> : null}
+		</>
 	);
 });
 export default StartWorkerStep;

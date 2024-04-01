@@ -113,9 +113,15 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			IsOneByOne: false,
 			ServiceNameList: serviceNameList
 		};
-		const data = await RequestHttp.post(api, params);
-		setJobId(data.Data.JobId);
-		setDeployState(data.Code === '00000');
+		try {
+			const data = await RequestHttp.post(api, params);
+			setJobId(data.Data.JobId);
+			setDeployState(data.Code === '00000');
+		} catch (error) {
+			console.error('请求失败:', error);
+		} finally {
+			setIsModalOpen(false); // 在请求完成后关闭模态框，无论成功还是失败
+		}
 	};
 
 	const getList = async () => {

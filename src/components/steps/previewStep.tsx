@@ -39,7 +39,6 @@ interface TableDataType extends ServiceComponentSummaryVo {
 // const deployedState = [];
 const undeployedState = ['REMOVED', 'SELECTED', 'UNSELECTED'];
 const serviceDeployState = ['SELECTED', 'SELECTED_ADDITION'];
-// const preStepName = 'previewStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'previewStep';
 const operation = 'DEPLOY';
 const PreviewStep: React.FC = forwardRef((_props, ref) => {
@@ -95,8 +94,11 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 			IsOneByOne: false,
 			ServiceNameList: filterData
 		};
-		const data = await RequestHttp.post(api, params);
-		setJobId(data.Data.JobId);
+		const { Code, Data } = await RequestHttp.post(api, params);
+		setIsModalOpen(false);
+		if (Code === '00000') {
+			setJobId(Data.JobId);
+		}
 	};
 	const handleModalOk = () => {
 		setIsModalOpen(false);

@@ -70,7 +70,7 @@ const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCa
 			render: (text: string[]) => (
 				<Flex wrap="wrap" gap="small">
 					{text.map(component => (
-						<Tag bordered={false} color="processing">
+						<Tag key={component} bordered={false} color="processing">
 							{extractUpperCaseAndNumbers(component)}
 						</Tag>
 					))}

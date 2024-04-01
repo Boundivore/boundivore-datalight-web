@@ -30,6 +30,7 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import useStepLogic from '@/hooks/useStepLogic';
+import CheckLogModal from '../checkLogModal';
 import { NodeType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'parseList'; // 当前步骤页面基于上一步的输入和选择生成
@@ -38,9 +39,11 @@ const disabledState = ['RUNNING', 'SUSPEND'];
 
 const DetectStep: React.FC = memo(
 	forwardRef((_props, ref) => {
-		const { stateText, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
+		const { stateText, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh, setJobNodeId } = useStore();
 		const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 		const [detectState, setDetectState] = useState(false);
+		const [isModalOpen, setIsModalOpen] = useState(false);
+		const [activeNodeId, setActiveNodeId] = useState('');
 		const { useGetSepData, useSetStepData } = useStepLogic();
 		const { webState, selectedList } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
 		const { t } = useTranslation();
@@ -61,6 +64,12 @@ const DetectStep: React.FC = memo(
 				title: t('node.state'),
 				dataIndex: 'NodeState',
 				render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
+			},
+			{
+				title: t('node.log'),
+				dataIndex: 'NodeState',
+				key: 'NodeState',
+				render: (_text, record) => <a onClick={() => viewLog(record.NodeId)}> {t('node.viewLog')}</a>
 			}
 		];
 		useImperativeHandle(ref, () => ({
@@ -79,7 +88,15 @@ const DetectStep: React.FC = memo(
 				SshPort: (webState[preStepName] as NodeType[])[0].SshPort
 			};
 			const data = await RequestHttp.post(apiDetect, params);
+			setJobNodeId(data.Data.NodeJobId);
 			setDetectState(data.Code === '00000');
+		};
+		const viewLog = (nodeId: string) => {
+			setIsModalOpen(true);
+			setActiveNodeId(nodeId);
+		};
+		const handleModalCancel = () => {
+			setIsModalOpen(false);
 		};
 		const getList = async () => {
 			const apiSpeed = APIConfig.detectList;
@@ -132,14 +149,17 @@ const DetectStep: React.FC = memo(
 			})
 		};
 		return (
-			<Table
-				rowSelection={{
-					...rowSelection
-				}}
-				rowKey="Hostname"
-				columns={columns}
-				dataSource={tableData}
-			/>
+			<>
+				<Table
+					rowSelection={{
+						...rowSelection
+					}}
+					rowKey="Hostname"
+					columns={columns}
+					dataSource={tableData}
+				/>
+				{isModalOpen ? <CheckLogModal isModalOpen={isModalOpen} nodeId={activeNodeId} handleCancel={handleModalCancel} /> : null}
+			</>
 		);
 	})
 );

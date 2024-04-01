@@ -36,7 +36,7 @@ import { NodeType, NodeWithComponent, ClusterType, BadgeStatus } from '@/api/int
 
 const ManageList: FC = () => {
 	const { t } = useTranslation();
-	const { stateText } = useStore();
+	const { stateText, setJobNodeId } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [selectData, setSelectData] = useState<SelectProps['options']>([]);
 	const [selectCluster, setSelectCluster] = useState<string>('');
@@ -196,6 +196,7 @@ const ManageList: FC = () => {
 		const {
 			Data: { ClusterId, NodeJobId }
 		} = data;
+		setJobNodeId(NodeJobId);
 		console.log('NodeJobId', NodeJobId);
 		selectCluster === ClusterId
 			? setIsActiveJobModalOpen(true)
