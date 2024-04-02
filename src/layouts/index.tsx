@@ -92,12 +92,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 					<LayoutMenu />
 				</div>
 				<Dropdown menu={{ items }} className="absolute right-[50px]">
-					<Avatar
-						className="bg-[#87d068]"
-						src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-						size="large"
-						icon={<UserOutlined />}
-					/>
+					<Avatar className="bg-[#51c2fe]" size="large" icon={<UserOutlined />} />
 				</Dropdown>
 			</Header>
 			<Layout>
@@ -133,7 +128,9 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 					<Suspense fallback={<Spin fullscreen />}>{useRoutes(routes)}</Suspense>
 				</Content>
 			</Layout>
-			<Footer className={`text-center bg-white font-bold ${collapsed ? 'hidden' : 'w-full'}`}>{t('poweredBy')}</Footer>
+			<Footer className={`h-[40px] leading-[40px] p-0 text-center bg-white font-bold ${collapsed ? 'hidden' : 'w-full'}`}>
+				{t('poweredBy')}
+			</Footer>
 		</Layout>
 	);
 };

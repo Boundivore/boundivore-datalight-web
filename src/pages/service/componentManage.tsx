@@ -18,10 +18,10 @@
  * 组件管理列表页
  * @author Tracy.Guo
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Button, Card, Space, App, message, Typography, Flex } from 'antd';
+import { Table, Button, Card, Space, App, message, Typography, Flex, Row, Col, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -48,8 +48,10 @@ const ComponentManage: React.FC = () => {
 	const id = searchParams.get('id') || '';
 	const serviceName = searchParams.get('name') || '';
 	// const [loading, setLoading] = useState(false);
+	const [componentTable, setComponentTable] = useState([]);
+	const [activeComponent, setActiveComponent] = useState('');
 	const [selectComponent, setSelectComponent] = useState<DataType[]>([]);
-	const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState<string[]>([]);
+	const [componentWithNode, setComponentWithNode] = useState({});
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
 	const [startDisabled, setStartDisabled] = useState(true); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(true); // 是否禁用批量停止
@@ -59,6 +61,8 @@ const ComponentManage: React.FC = () => {
 	const { navigateToAddComponent } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
+	const activeComponentRef = useRef(activeComponent);
+	const selectComponentRef = useRef(selectComponent);
 	// 顶部操作按钮配置
 	const buttonConfigTop = [
 		{
@@ -132,18 +136,22 @@ const ComponentManage: React.FC = () => {
 		setStopDisabled(!stopAbled); // 如果全是'STOPPED'，则停止按钮禁用
 		setRemoveDisabled(!allStopped); // 如果不全是'STOPPED'，则移除按钮禁用
 	}, [selectComponent]); // 在 selectComponent 变化时触发
-	const columns: ColumnsType<DataType> = [
+	const componentColumns = [
 		{
 			title: t('service.componentName'),
 			dataIndex: 'ComponentName',
 			key: 'ComponentName',
 			render: (text, record) => {
-				// record.operation ? null : (return { text });
-				if (!record.operation) {
-					return <span>{text}</span>;
-				}
+				return (
+					<Flex justify="space-between">
+						<span>{text}</span>
+						<Badge status="processing" count={record.num} style={{ backgroundColor: '#51c2fe' }} />
+					</Flex>
+				);
 			}
-		},
+		}
+	];
+	const columns: ColumnsType<DataType> = [
 		{
 			title: t('service.node'),
 			dataIndex: 'Hostname',
@@ -162,8 +170,8 @@ const ComponentManage: React.FC = () => {
 			title: t('operation'),
 			key: 'operation',
 			dataIndex: 'operation',
-			render: (text, record) => {
-				return text ? (
+			render: (_text, record) => {
+				return (
 					<Space>
 						{buttonConfigItem(record).map(button => (
 							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
@@ -171,7 +179,7 @@ const ComponentManage: React.FC = () => {
 							</Button>
 						))}
 					</Space>
-				) : null;
+				);
 			}
 		}
 	];
@@ -237,6 +245,7 @@ const ComponentManage: React.FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
+					viewActiveJob();
 					// operation === 'RESTART' && setIsModalOpen(true);
 					// getComponentList(); // 这里不用调接口了，轮询替代了
 				}
@@ -249,17 +258,12 @@ const ComponentManage: React.FC = () => {
 		const {
 			Data: { ClusterId, JobId }
 		} = data;
-		console.log('ClusterId', ClusterId);
 		setJobId(JobId);
 		id === ClusterId
 			? setIsActiveJobModalOpen(true)
 			: modal.info({
 					title: '当前没有活跃的任务'
 			  });
-		// ? setIsActiveJobModalOpen(true)
-		// : modal.info({
-		// 		title: '当前没有活跃的任务'
-		//   });
 	};
 	const handleModalOk = () => {
 		setIsActiveJobModalOpen(false);
@@ -275,41 +279,56 @@ const ComponentManage: React.FC = () => {
 		const tempData = ServiceComponentSummaryList[0].ComponentSummaryList.map((item: ComponentSummaryVo) => {
 			const componentNodeList = item.ComponentNodeList.map(child => ({
 				...child,
-				operation: true,
-				rowKey: child.ComponentId,
-				ComponentName: item.ComponentName
+				ComponentName: item.ComponentName,
+				rowKey: `${child.ComponentId}_${child.NodeId}`
 			}));
-			// console.log(item.ComponentNodeList);
-			console.log(componentNodeList);
+
 			return {
 				...item,
-				rowKey: item.ComponentName,
-				children: componentNodeList
+				num: selectComponentRef.current.filter(component => item.ComponentName === component.ComponentName).length,
+				ComponentNodeList: componentNodeList
 			};
 		});
+		setComponentTable(tempData);
+		if (!activeComponentRef.current) {
+			setActiveComponent(ServiceComponentSummaryList[0].ComponentSummaryList[0].ComponentName);
+		}
 		// setLoading(false);
-		return tempData;
-		// setTableData(tempData);
+		const defaultItem = tempData[0]; // 设定默认值为数组的第一个元素
+		return defaultItem.ComponentNodeList;
 	};
-	const tableData = usePolling(getComponentList, [], 1000, [serviceName]);
+	usePolling(getComponentList, [], 1000, [serviceName]);
 
 	useEffect(() => {
-		const expandedRowKeys: string[] = [];
-		tableData.map((data: DataType) => {
-			expandedRowKeys.push(data.ComponentName);
-		});
-		setDefaultExpandedRowKeys(expandedRowKeys);
-	}, [tableData]);
+		selectComponentRef.current = selectComponent;
+	}, [selectComponent]);
+	useEffect(() => {
+		activeComponentRef.current = activeComponent;
+	}, [activeComponent]);
+
 	const rowSelection = {
-		checkStrictly: false,
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-			const filteredselectedRows = selectedRows.filter(item => item.ComponentId);
-			setSelectComponent(filteredselectedRows);
+			setComponentWithNode({ ...componentWithNode, ...{ [activeComponent]: selectedRows } });
+			// let seenRowKeys = new Set(selectComponent.map(item => item.rowKey));
+
+			// // 合并数组并去重
+			// let mergedAndUnique = [...selectedRows].filter(item => {
+			// 	// 检查当前项的rowKey是否已经在seenRowKeys中存在
+			// 	return !seenRowKeys.has(item.rowKey);
+			// });
+
+			// // 更新selectComponent数组，包含去重后的新项
+			// console.log('0000000', [...selectComponent, ...mergedAndUnique]);
+			const mergedArray = Object.values({ ...componentWithNode, ...{ [activeComponent]: selectedRows } }).flat();
+			setSelectComponent(mergedArray);
 		}
+	};
+	const rowClassName = record => {
+		return activeComponent === record.ComponentName ? 'bg-[#f0fcff]' : '';
 	};
 	return (
 		<>
-			<Card className="min-h-[calc(100%-50px)] m-[20px]">
+			<Card className="min-h-[calc(100%-100px)] m-[20px]">
 				{contextHolder}
 				<Flex justify="space-between">
 					<Space>
@@ -319,22 +338,50 @@ const ComponentManage: React.FC = () => {
 							</Button>
 						))}
 					</Space>
-					<Space>
+					{/* <Space>
 						<Button type="primary" onClick={viewActiveJob}>
 							{t('viewActiveJob')}
 						</Button>
-					</Space>
+					</Space> */}
 				</Flex>
-				<Table
-					rowSelection={{
-						...rowSelection
-					}}
-					className="mt-[20px]"
-					rowKey="rowKey"
-					columns={columns}
-					dataSource={tableData}
-					expandable={{ expandedRowKeys: defaultExpandedRowKeys }}
-				/>
+				<Row gutter={24} className="mt-[20px]">
+					<Col span={6}>
+						<Card className="data-light-card">
+							<Table
+								className="mt-[20px]"
+								rowKey="ComponentName"
+								columns={componentColumns}
+								dataSource={componentTable}
+								onRow={record => {
+									return {
+										onClick: () => {
+											setActiveComponent(record.ComponentName);
+										} // 点击行
+									};
+								}}
+								pagination={false}
+								rowClassName={rowClassName}
+							/>
+						</Card>
+					</Col>
+					<Col span={18}>
+						<Card className="data-light-card">
+							{componentTable.map(component => {
+								return (
+									<Table
+										rowSelection={{
+											...rowSelection
+										}}
+										className={`mt-[20px] ${component.ComponentName !== activeComponentRef.current && 'hidden'}`}
+										rowKey="rowKey"
+										columns={columns}
+										dataSource={component.ComponentNodeList}
+									/>
+								);
+							})}
+						</Card>
+					</Col>
+				</Row>
 			</Card>
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal

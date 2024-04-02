@@ -27,6 +27,9 @@ body {
 	height: 100%;
 	overflow: hidden;
 }
+.ant-table {
+	min-height: 280px;
+}
 .data-light {
 	.ant-select-dropdown {
 		display: none !important;
@@ -37,6 +40,12 @@ body {
 		height: 80px;
 	}
 }
+.data-light-card {
+	.ant-card-body {
+		min-height: 412px;
+	}
+}
+
 #code-editor {
 	position: absolute;
 	top: 0;

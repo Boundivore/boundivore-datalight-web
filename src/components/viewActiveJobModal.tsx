@@ -23,7 +23,7 @@
  * @author Tracy.Guo
  */
 import { FC } from 'react';
-import { Modal, Table, Progress } from 'antd';
+import { Modal, Table, Progress, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import APIConfig from '@/api/config';
@@ -107,7 +107,16 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleOk, han
 	const tableData = usePolling(getList, stableState, 1000, [true]);
 
 	return (
-		<Modal title={t('viewActiveJob')} open={isModalOpen} onCancel={handleCancel}>
+		<Modal
+			title={t('viewActiveJob')}
+			open={isModalOpen}
+			onCancel={handleCancel}
+			footer={[
+				<Button key="cancel" onClick={handleCancel}>
+					{t('close')}
+				</Button>
+			]}
+		>
 			<Table rowKey="NodeId" dataSource={tableData} columns={columns} />
 		</Modal>
 	);

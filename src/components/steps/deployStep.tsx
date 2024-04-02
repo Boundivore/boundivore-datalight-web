@@ -51,7 +51,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { useGetSepData } = useStepLogic();
 	const { webState } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
-	const errorText = t('流程中存在未完成的收尾工作');
+	const errorText = t('任务执行异常');
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -133,11 +133,11 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			}
 		} = progressData;
 		const updatedArray = ExecProgressPerNodeList.map((obj: ExecProgressPerNodeVo) => ({
-			...obj, // 展开当前对象
-			JobExecStateEnum // 展开新键值对，这将合并到当前对象中
+			...obj,
+			JobExecStateEnum
 		}));
 		const basicDisabled = disabledState.includes(JobExecStateEnum);
-		setOpenAlert(basicDisabled);
+		setOpenAlert(JobExecStateEnum === 'ERROR');
 		setCurrentPageDisabled({
 			nextDisabled: basicDisabled,
 			retryDisabled: basicDisabled,
