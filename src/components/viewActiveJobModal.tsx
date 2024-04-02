@@ -23,15 +23,14 @@
  * @author Tracy.Guo
  */
 import { FC } from 'react';
-import { Modal, Table, Typography, Progress } from 'antd';
+import { Modal, Table, Progress } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
-import { NodeType, ExecProgressStepVo, ExecProgressPerNodeVo } from '@/api/interface';
-const { Text } = Typography;
+import { NodeType, ExecProgressPerNodeVo } from '@/api/interface';
 
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 interface ViewActiveJobProps {
@@ -53,29 +52,29 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleOk, han
 			render: (text: string) => <a>{text}</a>
 		},
 		{
-			title: t('node.deployProgress'),
+			title: t('progress'),
 			dataIndex: 'ExecProgress',
 			width: 350,
 			render: text => {
 				return <Progress percent={parseFloat(parseFloat(text).toFixed(2))} strokeColor={twoColors} />;
 			}
-		},
-		{
-			title: t('node.detail'),
-			dataIndex: 'ExecProgressStepList',
-			render: (text: ExecProgressStepVo[]) => {
-				const runningStep = text.find(step => step.StepExecState === 'RUNNING');
-				const errorStep = text.reverse().find(step => step.StepExecState === 'ERROR');
-				const okStep = text.reverse().find(step => step.StepExecState === 'OK');
-				return runningStep ? (
-					<Text className="text-blue-500">{runningStep?.StepName}</Text>
-				) : errorStep ? (
-					<Text className="text-red-500">{errorStep?.StepName}</Text>
-				) : (
-					<Text className="text-green-500">{okStep?.StepName}</Text>
-				);
-			}
 		}
+		// {
+		// 	title: t('node.detail'),
+		// 	dataIndex: 'ExecProgressStepList',
+		// 	render: (text: ExecProgressStepVo[]) => {
+		// 		const runningStep = text.find(step => step.StepExecState === 'RUNNING');
+		// 		const errorStep = text.reverse().find(step => step.StepExecState === 'ERROR');
+		// 		const okStep = text.reverse().find(step => step.StepExecState === 'OK');
+		// 		return runningStep ? (
+		// 			<Text className="text-blue-500">{runningStep?.StepName}</Text>
+		// 		) : errorStep ? (
+		// 			<Text className="text-red-500">{errorStep?.StepName}</Text>
+		// 		) : (
+		// 			<Text className="text-green-500">{okStep?.StepName}</Text>
+		// 		);
+		// 	}
+		// }
 	];
 	const getList = async () => {
 		const apiProgress = APIConfig[type];
@@ -92,7 +91,7 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleOk, han
 			}));
 			return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 		} else if (type === 'jobProgress') {
-			const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobId } });
+			const progressData = await RequestHttp.get(apiProgress, { params: { JobId: jobId } });
 			const {
 				Data: {
 					JobExecProgress: { ExecProgressPerNodeList, JobExecStateEnum }

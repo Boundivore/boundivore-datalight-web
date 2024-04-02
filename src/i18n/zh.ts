@@ -244,5 +244,6 @@ export default {
 	stopped: '已停止',
 	state: '状态',
 	planProgress: '计划进度',
-	viewActiveJob: '查看活跃任务'
+	viewActiveJob: '查看活跃任务',
+	progress: '进度'
 };

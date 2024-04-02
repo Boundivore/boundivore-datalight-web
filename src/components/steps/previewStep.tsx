@@ -84,6 +84,7 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 	const handleOk = async () => {
 		setStepData();
 		deploy();
+		return Promise.resolve(true);
 	};
 	const deploy = async () => {
 		setIsModalOpen(true);
@@ -94,10 +95,13 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 			IsOneByOne: false,
 			ServiceNameList: filterData
 		};
-		const { Code, Data } = await RequestHttp.post(api, params);
-		setIsModalOpen(false);
-		if (Code === '00000') {
-			setJobId(Data.JobId);
+		try {
+			const data = await RequestHttp.post(api, params);
+			setJobId(data.Data.JobId);
+		} catch (error) {
+			console.error('请求失败:', error);
+		} finally {
+			setIsModalOpen(false); // 在请求完成后关闭模态框，无论成功还是失败
 		}
 	};
 	const handleModalOk = () => {

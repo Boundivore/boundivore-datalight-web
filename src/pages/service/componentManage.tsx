@@ -27,7 +27,8 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 import usePolling from '@/hooks/usePolling';
-import JobPlanModal from '@/components/jobPlanModal';
+import useStore from '@/store/store';
+// import JobPlanModal from '@/components/jobPlanModal';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import { ComponentSummaryVo, ComponentNodeVo } from '@/api/interface';
 
@@ -52,8 +53,9 @@ const ComponentManage: React.FC = () => {
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
 	const [startDisabled, setStartDisabled] = useState(true); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(true); // 是否禁用批量停止
-	const [isModalOpen, setIsModalOpen] = useState(false);
+	// const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
+	const { setJobId } = useStore();
 	const { navigateToAddComponent } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
@@ -235,7 +237,7 @@ const ComponentManage: React.FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
-					operation === 'RESTART' && setIsModalOpen(true);
+					// operation === 'RESTART' && setIsModalOpen(true);
 					// getComponentList(); // 这里不用调接口了，轮询替代了
 				}
 			}
@@ -245,10 +247,10 @@ const ComponentManage: React.FC = () => {
 		const apiList = APIConfig.getActiveJobId;
 		const data = await RequestHttp.get(apiList);
 		const {
-			Data: { ClusterId, NodeJobId }
+			Data: { ClusterId, JobId }
 		} = data;
 		console.log('ClusterId', ClusterId);
-		console.log('NodeJobId', NodeJobId);
+		setJobId(JobId);
 		id === ClusterId
 			? setIsActiveJobModalOpen(true)
 			: modal.info({
@@ -260,7 +262,7 @@ const ComponentManage: React.FC = () => {
 		//   });
 	};
 	const handleModalOk = () => {
-		setIsModalOpen(false);
+		setIsActiveJobModalOpen(false);
 	};
 	const getComponentList = async () => {
 		// setLoading(true);
@@ -335,9 +337,14 @@ const ComponentManage: React.FC = () => {
 				/>
 			</Card>
 			{isActiveJobModalOpen ? (
-				<ViewActiveJobModal isModalOpen={isModalOpen} handleOk={handleModalOk} handleCancel={handleModalOk} type="jobProgress" />
+				<ViewActiveJobModal
+					isModalOpen={isActiveJobModalOpen}
+					handleOk={handleModalOk}
+					handleCancel={handleModalOk}
+					type="jobProgress"
+				/>
 			) : null}
-			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null}
+			{/* {isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null} */}
 		</>
 	);
 };

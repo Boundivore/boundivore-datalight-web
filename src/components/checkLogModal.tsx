@@ -23,7 +23,7 @@
  */
 import { FC, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Modal, List, Collapse } from 'antd';
+import { Modal, List, Collapse, Button } from 'antd';
 // import type { CollapseProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import APIConfig from '@/api/config';
@@ -147,7 +147,16 @@ const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCanc
 	];
 
 	return (
-		<Modal className="h-[300px]" title={t('node.log')} open={isModalOpen} onCancel={handleCancel}>
+		<Modal
+			title={t('node.log')}
+			open={isModalOpen}
+			onCancel={handleCancel}
+			footer={[
+				<Button key="cancel" onClick={handleCancel}>
+					{t('close')}
+				</Button>
+			]}
+		>
 			{/* {openAlert ? <Alert message={errorText} type="error" /> : null} */}
 
 			<Collapse items={generateItems} />
