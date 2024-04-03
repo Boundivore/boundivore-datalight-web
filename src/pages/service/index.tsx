@@ -196,7 +196,7 @@ const ServiceManage: FC = () => {
 	const operateComponent = (operation: string) => {
 		modal.confirm({
 			title: t(operation.toLowerCase()),
-			content: t('operationConfirm', { operation: t(operation.toLowerCase()) }),
+			content: t('operationServiceConfirm', { operation: t(operation.toLowerCase()) }),
 			okText: t('confirm'),
 			cancelText: t('cancel'),
 			onOk: async () => {

@@ -30,7 +30,7 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import useStepLogic from '@/hooks/useStepLogic';
-import CheckLogModal from '../checkLogModal';
+import CheckLogModal from '../nodeLogModal';
 import { NodeType, BadgeStatus } from '@/api/interface';
 
 const preStepName = 'detectStep'; // 当前步骤页面基于上一步的输入和选择生成

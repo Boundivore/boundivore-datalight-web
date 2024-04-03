@@ -30,7 +30,7 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import ItemConfigInfo from '@/components/itemConfigInfo';
-import CheckLogModal from '../checkLogModal';
+import CheckLogModal from '../nodeLogModal';
 import { NodeType, NodeJobTransferProgressVo } from '@/api/interface';
 
 const { Text } = Typography;

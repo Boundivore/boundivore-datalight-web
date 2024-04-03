@@ -20,18 +20,18 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, App, Space, message } from 'antd';
+import { Table, Button, Card, App, Space, message, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
-import { ClusterType } from '@/api/interface';
+import { ClusterType, BadgeStatus } from '@/api/interface';
 
 const Home: React.FC = () => {
 	const { t } = useTranslation();
 	const [messageApi, contextHolder] = message.useMessage();
-	const { isNeedChangePassword, setIsNeedChangePassword } = useStore();
+	const { stateText, isNeedChangePassword, setIsNeedChangePassword } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState([]);
 	const { navigateToChangePassword, navigateToNodeInit, navigateToCreateCluster } = useNavigater();
@@ -94,7 +94,8 @@ const Home: React.FC = () => {
 			dataIndex: 'ClusterState',
 			key: 'ClusterState',
 			width: '10%',
-			render: (text: string) => t(text.toLowerCase())
+			// render: (text: string) => t(text.toLowerCase())
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		},
 		{
 			title: t('operation'),

@@ -83,8 +83,8 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 	const setStepData = useSetStepData(stepName, null, filterData);
 	const handleOk = async () => {
 		setStepData();
-		deploy();
-		return Promise.resolve(true);
+		const data = await deploy();
+		return Promise.resolve(data);
 	};
 	const deploy = async () => {
 		setIsModalOpen(true);
@@ -98,6 +98,7 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 		try {
 			const data = await RequestHttp.post(api, params);
 			setJobId(data.Data.JobId);
+			return Promise.resolve(data);
 		} catch (error) {
 			console.error('请求失败:', error);
 		} finally {

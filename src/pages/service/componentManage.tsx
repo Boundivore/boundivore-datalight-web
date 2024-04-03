@@ -19,9 +19,10 @@
  * @author Tracy.Guo
  */
 import { useEffect, useState, useRef } from 'react';
+import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Button, Card, Space, App, message, Typography, Flex, Row, Col, Badge } from 'antd';
+import { Table, Button, Card, Space, App, message, Typography, Flex, Row, Col, Badge, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -30,7 +31,7 @@ import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
 // import JobPlanModal from '@/components/jobPlanModal';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
-import { ComponentSummaryVo, ComponentNodeVo } from '@/api/interface';
+import { ComponentSummaryVo, ComponentNodeVo, BadgeStatus } from '@/api/interface';
 
 const { Text } = Typography;
 
@@ -57,12 +58,14 @@ const ComponentManage: React.FC = () => {
 	const [stopDisabled, setStopDisabled] = useState(true); // 是否禁用批量停止
 	// const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
-	const { setJobId } = useStore();
-	const { navigateToAddComponent } = useNavigater();
+	const [handleButton, setHandleButton] = useState(false);
+	const { setJobId, stateText } = useStore();
+	const { navigateToAddComponent, navigateToService } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	const activeComponentRef = useRef(activeComponent);
 	const selectComponentRef = useRef(selectComponent);
+
 	// 顶部操作按钮配置
 	const buttonConfigTop = [
 		{
@@ -127,6 +130,7 @@ const ComponentManage: React.FC = () => {
 		];
 	};
 	useEffect(() => {
+		console.log(1212, handleButton);
 		// 检查所有组件是否都处于'STOPPED'状态
 		const allStopped = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum === 'STOPPED');
 		const stopAbled = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum !== 'STOPPED');
@@ -135,7 +139,7 @@ const ComponentManage: React.FC = () => {
 		setStartDisabled(!allStopped); // 如果不全是'STOPPED'，则开始按钮禁用
 		setStopDisabled(!stopAbled); // 如果全是'STOPPED'，则停止按钮禁用
 		setRemoveDisabled(!allStopped); // 如果不全是'STOPPED'，则移除按钮禁用
-	}, [selectComponent]); // 在 selectComponent 变化时触发
+	}, [selectComponent, handleButton]); // 在 selectComponent 变化时触发
 	const componentColumns = [
 		{
 			title: t('service.componentName'),
@@ -145,7 +149,15 @@ const ComponentManage: React.FC = () => {
 				return (
 					<Flex justify="space-between">
 						<span>{text}</span>
-						<Badge status="processing" count={record.num} style={{ backgroundColor: '#51c2fe' }} />
+						<Tooltip title="已选节点数">
+							<Badge
+								status="processing"
+								count={record.num}
+								showZero
+								style={{ backgroundColor: '#51c2fe' }}
+								className="cursor-pointer"
+							/>
+						</Tooltip>
 					</Flex>
 				);
 			}
@@ -164,7 +176,8 @@ const ComponentManage: React.FC = () => {
 			title: t('service.componentState'),
 			dataIndex: 'SCStateEnum',
 			key: 'SCStateEnum',
-			render: (text: string) => text && t(text.toLowerCase())
+			// render: (text: string) => text && t(text.toLowerCase())
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		},
 		{
 			title: t('operation'),
@@ -189,7 +202,7 @@ const ComponentManage: React.FC = () => {
 		}));
 		modal.confirm({
 			title: t('remove'),
-			content: t('operationConfirm', { operation: t('remove') }),
+			content: t('operationConfirm', { operation: t('remove'), number: componentList.length }),
 			okText: t('confirm'),
 			cancelText: t('cancel'),
 			onOk: async () => {
@@ -200,10 +213,16 @@ const ComponentManage: React.FC = () => {
 					ServiceName: serviceName
 				};
 				const data = await RequestHttp.post(api, params);
-				const { Code } = data;
+				const {
+					Code,
+					Data: {
+						ServiceExist: { IsServiceExistComponent }
+					}
+				} = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
-					getComponentList();
+					IsServiceExistComponent ? getComponentList() : navigateToService();
+					setHandleButton(!handleButton);
 				}
 			}
 		});
@@ -225,7 +244,7 @@ const ComponentManage: React.FC = () => {
 		});
 		modal.confirm({
 			title: t(operation.toLowerCase()),
-			content: t('operationConfirm', { operation: t(operation.toLowerCase()) }),
+			content: t('operationConfirm', { operation: t(operation.toLowerCase()), number: componentList.length }),
 			okText: t('confirm'),
 			cancelText: t('cancel'),
 			onOk: async () => {
@@ -246,6 +265,7 @@ const ComponentManage: React.FC = () => {
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
 					viewActiveJob();
+					setHandleButton(!handleButton);
 					// operation === 'RESTART' && setIsModalOpen(true);
 					// getComponentList(); // 这里不用调接口了，轮询替代了
 				}
@@ -282,10 +302,13 @@ const ComponentManage: React.FC = () => {
 				ComponentName: item.ComponentName,
 				rowKey: `${child.ComponentId}_${child.NodeId}`
 			}));
-
+			const intersectionByIdList = _.intersectionBy(componentNodeList, selectComponentRef.current, 'ComponentId');
+			// const intersectionList = _.intersection(intersectionByIdList, selectComponentRef.current);
+			// console.log('intersectionList', intersectionList);
+			// setSelectComponent([...componentNodeList, ...selectComponentRef.current]);
 			return {
 				...item,
-				num: selectComponentRef.current.filter(component => item.ComponentName === component.ComponentName).length,
+				num: intersectionByIdList.filter(component => item.ComponentName === component.ComponentName).length,
 				ComponentNodeList: componentNodeList
 			};
 		});
@@ -294,8 +317,7 @@ const ComponentManage: React.FC = () => {
 			setActiveComponent(ServiceComponentSummaryList[0].ComponentSummaryList[0].ComponentName);
 		}
 		// setLoading(false);
-		const defaultItem = tempData[0]; // 设定默认值为数组的第一个元素
-		return defaultItem.ComponentNodeList;
+		return tempData;
 	};
 	usePolling(getComponentList, [], 1000, [serviceName]);
 
@@ -320,6 +342,7 @@ const ComponentManage: React.FC = () => {
 			// // 更新selectComponent数组，包含去重后的新项
 			// console.log('0000000', [...selectComponent, ...mergedAndUnique]);
 			const mergedArray = Object.values({ ...componentWithNode, ...{ [activeComponent]: selectedRows } }).flat();
+			console.log('mergedArray', mergedArray);
 			setSelectComponent(mergedArray);
 		}
 	};
@@ -367,13 +390,15 @@ const ComponentManage: React.FC = () => {
 					<Col span={18}>
 						<Card className="data-light-card">
 							{componentTable.map(component => {
+								console.log('111111', activeComponent);
 								return (
 									<Table
 										rowSelection={{
 											...rowSelection
 										}}
-										className={`mt-[20px] ${component.ComponentName !== activeComponentRef.current && 'hidden'}`}
+										className={`mt-[20px] ${component.ComponentName !== activeComponent && 'hidden'}`}
 										rowKey="rowKey"
+										key={component.ComponentName}
 										columns={columns}
 										dataSource={component.ComponentNodeList}
 									/>
@@ -384,12 +409,7 @@ const ComponentManage: React.FC = () => {
 				</Row>
 			</Card>
 			{isActiveJobModalOpen ? (
-				<ViewActiveJobModal
-					isModalOpen={isActiveJobModalOpen}
-					handleOk={handleModalOk}
-					handleCancel={handleModalOk}
-					type="jobProgress"
-				/>
+				<ViewActiveJobModal isModalOpen={isActiveJobModalOpen} handleCancel={handleModalOk} type="jobProgress" />
 			) : null}
 			{/* {isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null} */}
 		</>

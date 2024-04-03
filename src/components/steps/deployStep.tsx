@@ -29,6 +29,7 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import JobPlanModal from '@/components/jobPlanModal';
+import LogModal from '@/components/jobLogModal';
 import { NodeType, ExecProgressPerNodeVo, ExecProgressStepVo } from '@/api/interface';
 
 const { Text } = Typography;
@@ -47,8 +48,10 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const { stableState, jobId, setJobId, setCurrentPageDisabled, isRefresh } = useStore();
 	// const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [openAlert, setOpenAlert] = useState(false);
-	const [deployState, setDeployState] = useState(false);
+	const [deployState, setDeployState] = useState(true);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+	const [activeNodeId, setActiveNodeId] = useState('');
 	const { useGetSepData } = useStepLogic();
 	const { webState } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
 	const errorText = t('任务执行异常');
@@ -82,6 +85,12 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 					<Text className="text-green-500">{okStep?.StepName}</Text>
 				);
 			}
+		},
+		{
+			title: t('node.log'),
+			dataIndex: 'NodeState',
+			key: 'NodeState',
+			render: (_text, record) => <a onClick={() => viewLog(record.NodeId)}> {t('node.viewLog')}</a>
 		}
 	];
 	// const rowSelection = {
@@ -123,6 +132,13 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			setIsModalOpen(false); // 在请求完成后关闭模态框，无论成功还是失败
 		}
 	};
+	const viewLog = (nodeId: string) => {
+		setIsLogModalOpen(true);
+		setActiveNodeId(nodeId);
+	};
+	const handleLogModalCancel = () => {
+		setIsLogModalOpen(false);
+	};
 
 	const getList = async () => {
 		const api = APIConfig.jobProgress;
@@ -153,10 +169,9 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			if (isRefresh) {
 				setDeployState(true);
 			} else {
-				deploy();
+				// deploy();
 			}
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [webState, isRefresh]);
 	const tableData = usePolling(getList, stableState, 1000, [deployState, webState]);
 	return (
@@ -169,6 +184,9 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 				dataSource={tableData}
 			/>
 			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} /> : null}
+			{isLogModalOpen ? (
+				<LogModal isModalOpen={isLogModalOpen} nodeId={activeNodeId} handleCancel={handleLogModalCancel} />
+			) : null}
 		</>
 	);
 });

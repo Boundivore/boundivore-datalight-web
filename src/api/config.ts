@@ -71,6 +71,7 @@ const APIConfig: Actions = {
 	nodeJobPlan: '/v1/master/job/activeNodeJobPlanProgress', // 查询节点异步任务计划生成的进度
 	jobPlan: '/v1/master/job/activeJobPlanProgress', // 查询服务组件部署时异步任务计划生成的进度
 	getActiveJobId: '/v1/master/job/getActiveJobId',
+	getLog: '/v1/master/job/getJobLogList',
 	// 配置相关
 	listSummary: '/v1/master/config/listSummary',
 	listByGroup: '/v1/master/config/listByGroup',

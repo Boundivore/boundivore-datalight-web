@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 import useNavigater from '@/hooks/useNavigater';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
+import { usePersistStore } from '@/store/store';
 
 interface ChangePasswordFormValues {
 	Principal: string;
@@ -36,6 +37,9 @@ const ChangePassword: React.FC = () => {
 	const { t } = useTranslation();
 	const { modal } = App.useApp();
 	const { navigateToLogin } = useNavigater();
+	const {
+		userInfo: { realName }
+	} = usePersistStore();
 
 	const onFinish = async (values: ChangePasswordFormValues) => {
 		const { NewCredential, OldCredential, Principal, ConfirmNewCredential } = values;
@@ -75,13 +79,14 @@ const ChangePassword: React.FC = () => {
 				wrapperCol={{ span: 16 }}
 				onFinish={onFinish}
 				autoComplete="off"
+				initialValues={{ Principal: realName }}
 			>
 				<Form.Item
 					label={t('login.principal')}
 					name="Principal"
 					rules={[{ required: true, message: t('account.inputPrincipal') }]}
 				>
-					<Input />
+					<Input disabled />
 				</Form.Item>
 				<Form.Item
 					label={t('account.oldPassword')}

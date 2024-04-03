@@ -35,15 +35,13 @@ import { NodeType, ExecProgressPerNodeVo } from '@/api/interface';
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 interface ViewActiveJobProps {
 	isModalOpen: boolean;
-	handleOk: (list: NodeType[]) => void;
 	handleCancel: () => void;
 	type: string;
 }
 
-const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleOk, handleCancel, type }) => {
+const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel, type }) => {
 	const { t } = useTranslation();
 	const { jobNodeId, jobId, stableState } = useStore();
-	console.log(handleOk);
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -108,7 +106,7 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleOk, han
 
 	return (
 		<Modal
-			title={t('viewActiveJob')}
+			title={type === 'nodeJobProgress' ? t('viewActiveNodeJob') : t('viewActiveJob')}
 			open={isModalOpen}
 			onCancel={handleCancel}
 			footer={[

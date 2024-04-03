@@ -36,7 +36,7 @@ import { NodeType, NodeWithComponent, ClusterType, BadgeStatus } from '@/api/int
 
 const ManageList: FC = () => {
 	const { t } = useTranslation();
-	const { stateText, setJobNodeId } = useStore();
+	const { stateText } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [selectData, setSelectData] = useState<SelectProps['options']>([]);
 	const [selectCluster, setSelectCluster] = useState<string>('');
@@ -190,20 +190,20 @@ const ManageList: FC = () => {
 			}
 		});
 	};
-	const viewActiveJob = async () => {
-		const apiList = APIConfig.getActiveNodeJobId;
-		const data = await RequestHttp.get(apiList);
-		const {
-			Data: { ClusterId, NodeJobId }
-		} = data;
-		setJobNodeId(NodeJobId);
-		console.log('NodeJobId', NodeJobId);
-		selectCluster === ClusterId
-			? setIsActiveJobModalOpen(true)
-			: modal.info({
-					title: '当前没有活跃的任务'
-			  });
-	};
+	// const viewActiveJob = async () => {
+	// 	const apiList = APIConfig.getActiveNodeJobId;
+	// 	const data = await RequestHttp.get(apiList);
+	// 	const {
+	// 		Data: { ClusterId, NodeJobId }
+	// 	} = data;
+	// 	setJobNodeId(NodeJobId);
+	// 	console.log('NodeJobId', NodeJobId);
+	// 	selectCluster === ClusterId
+	// 		? setIsActiveJobModalOpen(true)
+	// 		: modal.info({
+	// 				title: '当前没有活跃的任务'
+	// 		  });
+	// };
 	const getClusterList = async () => {
 		setLoading(true);
 		const api = APIConfig.getClusterList;
@@ -256,7 +256,7 @@ const ManageList: FC = () => {
 		setIsModalOpen(false);
 	};
 	const handleModalCancel = () => {
-		setIsModalOpen(false);
+		setIsActiveJobModalOpen(false);
 	};
 	const tableData: NodeType[] = usePolling(getNodeList, [], 1000, [selectCluster]);
 
@@ -296,9 +296,9 @@ const ManageList: FC = () => {
 							{t('node.currentCluster')}
 							<Select className="w-[200px]" options={selectData} value={selectCluster} onChange={handleChange} />
 						</>
-						<Button type="primary" onClick={viewActiveJob}>
+						{/* <Button type="primary" onClick={viewActiveJob}>
 							{t('viewActiveJob')}
-						</Button>
+						</Button> */}
 					</Space>
 				</Flex>
 				<Table
@@ -313,12 +313,7 @@ const ManageList: FC = () => {
 				/>
 			</Card>
 			{isActiveJobModalOpen ? (
-				<ViewActiveJobModal
-					isModalOpen={isModalOpen}
-					handleOk={handleModalOk}
-					handleCancel={handleModalCancel}
-					type="nodeJobProgress"
-				/>
+				<ViewActiveJobModal isModalOpen={isModalOpen} handleCancel={handleModalCancel} type="nodeJobProgress" />
 			) : null}
 			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} /> : null}
 		</>
