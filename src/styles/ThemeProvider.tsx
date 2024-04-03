@@ -59,7 +59,8 @@ export default function ThemeProvider(props: ThemeProviderProps) {
 				},
 				token: {
 					colorPrimary: '#51c2fe',
-					colorTextBase: '#2e436b'
+					colorTextBase: '#2e436b',
+					paddingLG: 16
 				}
 			}}
 			layout={{ className: 'my-layout' }}

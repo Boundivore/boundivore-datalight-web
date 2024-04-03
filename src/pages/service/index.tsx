@@ -30,11 +30,12 @@ import useNavigater from '@/hooks/useNavigater';
 import { updateCurrentView } from '@/utils/helper';
 import { ClusterType, ServiceItemType, BadgeStatus } from '@/api/interface';
 import useStore from '@/store/store';
+import ViewActiveJobModal from '@/components/viewActiveJobModal';
 
 const stateArray = ['SELECTED', 'SELECTED_ADDITION', 'UNSELECTED', 'REMOVED'];
 const ServiceManage: FC = () => {
 	const { t } = useTranslation();
-	const { stateText } = useStore();
+	const { stateText, setJobId } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [selectData, setSelectData] = useState<SelectProps['options']>([]);
 	const [selectService, setSelectService] = useState<ServiceItemType[]>([]);
@@ -42,6 +43,7 @@ const ServiceManage: FC = () => {
 	const [allowAdd, setAllowAdd] = useState(false); // 是否允许新增服务操作,默认不允许
 	const [startDisabled, setStartDisabled] = useState(false); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(false); // 是否禁用批量停止
+	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const { navigateToComManage, navigateToConfig, navigateToAddComponent } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
@@ -184,6 +186,22 @@ const ServiceManage: FC = () => {
 			}
 		}
 	];
+	const viewActiveJob = async () => {
+		const apiList = APIConfig.getActiveJobId;
+		const data = await RequestHttp.get(apiList);
+		const {
+			Data: { ClusterId, JobId }
+		} = data;
+		setJobId(JobId);
+		defaultSelectValue === ClusterId
+			? setIsActiveJobModalOpen(true)
+			: modal.info({
+					title: '当前没有活跃的任务'
+			  });
+	};
+	const handleModalOk = () => {
+		setIsActiveJobModalOpen(false);
+	};
 	const addService = () => {
 		if (allowAdd) {
 			navigateToAddComponent(defaultSelectValue);
@@ -211,6 +229,7 @@ const ServiceManage: FC = () => {
 				const { Code } = data;
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
+					viewActiveJob();
 					// getComponentList();
 				}
 			}
@@ -282,32 +301,37 @@ const ServiceManage: FC = () => {
 		}
 	};
 	return (
-		<Card className="min-h-[calc(100%-50px)] m-[20px]">
-			{contextHolder}
-			<Flex justify="space-between">
-				<Space>
-					{buttonConfigTop.map(button => (
-						<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
-							{button.label}
-						</Button>
-					))}
-				</Space>
-				<div>
-					{t('node.currentCluster')}
-					<Select className="w-[200px]" options={selectData} value={defaultSelectValue} onChange={handleChange} />
-				</div>
-			</Flex>
-			<Table
-				rowSelection={{
-					...rowSelection
-				}}
-				className="mt-[20px]"
-				rowKey="ServiceName"
-				columns={columns}
-				dataSource={tableData}
-				loading={loading}
-			/>
-		</Card>
+		<>
+			<Card className="min-h-[calc(100%-50px)] m-[20px]">
+				{contextHolder}
+				<Flex justify="space-between">
+					<Space>
+						{buttonConfigTop.map(button => (
+							<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+								{button.label}
+							</Button>
+						))}
+					</Space>
+					<div>
+						{t('node.currentCluster')}
+						<Select className="w-[200px]" options={selectData} value={defaultSelectValue} onChange={handleChange} />
+					</div>
+				</Flex>
+				<Table
+					rowSelection={{
+						...rowSelection
+					}}
+					className="mt-[20px]"
+					rowKey="ServiceName"
+					columns={columns}
+					dataSource={tableData}
+					loading={loading}
+				/>
+			</Card>
+			{isActiveJobModalOpen ? (
+				<ViewActiveJobModal isModalOpen={isActiveJobModalOpen} handleCancel={handleModalOk} type="jobProgress" />
+			) : null}
+		</>
 	);
 };
 

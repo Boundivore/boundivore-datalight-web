@@ -150,13 +150,7 @@ const ComponentManage: React.FC = () => {
 					<Flex justify="space-between">
 						<span>{text}</span>
 						<Tooltip title="已选节点数">
-							<Badge
-								status="processing"
-								count={record.num}
-								showZero
-								style={{ backgroundColor: '#51c2fe' }}
-								className="cursor-pointer"
-							/>
+							<Badge status="processing" count={record.num} showZero style={{ backgroundColor: '#51c2fe' }} />
 						</Tooltip>
 					</Flex>
 				);
@@ -371,7 +365,7 @@ const ComponentManage: React.FC = () => {
 					<Col span={6}>
 						<Card className="data-light-card">
 							<Table
-								className="mt-[20px]"
+								className="mt-[20px] cursor-pointer"
 								rowKey="ComponentName"
 								columns={componentColumns}
 								dataSource={componentTable}
@@ -388,7 +382,7 @@ const ComponentManage: React.FC = () => {
 						</Card>
 					</Col>
 					<Col span={18}>
-						<Card className="data-light-card">
+						<Card className="data-light-card" title={activeComponent}>
 							{componentTable.map(component => {
 								console.log('111111', activeComponent);
 								return (
