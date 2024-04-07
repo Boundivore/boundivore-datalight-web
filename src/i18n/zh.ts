@@ -39,7 +39,7 @@ export default {
 		inputConfirmPassword: '请确认您的新密码'
 	},
 	tabs: {
-		home: '集群管理',
+		home: '监控',
 		cluster: '集群管理',
 		node: '节点管理',
 		service: '服务管理',

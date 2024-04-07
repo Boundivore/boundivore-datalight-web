@@ -33,7 +33,7 @@ const useNavigater = () => {
 	};
 	const navigateToClusterList = () => {
 		// 当前home就是集群列表页，后续可能会是dashbord
-		navigate('/home');
+		navigate('/cluster');
 	};
 	const navigateToNodeList = () => {
 		navigate('/node');

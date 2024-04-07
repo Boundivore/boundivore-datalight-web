@@ -20,9 +20,8 @@
  */
 import { FC, useEffect, useState, Key } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Select, Flex, Space, App, message, Badge } from 'antd';
-import type { TableColumnsType, SelectProps } from 'antd';
-import { DefaultOptionType } from 'antd/es/select';
+import { Table, Button, Card, Flex, Space, App, message, Badge } from 'antd';
+import type { TableColumnsType } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
@@ -30,22 +29,20 @@ import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
-import { updateCurrentView } from '@/utils/helper';
 import JobPlanModal from '@/components/jobPlanModal';
-import { NodeType, NodeWithComponent, ClusterType, BadgeStatus } from '@/api/interface';
+import useCurrentCluster from '@/hooks/useCurrentCluster';
+import { NodeType, NodeWithComponent, BadgeStatus } from '@/api/interface';
 
 const ManageList: FC = () => {
 	const { t } = useTranslation();
 	const { stateText } = useStore();
-	const [loading, setLoading] = useState(false);
-	const [selectData, setSelectData] = useState<SelectProps['options']>([]);
-	const [selectCluster, setSelectCluster] = useState<string>('');
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [allowAdd, setAllowAdd] = useState(false); // 是否允许新增节点操作,默认不允许
 	const { navigateToAddNode } = useNavigater();
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
+	const { clusterComponent, selectCluster } = useCurrentCluster(setAllowAdd);
 	const [messageApi, contextHolder] = message.useMessage();
 	const { modal } = App.useApp();
 	// 顶部操作按钮配置
@@ -53,8 +50,7 @@ const ManageList: FC = () => {
 		{
 			id: 1,
 			label: t('node.addNode'),
-			callback: () => addNode(),
-			disabled: !selectData!.length
+			callback: () => addNode()
 		},
 		{
 			id: 2,
@@ -204,30 +200,7 @@ const ManageList: FC = () => {
 	// 				title: '当前没有活跃的任务'
 	// 		  });
 	// };
-	const getClusterList = async () => {
-		setLoading(true);
-		const api = APIConfig.getClusterList;
-		const data = await RequestHttp.get(api);
-		const clusterList: ClusterType[] = data.Data.ClusterList;
-		const listData = clusterList.map(item => ({
-			value: item.ClusterId,
-			label: item.ClusterName,
-			hasAlreadyNode: item.HasAlreadyNode
-		}));
-		setLoading(false);
-		setSelectData(listData);
 
-		const currentViewCluster = clusterList.find(cluster => cluster.IsCurrentView === true);
-		if (currentViewCluster) {
-			// 如果找到了，设置setSelectCluster为该项的ClusterId
-			setSelectCluster(currentViewCluster.ClusterId);
-			setAllowAdd(!currentViewCluster.HasAlreadyNode);
-		} else {
-			// 如果没有找到，则使用第一项的ClusterId
-			clusterList.length > 0 ? setSelectCluster(clusterList[0].ClusterId) : setSelectCluster(''); // 确保数组不为空
-			clusterList.length > 0 ? setAllowAdd(!clusterList[0].HasAlreadyNode) : setAllowAdd(false); // 确保数组不为空
-		}
-	};
 	const getNodeList = async () => {
 		const api = APIConfig.nodeListWithComponent;
 		const data = await RequestHttp.get(api, { params: { ClusterId: selectCluster } });
@@ -241,17 +214,7 @@ const ManageList: FC = () => {
 		return listData;
 		// setTableData(listData);
 	};
-	const handleChange = async (value: string, option: DefaultOptionType | DefaultOptionType[]) => {
-		await updateCurrentView(value);
-		setSelectCluster(value);
-		if (Array.isArray(option)) {
-			// 如果 option 是数组，则处理数组中的第一个元素
-			setAllowAdd(!option[0].hasAlreadyNode);
-		} else {
-			// 如果 option 不是数组，则直接处理
-			setAllowAdd(!option.hasAlreadyNode);
-		}
-	};
+
 	const handleModalOk = () => {
 		setIsModalOpen(false);
 	};
@@ -270,9 +233,6 @@ const ManageList: FC = () => {
 		setRemoveDisabled(!isButtonAbled);
 	}, [selectedRowsList]); // 在 selectedRowsList 变化时触发
 
-	useEffect(() => {
-		getClusterList();
-	}, []);
 	const rowSelection = {
 		onChange: (_selectedRowKeys: Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
@@ -292,10 +252,7 @@ const ManageList: FC = () => {
 						))}
 					</Space>
 					<Space>
-						<>
-							{t('node.currentCluster')}
-							<Select className="w-[200px]" options={selectData} value={selectCluster} onChange={handleChange} />
-						</>
+						{clusterComponent}
 						{/* <Button type="primary" onClick={viewActiveJob}>
 							{t('viewActiveJob')}
 						</Button> */}
@@ -309,7 +266,6 @@ const ManageList: FC = () => {
 					}}
 					columns={columns}
 					dataSource={tableData}
-					loading={loading}
 				/>
 			</Card>
 			{isActiveJobModalOpen ? (

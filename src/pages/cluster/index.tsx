@@ -20,18 +20,18 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, App, Space, message } from 'antd';
+import { Table, Button, Card, App, Space, message, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
-import { ClusterType } from '@/api/interface';
+import { ClusterType, BadgeStatus } from '@/api/interface';
 
-const Home: React.FC = () => {
+const ClusterList: React.FC = () => {
 	const { t } = useTranslation();
 	const [messageApi, contextHolder] = message.useMessage();
-	const { isNeedChangePassword, setIsNeedChangePassword } = useStore();
+	const { stateText, isNeedChangePassword, setIsNeedChangePassword } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState([]);
 	const { navigateToChangePassword, navigateToNodeInit, navigateToCreateCluster } = useNavigater();
@@ -94,7 +94,8 @@ const Home: React.FC = () => {
 			dataIndex: 'ClusterState',
 			key: 'ClusterState',
 			width: '10%',
-			render: (text: string) => <a>{t(text.toLowerCase())}</a>
+			// render: (text: string) => t(text.toLowerCase())
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		},
 		{
 			title: t('operation'),
@@ -131,7 +132,7 @@ const Home: React.FC = () => {
 		});
 	};
 	const getData = async () => {
-		setLoading(true);
+		setLoading(false);
 		const api = APIConfig.getClusterList;
 		const data = await RequestHttp.get(api);
 		const {
@@ -155,7 +156,7 @@ const Home: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Card className="min-h-[calc(100%-50px)] m-[20px]">
+		<Card className="min-h-[calc(100%-100px)] m-[20px]">
 			{contextHolder}
 			<Space>
 				{buttonConfigTop.map(button => (
@@ -169,4 +170,4 @@ const Home: React.FC = () => {
 	);
 };
 
-export default Home;
+export default ClusterList;

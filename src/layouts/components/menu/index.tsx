@@ -80,7 +80,7 @@ const LayoutMenu: React.FC = () => {
 			  });
 	};
 	const items: MenuProps['items'] = [
-		getItem(<NavLink to="/home">{t('tabs.cluster')}</NavLink>, '/home', <ClusterOutlined />),
+		getItem(<NavLink to="/cluster">{t('tabs.cluster')}</NavLink>, '/cluster', <ClusterOutlined />),
 		getItem(<NavLink to="/node">{t('tabs.node')}</NavLink>, '/node', <ApartmentOutlined />),
 		getItem(<NavLink to="/service">{t('tabs.service')}</NavLink>, '/service', <AppstoreOutlined />),
 		getItem(t('tabs.taskView'), '/task', <FundViewOutlined />, [

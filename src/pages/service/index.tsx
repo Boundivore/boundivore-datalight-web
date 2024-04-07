@@ -20,31 +20,28 @@
  */
 import { FC, Key, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Select, Flex, Space, App, Badge, message } from 'antd';
-import type { TableColumnsType, SelectProps } from 'antd';
-import { DefaultOptionType } from 'antd/es/select';
+import { Table, Button, Card, Flex, Space, App, Badge, message } from 'antd';
+import type { TableColumnsType } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import usePolling from '@/hooks/usePolling';
 import useNavigater from '@/hooks/useNavigater';
-import { updateCurrentView } from '@/utils/helper';
-import { ClusterType, ServiceItemType, BadgeStatus } from '@/api/interface';
+import { ServiceItemType, BadgeStatus } from '@/api/interface';
 import useStore from '@/store/store';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
+import useCurrentCluster from '@/hooks/useCurrentCluster';
 
 const stateArray = ['SELECTED', 'SELECTED_ADDITION', 'UNSELECTED', 'REMOVED'];
 const ServiceManage: FC = () => {
 	const { t } = useTranslation();
 	const { stateText, setJobId } = useStore();
-	const [loading, setLoading] = useState(false);
-	const [selectData, setSelectData] = useState<SelectProps['options']>([]);
 	const [selectService, setSelectService] = useState<ServiceItemType[]>([]);
-	const [defaultSelectValue, setDefaultSelectValue] = useState('');
 	const [allowAdd, setAllowAdd] = useState(false); // 是否允许新增服务操作,默认不允许
 	const [startDisabled, setStartDisabled] = useState(false); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(false); // 是否禁用批量停止
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const { navigateToComManage, navigateToConfig, navigateToAddComponent } = useNavigater();
+	const { clusterComponent, selectCluster } = useCurrentCluster(setAllowAdd);
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	console.log(startDisabled, stopDisabled);
@@ -82,13 +79,13 @@ const ServiceManage: FC = () => {
 			{
 				id: 1,
 				label: t('modifyConfig'),
-				callback: () => navigateToConfig(defaultSelectValue, ServiceName),
+				callback: () => navigateToConfig(selectCluster, ServiceName),
 				disabled: record?.SCStateEnum !== 'DEPLOYED'
 			},
 			{
 				id: 2,
 				label: t('service.componentManage'),
-				callback: () => navigateToComManage(defaultSelectValue, ServiceName),
+				callback: () => navigateToComManage(selectCluster, ServiceName),
 				// disabled: !record.ComponentNodeList || record.ComponentNodeList.length === 0
 				disabled: record?.SCStateEnum !== 'DEPLOYED'
 			}
@@ -193,7 +190,7 @@ const ServiceManage: FC = () => {
 			Data: { ClusterId, JobId }
 		} = data;
 		setJobId(JobId);
-		defaultSelectValue === ClusterId
+		selectCluster === ClusterId
 			? setIsActiveJobModalOpen(true)
 			: modal.info({
 					title: '当前没有活跃的任务'
@@ -204,7 +201,7 @@ const ServiceManage: FC = () => {
 	};
 	const addService = () => {
 		if (allowAdd) {
-			navigateToAddComponent(defaultSelectValue);
+			navigateToAddComponent(selectCluster);
 		} else {
 			modal.info({
 				title: '当前不支持新增服务操作，请优先服役节点到指定集群'
@@ -221,7 +218,7 @@ const ServiceManage: FC = () => {
 				const api = APIConfig.operateJob;
 				const params = {
 					ActionTypeEnum: operation,
-					ClusterId: defaultSelectValue,
+					ClusterId: selectCluster,
 					IsOneByOne: false,
 					ServiceNameList: selectService.map(service => service.ServiceName)
 				};
@@ -235,56 +232,19 @@ const ServiceManage: FC = () => {
 			}
 		});
 	};
-	const getClusterList = async () => {
-		setLoading(true);
-		const api = APIConfig.getClusterList;
-		const { Data } = await RequestHttp.get(api);
-		const clusterList: ClusterType[] = Data.ClusterList;
-		const listData = clusterList.map(item => {
-			return {
-				value: item.ClusterId,
-				label: item.ClusterName,
-				hasAlreadyNode: item.HasAlreadyNode
-			};
-		});
-		setLoading(false);
-		setSelectData(listData);
-		const currentViewCluster = clusterList.find(cluster => cluster.IsCurrentView === true);
-		if (currentViewCluster) {
-			// 如果找到了，设置setSelectCluster为该项的ClusterId
-			setDefaultSelectValue(currentViewCluster.ClusterId);
-			setAllowAdd(currentViewCluster.HasAlreadyNode);
-		} else {
-			// 如果没有找到，则使用第一项的ClusterId
-			clusterList.length > 0 ? setDefaultSelectValue(clusterList[0].ClusterId) : setDefaultSelectValue(''); // 确保数组不为空
-			clusterList.length > 0 ? setAllowAdd(clusterList[0].HasAlreadyNode) : setAllowAdd(false); // 确保数组不为空
-		}
-	};
+
 	const getServiceList = async () => {
 		const api = APIConfig.serviceList;
-		const data = await RequestHttp.get(api, { params: { ClusterId: defaultSelectValue } });
+		const data = await RequestHttp.get(api, { params: { ClusterId: selectCluster } });
 		const {
 			Data: { ServiceSummaryList }
 		} = data;
 		return ServiceSummaryList;
 		// setTableData(ServiceSummaryList);
 	};
-	const handleChange = async (value: string, option: DefaultOptionType | DefaultOptionType[]) => {
-		await updateCurrentView(value);
-		setDefaultSelectValue(value);
-		if (Array.isArray(option)) {
-			// 如果 option 是数组，则处理数组中的第一个元素
-			setAllowAdd(option[0].hasAlreadyNode);
-		} else {
-			// 如果 option 不是数组，则直接处理
-			setAllowAdd(option.hasAlreadyNode);
-		}
-	};
-	const tableData: ServiceItemType[] = usePolling(getServiceList, [], 1000, [defaultSelectValue]);
 
-	useEffect(() => {
-		getClusterList();
-	}, []);
+	const tableData: ServiceItemType[] = usePolling(getServiceList, [], 1000, [selectCluster]);
+
 	useEffect(() => {
 		// 检查所有组件是否都处于'STOPPED'状态
 		// const allStopped = selectService.length > 0 && selectService.every(item => item.SCStateEnum === 'STOPPED');
@@ -312,10 +272,7 @@ const ServiceManage: FC = () => {
 							</Button>
 						))}
 					</Space>
-					<div>
-						{t('node.currentCluster')}
-						<Select className="w-[200px]" options={selectData} value={defaultSelectValue} onChange={handleChange} />
-					</div>
+					{clusterComponent}
 				</Flex>
 				<Table
 					rowSelection={{
@@ -325,7 +282,6 @@ const ServiceManage: FC = () => {
 					rowKey="ServiceName"
 					columns={columns}
 					dataSource={tableData}
-					loading={loading}
 				/>
 			</Card>
 			{isActiveJobModalOpen ? (

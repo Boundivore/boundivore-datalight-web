@@ -79,7 +79,9 @@ const APIConfig: Actions = {
 	//前端状态缓存相关
 	webStateGet: '/v1/master/web/state/get',
 	webStateSave: '/v1/master/web/state/save',
-	webStateClear: '/v1/master/web/state/clearByClusterId'
+	webStateClear: '/v1/master/web/state/clearByClusterId',
+	// 监控相关
+	prometheus: '/v1/master/prometheus/invoke'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

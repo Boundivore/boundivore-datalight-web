@@ -15,131 +15,46 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * 集群列表
+ * home 仪表板
  * @author Tracy.Guo
  */
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, App, Space, message, Badge } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Card, App, Tabs, Flex } from 'antd';
+import type { TabsProps } from 'antd';
+
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
-import { ClusterType, BadgeStatus } from '@/api/interface';
+import useCurrentCluster from '@/hooks/useCurrentCluster';
 
 const Home: React.FC = () => {
 	const { t } = useTranslation();
-	const [messageApi, contextHolder] = message.useMessage();
-	const { stateText, isNeedChangePassword, setIsNeedChangePassword } = useStore();
-	const [loading, setLoading] = useState(false);
-	const [tableData, setTableData] = useState([]);
-	const { navigateToChangePassword, navigateToNodeInit, navigateToCreateCluster } = useNavigater();
+	const { isNeedChangePassword, setIsNeedChangePassword } = useStore();
+	const { navigateToChangePassword } = useNavigater();
+	const { clusterComponent } = useCurrentCluster();
 	const { modal } = App.useApp();
-	// 顶部操作按钮配置
-	const buttonConfigTop = [
+
+	const items: TabsProps['items'] = [
 		{
-			id: 1,
-			label: t('cluster.create'),
-			callback: navigateToCreateCluster
+			key: '1',
+			label: '概览',
+			children: 'Content of Tab Pane 1'
+		},
+		{
+			key: '2',
+			label: '监控',
+			children: 'Content of Tab Pane 2'
 		}
 	];
-	// 单条操作按钮配置
-	const buttonConfigItem = (text: string, record: ClusterType) => {
-		const { HasAlreadyNode, ClusterName, ClusterId } = record;
-		return [
-			{
-				id: 1,
-				label: t('cluster.restart'),
-				callback: () => {},
-				disabled: HasAlreadyNode && !text
-			},
-			{
-				id: 2,
-				label: t('cluster.remove'),
-				callback: () => removeCluster(ClusterName, ClusterId),
-				disabled: HasAlreadyNode
-			},
-			{
-				id: 3,
-				label: t('cluster.specifyNode'),
-				callback: () => navigateToNodeInit(ClusterId),
-				disabled: HasAlreadyNode && !text,
-				hide: HasAlreadyNode && !text
-			}
-		];
-	};
-	const columns: ColumnsType<ClusterType> = [
-		{
-			title: t('cluster.name'),
-			dataIndex: 'ClusterName',
-			key: 'ClusterName',
-			width: '20%'
-		},
-		{
-			title: t('cluster.description'),
-			dataIndex: 'ClusterDesc',
-			key: 'ClusterDesc',
-			width: '20%'
-		},
-		{
-			title: t('cluster.type'),
-			dataIndex: 'ClusterType',
-			key: 'ClusterType',
-			width: '10%',
-			render: text => t(text.toLowerCase())
-		},
-		{
-			title: t('cluster.state'),
-			dataIndex: 'ClusterState',
-			key: 'ClusterState',
-			width: '10%',
-			// render: (text: string) => t(text.toLowerCase())
-			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
-		},
-		{
-			title: t('operation'),
-			key: 'IsExistInitProcedure',
-			dataIndex: 'IsExistInitProcedure',
-			render: (text, record) => (
-				<Space>
-					{buttonConfigItem(text, record)
-						.filter(item => !item.hide)
-						.map(button => (
-							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
-								{button.label}
-							</Button>
-						))}
-				</Space>
-			)
-		}
-	];
-	const removeCluster = (clusterName: string, clusterId: string | number) => {
-		modal.confirm({
-			title: t('cluster.remove'),
-			content: t('cluster.removeConfirm', { clusterName }),
-			okText: t('confirm'),
-			cancelText: t('cancel'),
-			onOk: async () => {
-				const api = APIConfig.removeCluster;
-				const data = await RequestHttp.post(api, { ClusterId: clusterId });
-				const { Code } = data;
-				if (Code === '00000') {
-					messageApi.success(t('messageSuccess'));
-					getData();
-				}
-			}
-		});
-	};
+
 	const getData = async () => {
-		setLoading(false);
+		// setLoading(false);
 		const api = APIConfig.getClusterList;
-		const data = await RequestHttp.get(api);
-		const {
-			Data: { ClusterList }
-		} = data;
-		setTableData(ClusterList);
-		setLoading(false);
+		await RequestHttp.get(api);
+		// setTableData(ClusterList);
+		// setLoading(false);
 	};
 	useEffect(() => {
 		getData();
@@ -157,15 +72,10 @@ const Home: React.FC = () => {
 	}, []);
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
-			{contextHolder}
-			<Space>
-				{buttonConfigTop.map(button => (
-					<Button key={button.id} type="primary" onClick={button.callback}>
-						{button.label}
-					</Button>
-				))}
-			</Space>
-			<Table className="mt-[20px]" rowKey="ClusterId" columns={columns} dataSource={tableData} loading={loading} />
+			{/* {contextHolder} */}
+			<Flex justify="flex-end">{clusterComponent}</Flex>
+			<Tabs defaultActiveKey="1" items={items} />
+			{/* <Table className="mt-[20px]" rowKey="ClusterId" columns={columns} dataSource={tableData} loading={loading} /> */}
 		</Card>
 	);
 };
