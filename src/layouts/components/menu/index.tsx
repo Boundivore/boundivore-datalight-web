@@ -87,7 +87,7 @@ const LayoutMenu: React.FC = () => {
 			getItem(<a onClick={viewActiveNodeJob}>{t('tabs.nodeTask')}</a>, '/nodeTask"'),
 			getItem(<a onClick={viewActiveJob}>{t('tabs.serviceTask')}</a>, '/serviceTask"')
 		]),
-		// getItem(<Link to="/home">{t('tabs.config')}</Link>, 'sub5', <AppstoreOutlined />),
+		getItem(<NavLink to="/monitor">{t('tabs.monitor')}</NavLink>, '/monitor', <AppstoreOutlined />),
 
 		getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
 			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"')

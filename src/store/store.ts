@@ -41,6 +41,7 @@ interface MyStore {
 	setCurrentPageDisabled: (state: PageDisabledType) => void;
 	isRefresh: boolean; // 页面是否刷新
 	setIsRefresh: (isRefresh: boolean) => void;
+	monitorItems: Record<string, string>[];
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -224,7 +225,26 @@ const useStore = create<MyStore>(set => ({
 	currentPageDisabled: { nextDisabled: true, retryDisabled: true, prevDisabled: true, cancelDisabled: true },
 	setCurrentPageDisabled: (state: PageDisabledType) => set({ currentPageDisabled: state }),
 	isRefresh: false,
-	setIsRefresh: (isRefresh: boolean) => set({ isRefresh })
+	setIsRefresh: (isRefresh: boolean) => set({ isRefresh }),
+	monitorItems: [
+		{ uid: 'DATALIGHT' },
+		{ uid: 'HDFS-DataNode' },
+		{ uid: 'HDFS-HttpFS' },
+		{ uid: 'HDFS-JournalNode' },
+		{ uid: 'HDFS-NameNode' },
+		{ uid: 'HDFS-ZKFailoverController' },
+		{ uid: 'HIVE-MetaStore' },
+		{ uid: 'HIVE-TezUI' },
+		{ uid: 'MONITOR-Alertmanager' },
+		{ uid: 'MONITOR-Grafana' },
+		{ uid: 'MONITOR-MySQLExporter' },
+		{ uid: 'MONITOR-NodeExporter' },
+		{ uid: 'MONITOR-Prometheus' },
+		{ uid: 'YARN-HistoryServer' },
+		{ uid: 'YARN-ResourceManager' },
+		{ uid: 'YARN-TimelineServer' },
+		{ uid: 'ZOOKEEPER-QuarumPeermain' }
+	]
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(
