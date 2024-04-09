@@ -86,3 +86,21 @@ export const getNavigationType = () => {
 	// 返回导航类型，如果没有获取到则返回 undefined
 	return navigationType;
 };
+
+// 将 Prometheus 数据转换为 Ant Design Charts 所需格式的函数
+export const transformData = (prometheusData: [number, string][]) => {
+	// 使用 map 方法遍历原始数据数组，转换为 Ant Design Charts 所需格式
+	const formattedData = prometheusData.map(item => {
+		// 获取时间戳和值
+		const timestamp = item[0];
+		const value = parseFloat(item[1]); // 将字符串值转换为数字
+
+		// 返回 Ant Design Charts 所需格式的对象
+		return {
+			x: new Date(timestamp * 1000), // 将时间戳转换为 JavaScript Date 对象
+			y: value // 值
+		};
+	});
+
+	return formattedData;
+};
