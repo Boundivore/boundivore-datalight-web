@@ -104,3 +104,17 @@ export const transformData = (prometheusData: [number, string][]) => {
 
 	return formattedData;
 };
+// 时间戳转换为“几小时前”
+export const timestampToHoursAgo = (timestamp: number): string => {
+	// 获取当前时间戳（毫秒）
+	const currentTimestamp = Date.now();
+
+	// 计算时间差（毫秒）
+	const timeDiffMilliseconds = currentTimestamp - timestamp;
+
+	// 将时间差转换为小时（注意：1小时 = 1000 * 60 * 60毫秒）
+	const hoursDiff = timeDiffMilliseconds / (1000 * 60 * 60);
+
+	// 格式化输出，保留两位小数
+	return `${hoursDiff.toFixed(2)}`;
+};
