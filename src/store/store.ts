@@ -45,6 +45,10 @@ interface MyStore {
 	setJobName: (jobName: string) => void;
 	instance: string;
 	setInstance: (instance: string) => void;
+	monitorStartTime: number;
+	setMonitorStartTime: (monitorStartTime: number) => void;
+	monitorEndTime: number;
+	setMonitorEndTime: (monitorEndTime: number) => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -232,7 +236,11 @@ const useStore = create<MyStore>(set => ({
 	jobName: '',
 	setJobName: (jobName: string) => set({ jobName }),
 	instance: '',
-	setInstance: (instance: string) => set({ instance })
+	setInstance: (instance: string) => set({ instance }),
+	monitorEndTime: new Date().getTime(),
+	setMonitorEndTime: (monitorEndTime: number) => set({ monitorEndTime }),
+	monitorStartTime: new Date().getTime() - 5 * 60 * 1000,
+	setMonitorStartTime: (monitorStartTime: number) => set({ monitorStartTime })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

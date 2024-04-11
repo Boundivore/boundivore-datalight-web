@@ -118,3 +118,36 @@ export const timestampToHoursAgo = (timestamp: number): string => {
 	// 格式化输出，保留两位小数
 	return `${hoursDiff.toFixed(2)}`;
 };
+
+// n分钟之前时间戳
+
+export const getCurrentAndPastTimestamps = (n: number) => {
+	// 创建一个新的Date对象，表示当前时间
+	let now = new Date();
+
+	// 获取当前时间戳
+	let currentTimestamp = now.getTime();
+
+	// 创建一个新的Date对象，设置为n分钟前的时间
+	let past = new Date(now.getTime() - n * 60 * 1000);
+
+	// 获取5分钟前的时间戳
+	let pastTimestamp = past.getTime();
+
+	// 返回结果对象
+	return {
+		current: currentTimestamp,
+		past: pastTimestamp
+	};
+};
+
+// 计算两个时间戳相差的分钟数
+export const diffInMinutes = (timestamp1, timestamp2) => {
+	// 确保timestamp1是较后的时间戳，timestamp2是较早的时间戳
+	let diff = Math.max(timestamp1, timestamp2) - Math.min(timestamp1, timestamp2);
+
+	// 将毫秒差转换为分钟
+	let minutesDiff = Math.round(diff / (1000 * 60));
+
+	return minutesDiff;
+};

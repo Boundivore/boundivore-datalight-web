@@ -39,12 +39,14 @@ export default {
 		inputConfirmPassword: '请确认您的新密码'
 	},
 	tabs: {
-		home: '概览',
+		home: '集群概览',
 		cluster: '集群管理',
 		node: '节点管理',
 		service: '服务管理',
 		taskView: '任务视图',
-		monitor: '监控告警',
+		monitorAlert: '监控告警',
+		monitor: '监控',
+		alert: '告警',
 		nodeTask: '查看节点活跃任务',
 		serviceTask: '查看服务组件活跃任务',
 		config: '配置',

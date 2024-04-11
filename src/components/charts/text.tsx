@@ -26,7 +26,7 @@ import { timestampToHoursAgo } from '@/utils/helper';
 const { Title } = Typography;
 
 const TextComponent = ({ clusterId, query, unit, type }) => {
-	const [textData, setTextData] = useState([]);
+	const [textData, setTextData] = useState();
 	const getTextData = async () => {
 		const api = APIConfig.prometheus;
 		const params = {
@@ -42,15 +42,22 @@ const TextComponent = ({ clusterId, query, unit, type }) => {
 		const {
 			data: { result }
 		} = JSON.parse(Data);
+		type === 'self' && setTextData(4);
 		type === 'text' && setTextData(parseFloat(result[0].value[1]).toFixed(2));
 		type === 'time' && setTextData(timestampToHoursAgo(result[0].value[1]));
+		type === 'number' && setTextData(result[0].value[1]);
+		type === 'byte' && setTextData((result[0].value[1] / 1024 / 1024 / 1024).toFixed(2));
+		// if (type === 'number') {
+		// 	const total = result.reduce((acc, item) => acc + parseInt(item.value[1]), 0);
+		// 	setTextData(total);
+		// }
 	};
 	useEffect(() => {
 		getTextData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Title level={2} className="text-blue-500">
+		<Title level={3} className="text-blue-500 text-center">
 			{textData}
 			{unit}
 		</Title>

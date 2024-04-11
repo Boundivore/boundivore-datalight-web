@@ -18,44 +18,140 @@
  * home 仪表板
  * @author Tracy.Guo
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, App, Tabs, Flex } from 'antd';
-import type { TabsProps } from 'antd';
-
+import { Card, App, Col, Row, Table, Badge, Space } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
-import useCurrentCluster from '@/hooks/useCurrentCluster';
+import { ClusterType, BadgeStatus } from '@/api/interface';
+import GaugeComponent from '@/components/charts/gauge';
+import LineComponent from '@/components/charts/line';
+import TextComponent from '@/components/charts/text';
+import { config } from '@/components/charts/config';
+// import { TimerComponent } from '@/components/charts/params';
 
+const componentMap = {
+	gauge: GaugeComponent,
+	text: TextComponent,
+	time: TextComponent,
+	number: TextComponent,
+	byte: TextComponent,
+	self: TextComponent,
+	line: LineComponent
+	// 其他类型组件...
+};
+
+const renderComponent = (type, clusterId, query, unit) => {
+	const ComponentToRender = componentMap[type] || null; // 获取对应的组件类型，如果找不到则返回null
+	return ComponentToRender && <ComponentToRender clusterId={clusterId} query={query} unit={unit} type={type} />;
+};
+
+const renderConfig = (config, selectCluster) => {
+	return (
+		<Space direction="vertical" className="flex">
+			{config.map(item => (
+				<Row style={{ height: `${item.height}` }} key={item.key} gutter={8} wrap={false}>
+					{item.cols.map(col => (
+						<Col key={col.title} span={col.span}>
+							{col.rows ? (
+								<Space direction="vertical" className="flex">
+									{col.rows.map(row => {
+										return (
+											// <Row>
+											<Card style={{ height: '170px' }}>
+												<span>{row.title}</span>
+												{renderComponent(row.type, selectCluster, row.query, row.unit)}
+											</Card>
+											// </Row>
+										);
+									})}
+								</Space>
+							) : (
+								<Card style={{ height: `${item.height}` }}>
+									<span>{col.title}</span>
+									{renderComponent(col.type, selectCluster, col.query, col.unit)}
+								</Card>
+							)}
+						</Col>
+					))}
+				</Row>
+			))}
+		</Space>
+	);
+};
+// const jobName = 'DATALIGHT-Master';
+const jobName = 'MONITOR-NodeExporter';
 const Home: React.FC = () => {
 	const { t } = useTranslation();
-	const { isNeedChangePassword, setIsNeedChangePassword } = useStore();
+	const [tableData, setTableData] = useState([]);
+	const [activeCluster, setActiveCluster] = useState('');
+	const [activeClusterId, setActiveClusterId] = useState('');
+	const [instance, setInstance] = useState('');
+	const { stateText, isNeedChangePassword, setIsNeedChangePassword } = useStore();
 	const { navigateToChangePassword } = useNavigater();
-	const { clusterComponent } = useCurrentCluster();
 	const { modal } = App.useApp();
-
-	const items: TabsProps['items'] = [
+	const columns: ColumnsType<ClusterType> = [
 		{
-			key: '1',
-			label: '概览',
-			children: 'Content of Tab Pane 1'
+			title: t('cluster.name'),
+			dataIndex: 'ClusterName',
+			key: 'ClusterName',
+			width: '20%'
 		},
+		// {
+		// 	title: t('cluster.type'),
+		// 	dataIndex: 'ClusterType',
+		// 	key: 'ClusterType',
+		// 	width: '10%',
+		// 	render: text => t(text.toLowerCase())
+		// },
 		{
-			key: '2',
-			label: '监控',
-			children: 'Content of Tab Pane 2'
+			title: t('cluster.state'),
+			dataIndex: 'ClusterState',
+			key: 'ClusterState',
+			width: '10%',
+			// render: (text: string) => t(text.toLowerCase())
+			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		}
 	];
-
 	const getData = async () => {
 		// setLoading(false);
 		const api = APIConfig.getClusterList;
-		await RequestHttp.get(api);
-		// setTableData(ClusterList);
+		const data = await RequestHttp.get(api);
+		const {
+			Data: { ClusterList }
+		} = data;
+		setTableData(ClusterList);
+		setActiveCluster(ClusterList[0].ClusterName);
+		setActiveClusterId(ClusterList[0].ClusterId);
 		// setLoading(false);
 	};
+	const getInstanceData = async () => {
+		const api = APIConfig.prometheus;
+		const params = {
+			Body: '',
+			ClusterId: activeClusterId,
+			Path: '/api/v1/query',
+			QueryParamsMap: {
+				query: `node_uname_info{job="${jobName}"}`
+			},
+			RequestMethod: 'GET'
+		};
+		const { Data } = await RequestHttp.post(api, params);
+		const {
+			data: { result }
+		} = JSON.parse(Data);
+		// 提取所有job，并使用Set去重
+		const uniqueSet = new Set(result.map(item => item.metric.instance));
+
+		setInstance([...uniqueSet][0]);
+	};
+	useEffect(() => {
+		activeClusterId && getInstanceData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeClusterId]);
 	useEffect(() => {
 		getData();
 		// 登录时判断是否需要修改密码
@@ -70,12 +166,38 @@ const Home: React.FC = () => {
 		setIsNeedChangePassword(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	const rowClassName = record => {
+		return activeCluster === record.ClusterName ? 'bg-[#f0fcff]' : '';
+	};
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
-			{/* {contextHolder} */}
-			<Flex justify="flex-end">{clusterComponent}</Flex>
-			<Tabs defaultActiveKey="1" items={items} />
-			{/* <Table className="mt-[20px]" rowKey="ClusterId" columns={columns} dataSource={tableData} loading={loading} /> */}
+			<Row gutter={24} className="mt-[20px]">
+				<Col span={6}>
+					<Card className="data-light-card">
+						<Table
+							className="mt-[20px] cursor-pointer"
+							rowKey="ClusterId"
+							columns={columns}
+							dataSource={tableData}
+							onRow={record => {
+								return {
+									onClick: () => {
+										setActiveCluster(record.ClusterName);
+										setActiveClusterId(record.ClusterId);
+									}
+								};
+							}}
+							pagination={false}
+							rowClassName={rowClassName}
+						/>
+					</Card>
+				</Col>
+				<Col span={18}>
+					<Card className="data-light-card" title={activeCluster}>
+						{activeClusterId && instance && renderConfig(config(jobName, instance).HOME, activeClusterId)}
+					</Card>
+				</Col>
+			</Row>
 		</Card>
 	);
 };

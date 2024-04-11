@@ -51,7 +51,7 @@ const GaugeComponent = ({ clusterId, query }) => {
 	return (
 		<Gauge
 			// width={200}
-			height={360}
+			height={300}
 			autoFit={true}
 			data={{
 				target: gaugeData,

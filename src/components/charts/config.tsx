@@ -18,6 +18,7 @@
  * 监控想配置文件
  * @author Tracy.Guo
  */
+
 export const monitorItems = [
 	{ uid: 'DATALIGHT' },
 	{ uid: 'HDFS-DataNode' },
@@ -42,116 +43,202 @@ export const paramsConfig = {
 };
 export const config = (jobName, instance) => {
 	return {
+		HOME: [
+			{
+				cols: [
+					{ title: '服务数量', key: '1-1', type: 'self', query: 'druid_initial_size', span: 4, unit: '' },
+					{
+						title: '已部署组件数',
+						key: '1-2',
+						type: 'number',
+						query: `count(up)`,
+						span: 4,
+						unit: ''
+					},
+					{
+						title: 'CPU Cores',
+						key: '1-3',
+						type: 'number',
+						query: `count(count(node_cpu_seconds_total{instance="${instance}",job="${jobName}"}) by (cpu))`,
+						span: 4,
+						unit: ''
+					},
+					{
+						title: 'RootFS Total',
+						key: '1-4',
+						type: 'byte',
+						query: `node_filesystem_size_bytes{instance="${instance}",job="${jobName}",mountpoint="/",fstype!="rootfs"}`,
+						span: 4,
+						unit: 'GiB'
+					},
+					{
+						title: 'RAM Total',
+						key: '1-5',
+						type: 'byte',
+						query: `node_memory_MemTotal_bytes{instance="${instance}",job="${jobName}"}`,
+						span: 4,
+						unit: 'GiB'
+					},
+					{
+						title: 'SWAP Total',
+						key: '1-6',
+						type: 'byte',
+						query: `node_memory_SwapTotal_bytes{instance="${instance}",job="${jobName}"}`,
+						span: 4,
+						unit: 'GiB'
+					}
+				],
+				height: '150px',
+				key: '1'
+			},
+			{
+				cols: [
+					{
+						title: 'CPU Busy',
+						key: '2-1',
+						type: 'gauge',
+						span: 6,
+						query: `(sum by(instance) (irate(node_cpu_seconds_total{instance="${instance}",job="${jobName}", mode!="idle"}[5m])) / on(instance) group_left sum by (instance)((irate(node_cpu_seconds_total{instance="${instance}",job="${jobName}"}[5m])))) * 100`
+					},
+					{
+						title: 'Sys Load (5m avg)',
+						key: '2-2',
+						type: 'gauge',
+						span: 6,
+						query: `avg(node_load5{instance="${instance}",job="${jobName}"}) /  count(count(node_cpu_seconds_total{instance="${instance}",job="${jobName}"}) by (cpu)) * 100`
+					},
+					{
+						title: 'Sys Load (15m avg)',
+						key: '2-3',
+						type: 'gauge',
+						span: 6,
+						query: `avg(node_load15{instance="${instance}",job="${jobName}"}) /  count(count(node_cpu_seconds_total{instance="${instance}",job="${jobName}"}) by (cpu)) * 100`
+					},
+					{
+						title: 'RAM Used',
+						key: '2-4',
+						type: 'gauge',
+						span: 6,
+						query: `((node_memory_MemTotal_bytes{instance="${instance}",job="${jobName}"} - node_memory_MemFree_bytes{instance="${instance}",job="${jobName}"}) / (node_memory_MemTotal_bytes{instance="${instance}",job="${jobName}"} )) * 100`
+					}
+				],
+				key: '2',
+				height: '250px'
+			}
+		],
 		DATALIGHT: [
 			{
 				cols: [
 					{
 						rows: [
-							{ title: '持续时间', type: 'text', query: 'druid_initial_size', span: 4, unit: '小时' },
+							{ title: '持续时间', key: '1-1-1', type: 'text', query: 'druid_initial_size', span: 4, unit: '小时' },
 							{
 								title: '开始时间',
+								key: '1-1-2',
 								type: 'time',
 								query: `avg(process_start_time_seconds{job="${jobName}", instance=~"${instance}"})*1000`,
 								span: 4,
 								unit: '小时前'
 							}
-						]
+						],
+						span: 6,
+						key: '1-1'
 					},
 
 					{
 						title: 'heap',
+						key: '1-2',
 						type: 'gauge',
-						span: 10,
+						span: 9,
 						query: `sum(jvm_memory_used_bytes{job="${jobName}", instance=~"${instance}", area="heap"})*100/sum(jvm_memory_max_bytes{job="${jobName}", instance=~"${instance}", area="heap"})`
 					},
 					{
 						title: 'non-heap',
+						key: '1-3',
 						type: 'gauge',
-						span: 10,
+						span: 9,
 						query: `sum(jvm_memory_used_bytes{job="${jobName}", instance=~"${instance}", area="nonheap"})*100/sum(jvm_memory_max_bytes{job="${jobName}", instance=~"${instance}", area="nonheap"})`
 					}
 				],
 				height: '350px',
-				key: 1
+				key: '1'
 			},
-			// {
-			// 	cols: [
-			// 		{
-			// 			title: 'heap',
-			// 			type: 'gauge',
-			// 			span: 12,
-			// 			query: `sum(jvm_memory_used_bytes{job="${jobName}", instance=~"${instance}", area="heap"})*100/sum(jvm_memory_max_bytes{job="${jobName}", instance=~"${instance}", area="heap"})`
-			// 		},
-			// 		{
-			// 			title: 'non-heap',
-			// 			type: 'gauge',
-			// 			span: 12,
-			// 			query: `sum(jvm_memory_used_bytes{job="${jobName}", instance=~"${instance}", area="nonheap"})*100/sum(jvm_memory_max_bytes{job="${jobName}", instance=~"${instance}", area="nonheap"})`
-			// 		}
-			// 	],
-			// 	key: 2,
-			// 	height: '300px'
-			// },
 			{
 				cols: [
 					{
 						title: 'CPU Usage',
+						key: '2-1',
 						type: 'line',
 						span: 12,
 						query: `system_cpu_usage{job="${jobName}", instance=~"${instance}"}`
 					},
 					{
 						title: 'Load Average',
+						key: '2-2',
 						type: 'line',
 						span: 12,
 						query: `system_load_average_1m{job="${jobName}", instance=~"${instance}"}`
 					}
 				],
-				key: 3
+				key: '2',
+				height: '250px'
 			}
 		],
 		'HDFS-DataNode': [
 			{
 				cols: [
-					{ title: '持续时间', type: 'text', query: 'druid_initial_size', span: 12 },
-					{ title: '开始时间', type: 'text', query: 'druid_initial_size', span: 12 }
-				],
-				height: '150px',
-				key: 1
-			},
-			{
-				cols: [
+					{
+						rows: [
+							{ title: '持续时间', key: '1-1-1', type: 'text', query: 'druid_initial_size', span: 4, unit: '小时' },
+							{
+								title: '开始时间',
+								key: '1-1-2',
+								type: 'time',
+								query: `avg(process_start_time_seconds{job="${jobName}", instance=~"${instance}"})*1000`,
+								span: 4,
+								unit: '小时前'
+							}
+						],
+						span: 6,
+						key: '1-1'
+					},
+
 					{
 						title: 'heap',
+						key: '1-2',
 						type: 'gauge',
-						span: 12,
+						span: 9,
 						query: `sum(jvm_memory_used_bytes{job="${jobName}", instance=~"${instance}", area="heap"})*100/sum(jvm_memory_max_bytes{job="${jobName}", instance=~"${instance}", area="heap"})`
 					},
 					{
 						title: 'non-heap',
+						key: '1-3',
 						type: 'gauge',
-						span: 12,
-						query: `sum(jvm_memory_used_bytes{job="${jobName}", instance=~"${instance}", area="heap"})*100/sum(jvm_memory_max_bytes{job="${jobName}", instance=~"${instance}", area="heap"})`
+						span: 9,
+						query: `sum(jvm_memory_used_bytes{job="${jobName}", instance=~"${instance}", area="nonheap"})*100/sum(jvm_memory_max_bytes{job="${jobName}", instance=~"${instance}", area="nonheap"})`
 					}
 				],
-				key: 2
+				height: '350px',
+				key: '1'
 			},
 			{
 				cols: [
 					{
 						title: 'CPU Usage',
+						key: '3-1',
 						type: 'line',
 						span: 12,
 						query: `system_cpu_usage{job="${jobName}", instance=~"${instance}"}`
 					},
 					{
 						title: 'Load Average',
+						key: '3-2',
 						type: 'line',
 						span: 12,
 						query: `system_cpu_usage{job="${jobName}", instance=~"${instance}"}`
 					}
 				],
-				key: 3
+				key: '2'
 			}
 		]
 	};

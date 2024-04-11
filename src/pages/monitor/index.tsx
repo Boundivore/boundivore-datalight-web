@@ -21,7 +21,7 @@
 import { useState, useEffect } from 'react';
 // import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { Table, Card, Row, Col, Flex, Space, DatePicker } from 'antd';
+import { Table, Card, Row, Col, Flex, Space } from 'antd';
 // import RequestHttp from '@/api';
 // import APIConfig from '@/api/config';
 import useStore from '@/store/store';
@@ -29,9 +29,8 @@ import GaugeComponent from '@/components/charts/gauge';
 import LineComponent from '@/components/charts/line';
 import TextComponent from '@/components/charts/text';
 import { config, monitorItems } from '@/components/charts/config';
-import { JobNameComponent } from '@/components/charts/params';
+import { JobNameComponent, TimerComponent } from '@/components/charts/params';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
-const { RangePicker } = DatePicker;
 
 const componentMap = {
 	gauge: GaugeComponent,
@@ -47,33 +46,37 @@ const renderComponent = (type, clusterId, query, unit) => {
 };
 
 const renderConfig = (config, selectCluster) => {
-	return config.map(item => (
-		<Row style={{ height: `${item.height}` }} key={item.key} gutter={8}>
-			{item.cols.map(col => (
-				<Col key={col.title} span={col.span}>
-					{col.rows ? (
-						<span>
-							{col.rows.map(row => {
-								return (
-									// <Row>
-									<Card style={{ height: '175px' }}>
-										<span>{row.title}</span>
-										{renderComponent(row.type, selectCluster, row.query, row.unit)}
-									</Card>
-									// </Row>
-								);
-							})}
-						</span>
-					) : (
-						<Card style={{ height: `${item.height}` }}>
-							<span>{col.title}</span>
-							{renderComponent(col.type, selectCluster, col.query, col.unit)}
-						</Card>
-					)}
-				</Col>
+	return (
+		<Space direction="vertical" className="flex">
+			{config.map(item => (
+				<Row style={{ height: `${item.height}` }} key={item.key} gutter={8} wrap={false}>
+					{item.cols.map(col => (
+						<Col key={col.key} span={col.span}>
+							{col.rows ? (
+								<Space direction="vertical" className="flex" key={`${col.key}-space`}>
+									{col.rows.map(row => {
+										return (
+											// <Row>
+											<Card style={{ height: '170px' }}>
+												<span>{row.title}</span>
+												{renderComponent(row.type, selectCluster, row.query, row.unit)}
+											</Card>
+											// </Row>
+										);
+									})}
+								</Space>
+							) : (
+								<Card style={{ height: `${item.height}` }}>
+									<span>{col.title}</span>
+									{renderComponent(col.type, selectCluster, col.query, col.unit)}
+								</Card>
+							)}
+						</Col>
+					))}
+				</Row>
 			))}
-		</Row>
-	));
+		</Space>
+	);
 };
 const Monitor = () => {
 	const { t } = useTranslation();
@@ -99,7 +102,7 @@ const Monitor = () => {
 				{clusterComponent}
 				<Space size="large">
 					{selectCluster && activeComponent && <JobNameComponent clusterId={selectCluster} activeComponent={activeComponent} />}
-					<RangePicker showTime />
+					<TimerComponent />
 				</Space>
 			</Flex>
 			<Row gutter={24} className="mt-[20px]">

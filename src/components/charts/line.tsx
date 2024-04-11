@@ -19,13 +19,16 @@
  * @author Tracy.Guo
  */
 import { useEffect, useState } from 'react';
+import { Empty } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import { Line } from '@ant-design/plots';
 import { transformData } from '@/utils/helper';
+import useStore from '@/store/store';
 
 const LineComponent = ({ clusterId, query }) => {
 	const [lineData, setLineData] = useState([]);
+	const { monitorStartTime, monitorEndTime } = useStore();
 	const getLineData = async () => {
 		const api = APIConfig.prometheus;
 		const params = {
@@ -34,21 +37,25 @@ const LineComponent = ({ clusterId, query }) => {
 			Path: '/api/v1/query_range',
 			QueryParamsMap: {
 				query,
-				start: '1712652335.023',
-				end: '1712652635.023',
+				start: (monitorStartTime / 1000).toString(),
+				end: (monitorEndTime / 1000).toString(),
 				step: 14
 			},
 			RequestMethod: 'GET'
 		};
 		const { Data } = await RequestHttp.post(api, params);
-		const formattedData = transformData(JSON.parse(Data).data.result[0].values);
+		const formattedData = JSON.parse(Data).data.result ? transformData(JSON.parse(Data).data.result[0].values) : [];
 		setLineData(formattedData);
 	};
 	useEffect(() => {
 		getLineData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	return (
+	useEffect(() => {
+		getLineData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [monitorStartTime, monitorEndTime]);
+	return lineData.length ? (
 		<Line
 			height={250}
 			data={lineData}
@@ -67,6 +74,8 @@ const LineComponent = ({ clusterId, query }) => {
 				lineWidth: 1
 			}}
 		/>
+	) : (
+		<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 	);
 };
 export default LineComponent;

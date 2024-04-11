@@ -20,10 +20,13 @@
  */
 import { useEffect, useState } from 'react';
 // import _ from 'lodash';
-import { Select, Space } from 'antd';
+import { Select, Space, DatePicker, Divider } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
+import { getCurrentAndPastTimestamps, diffInMinutes } from '@/utils/helper';
+
+const { RangePicker } = DatePicker;
 
 export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
 	const [jobNameOptions, setJobNameOptions] = useState([]);
@@ -100,7 +103,7 @@ export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
 	return (
 		<Space>
 			<Space>
-				jobName:
+				JobName:
 				<Select
 					style={{ width: 200 }}
 					options={jobNameOptions}
@@ -111,7 +114,7 @@ export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
 				/>
 			</Space>
 			<Space>
-				instance:
+				Instance:
 				<Select
 					style={{ width: 150 }}
 					options={instanceOptions}
@@ -122,5 +125,35 @@ export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
 				/>
 			</Space>
 		</Space>
+	);
+};
+const timeOptions = [
+	{ label: '过去5分钟', value: 5 },
+	{ label: '过去15分钟', value: 15 },
+	{ label: '过去半小时', value: 30 }
+];
+export const TimerComponent = () => {
+	const { monitorStartTime, monitorEndTime, setMonitorStartTime, setMonitorEndTime } = useStore();
+	const [selectValue, setSelectValue] = useState(diffInMinutes(monitorStartTime, monitorEndTime));
+	return (
+		<Select
+			style={{ width: 300 }}
+			placeholder="custom dropdown render"
+			dropdownRender={menu => (
+				<>
+					{menu}
+					<Divider style={{ margin: '8px 0' }} />
+					<RangePicker showTime />
+				</>
+			)}
+			value={selectValue}
+			options={timeOptions}
+			onChange={value => {
+				setSelectValue(value);
+				const { past, current } = getCurrentAndPastTimestamps(value);
+				setMonitorStartTime(past);
+				setMonitorEndTime(current);
+			}}
+		/>
 	);
 };

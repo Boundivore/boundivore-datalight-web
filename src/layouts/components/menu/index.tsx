@@ -16,7 +16,15 @@
  */
 import { useState } from 'react';
 import { Menu, App } from 'antd';
-import { AppstoreOutlined, SettingOutlined, ApartmentOutlined, ClusterOutlined, FundViewOutlined } from '@ant-design/icons';
+import {
+	AppstoreOutlined,
+	SettingOutlined,
+	ApartmentOutlined,
+	ClusterOutlined,
+	FundViewOutlined,
+	DashboardOutlined,
+	SecurityScanOutlined
+} from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -80,6 +88,7 @@ const LayoutMenu: React.FC = () => {
 			  });
 	};
 	const items: MenuProps['items'] = [
+		getItem(<NavLink to="/home">{t('tabs.home')}</NavLink>, '/home', <DashboardOutlined />),
 		getItem(<NavLink to="/cluster">{t('tabs.cluster')}</NavLink>, '/cluster', <ClusterOutlined />),
 		getItem(<NavLink to="/node">{t('tabs.node')}</NavLink>, '/node', <ApartmentOutlined />),
 		getItem(<NavLink to="/service">{t('tabs.service')}</NavLink>, '/service', <AppstoreOutlined />),
@@ -87,7 +96,10 @@ const LayoutMenu: React.FC = () => {
 			getItem(<a onClick={viewActiveNodeJob}>{t('tabs.nodeTask')}</a>, '/nodeTask"'),
 			getItem(<a onClick={viewActiveJob}>{t('tabs.serviceTask')}</a>, '/serviceTask"')
 		]),
-		getItem(<NavLink to="/monitor">{t('tabs.monitor')}</NavLink>, '/monitor', <AppstoreOutlined />),
+		getItem(t('tabs.monitorAlert'), '/monitor', <SecurityScanOutlined />, [
+			getItem(<NavLink to="/monitor">{t('tabs.monitor')}</NavLink>, '/monitor"'),
+			getItem(t('tabs.alert'), '/alert"')
+		]),
 
 		getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
 			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"')
