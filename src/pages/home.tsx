@@ -20,7 +20,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, App, Col, Row, Table, Badge, Space } from 'antd';
+import { Card, App, Col, Row, Table, Badge, Space, Empty } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -124,8 +124,8 @@ const Home: React.FC = () => {
 			Data: { ClusterList }
 		} = data;
 		setTableData(ClusterList);
-		setActiveCluster(ClusterList[0].ClusterName);
-		setActiveClusterId(ClusterList[0].ClusterId);
+		ClusterList.length && setActiveCluster(ClusterList[0].ClusterName);
+		ClusterList.length && setActiveClusterId(ClusterList[0].ClusterId);
 		// setLoading(false);
 	};
 	const getInstanceData = async () => {
@@ -171,33 +171,37 @@ const Home: React.FC = () => {
 	};
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
-			<Row gutter={24} className="mt-[20px]">
-				<Col span={6}>
-					<Card className="data-light-card">
-						<Table
-							className="mt-[20px] cursor-pointer"
-							rowKey="ClusterId"
-							columns={columns}
-							dataSource={tableData}
-							onRow={record => {
-								return {
-									onClick: () => {
-										setActiveCluster(record.ClusterName);
-										setActiveClusterId(record.ClusterId);
-									}
-								};
-							}}
-							pagination={false}
-							rowClassName={rowClassName}
-						/>
-					</Card>
-				</Col>
-				<Col span={18}>
-					<Card className="data-light-card" title={activeCluster}>
-						{activeClusterId && instance && renderConfig(config(jobName, instance).HOME, activeClusterId)}
-					</Card>
-				</Col>
-			</Row>
+			{tableData.length ? (
+				<Row gutter={24} className="mt-[20px]">
+					<Col span={6}>
+						<Card className="data-light-card">
+							<Table
+								className="mt-[20px] cursor-pointer"
+								rowKey="ClusterId"
+								columns={columns}
+								dataSource={tableData}
+								onRow={record => {
+									return {
+										onClick: () => {
+											setActiveCluster(record.ClusterName);
+											setActiveClusterId(record.ClusterId);
+										}
+									};
+								}}
+								pagination={false}
+								rowClassName={rowClassName}
+							/>
+						</Card>
+					</Col>
+					<Col span={18}>
+						<Card className="data-light-card" title={activeCluster}>
+							{activeClusterId && instance && renderConfig(config(jobName, instance).HOME, activeClusterId)}
+						</Card>
+					</Col>
+				</Row>
+			) : (
+				<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+			)}
 		</Card>
 	);
 };

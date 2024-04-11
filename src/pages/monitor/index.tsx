@@ -21,7 +21,7 @@
 import { useState, useEffect } from 'react';
 // import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { Table, Card, Row, Col, Flex, Space } from 'antd';
+import { Table, Card, Row, Col, Flex, Space, Empty } from 'antd';
 // import RequestHttp from '@/api';
 // import APIConfig from '@/api/config';
 import useStore from '@/store/store';
@@ -98,39 +98,51 @@ const Monitor = () => {
 	useEffect(() => {}, [activeComponent]);
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
-			<Flex justify="space-between">
-				{clusterComponent}
-				<Space size="large">
-					{selectCluster && activeComponent && <JobNameComponent clusterId={selectCluster} activeComponent={activeComponent} />}
-					<TimerComponent />
-				</Space>
-			</Flex>
-			<Row gutter={24} className="mt-[20px]">
-				<Col span={6}>
-					<Card className="data-light-card">
-						<Table
-							className="mt-[20px] cursor-pointer"
-							rowKey="uid"
-							columns={columns}
-							dataSource={monitorItems}
-							onRow={record => {
-								return {
-									onClick: () => {
-										setActiveComponent(record.uid);
-									}
-								};
-							}}
-							pagination={false}
-							rowClassName={rowClassName}
-						/>
-					</Card>
-				</Col>
-				<Col span={18}>
-					<Card className="data-light-card" title={activeComponent}>
-						{selectCluster && jobName && instance && renderConfig(config(jobName, instance)[activeComponent], selectCluster)}
-					</Card>
-				</Col>
-			</Row>
+			{selectCluster ? (
+				<>
+					<Flex justify="space-between">
+						{clusterComponent}
+						<Space size="large">
+							{selectCluster && activeComponent && (
+								<JobNameComponent clusterId={selectCluster} activeComponent={activeComponent} />
+							)}
+							<TimerComponent />
+						</Space>
+					</Flex>
+					<Row gutter={24} className="mt-[20px]">
+						<Col span={6}>
+							<Card className="data-light-card">
+								<Table
+									className="mt-[20px] cursor-pointer"
+									rowKey="uid"
+									columns={columns}
+									dataSource={monitorItems}
+									onRow={record => {
+										return {
+											onClick: () => {
+												setActiveComponent(record.uid);
+											}
+										};
+									}}
+									pagination={false}
+									rowClassName={rowClassName}
+								/>
+							</Card>
+						</Col>
+						<Col span={18}>
+							<Card className="data-light-card" title={activeComponent}>
+								{selectCluster && jobName && instance && config(jobName, instance)[activeComponent] ? (
+									renderConfig(config(jobName, instance)[activeComponent], selectCluster)
+								) : (
+									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+								)}
+							</Card>
+						</Col>
+					</Row>
+				</>
+			) : (
+				<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+			)}
 		</Card>
 	);
 };
