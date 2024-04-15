@@ -124,6 +124,130 @@ export const config = (jobName, instance) => {
 				],
 				key: '2',
 				height: '250px'
+			},
+			{
+				cols: [
+					{
+						title: 'CPU Basic',
+						key: '3-1',
+						type: 'line',
+						span: 12,
+						// query: `system_cpu_usage{job="${jobName}", instance=~"${instance}"}`
+						query: `label_replace(
+                            sum by (instance) (
+                              irate(node_cpu_seconds_total{instance="${instance}",job="${jobName}",mode="system"}[5m])
+                            )
+                          / on (instance) group_left ()
+                            sum by (instance) ((irate(node_cpu_seconds_total{instance="${instance}",job="${jobName}"}[5m]))),
+                          "device",
+                          "system",
+                          "",
+                          ""
+                        )
+                      or
+                        label_replace(
+                            sum by (instance) (
+                              irate(node_cpu_seconds_total{instance="${instance}",job="${jobName}",mode="user"}[5m])
+                            )
+                          / on (instance) group_left ()
+                            sum by (instance) ((irate(node_cpu_seconds_total{instance="${instance}",job="${jobName}"}[5m]))),
+                          "device",
+                          "user",
+                          "",
+                          ""
+                        )`
+					},
+					{
+						title: 'Memory Basic',
+						key: '3-2',
+						type: 'line',
+						span: 12,
+						// query: `system_cpu_usage{job="${jobName}", instance=~"${instance}"}`
+						query: `label_replace(
+                            node_memory_MemTotal_bytes{instance="${instance}",job="${jobName}"},
+                            "device",
+                            "total",
+                            "",
+                            ""
+                          )
+                        or
+                          label_replace(
+                            (
+                                  node_memory_MemTotal_bytes{instance="${instance}",job="${jobName}"}
+                                -
+                                  node_memory_MemFree_bytes{instance="${instance}",job="${jobName}"}
+                              -
+                                (
+                                      node_memory_Cached_bytes{instance="${instance}",job="${jobName}"}
+                                    +
+                                      node_memory_Buffers_bytes{instance="${instance}",job="${jobName}"}
+                                  +
+                                    node_memory_SReclaimable_bytes{instance="${instance}",job="${jobName}"}
+                                )
+                            ),
+                            "device",
+                            "used",
+                            "",
+                            ""
+                          )
+                      or
+                        label_replace(
+                          (
+                                node_memory_Cached_bytes{instance="${instance}",job="${jobName}"}
+                              +
+                                node_memory_Buffers_bytes{instance="${instance}",job="${jobName}"}
+                            +
+                              node_memory_SReclaimable_bytes{instance="${instance}",job="${jobName}"}
+                          ),
+                          "device",
+                          "cache",
+                          "",
+                          ""
+                        )
+                     or
+                        label_replace(
+                            node_memory_MemFree_bytes{instance="${instance}",job="${jobName}"},
+                            "device",
+                            "free",
+                            "",
+                            ""
+                        )
+                    or
+                        label_replace(
+                        (
+                            node_memory_SwapTotal_bytes{instance="${instance}",job="${jobName}"}
+                            -
+                            node_memory_SwapFree_bytes{instance="${instance}",job="${jobName}"}
+                        ),
+                        "device",
+                        "swap_used",
+                        "",
+                        ""
+                        )`
+					}
+				],
+				key: '3',
+				height: '300px'
+			},
+			{
+				cols: [
+					{
+						title: 'Network Traffic Basic',
+						key: '4-1',
+						type: 'line',
+						span: 12,
+						query: `irate(node_network_receive_bytes_total{instance="${instance}",job="${jobName}"}[5m])*8 or irate(node_network_transmit_bytes_total{instance="${instance}",job="${jobName}"}[5m])*8`
+					},
+					{
+						title: 'Disk Space Used Basic',
+						key: '4-2',
+						type: 'line',
+						span: 12,
+						query: `100 - ((node_filesystem_avail_bytes{instance="${instance}",job="${jobName}",device!~'rootfs'} * 100) / node_filesystem_size_bytes{instance="${instance}",job="${jobName}",device!~'rootfs'})`
+					}
+				],
+				key: '4',
+				height: '300px'
 			}
 		],
 		DATALIGHT: [

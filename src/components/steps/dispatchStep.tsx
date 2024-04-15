@@ -67,7 +67,7 @@ const DispatchStep: React.FC = forwardRef((_props, ref) => {
 			title: t('node.progress'),
 			dataIndex: 'FileBytesProgress',
 			key: 'FileBytesProgress',
-			width: '60%',
+			width: '40%',
 			render: (text, record) => {
 				return (
 					<>

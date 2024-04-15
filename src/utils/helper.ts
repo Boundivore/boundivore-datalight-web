@@ -88,7 +88,7 @@ export const getNavigationType = () => {
 };
 
 // 将 Prometheus 数据转换为 Ant Design Charts 所需格式的函数
-export const transformData = (prometheusData: [number, string][]) => {
+export const transformData = (prometheusData: [number, string, string][]) => {
 	// 使用 map 方法遍历原始数据数组，转换为 Ant Design Charts 所需格式
 	const formattedData = prometheusData.map(item => {
 		// 获取时间戳和值
@@ -98,7 +98,8 @@ export const transformData = (prometheusData: [number, string][]) => {
 		// 返回 Ant Design Charts 所需格式的对象
 		return {
 			x: new Date(timestamp * 1000), // 将时间戳转换为 JavaScript Date 对象
-			y: value // 值
+			y: value, // 值
+			type: item[2]
 		};
 	});
 

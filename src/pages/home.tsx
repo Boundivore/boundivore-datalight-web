@@ -20,7 +20,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, App, Col, Row, Table, Badge, Space, Empty } from 'antd';
+import { Card, App, Col, Row, Table, Badge, Space, Empty, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -91,7 +91,7 @@ const Home: React.FC = () => {
 	const [activeClusterId, setActiveClusterId] = useState('');
 	const [instance, setInstance] = useState('');
 	const { stateText, isNeedChangePassword, setIsNeedChangePassword } = useStore();
-	const { navigateToChangePassword } = useNavigater();
+	const { navigateToChangePassword, navigateToCreateCluster } = useNavigater();
 	const { modal } = App.useApp();
 	const columns: ColumnsType<ClusterType> = [
 		{
@@ -200,7 +200,11 @@ const Home: React.FC = () => {
 					</Col>
 				</Row>
 			) : (
-				<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+				<Empty image={Empty.PRESENTED_IMAGE_SIMPLE}>
+					<Button type="primary" onClick={navigateToCreateCluster}>
+						{t('cluster.create')}
+					</Button>
+				</Empty>
 			)}
 		</Card>
 	);

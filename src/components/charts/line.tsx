@@ -43,8 +43,24 @@ const LineComponent = ({ clusterId, query }) => {
 			},
 			RequestMethod: 'GET'
 		};
+		// const requestArray = query.map(queryItem => {
+		// 	return RequestHttp.post(api, { ...params, ...{ ...params.QueryParamsMap, query: queryItem } });
+		// });
 		const { Data } = await RequestHttp.post(api, params);
-		const formattedData = JSON.parse(Data).data.result ? transformData(JSON.parse(Data).data.result[0].values) : [];
+		// const dataArray = await Promise.all(requestArray);
+
+		const modifiedData = JSON.parse(Data).data.result.map(item => {
+			const device = item.metric.device; // 获取 device 值
+			const values = item.values.map(value => [value[0], value[1], device]); // 修改 values 结构
+			return {
+				...item,
+				values: values
+			};
+		});
+		const mergedValues = modifiedData.reduce((acc, curr) => acc.concat(curr.values), []);
+		console.log(11111, mergedValues);
+		const formattedData = JSON.parse(Data).data.result ? transformData(mergedValues) : [];
+		console.log(22222, formattedData);
 		setLineData(formattedData);
 	};
 	useEffect(() => {
@@ -55,6 +71,7 @@ const LineComponent = ({ clusterId, query }) => {
 		getLineData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [monitorStartTime, monitorEndTime]);
+
 	return lineData.length ? (
 		<Line
 			height={250}
@@ -73,8 +90,11 @@ const LineComponent = ({ clusterId, query }) => {
 			style={{
 				lineWidth: 1
 			}}
+			legend={{ position: 'top' }}
+			colorField="type"
 		/>
 	) : (
+		// <Line {...config} />
 		<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 	);
 };
