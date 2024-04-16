@@ -23,7 +23,8 @@ import {
 	ClusterOutlined,
 	FundViewOutlined,
 	DashboardOutlined,
-	SecurityScanOutlined
+	SecurityScanOutlined,
+	ReconciliationOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -100,7 +101,7 @@ const LayoutMenu: React.FC = () => {
 			getItem(<NavLink to="/monitor">{t('tabs.monitor')}</NavLink>, '/monitor"'),
 			getItem(t('tabs.alert'), '/alert"')
 		]),
-
+		getItem(<NavLink to="/log">{t('tabs.log')}</NavLink>, '/log', <ReconciliationOutlined />),
 		getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
 			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"')
 		])

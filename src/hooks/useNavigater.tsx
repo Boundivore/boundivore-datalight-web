@@ -68,6 +68,9 @@ const useNavigater = () => {
 	const navigateToAddComponent = (id: string | number, service?: string) => {
 		navigate(`/service/addComponent?id=${id}${service ? `&service=${service}` : ''}`);
 	};
+	const navigateToViewLog = (nodeId: string | number) => {
+		navigate(`/log/viewLog?node=${nodeId}`);
+	};
 
 	return {
 		navigateToLogin,
@@ -81,7 +84,8 @@ const useNavigater = () => {
 		navigateToService,
 		navigateToConfig,
 		navigateToComManage,
-		navigateToAddComponent
+		navigateToAddComponent,
+		navigateToViewLog
 	};
 };
 

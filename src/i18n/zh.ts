@@ -49,6 +49,8 @@ export default {
 		alert: '告警',
 		nodeTask: '查看节点活跃任务',
 		serviceTask: '查看服务组件活跃任务',
+		log: '日志管理',
+		viewLog: '查看日志',
 		config: '配置',
 		myAccount: '我的账号',
 		changePassword: '修改密码',

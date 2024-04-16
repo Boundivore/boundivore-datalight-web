@@ -81,7 +81,11 @@ const APIConfig: Actions = {
 	webStateSave: '/v1/master/web/state/save',
 	webStateClear: '/v1/master/web/state/clearByClusterId',
 	// 监控相关
-	prometheus: '/v1/master/prometheus/invoke'
+	prometheus: '/v1/master/prometheus/invoke',
+	// 日志相关
+	getLogRootDirectory: '/v1/master/log/file/getLogRootDirectory',
+	getLogCollection: '/v1/master/log/file/getLogCollectionWithNodeId',
+	loadFileConten: '/v1/master/log/file/loadFileContentWithNodeId'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

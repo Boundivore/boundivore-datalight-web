@@ -18,6 +18,7 @@
 	"dependencies": {
 		"@ant-design/charts": "^2.0.3",
 		"@antv/g2plot": "^2.4.31",
+		"@patternfly/react-log-viewer": "^5.1.0",
 		"@uiw/codemirror-extensions-langs": "^4.21.24",
 		"@uiw/react-codemirror": "^4.21.24",
 		"ace-builds": "^1.32.5",

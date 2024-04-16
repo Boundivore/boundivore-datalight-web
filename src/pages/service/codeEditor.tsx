@@ -1,8 +1,3 @@
-// import AceEditor from 'react-ace';
-// import 'ace-builds/src-noconflict/mode-javascript';
-// import 'ace-builds/src-noconflict/theme-github';
-// import 'ace-builds/src-noconflict/ext-language_tools'; // 引入语言工具扩展
-// import 'ace-builds/src-noconflict/worker-javascript';
 import { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 // import { langs } from '@uiw/codemirror-extensions-langs';
