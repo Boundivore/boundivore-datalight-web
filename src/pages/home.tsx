@@ -46,7 +46,7 @@ const componentMap = {
 
 const renderComponent = (type, clusterId, query, unit) => {
 	const ComponentToRender = componentMap[type] || null; // 获取对应的组件类型，如果找不到则返回null
-	return ComponentToRender && <ComponentToRender clusterId={clusterId} query={query} unit={unit} type={type} />;
+	return ComponentToRender && <ComponentToRender clusterId={clusterId} query={query} unit={unit} type={type} height={250} />;
 };
 
 const renderConfig = (config, selectCluster) => {

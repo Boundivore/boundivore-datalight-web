@@ -44,7 +44,7 @@ const LogList: FC = () => {
 			{
 				id: 1,
 				label: t('node.viewLog'),
-				callback: () => navigateToViewLog(record.NodeId)
+				callback: () => navigateToViewLog(record.NodeId, record.Hostname)
 			}
 		];
 	};

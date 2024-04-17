@@ -21,10 +21,75 @@
 import { useEffect, useState } from 'react';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { Gauge } from '@ant-design/plots';
+// import { Gauge } from '@ant-design/plots';
+import ReactECharts from 'echarts-for-react';
+import useStore from '@/store/store';
 
-const GaugeComponent = ({ clusterId, query }) => {
-	const [gaugeData, setGaugeData] = useState(0);
+const GaugeComponent = ({ clusterId, query, height = 300 }) => {
+	const { jobName, instance } = useStore();
+	const [option, setOption] = useState({
+		tooltip: {
+			formatter: '{a} <br/>{b} : {c}%'
+		},
+		series: [
+			{
+				type: 'gauge',
+				progress: {
+					show: true,
+					width: 6,
+					itemStyle: {
+						color: '#3fc27f',
+						opacity: 0.7
+					}
+				},
+				axisLine: {
+					lineStyle: {
+						width: 8
+					}
+				},
+				axisTick: {
+					show: false
+				},
+				splitLine: {
+					length: 5,
+					lineStyle: {
+						width: 1,
+						color: '#999'
+					}
+				},
+				axisLabel: {
+					distance: 15,
+					color: '#999',
+					fontSize: 10
+				},
+				anchor: {
+					show: true,
+					showAbove: true,
+					size: 14,
+					itemStyle: {
+						borderWidth: 4,
+						borderColor: '#3fc27f'
+					}
+				},
+				title: {
+					show: false
+				},
+				detail: {
+					valueAnimation: true,
+					fontSize: 24,
+					offsetCenter: [0, '70%']
+				},
+				data: [
+					{
+						value: 0,
+						itemStyle: {
+							color: '#3fc27f'
+						}
+					}
+				]
+			}
+		]
+	});
 	const getGaugeData = async () => {
 		const api = APIConfig.prometheus;
 		const params = {
@@ -41,28 +106,17 @@ const GaugeComponent = ({ clusterId, query }) => {
 		const {
 			data: { result }
 		} = JSON.parse(Data);
-		console.log('result', result[0].value[1]);
-		setGaugeData(parseFloat(result[0].value[1]).toFixed(2));
+		const gaugeData = parseFloat(result[0].value[1]).toFixed(2);
+		const updatedOption = { ...option };
+		updatedOption.series[0].data[0].value = gaugeData;
+		console.log('updatedOption', updatedOption);
+		setOption(updatedOption);
 	};
 	useEffect(() => {
 		getGaugeData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-	return (
-		<Gauge
-			// width={200}
-			height={300}
-			autoFit={true}
-			data={{
-				target: gaugeData,
-				total: 100,
-				name: 'score'
-			}}
-			legend={false}
-			style={{
-				textContent: target => `${target}%`
-			}}
-		/>
-	);
+	}, [jobName, instance]);
+
+	return <ReactECharts key={option.series[0].data[0].value} option={option} style={{ height }} />;
 };
 export default GaugeComponent;

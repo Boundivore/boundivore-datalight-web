@@ -68,8 +68,8 @@ const useNavigater = () => {
 	const navigateToAddComponent = (id: string | number, service?: string) => {
 		navigate(`/service/addComponent?id=${id}${service ? `&service=${service}` : ''}`);
 	};
-	const navigateToViewLog = (nodeId: string | number) => {
-		navigate(`/log/viewLog?node=${nodeId}`);
+	const navigateToViewLog = (nodeId: string | number, hostName: string) => {
+		navigate(`/log/viewLog?node=${nodeId}&name=${hostName}`);
 	};
 
 	return {

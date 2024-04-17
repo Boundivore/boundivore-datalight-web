@@ -349,14 +349,14 @@ export const config = (jobName, instance) => {
 				cols: [
 					{
 						title: 'CPU Usage',
-						key: '3-1',
+						key: '2-1',
 						type: 'line',
 						span: 12,
 						query: `system_cpu_usage{job="${jobName}", instance=~"${instance}"}`
 					},
 					{
 						title: 'Load Average',
-						key: '3-2',
+						key: '2-2',
 						type: 'line',
 						span: 12,
 						query: `system_cpu_usage{job="${jobName}", instance=~"${instance}"}`

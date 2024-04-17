@@ -86,7 +86,6 @@ export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
 		}));
 		setInstanceOptions(jobsArray);
 		setInstance([...uniqueSet][0]);
-		console.log(22222, uniqueSet[0]);
 	};
 	useEffect(() => {
 		getData();

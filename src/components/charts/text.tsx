@@ -23,10 +23,14 @@ import { Typography } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import { timestampToHoursAgo } from '@/utils/helper';
+import useStore from '@/store/store';
+
 const { Title } = Typography;
 
 const TextComponent = ({ clusterId, query, unit, type }) => {
 	const [textData, setTextData] = useState();
+	const { jobName, instance } = useStore();
+
 	const getTextData = async () => {
 		const api = APIConfig.prometheus;
 		const params = {
@@ -55,7 +59,7 @@ const TextComponent = ({ clusterId, query, unit, type }) => {
 	useEffect(() => {
 		getTextData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [jobName, instance]);
 	return (
 		<Title level={3} className="text-blue-500 text-center">
 			{textData}

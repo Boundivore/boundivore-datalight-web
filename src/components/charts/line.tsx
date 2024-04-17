@@ -58,9 +58,7 @@ const LineComponent = ({ clusterId, query }) => {
 			};
 		});
 		const mergedValues = modifiedData.reduce((acc, curr) => acc.concat(curr.values), []);
-		console.log(11111, mergedValues);
 		const formattedData = JSON.parse(Data).data.result ? transformData(mergedValues) : [];
-		console.log(22222, formattedData);
 		setLineData(formattedData);
 	};
 	useEffect(() => {
