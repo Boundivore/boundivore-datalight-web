@@ -21,10 +21,11 @@
 import { useEffect, useState } from 'react';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-// import { Gauge } from '@ant-design/plots';
 import ReactECharts from 'echarts-for-react';
 import useStore from '@/store/store';
 
+const regexInstance = new RegExp('{instance}', 'g');
+const regexJobName = new RegExp('{jobName}', 'g');
 const GaugeComponent = ({ clusterId, query, height = 300 }) => {
 	const { jobName, instance } = useStore();
 	const [option, setOption] = useState({
@@ -97,7 +98,7 @@ const GaugeComponent = ({ clusterId, query, height = 300 }) => {
 			ClusterId: clusterId,
 			Path: '/api/v1/query',
 			QueryParamsMap: {
-				query
+				query: query.replace(regexInstance, instance).replace(regexJobName, jobName)
 				// time: '1712128729.98'
 			},
 			RequestMethod: 'GET'
@@ -109,7 +110,6 @@ const GaugeComponent = ({ clusterId, query, height = 300 }) => {
 		const gaugeData = parseFloat(result[0].value[1]).toFixed(2);
 		const updatedOption = { ...option };
 		updatedOption.series[0].data[0].value = gaugeData;
-		console.log('updatedOption', updatedOption);
 		setOption(updatedOption);
 	};
 	useEffect(() => {

@@ -20,8 +20,8 @@
  */
 import { FC, Key, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Flex, Space, App, Badge, message } from 'antd';
-import type { TableColumnsType } from 'antd';
+import { Table, Button, Card, Flex, Space, App, Badge, message, Dropdown } from 'antd';
+import type { TableColumnsType, MenuProps } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import usePolling from '@/hooks/usePolling';
@@ -40,8 +40,9 @@ const ServiceManage: FC = () => {
 	const [startDisabled, setStartDisabled] = useState(false); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(false); // 是否禁用批量停止
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
-	const { navigateToComManage, navigateToConfig, navigateToAddComponent } = useNavigater();
+	const { navigateToComManage, navigateToConfig, navigateToAddComponent, navigateToWebUI } = useNavigater();
 	const { clusterComponent, selectCluster } = useCurrentCluster(setAllowAdd);
+	const [dropDownItems, setDropDownItems] = useState<MenuProps['items']>([]);
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	console.log(startDisabled, stopDisabled);
@@ -88,6 +89,38 @@ const ServiceManage: FC = () => {
 				callback: () => navigateToComManage(selectCluster, ServiceName),
 				// disabled: !record.ComponentNodeList || record.ComponentNodeList.length === 0
 				disabled: record?.SCStateEnum !== 'DEPLOYED'
+			},
+			{
+				id: 3,
+				label: t('service.ui'),
+				callback: async () => {
+					const items = await navigateToWebUI(selectCluster, ServiceName);
+					// items.map(item => {
+					// 	return {
+					// 		key: item.ComponentName,
+					// 		label: <a href={item.Url}>{item.ShowName}</a>
+					// 	};
+					// });
+					const transformedData = items.length
+						? items.map(item => ({
+								key: item.ComponentName,
+								label: (
+									<a target="_blank" href={item.Url}>
+										{item.ShowName}
+									</a>
+								)
+						  }))
+						: [
+								{
+									key: 1,
+									label: '暂无组件'
+								}
+						  ];
+					setDropDownItems(transformedData);
+				},
+				type: 'dropDown'
+				// disabled: !record.ComponentNodeList || record.ComponentNodeList.length === 0
+				// disabled: record?.SCStateEnum !== 'DEPLOYED'
 			}
 		];
 	};
@@ -173,16 +206,25 @@ const ServiceManage: FC = () => {
 			render: (_text, record) => {
 				return (
 					<Space>
-						{buttonConfigItem(record).map(button => (
-							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
-								{button.label}
-							</Button>
-						))}
+						{buttonConfigItem(record).map(button =>
+							button.type === 'dropDown' ? (
+								<Dropdown menu={{ items: dropDownItems }} placement="bottomLeft" trigger={['click']}>
+									<Button type="primary" size="small" ghost onClick={button.callback}>
+										{button.label}
+									</Button>
+								</Dropdown>
+							) : (
+								<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
+									{button.label}
+								</Button>
+							)
+						)}
 					</Space>
 				);
 			}
 		}
 	];
+
 	const viewActiveJob = async () => {
 		const apiList = APIConfig.getActiveJobId;
 		const data = await RequestHttp.get(apiList);

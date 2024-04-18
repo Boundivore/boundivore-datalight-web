@@ -131,8 +131,8 @@ const Monitor = () => {
 						</Col>
 						<Col span={18}>
 							<Card className="data-light-card" title={activeComponent}>
-								{selectCluster && jobName && instance && config(jobName, instance)[activeComponent] ? (
-									renderConfig(config(jobName, instance)[activeComponent], selectCluster)
+								{selectCluster && jobName && instance && config[activeComponent] ? (
+									renderConfig(config[activeComponent], selectCluster)
 								) : (
 									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 								)}

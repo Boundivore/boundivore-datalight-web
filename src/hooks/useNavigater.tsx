@@ -20,6 +20,8 @@
  * @author Tracy.Guo
  */
 import { useNavigate } from 'react-router-dom';
+import RequestHttp from '@/api';
+import APIConfig from '@/api/config';
 
 const useNavigater = () => {
 	const navigate = useNavigate();
@@ -71,6 +73,18 @@ const useNavigater = () => {
 	const navigateToViewLog = (nodeId: string | number, hostName: string) => {
 		navigate(`/log/viewLog?node=${nodeId}&name=${hostName}`);
 	};
+	const navigateToWebUI = async (id: string | number, service: string) => {
+		const api = APIConfig.webUI;
+		const params = {
+			ClusterId: id,
+			ServiceName: service
+		};
+		const {
+			Data: { ComponentWebUIList }
+		} = await RequestHttp.get(api, { params });
+		console.log(ComponentWebUIList);
+		return Promise.resolve(ComponentWebUIList);
+	};
 
 	return {
 		navigateToLogin,
@@ -85,7 +99,8 @@ const useNavigater = () => {
 		navigateToConfig,
 		navigateToComManage,
 		navigateToAddComponent,
-		navigateToViewLog
+		navigateToViewLog,
+		navigateToWebUI
 	};
 };
 

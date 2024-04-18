@@ -22,13 +22,32 @@ import { useEffect, useState } from 'react';
 import { Empty } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { Line } from '@ant-design/plots';
-import { transformData } from '@/utils/helper';
+import ReactECharts from 'echarts-for-react';
 import useStore from '@/store/store';
-
-const LineComponent = ({ clusterId, query }) => {
-	const [lineData, setLineData] = useState([]);
-	const { monitorStartTime, monitorEndTime } = useStore();
+import dayjs from 'dayjs';
+const regexInstance = new RegExp('{instance}', 'g');
+const regexJobName = new RegExp('{jobName}', 'g');
+const baseOptions = {
+	tooltip: {
+		trigger: 'axis'
+	},
+	xAxis: {
+		type: 'category',
+		boundaryGap: false,
+		data: []
+	},
+	yAxis: {
+		type: 'value'
+	},
+	series: []
+};
+const LineComponent = ({ clusterId, query, multiple }) => {
+	const { monitorStartTime, monitorEndTime, jobName, instance } = useStore();
+	const defaultOptions = {
+		...baseOptions,
+		...(multiple ? { legend: { data: [] } } : {})
+	};
+	const [option, setOption] = useState(defaultOptions);
 	const getLineData = async () => {
 		const api = APIConfig.prometheus;
 		const params = {
@@ -36,7 +55,7 @@ const LineComponent = ({ clusterId, query }) => {
 			ClusterId: clusterId,
 			Path: '/api/v1/query_range',
 			QueryParamsMap: {
-				query,
+				query: query.replace(regexInstance, instance).replace(regexJobName, jobName),
 				start: (monitorStartTime / 1000).toString(),
 				end: (monitorEndTime / 1000).toString(),
 				step: 14
@@ -48,52 +67,41 @@ const LineComponent = ({ clusterId, query }) => {
 		// });
 		const { Data } = await RequestHttp.post(api, params);
 		// const dataArray = await Promise.all(requestArray);
+		console.log('121212', JSON.parse(Data).data.result);
+		const lineData = JSON.parse(Data).data.result;
+		// 提取图例数据
+		const legendData = lineData.map(item => item.metric.device);
 
-		const modifiedData = JSON.parse(Data).data.result.map(item => {
-			const device = item.metric.device; // 获取 device 值
-			const values = item.values.map(value => [value[0], value[1], device]); // 修改 values 结构
-			return {
-				...item,
-				values: values
+		// 提取 x 轴数据
+		const xAxisData = lineData[0].values.map(item => dayjs.unix(item[0]).format('HH:mm'));
+
+		// 提取 series 数据
+		const seriesData = lineData.map(item => {
+			const data = item.values.map(value => parseFloat(value[1])); // 将字符串转换为数字
+			let seriesItem = {
+				type: 'line',
+				data: data
 			};
+
+			if (multiple) {
+				seriesItem = { ...seriesItem, name: item.metric.device };
+			}
+
+			return seriesItem;
 		});
-		const mergedValues = modifiedData.reduce((acc, curr) => acc.concat(curr.values), []);
-		const formattedData = JSON.parse(Data).data.result ? transformData(mergedValues) : [];
-		setLineData(formattedData);
+
+		const updatedOption = { ...option };
+		multiple && (updatedOption.legend.data = legendData);
+		updatedOption.xAxis.data = xAxisData;
+		updatedOption.series = seriesData;
+		console.log('updatedOption', updatedOption);
+		setOption(updatedOption);
 	};
 	useEffect(() => {
 		getLineData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-	useEffect(() => {
-		getLineData();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [monitorStartTime, monitorEndTime]);
+	}, [monitorStartTime, monitorEndTime, jobName, instance]);
 
-	return lineData.length ? (
-		<Line
-			height={250}
-			data={lineData}
-			xField="x"
-			yField="y"
-			point={{
-				shapeField: 'point',
-				sizeField: 1
-			}}
-			interaction={{
-				tooltip: {
-					marker: false
-				}
-			}}
-			style={{
-				lineWidth: 1
-			}}
-			legend={{ position: 'top' }}
-			colorField="type"
-		/>
-	) : (
-		// <Line {...config} />
-		<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-	);
+	return option.series.length ? <ReactECharts option={option} /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
 };
 export default LineComponent;

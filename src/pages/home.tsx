@@ -44,9 +44,9 @@ const componentMap = {
 	// 其他类型组件...
 };
 
-const renderComponent = (type, clusterId, query, unit) => {
-	const ComponentToRender = componentMap[type] || null; // 获取对应的组件类型，如果找不到则返回null
-	return ComponentToRender && <ComponentToRender clusterId={clusterId} query={query} unit={unit} type={type} height={250} />;
+const renderComponent = (item, clusterId) => {
+	const ComponentToRender = componentMap[item.type] || null; // 获取对应的组件类型，如果找不到则返回null
+	return ComponentToRender && <ComponentToRender clusterId={clusterId} {...item} height={250} />;
 };
 
 const renderConfig = (config, selectCluster) => {
@@ -63,7 +63,7 @@ const renderConfig = (config, selectCluster) => {
 											// <Row>
 											<Card style={{ height: '170px' }}>
 												<span>{row.title}</span>
-												{renderComponent(row.type, selectCluster, row.query, row.unit)}
+												{renderComponent(row, selectCluster)}
 											</Card>
 											// </Row>
 										);
@@ -72,7 +72,7 @@ const renderConfig = (config, selectCluster) => {
 							) : (
 								<Card style={{ height: `${item.height}` }}>
 									<span>{col.title}</span>
-									{renderComponent(col.type, selectCluster, col.query, col.unit)}
+									{renderComponent(col, selectCluster)}
 								</Card>
 							)}
 						</Col>
@@ -82,15 +82,14 @@ const renderConfig = (config, selectCluster) => {
 		</Space>
 	);
 };
-// const jobName = 'DATALIGHT-Master';
-const jobName = 'MONITOR-NodeExporter';
+
+const homeJobName = 'MONITOR-NodeExporter';
 const Home: React.FC = () => {
 	const { t } = useTranslation();
 	const [tableData, setTableData] = useState([]);
 	const [activeCluster, setActiveCluster] = useState('');
 	const [activeClusterId, setActiveClusterId] = useState('');
-	const [instance, setInstance] = useState('');
-	const { stateText, isNeedChangePassword, setIsNeedChangePassword } = useStore();
+	const { stateText, isNeedChangePassword, setIsNeedChangePassword, setJobName, setInstance, instance } = useStore();
 	const { navigateToChangePassword, navigateToCreateCluster } = useNavigater();
 	const { modal } = App.useApp();
 	const columns: ColumnsType<ClusterType> = [
@@ -135,7 +134,7 @@ const Home: React.FC = () => {
 			ClusterId: activeClusterId,
 			Path: '/api/v1/query',
 			QueryParamsMap: {
-				query: `node_uname_info{job="${jobName}"}`
+				query: `node_uname_info{job="${homeJobName}"}`
 			},
 			RequestMethod: 'GET'
 		};
@@ -145,7 +144,7 @@ const Home: React.FC = () => {
 		} = JSON.parse(Data);
 		// 提取所有job，并使用Set去重
 		const uniqueSet = new Set(result.map(item => item.metric.instance));
-
+		setJobName(homeJobName);
 		setInstance([...uniqueSet][0]);
 	};
 	useEffect(() => {
@@ -195,7 +194,7 @@ const Home: React.FC = () => {
 					</Col>
 					<Col span={18}>
 						<Card className="data-light-card" title={activeCluster}>
-							{activeClusterId && instance && renderConfig(config(jobName, instance).HOME, activeClusterId)}
+							{activeClusterId && instance && renderConfig(config.HOME, activeClusterId)}
 						</Card>
 					</Col>
 				</Row>

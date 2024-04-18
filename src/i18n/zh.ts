@@ -199,7 +199,8 @@ export default {
 		createGroup: '创建新的分组',
 		moveToGroup: '移至其他分组',
 		addService: '新增服务',
-		preconfigInfo: '没有可修改的配置内容'
+		preconfigInfo: '没有可修改的配置内容',
+		ui: '组件UI'
 	},
 	retry: '重试',
 	previous: '上一步',

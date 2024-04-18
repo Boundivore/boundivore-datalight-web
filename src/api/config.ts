@@ -65,6 +65,7 @@ const APIConfig: Actions = {
 	preconfigList: '/v1/master/config/pre/list',
 	preconfigSave: '/v1/master/config/pre/save',
 	removeComponent: '/v1/master/component/removeBatchByIds',
+	webUI: '/v1/master/component/webUI/list',
 	// 部署相关
 	deploy: '/v1/master/deploy',
 	jobProgress: '/v1/master/job/progress',

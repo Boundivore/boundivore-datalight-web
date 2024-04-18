@@ -16,8 +16,6 @@
 		]
 	},
 	"dependencies": {
-		"@ant-design/charts": "^2.0.3",
-		"@antv/g2plot": "^2.4.31",
 		"@patternfly/react-log-viewer": "^5.1.0",
 		"@uiw/codemirror-extensions-langs": "^4.21.24",
 		"@uiw/react-codemirror": "^4.21.24",
@@ -25,6 +23,7 @@
 		"antd": "^5.15.0",
 		"axios": "^1.6.1",
 		"crypto-js": "^4.2.0",
+		"dayjs": "^1.11.10",
 		"diff": "^5.1.0",
 		"echarts-for-react": "^3.0.2",
 		"i18next": "^23.6.0",

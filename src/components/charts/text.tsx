@@ -26,7 +26,8 @@ import { timestampToHoursAgo } from '@/utils/helper';
 import useStore from '@/store/store';
 
 const { Title } = Typography;
-
+const regexInstance = new RegExp('{instance}', 'g');
+const regexJobName = new RegExp('{jobName}', 'g');
 const TextComponent = ({ clusterId, query, unit, type }) => {
 	const [textData, setTextData] = useState();
 	const { jobName, instance } = useStore();
@@ -38,7 +39,7 @@ const TextComponent = ({ clusterId, query, unit, type }) => {
 			ClusterId: clusterId,
 			Path: '/api/v1/query',
 			QueryParamsMap: {
-				query
+				query: query.replace(regexInstance, instance).replace(regexJobName, jobName)
 			},
 			RequestMethod: 'GET'
 		};
