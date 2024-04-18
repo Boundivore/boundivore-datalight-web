@@ -26,7 +26,7 @@ import routes from '~react-pages';
 import LayoutMenu from './components/menu';
 import { useTranslation } from 'react-i18next';
 import { useRoutes, useLocation } from 'react-router-dom';
-// import Logo from '@/assets/logo.png';
+import Logo from '@/assets/logo.png';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useNavigater from '@/hooks/useNavigater';
@@ -43,8 +43,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const [collapsed, setCollapsed] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
 	const location = useLocation();
-	// const { navigateToLogin, navigateToHome } = useNavigater();
-	const { navigateToLogin } = useNavigater();
+	const { navigateToLogin, navigateToHome } = useNavigater();
 	const { modal } = App.useApp();
 	const apiLogout = APIConfig.logout;
 	const items: MenuProps['items'] = [
@@ -88,7 +87,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	return (
 		<Layout className="w-full min-w-[1200px] h-[calc(100vh)]">
 			<Header className="flex items-center">
-				{/* <img className="cursor-pointer" src={Logo} height={40} onClick={navigateToHome} /> */}
+				<img className="cursor-pointer" src={Logo} height={40} onClick={navigateToHome} />
 				<div className="relative left-[50px]">
 					<LayoutMenu />
 				</div>
