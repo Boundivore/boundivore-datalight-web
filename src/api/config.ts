@@ -83,6 +83,7 @@ const APIConfig: Actions = {
 	webStateClear: '/v1/master/web/state/clearByClusterId',
 	// 监控相关
 	prometheus: '/v1/master/prometheus/invoke',
+	getPrometheusStatus: '/v1/master/component/listByComponentName',
 	// 日志相关
 	getLogRootDirectory: '/v1/master/log/file/getLogRootDirectory',
 	getLogCollection: '/v1/master/log/file/getLogCollectionWithNodeId',

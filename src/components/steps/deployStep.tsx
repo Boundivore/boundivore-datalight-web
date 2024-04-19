@@ -93,18 +93,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			render: (_text, record) => <a onClick={() => viewLog(record.NodeId)}> {t('node.viewLog')}</a>
 		}
 	];
-	// const rowSelection = {
-	// 	onChange: (_selectedRowKeys: React.Key[], _selectedRows: NodeType[]) => {
-	// 		console.log(_selectedRows);
-	// 		// setSelectedRowsList(selectedRows);
-	// 	},
-	// 	// defaultSelectedRowKeys: selectedRowsList.map(({ NodeId }) => {
-	// 	// 	return NodeId;
-	// 	// }),
-	// 	getCheckboxProps: (record: NodeType) => ({
-	// 		disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
-	// 	})
-	// };
+
 	useImperativeHandle(ref, () => ({
 		deploy
 	}));
@@ -154,11 +143,15 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 		}));
 		const basicDisabled = disabledState.includes(JobExecStateEnum);
 		setOpenAlert(JobExecStateEnum === 'ERROR');
+		const disableNext = basicDisabled;
+		const disableRetry = basicDisabled || JobExecStateEnum === 'OK';
+		const disablePrev = disableNext || disableRetry;
+		const disableCancel = disableNext || disableRetry;
 		setCurrentPageDisabled({
-			nextDisabled: basicDisabled,
-			retryDisabled: basicDisabled,
-			prevDisabled: basicDisabled,
-			cancelDisabled: basicDisabled
+			nextDisabled: disableNext,
+			retryDisabled: disableRetry,
+			prevDisabled: disablePrev,
+			cancelDisabled: disableCancel
 		});
 		return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 	};

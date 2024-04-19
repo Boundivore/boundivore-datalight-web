@@ -45,44 +45,45 @@ export const config = {
 	HOME: [
 		{
 			cols: [
-				{ title: '服务数量', key: '1-1', type: 'self', query: 'druid_initial_size', span: 4, unit: '' },
+				{ title: '服役节点数', key: '1-1', type: 'self', name: 'nodeCount', span: 3, unit: '' },
+				{ title: '服务数量', key: '1-2', type: 'self', name: 'serviceCount', span: 3, unit: '' },
 				{
-					title: '已部署组件数',
-					key: '1-2',
+					title: '部署组件数',
+					key: '1-3',
 					type: 'number',
 					query: `count(up)`,
-					span: 4,
+					span: 3,
 					unit: ''
 				},
 				{
 					title: 'CPU Cores',
-					key: '1-3',
+					key: '1-4',
 					type: 'number',
-					query: `count(count(node_cpu_seconds_total{instance="{instance}",job="{jobName}"}) by (cpu))`,
-					span: 4,
+					query: `count(count by (instance, cpu) (node_cpu_seconds_total))`,
+					span: 3,
 					unit: ''
 				},
 				{
 					title: 'RootFS Total',
-					key: '1-4',
+					key: '1-5',
 					type: 'byte',
-					query: `node_filesystem_size_bytes{instance="{instance}",job="{jobName}",mountpoint="/",fstype!="rootfs"}`,
+					query: `sum(node_filesystem_size_bytes{job="MONITOR-NodeExporter", mountpoint="/", fstype!="rootfs"}) / (1024 * 1024)`,
 					span: 4,
 					unit: 'GiB'
 				},
 				{
 					title: 'RAM Total',
-					key: '1-5',
+					key: '1-6',
 					type: 'byte',
-					query: `node_memory_MemTotal_bytes{instance="{instance}",job="{jobName}"}`,
+					query: `sum(node_memory_MemTotal_bytes{job="MONITOR-NodeExporter"}) / (1024 * 1024)`,
 					span: 4,
 					unit: 'GiB'
 				},
 				{
 					title: 'SWAP Total',
-					key: '1-6',
+					key: '1-7',
 					type: 'byte',
-					query: `node_memory_SwapTotal_bytes{instance="{instance}",job="{jobName}"}`,
+					query: `sum(node_memory_SwapTotal_bytes{job="MONITOR-NodeExporter"}) / (1024 * 1024)`,
 					span: 4,
 					unit: 'GiB'
 				}
@@ -97,28 +98,64 @@ export const config = {
 					key: '2-1',
 					type: 'gauge',
 					span: 6,
-					query: `(sum by(instance) (irate(node_cpu_seconds_total{instance="{instance}",job="{jobName}", mode!="idle"}[5m])) / on(instance) group_left sum by (instance)((irate(node_cpu_seconds_total{instance="{instance}",job="{jobName}"}[5m])))) * 100`
+					query: `(
+                        sum(
+                          irate(node_cpu_seconds_total{job="MONITOR-NodeExporter", mode!="idle"}[1m])
+                        ) 
+                        / 
+                        sum(
+                          irate(node_cpu_seconds_total{job="MONITOR-NodeExporter"}[1m])
+                        )
+                      ) * 100`
 				},
 				{
 					title: 'Sys Load (5m avg)',
 					key: '2-2',
 					type: 'gauge',
 					span: 6,
-					query: `avg(node_load5{instance="{instance}",job="{jobName}"}) /  count(count(node_cpu_seconds_total{instance="{instance}",job="{jobName}"}) by (cpu)) * 100`
+					query: `(
+                        avg(node_load5{job="MONITOR-NodeExporter"})
+                      /
+                        count(count by (cpu) (node_cpu_seconds_total{job="MONITOR-NodeExporter"}))
+                    )
+                  *
+                    100`
 				},
 				{
 					title: 'Sys Load (15m avg)',
 					key: '2-3',
 					type: 'gauge',
 					span: 6,
-					query: `avg(node_load15{instance="{instance}",job="{jobName}"}) /  count(count(node_cpu_seconds_total{instance="{instance}",job="{jobName}"}) by (cpu)) * 100`
+					query: `(
+                        avg(node_load15{job="MONITOR-NodeExporter"})
+                      /
+                        count(count by (cpu) (node_cpu_seconds_total{job="MONITOR-NodeExporter"}))
+                    )
+                  *
+                    10`
 				},
 				{
 					title: 'RAM Used',
 					key: '2-4',
 					type: 'gauge',
 					span: 6,
-					query: `((node_memory_MemTotal_bytes{instance="{instance}",job="{jobName}"} - node_memory_MemFree_bytes{instance="{instance}",job="{jobName}"}) / (node_memory_MemTotal_bytes{instance="{instance}",job="{jobName}"} )) * 100`
+					query: `avg(
+                        (
+                            (
+                                    node_memory_MemTotal_bytes{job="MONITOR-NodeExporter"}
+                                  -
+                                    node_memory_MemFree_bytes{job="MONITOR-NodeExporter"}
+                                -
+                                  node_memory_Buffers_bytes{job="MONITOR-NodeExporter"}
+                              -
+                                node_memory_Cached_bytes{job="MONITOR-NodeExporter"}
+                            )
+                          /
+                            node_memory_MemTotal_bytes{job="MONITOR-NodeExporter"}
+                        )
+                      *
+                        100
+                    )`
 				}
 			],
 			key: '2',
@@ -133,11 +170,11 @@ export const config = {
 					span: 12,
 					// query: `system_cpu_usage{job="{jobName}", instance=~"{instance}"}`
 					query: `label_replace(
-                            sum by (instance) (
-                              irate(node_cpu_seconds_total{instance="{instance}",job="{jobName}",mode="system"}[5m])
-                            )
-                          / on (instance) group_left ()
-                            sum by (instance) ((irate(node_cpu_seconds_total{instance="{instance}",job="{jobName}"}[5m]))),
+                        avg(
+                            sum by (instance) (irate(node_cpu_seconds_total{job="MONITOR-NodeExporter",mode="system"}[5m]))
+                          / on (instance) group_left 
+                            sum by (instance) (irate(node_cpu_seconds_total{job="MONITOR-NodeExporter"}[5m]))
+                        ),
                           "device",
                           "system",
                           "",
@@ -145,15 +182,86 @@ export const config = {
                         )
                       or
                         label_replace(
-                            sum by (instance) (
-                              irate(node_cpu_seconds_total{instance="{instance}",job="{jobName}",mode="user"}[5m])
-                            )
-                          / on (instance) group_left ()
-                            sum by (instance) ((irate(node_cpu_seconds_total{instance="{instance}",job="{jobName}"}[5m]))),
+                            avg(sum by(instance) (
+                                irate(node_cpu_seconds_total{job="MONITOR-NodeExporter", mode="user"}[5m])
+                              ) 
+                              / 
+                              on(instance) group_left 
+                              sum by(instance) (
+                                irate(node_cpu_seconds_total{job="MONITOR-NodeExporter"}[5m])
+                              )),
                           "device",
                           "user",
                           "",
                           ""
+                        )
+                        or
+                        label_replace(
+                            avg(
+                                sum by(instance) (
+                                  irate(node_cpu_seconds_total{job="MONITOR-NodeExporter", mode="iowait"}[5m])
+                                ) 
+                                / 
+                                on(instance) group_left 
+                                sum by(instance) (
+                                  irate(node_cpu_seconds_total{job="MONITOR-NodeExporter"}[5m])
+                                )
+                              ),
+                            "device",
+                            "iowait",
+                            "",
+                            ""
+                        )
+                        or
+                        label_replace(
+                            sum(
+                                sum by(instance) (
+                                  irate(node_cpu_seconds_total{job="MONITOR-NodeExporter", mode=~".*irq"}[5m])
+                                ) 
+                                / 
+                                on(instance) group_left 
+                                sum by(instance) (
+                                  irate(node_cpu_seconds_total{job="MONITOR-NodeExporter"}[5m])
+                                )
+                              ) 
+                              / 
+                              count(node_cpu_seconds_total{job="MONITOR-NodeExporter", mode=~".*irq"}),
+                            "device",
+                            "irq",
+                            "",
+                            ""
+                        )
+                        or 
+                        label_replace(
+                            sum(
+                                sum by (instance) (
+                                  irate(
+                                    node_cpu_seconds_total{job="MONITOR-NodeExporter",mode!="idle",mode!="iowait",mode!="irq",mode!="softirq",mode!="system",mode!="user"}[5m]
+                                  )
+                                )
+                              / on (instance) group_left 
+                                sum by (instance) (irate(node_cpu_seconds_total{job="MONITOR-NodeExporter"}[5m]))
+                            )
+                          /
+                            count(
+                              node_cpu_seconds_total{job="MONITOR-NodeExporter",mode!="idle",mode!="iowait",mode!="irq",mode!="softirq",mode!="system",mode!="user"}
+                            ),
+                            "device",
+                            "other",
+                            "",
+                            ""
+                        )
+                        or
+                        label_replace(
+                            avg(
+                                sum by (instance) (irate(node_cpu_seconds_total{job="MONITOR-NodeExporter",mode="idle"}[5m]))
+                              / on (instance) group_left 
+                                sum by (instance) (irate(node_cpu_seconds_total{job="MONITOR-NodeExporter"}[5m]))
+                            ),
+                            "device",
+                            "idle",
+                            "",
+                            ""
                         )`,
 					multiple: true
 				},
@@ -164,7 +272,7 @@ export const config = {
 					span: 12,
 					// query: `system_cpu_usage{job="{jobName}", instance=~"{instance}"}`
 					query: `label_replace(
-                            node_memory_MemTotal_bytes{instance="{instance}",job="{jobName}"},
+                            sum(node_memory_MemTotal_bytes{job="MONITOR-NodeExporter"}),
                             "device",
                             "total",
                             "",
@@ -172,19 +280,15 @@ export const config = {
                           )
                         or
                           label_replace(
-                            (
-                                  node_memory_MemTotal_bytes{instance="{instance}",job="{jobName}"}
-                                -
-                                  node_memory_MemFree_bytes{instance="{instance}",job="{jobName}"}
-                              -
-                                (
-                                      node_memory_Cached_bytes{instance="{instance}",job="{jobName}"}
-                                    +
-                                      node_memory_Buffers_bytes{instance="{instance}",job="{jobName}"}
-                                  +
-                                    node_memory_SReclaimable_bytes{instance="{instance}",job="{jobName}"}
-                                )
-                            ),
+                            sum(
+                                node_memory_MemTotal_bytes{job="MONITOR-NodeExporter"} 
+                                - node_memory_MemFree_bytes{job="MONITOR-NodeExporter"} 
+                                - (
+                                    node_memory_Cached_bytes{job="MONITOR-NodeExporter"} 
+                                    + node_memory_Buffers_bytes{job="MONITOR-NodeExporter"} 
+                                    + node_memory_SReclaimable_bytes{job="MONITOR-NodeExporter"}
+                                  )
+                              ),
                             "device",
                             "used",
                             "",
@@ -192,13 +296,11 @@ export const config = {
                           )
                       or
                         label_replace(
-                          (
-                                node_memory_Cached_bytes{instance="{instance}",job="{jobName}"}
-                              +
-                                node_memory_Buffers_bytes{instance="{instance}",job="{jobName}"}
-                            +
-                              node_memory_SReclaimable_bytes{instance="{instance}",job="{jobName}"}
-                          ),
+                            sum(
+                                node_memory_Cached_bytes{job="MONITOR-NodeExporter"} 
+                                + node_memory_Buffers_bytes{job="MONITOR-NodeExporter"} 
+                                + node_memory_SReclaimable_bytes{job="MONITOR-NodeExporter"}
+                              ),
                           "device",
                           "cache",
                           "",
@@ -206,7 +308,7 @@ export const config = {
                         )
                      or
                         label_replace(
-                            node_memory_MemFree_bytes{instance="{instance}",job="{jobName}"},
+                            sum(node_memory_MemFree_bytes{job="MONITOR-NodeExporter"}),
                             "device",
                             "free",
                             "",
@@ -214,11 +316,10 @@ export const config = {
                         )
                     or
                         label_replace(
-                        (
-                            node_memory_SwapTotal_bytes{instance="{instance}",job="{jobName}"}
-                            -
-                            node_memory_SwapFree_bytes{instance="{instance}",job="{jobName}"}
-                        ),
+                            sum(
+                                node_memory_SwapTotal_bytes{job="MONITOR-NodeExporter"} 
+                                - node_memory_SwapFree_bytes{job="MONITOR-NodeExporter"}
+                              ),
                         "device",
                         "swap_used",
                         "",
@@ -237,7 +338,11 @@ export const config = {
 					key: '4-1',
 					type: 'line',
 					span: 12,
-					query: `irate(node_network_receive_bytes_total{instance="{instance}",job="{jobName}"}[5m])*8 or irate(node_network_transmit_bytes_total{instance="{instance}",job="{jobName}"}[5m])*8`,
+					query: `sum by (device) (
+                        irate(node_network_receive_bytes_total{job="MONITOR-NodeExporter"}[5m]) * 8
+                      ) or sum by (device) (
+                        irate(node_network_transmit_bytes_total{job="MONITOR-NodeExporter"}[5m]) * 8
+                      )`,
 					multiple: true // 是否是多条折线展示在一个坐标轴
 				},
 				{
@@ -245,7 +350,10 @@ export const config = {
 					key: '4-2',
 					type: 'line',
 					span: 12,
-					query: `100 - ((node_filesystem_avail_bytes{instance="{instance}",job="{jobName}",device!~'rootfs'} * 100) / node_filesystem_size_bytes{instance="{instance}",job="{jobName}",device!~'rootfs'})`,
+					query: `100 - avg by (mountpoint) (
+                        node_filesystem_avail_bytes{job="MONITOR-NodeExporter", device!~"rootfs"} * 100
+                        / node_filesystem_size_bytes{job="MONITOR-NodeExporter", device!~"rootfs"}
+                      )`,
 					multiple: true
 				}
 			],

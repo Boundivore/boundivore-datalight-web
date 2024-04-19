@@ -20,7 +20,7 @@
  */
 import { FC, useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Tree, Typography, Tooltip, Flex } from 'antd';
+import { Card, Tree, Tooltip, Flex } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
@@ -30,7 +30,6 @@ import { Resizable } from 're-resizable';
 type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 
 const { DirectoryTree } = Tree;
-const { Text } = Typography;
 const style = {
 	display: 'flex'
 	// alignItems: 'center',
@@ -39,27 +38,6 @@ const style = {
 	// background: '#f0f0f0'
 };
 
-const convertToTreeData = data => {
-	return data.map(item => ({
-		title: item.DirectoryName,
-		key: item.DirectoryPath,
-		children: [
-			...item.FilePathList.map(filePath => ({
-				title: (
-					<Tooltip title={filePath.substring(filePath.lastIndexOf('/') + 1)}>
-						<Text ellipsis={true} className="w-[160px]">
-							{filePath.substring(filePath.lastIndexOf('/') + 1)}
-						</Text>
-					</Tooltip>
-				), // 获取文件名作为 title
-				key: filePath,
-				isLeaf: true
-			})),
-			...convertToTreeData(item.Children) // 递归处理子目录
-		],
-		isLeaf: false
-	}));
-};
 const ViewLog: FC = () => {
 	const [searchParams] = useSearchParams();
 	const nodeId = searchParams.get('node') || '';
@@ -70,7 +48,39 @@ const ViewLog: FC = () => {
 	const [startOffset] = useState(0);
 	const [endOffset, setEndOffset] = useState(5000);
 	const [selectedFile, setSelectedFile] = useState('');
+	// const [setLeftWidth] = useState('w-[160px]');
 	const containerRef = useRef(null);
+	const textRef = useRef([]);
+
+	const convertToTreeData = (data, startIndex = 0) => {
+		let currentIndex = startIndex; // 当前索引
+		return data.map(item => ({
+			title: item.DirectoryName,
+			key: item.DirectoryPath,
+			children: [
+				...item.FilePathList.map(filePath => {
+					const textRefIndex = currentIndex++; // 计算当前索引
+					return {
+						title: (
+							<Tooltip title={filePath.substring(filePath.lastIndexOf('/') + 1)}>
+								<span
+									ref={ref => (textRef.current[textRefIndex] = ref)}
+									style={{ width: '160px' }}
+									className={`inline-block whitespace-nowrap overflow-hidden text-ellipsis`}
+								>
+									{filePath.substring(filePath.lastIndexOf('/') + 1)}
+								</span>
+							</Tooltip>
+						), // 获取文件名作为 title
+						key: filePath,
+						isLeaf: true
+					};
+				}),
+				...convertToTreeData(item.Children, currentIndex) // 递归处理子目录
+			],
+			isLeaf: false
+		}));
+	};
 
 	const getFileList = async () => {
 		const apiRoot = APIConfig.getLogRootDirectory;
@@ -112,7 +122,6 @@ const ViewLog: FC = () => {
 	const onSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
 		info.node.isLeaf && setSelectedFile(keys[0]);
 		setEndOffset(5000);
-		console.log('Trigger Select', keys, info);
 	};
 	// const onResize = (event, { size }) => {
 	// 	// 在这里处理拖拽改变大小的逻辑
@@ -124,6 +133,11 @@ const ViewLog: FC = () => {
 		console.log(ref.offsetWidth);
 		const containWidth = containerRef.current.clientWidth;
 		console.log(containWidth - ref.offsetWidth);
+		// setLeftWidth(`w-[${ref.offsetWidth - 100}px]`);
+		// textRef.current.style.width = `${ref.offsetWidth - 100}px`;
+		textRef.current.forEach(element => {
+			element.style.width = `${ref.offsetWidth - 200}px`;
+		});
 		setLogViewerWidth(containWidth - ref.offsetWidth - 100);
 	};
 	useEffect(() => {

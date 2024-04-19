@@ -62,15 +62,11 @@ const LineComponent = ({ clusterId, query, multiple }) => {
 			},
 			RequestMethod: 'GET'
 		};
-		// const requestArray = query.map(queryItem => {
-		// 	return RequestHttp.post(api, { ...params, ...{ ...params.QueryParamsMap, query: queryItem } });
-		// });
+
 		const { Data } = await RequestHttp.post(api, params);
-		// const dataArray = await Promise.all(requestArray);
-		console.log('121212', JSON.parse(Data).data.result);
 		const lineData = JSON.parse(Data).data.result;
 		// 提取图例数据
-		const legendData = lineData.map(item => item.metric.device);
+		const legendData = lineData.map(item => item.metric.device || item.metric.mountpoint);
 
 		// 提取 x 轴数据
 		const xAxisData = lineData[0].values.map(item => dayjs.unix(item[0]).format('HH:mm'));
@@ -84,9 +80,8 @@ const LineComponent = ({ clusterId, query, multiple }) => {
 			};
 
 			if (multiple) {
-				seriesItem = { ...seriesItem, name: item.metric.device };
+				seriesItem = { ...seriesItem, name: item.metric.device || item.metric.mountpoint };
 			}
-
 			return seriesItem;
 		});
 
@@ -94,7 +89,6 @@ const LineComponent = ({ clusterId, query, multiple }) => {
 		multiple && (updatedOption.legend.data = legendData);
 		updatedOption.xAxis.data = xAxisData;
 		updatedOption.series = seriesData;
-		console.log('updatedOption', updatedOption);
 		setOption(updatedOption);
 	};
 	useEffect(() => {

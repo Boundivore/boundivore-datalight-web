@@ -35,17 +35,27 @@ const GaugeComponent = ({ clusterId, query, height = 300 }) => {
 		series: [
 			{
 				type: 'gauge',
-				progress: {
-					show: true,
-					width: 6,
-					itemStyle: {
-						color: '#3fc27f',
-						opacity: 0.7
-					}
-				},
+				// progress: {
+				// 	show: true,
+				// 	width: 6,
+				// 	itemStyle: {
+				// 		color: '#3fc27f',
+				// 		// color: [
+				// 		// 	[0.3, '#3fc27f'],
+				// 		// 	[0.9, '#FDDD60'],
+				// 		// 	[1, '#FF6E76']
+				// 		// ]
+				// 		opacity: 0.7
+				// 	}
+				// },
 				axisLine: {
 					lineStyle: {
-						width: 8
+						width: 8,
+						color: [
+							[0.7, '#3fc27f'],
+							[0.9, '#FDDD60'],
+							[1, '#FF6E76']
+						]
 					}
 				},
 				axisTick: {
@@ -77,8 +87,9 @@ const GaugeComponent = ({ clusterId, query, height = 300 }) => {
 				},
 				detail: {
 					valueAnimation: true,
-					fontSize: 24,
-					offsetCenter: [0, '70%']
+					fontSize: 20,
+					offsetCenter: [0, '60%'],
+					formatter: '{value} %'
 				},
 				data: [
 					{

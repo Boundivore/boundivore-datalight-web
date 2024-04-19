@@ -28,34 +28,66 @@ import useStore from '@/store/store';
 const { Title } = Typography;
 const regexInstance = new RegExp('{instance}', 'g');
 const regexJobName = new RegExp('{jobName}', 'g');
-const TextComponent = ({ clusterId, query, unit, type }) => {
+const TextComponent = ({ clusterId, query, unit, type, name }) => {
 	const [textData, setTextData] = useState();
 	const { jobName, instance } = useStore();
 
 	const getTextData = async () => {
-		const api = APIConfig.prometheus;
-		const params = {
-			Body: '',
-			ClusterId: clusterId,
-			Path: '/api/v1/query',
-			QueryParamsMap: {
-				query: query.replace(regexInstance, instance).replace(regexJobName, jobName)
-			},
-			RequestMethod: 'GET'
-		};
-		const { Data } = await RequestHttp.post(api, params);
-		const {
-			data: { result }
-		} = JSON.parse(Data);
-		type === 'self' && setTextData(4);
-		type === 'text' && setTextData(parseFloat(result[0].value[1]).toFixed(2));
-		type === 'time' && setTextData(timestampToHoursAgo(result[0].value[1]));
-		type === 'number' && setTextData(result[0].value[1]);
-		type === 'byte' && setTextData((result[0].value[1] / 1024 / 1024 / 1024).toFixed(2));
-		// if (type === 'number') {
-		// 	const total = result.reduce((acc, item) => acc + parseInt(item.value[1]), 0);
-		// 	setTextData(total);
-		// }
+		let api, params;
+		// type 为self 是定制类型， 根据name来定制api和参数
+		if (type === 'self') {
+			if (name === 'nodeCount') {
+				api = APIConfig.nodeList;
+				params = { ClusterId: clusterId };
+			} else if (name === 'serviceCount') {
+				api = APIConfig.serviceList;
+				params = { ClusterId: clusterId };
+			}
+		} else {
+			api = APIConfig.prometheus;
+			params = {
+				Body: '',
+				ClusterId: clusterId,
+				Path: '/api/v1/query',
+				QueryParamsMap: {
+					query: query.replace(regexInstance, instance).replace(regexJobName, jobName)
+				},
+				RequestMethod: 'GET'
+			};
+		}
+
+		if (api && params) {
+			const { Data } = await (type === 'self' ? RequestHttp.get(api, { params }) : RequestHttp.post(api, params));
+
+			if (type === 'self') {
+				if (name === 'nodeCount') {
+					setTextData(Data.NodeDetailList.length);
+				} else if (name === 'serviceCount') {
+					const count = Data.ServiceSummaryList.filter(service => service.SCStateEnum === 'DEPLOYED').length;
+					setTextData(count);
+				}
+			} else {
+				const {
+					data: { result }
+				} = JSON.parse(Data);
+				switch (type) {
+					case 'text':
+						setTextData(parseFloat(result[0].value[1]).toFixed(2));
+						break;
+					case 'time':
+						setTextData(timestampToHoursAgo(result[0].value[1]));
+						break;
+					case 'number':
+						setTextData(result[0].value[1]);
+						break;
+					case 'byte':
+						setTextData((parseFloat(result[0].value[1]) / 1024).toFixed(2));
+						break;
+					default:
+						break;
+				}
+			}
+		}
 	};
 	useEffect(() => {
 		getTextData();
