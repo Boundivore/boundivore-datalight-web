@@ -16,7 +16,7 @@
  */
 /**
  * 服务管理列表页
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { FC, Key, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -113,7 +113,7 @@ const ServiceManage: FC = () => {
 						: [
 								{
 									key: 1,
-									label: '暂无组件'
+									label: '没有组件UI'
 								}
 						  ];
 					setDropDownItems(transformedData);

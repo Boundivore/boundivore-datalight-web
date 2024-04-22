@@ -16,7 +16,7 @@
  */
 /**
  * SelectComStep - 选择组件步骤
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { FC, forwardRef, useEffect, useImperativeHandle, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -212,15 +212,14 @@ const SelectComStep: FC = forwardRef((_props, ref) => {
 								const nameArray = (nodeList[id] || tempList[id])[component.ComponentName].componentNodeList
 									?.filter((item: ServiceItemType) => item.SCStateEnum !== 'UNSELECTED')
 									.map((node: NodeType) => node.Hostname);
-								console.log(111, tempList[id]);
-								console.log(222, nameArray);
 								return (
 									<div className="w-1/4">
 										<p>{component.ComponentName}</p>
 										<Select
 											value={nameArray}
 											mode="multiple"
-											className="w-4/5 data-light"
+											className="w-4/5"
+											dropdownStyle={{ display: 'none' }} // 不显示下拉菜单
 											tagRender={customTagRender}
 											onFocus={() => handleFocus(component.ComponentName, disableSelected)}
 										/>

@@ -16,7 +16,7 @@
  */
 /**
  * 节点管理列表页
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { FC, useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -62,7 +62,7 @@ const ViewLog: FC = () => {
 					const textRefIndex = currentIndex++; // 计算当前索引
 					return {
 						title: (
-							<Tooltip title={filePath.substring(filePath.lastIndexOf('/') + 1)}>
+							<Tooltip placement="right" title={filePath.substring(filePath.lastIndexOf('/') + 1)}>
 								<span
 									ref={ref => (textRef.current[textRefIndex] = ref)}
 									style={{ width: '160px' }}

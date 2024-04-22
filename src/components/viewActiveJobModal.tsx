@@ -20,9 +20,9 @@
  * @param {function} handleOk - 弹窗确定的回调函数
  * @param {function} handleCancel - 弹窗取消的回调函数
  * @param {string} type - 对应的api，jobProgress和nodeJobProgress
- * @author Tracy.Guo
+ * @author Tracy
  */
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Modal, Table, Progress, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +30,7 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
+import CheckLogModal from '@/components/logModal';
 import { NodeType, ExecProgressPerNodeVo } from '@/api/interface';
 
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
@@ -42,38 +43,37 @@ interface ViewActiveJobProps {
 const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel, type }) => {
 	const { t } = useTranslation();
 	const { jobNodeId, jobId, stableState } = useStore();
+	const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+	const [activeNodeId, setActiveNodeId] = useState('');
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
-			width: 100,
+			width: '20%',
 			render: (text: string) => <a>{text}</a>
 		},
 		{
 			title: t('progress'),
 			dataIndex: 'ExecProgress',
-			width: 350,
 			render: text => {
 				return <Progress percent={parseFloat(parseFloat(text).toFixed(2))} strokeColor={twoColors} />;
 			}
+		},
+		{
+			title: t('node.log'),
+			dataIndex: 'NodeState',
+			key: 'NodeState',
+			width: '20%',
+			render: (_text, record) => <a onClick={() => viewLog(record.NodeId)}> {t('node.viewLog')}</a>
 		}
-		// {
-		// 	title: t('node.detail'),
-		// 	dataIndex: 'ExecProgressStepList',
-		// 	render: (text: ExecProgressStepVo[]) => {
-		// 		const runningStep = text.find(step => step.StepExecState === 'RUNNING');
-		// 		const errorStep = text.reverse().find(step => step.StepExecState === 'ERROR');
-		// 		const okStep = text.reverse().find(step => step.StepExecState === 'OK');
-		// 		return runningStep ? (
-		// 			<Text className="text-blue-500">{runningStep?.StepName}</Text>
-		// 		) : errorStep ? (
-		// 			<Text className="text-red-500">{errorStep?.StepName}</Text>
-		// 		) : (
-		// 			<Text className="text-green-500">{okStep?.StepName}</Text>
-		// 		);
-		// 	}
-		// }
 	];
+	const viewLog = (nodeId: string) => {
+		setIsLogModalOpen(true);
+		setActiveNodeId(nodeId);
+	};
+	const handleLogModalCancel = () => {
+		setIsLogModalOpen(false);
+	};
 	const getList = async () => {
 		const apiProgress = APIConfig[type];
 		if (type === 'nodeJobProgress') {
@@ -116,6 +116,9 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 			]}
 		>
 			<Table rowKey="NodeId" dataSource={tableData} columns={columns} />
+			{isLogModalOpen ? (
+				<CheckLogModal isModalOpen={isLogModalOpen} nodeId={activeNodeId} handleCancel={handleLogModalCancel} type={type} />
+			) : null}
 		</Modal>
 	);
 };

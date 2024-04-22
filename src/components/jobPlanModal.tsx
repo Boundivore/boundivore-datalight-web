@@ -18,9 +18,9 @@
  * JobPlanModal - 查询节点异步任务计划生成的进度弹窗
  * @param {boolean} isModalOpen - 弹窗是否打开
  * @param {function} handleOk - 弹窗确定的回调函数
- * @author Tracy.Guo
+ * @author Tracy
  */
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Modal, Progress } from 'antd';
 import { useTranslation } from 'react-i18next';
 import APIConfig from '@/api/config';
@@ -40,6 +40,7 @@ const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, handleOk, type = 'no
 	// const [openAlert, setOpenAlert] = useState(false);
 	// const [errorText, setErrorText] = useState('');
 	const { stableState } = useStore();
+	const [handleEventSign, setHandleEventSign] = useState(false);
 
 	const getJobPlan = async () => {
 		const api = APIConfig[type];
@@ -47,10 +48,14 @@ const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, handleOk, type = 'no
 		const {
 			Data: { PlanProgress }
 		} = data;
-		PlanProgress === '100' && handleOk();
+		setHandleEventSign(PlanProgress === '100');
 		return [{ PlanProgress, SCStateEnum: PlanProgress === '100' ? 'OK' : 'processing' }];
 	};
 	const progressData = usePolling(getJobPlan, stableState, 1000, [true]);
+	useEffect(() => {
+		handleEventSign && handleOk();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [handleEventSign]);
 	return (
 		<Modal title={t('planProgress')} open={isModalOpen} footer={null} maskClosable={false} closable={false}>
 			{/* {openAlert ? <Alert message={errorText} type="error" /> : null} */}

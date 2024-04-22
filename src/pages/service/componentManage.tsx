@@ -16,7 +16,7 @@
  */
 /**
  * 组件管理列表页
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState, useRef } from 'react';
 import _ from 'lodash';

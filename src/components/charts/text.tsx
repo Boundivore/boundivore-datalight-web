@@ -16,7 +16,7 @@
  */
 /**
  * 折线图组件
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState } from 'react';
 import { Typography } from 'antd';

@@ -25,16 +25,12 @@ html {
 body {
 	margin: 0;
 	height: 100%;
-	overflow: hidden;
+	/* overflow: hidden; */
 }
 .ant-table {
 	min-height: 280px;
 }
-.data-light {
-	.ant-select-dropdown {
-		display: none !important;
-	}
-}
+
 .data-light-table {
 	.ant-table-row {
 		height: 80px;
@@ -43,6 +39,28 @@ body {
 .data-light-card {
 	.ant-card-body {
 		min-height: 412px;
+	}
+}
+.data-light-log {
+	.ant-collapse-content-box {
+		padding: 0 !important;
+		border-width: 0 !important;
+
+		.indent-small {
+			.ant-collapse-header {
+				padding-left: 26px !important;
+			}
+		}
+		.indent-middle {
+			.ant-collapse-header {
+				padding-left: 36px !important;
+			}
+		}
+		.indent-big {
+			.ant-collapse-header {
+				padding-left: 46px !important;
+			}
+		}
 	}
 }
 

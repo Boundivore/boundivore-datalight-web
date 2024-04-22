@@ -16,7 +16,7 @@
  */
 /**
  * DeployStep - 部署步骤
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -29,7 +29,7 @@ import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import JobPlanModal from '@/components/jobPlanModal';
-import LogModal from '@/components/jobLogModal';
+import LogModal from '@/components/logModal';
 import { NodeType, ExecProgressPerNodeVo, ExecProgressStepVo } from '@/api/interface';
 
 const { Text } = Typography;
@@ -178,7 +178,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			/>
 			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} /> : null}
 			{isLogModalOpen ? (
-				<LogModal isModalOpen={isLogModalOpen} nodeId={activeNodeId} handleCancel={handleLogModalCancel} />
+				<LogModal isModalOpen={isLogModalOpen} nodeId={activeNodeId} handleCancel={handleLogModalCancel} type="jobProgress" />
 			) : null}
 		</>
 	);

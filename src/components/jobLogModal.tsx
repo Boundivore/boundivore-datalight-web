@@ -19,7 +19,7 @@
  * @param {boolean} isModalOpen - 弹窗是否打开
  * @param {function} handleOk - 弹窗确定的回调函数
  * @param {function} handleCancel - 弹窗取消的回调函数
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { FC, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -70,7 +70,41 @@ const JobLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCancel
 		// 将分组后的对象转换为数组形式
 		const newArray = Object.values(groupedByTaskId);
 		console.log(newArray);
-		setItemsData(newArray);
+		// 构建结构
+		const groupedData = data.reduce((acc, item) => {
+			const { StageId, TaskId, StepId } = item;
+			// 查找是否存在对应的 StageId
+			let stageIndex = acc.findIndex(stage => stage.StageId === StageId);
+			// 如果不存在，则创建一个新的 Stage
+			if (stageIndex === -1) {
+				acc.push({
+					StageId,
+					tasks: [
+						{
+							TaskId,
+							steps: [{ StepId, ...item }]
+						}
+					]
+				});
+			} else {
+				// 如果存在，则查找是否存在对应的 TaskId
+				let taskIndex = acc[stageIndex].tasks.findIndex(task => task.TaskId === TaskId);
+				// 如果不存在，则创建一个新的 Task
+				if (taskIndex === -1) {
+					acc[stageIndex].tasks.push({
+						TaskId,
+						steps: [{ StepId, ...item }]
+					});
+				} else {
+					// 如果存在，则将当前数据添加到对应的 Task 的 steps 中
+					acc[stageIndex].tasks[taskIndex].steps.push({ StepId, ...item });
+				}
+			}
+			return acc;
+		}, []);
+
+		console.log(groupedData);
+		setItemsData(groupedData);
 		// setLogData(NodeJobLogList);
 	};
 	useEffect(() => {
@@ -85,21 +119,21 @@ const JobLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCancel
 				<Collapse
 					items={[
 						{
-							label: `阶段 ID: ${item[0].StageId}`,
-							children: (
+							label: `阶段 ID: ${item.StageId}`,
+							children: item.tasks.map(task => (
 								<Collapse
 									items={[
 										{
-											label: `任务 ID: ${item[0].TaskId}`,
-											children: (
+											label: `任务 ID: ${task.TaskId}`,
+											children: task.steps.map(step => (
 												<Collapse
 													items={[
 														{
-															label: `步骤 ID: ${item[0].StepId}`,
+															label: `步骤 ID: ${step.StepId}`,
 															children: (
 																<List
 																	itemLayout="horizontal"
-																	dataSource={item}
+																	dataSource={[step]}
 																	renderItem={list => (
 																		<List.Item>
 																			<List.Item.Meta title={list.LogStdOut} />
@@ -110,11 +144,11 @@ const JobLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCancel
 														}
 													]}
 												/>
-											)
+											))
 										}
 									]}
 								/>
-							)
+							))
 						}
 					]}
 				/>
@@ -127,21 +161,21 @@ const JobLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCancel
 				<Collapse
 					items={[
 						{
-							label: `阶段 ID: ${item[0].StageId}`,
-							children: (
+							label: `阶段 ID: ${item.StageId}`,
+							children: item.tasks.map(task => (
 								<Collapse
 									items={[
 										{
 											label: `任务id: ${item[0].TaskId}`,
-											children: (
+											children: task.steps.map(step => (
 												<Collapse
 													items={[
 														{
-															label: `步骤 ID: ${item[0].StepId}`,
+															label: `步骤 ID: ${step.StepId}`,
 															children: (
 																<List
 																	itemLayout="horizontal"
-																	dataSource={item}
+																	dataSource={[step]}
 																	renderItem={list => (
 																		<List.Item>
 																			<List.Item.Meta title={list.LogErrOut} />
@@ -152,11 +186,11 @@ const JobLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCancel
 														}
 													]}
 												/>
-											)
+											))
 										}
 									]}
 								/>
-							)
+							))
 						}
 					]}
 				/>
@@ -177,7 +211,7 @@ const JobLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCancel
 		>
 			{/* {openAlert ? <Alert message={errorText} type="error" /> : null} */}
 
-			<Collapse items={generateItems} />
+			<Collapse items={generateItems} className="data-light-log max-h-[500px] overflow-auto" />
 		</Modal>
 	);
 };

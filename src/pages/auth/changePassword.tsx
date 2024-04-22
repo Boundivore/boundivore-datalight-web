@@ -16,7 +16,7 @@
  */
 /**
  * 修改密码
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { Form, Input, Button, Card, App } from 'antd';
 import { md5 } from 'js-md5';

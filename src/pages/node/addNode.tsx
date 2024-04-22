@@ -16,7 +16,7 @@
  */
 /**
  * AddNode - 新增节点
- * @author Tracy.Guo
+ * @author Tracy
  */
 import React, { forwardRef } from 'react';
 import { Card, Col, Row, Steps } from 'antd';

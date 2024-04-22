@@ -16,7 +16,7 @@
  */
 /**
  * 顶部可切换的参数
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState } from 'react';
 // import _ from 'lodash';

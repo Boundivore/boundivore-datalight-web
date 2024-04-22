@@ -16,7 +16,7 @@
  */
 /**
  * ParseStep - 解析节点主机名步骤, 第一步
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useImperativeHandle, forwardRef } from 'react';
 import { Form, Input } from 'antd';

@@ -16,7 +16,7 @@
  */
 /**
  * StepComponent -Step步骤操作封装
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { ReactElement, FC } from 'react';
 import { Button, Col, Card, Space } from 'antd';

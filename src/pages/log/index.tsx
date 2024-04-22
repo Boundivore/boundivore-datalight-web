@@ -16,7 +16,7 @@
  */
 /**
  * 节点管理列表页
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

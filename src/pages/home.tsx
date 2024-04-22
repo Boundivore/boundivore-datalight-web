@@ -16,7 +16,7 @@
  */
 /**
  * home 仪表板
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

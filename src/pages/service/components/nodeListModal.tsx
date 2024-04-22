@@ -19,7 +19,7 @@
  * @param {boolean} isModalOpen - 弹窗是否打开
  * @param {function} handleOk - 弹窗确定的回调函数
  * @param {function} handleCancel - 弹窗取消的回调函数
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useState, useEffect } from 'react';
 import _ from 'lodash';

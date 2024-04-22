@@ -17,7 +17,7 @@
 /**
  * useNavigater - 自定义Hook
  * 将系统中用到的跳转收敛到这里, 路由地址如有变化，请查看是否需要更新该文件
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useNavigate } from 'react-router-dom';
 import RequestHttp from '@/api';

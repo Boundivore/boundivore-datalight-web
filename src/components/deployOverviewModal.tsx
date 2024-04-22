@@ -16,7 +16,7 @@
  */
 /**
  * DeployOverview - 部署信息预览
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState } from 'react';
 import { Table, Modal, Button } from 'antd';

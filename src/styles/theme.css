@@ -44,8 +44,4 @@
 		transform: rotate(45deg);
 		z-index: 1;
 	}
-	.ant-layout-content{
-		overflow-x: hidden;
-	}
-	/* background-color: ; */
 }

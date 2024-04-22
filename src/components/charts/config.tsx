@@ -16,7 +16,7 @@
  */
 /**
  * 监控想配置文件
- * @author Tracy.Guo
+ * @author Tracy
  */
 
 export const monitorItems = [
@@ -168,7 +168,12 @@ export const config = {
 					key: '3-1',
 					type: 'line',
 					span: 12,
-					// query: `system_cpu_usage{job="{jobName}", instance=~"{instance}"}`
+					// y轴换算
+					formatter: {
+						formatterType: `*`,
+						formatterCount: 100,
+						unit: '%'
+					},
 					query: `label_replace(
                         avg(
                             sum by (instance) (irate(node_cpu_seconds_total{job="MONITOR-NodeExporter",mode="system"}[5m]))
@@ -270,9 +275,13 @@ export const config = {
 					key: '3-2',
 					type: 'line',
 					span: 12,
-					// query: `system_cpu_usage{job="{jobName}", instance=~"{instance}"}`
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'GiB'
+					},
 					query: `label_replace(
-                            sum(node_memory_MemTotal_bytes{job="MONITOR-NodeExporter"}),
+                            sum(node_memory_MemTotal_bytes{job="MONITOR-NodeExporter"}) / (1024 * 1024 * 1024),
                             "device",
                             "total",
                             "",
@@ -288,7 +297,7 @@ export const config = {
                                     + node_memory_Buffers_bytes{job="MONITOR-NodeExporter"} 
                                     + node_memory_SReclaimable_bytes{job="MONITOR-NodeExporter"}
                                   )
-                              ),
+                              ) /(1024 * 1024 * 1024),
                             "device",
                             "used",
                             "",
@@ -300,7 +309,7 @@ export const config = {
                                 node_memory_Cached_bytes{job="MONITOR-NodeExporter"} 
                                 + node_memory_Buffers_bytes{job="MONITOR-NodeExporter"} 
                                 + node_memory_SReclaimable_bytes{job="MONITOR-NodeExporter"}
-                              ),
+                              ) /(1024 * 1024 * 1024),
                           "device",
                           "cache",
                           "",
@@ -308,7 +317,7 @@ export const config = {
                         )
                      or
                         label_replace(
-                            sum(node_memory_MemFree_bytes{job="MONITOR-NodeExporter"}),
+                            sum(node_memory_MemFree_bytes{job="MONITOR-NodeExporter"})/ (1024 * 1024 * 1024),
                             "device",
                             "free",
                             "",
@@ -319,7 +328,7 @@ export const config = {
                             sum(
                                 node_memory_SwapTotal_bytes{job="MONITOR-NodeExporter"} 
                                 - node_memory_SwapFree_bytes{job="MONITOR-NodeExporter"}
-                              ),
+                              ) /(1024 * 1024 * 1024),
                         "device",
                         "swap_used",
                         "",
@@ -338,6 +347,11 @@ export const config = {
 					key: '4-1',
 					type: 'line',
 					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1000,
+						unit: 'kb/s'
+					},
 					query: `sum by (device) (
                         irate(node_network_receive_bytes_total{job="MONITOR-NodeExporter"}[5m]) * 8
                       ) or sum by (device) (
@@ -350,6 +364,11 @@ export const config = {
 					key: '4-2',
 					type: 'line',
 					span: 12,
+					formatter: {
+						formatterType: `*`,
+						formatterCount: 1,
+						unit: '%'
+					},
 					query: `100 - avg by (mountpoint) (
                         node_filesystem_avail_bytes{job="MONITOR-NodeExporter", device!~"rootfs"} * 100
                         / node_filesystem_size_bytes{job="MONITOR-NodeExporter", device!~"rootfs"}

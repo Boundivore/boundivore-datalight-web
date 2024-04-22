@@ -16,7 +16,7 @@
  */
 /**
  * PreconfigStep - 预配置步骤
- * @author Tracy.Guo
+ * @author Tracy
  */
 import React, { useImperativeHandle, useEffect, useState, useRef, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -31,8 +31,8 @@ import RequestHttp from '@/api';
 import { ServiceItemType } from '@/api/interface';
 
 const layout = {
-	labelCol: { span: 8 },
-	wrapperCol: { span: 16 }
+	labelCol: { span: 10 },
+	wrapperCol: { span: 14 }
 };
 const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();

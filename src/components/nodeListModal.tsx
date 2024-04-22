@@ -20,7 +20,7 @@
  * @param {function} handleOk - 弹窗确定的回调函数
  * @param {function} handleCancel - 弹窗取消的回调函数
  * @param {string} component - 关联的组件名称
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { FC, useState, useEffect } from 'react';
 import { Modal, Table, Alert, Tag, Flex } from 'antd';

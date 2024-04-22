@@ -19,7 +19,7 @@
  * nodeStepConfig 为节点相关步骤
  * serviceStepConfig 为服务相关步骤
  * 出于业务关联性将该文件放置于components/step目录下，而不是自定义hooks目录下
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';

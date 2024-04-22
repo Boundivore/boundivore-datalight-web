@@ -16,7 +16,7 @@
  */
 /**
  * 折线图组件
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState } from 'react';
 import { Empty } from 'antd';
@@ -31,17 +31,30 @@ const baseOptions = {
 	tooltip: {
 		trigger: 'axis'
 	},
+	grid: {
+		left: '15%' // 调整这个属性来加宽左侧空间
+		// 其他grid属性...
+	},
 	xAxis: {
 		type: 'category',
 		boundaryGap: false,
 		data: []
 	},
 	yAxis: {
-		type: 'value'
+		type: 'value',
+		// axisLabel: {},
+
+		axisLine: {
+			lineStyle: {
+				type: 'dashed'
+				// ...
+			}
+		}
 	},
 	series: []
 };
-const LineComponent = ({ clusterId, query, multiple }) => {
+
+const LineComponent = ({ clusterId, query, multiple, formatter, title }) => {
 	const { monitorStartTime, monitorEndTime, jobName, instance } = useStore();
 	const defaultOptions = {
 		...baseOptions,
@@ -88,14 +101,50 @@ const LineComponent = ({ clusterId, query, multiple }) => {
 		const updatedOption = { ...option };
 		multiple && (updatedOption.legend.data = legendData);
 		updatedOption.xAxis.data = xAxisData;
+		if (formatter) {
+			updatedOption.yAxis = {
+				...updatedOption.yAxis,
+				axisLabel: {
+					formatter: value => {
+						if (formatter.formatterCount && formatter.formatterType && formatter.unit) {
+							const { formatterCount, formatterType, unit } = formatter;
+							console.log(title, formatter);
+							// 在这里进行单位换算，例如将原始数值除以1000并添加单位
+							let expression;
+
+							switch (formatterType) {
+								case '*':
+									expression = value * formatterCount;
+									break;
+								case '/':
+									expression = value / formatterCount;
+									break;
+								default:
+									expression = value;
+							}
+							return expression + unit;
+						} else {
+							// 如果格式化所需的参数不完整，则直接返回原始值
+							return value;
+						}
+					}
+				}
+			};
+		}
+
 		updatedOption.series = seriesData;
 		setOption(updatedOption);
 	};
+
 	useEffect(() => {
 		getLineData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [monitorStartTime, monitorEndTime, jobName, instance]);
 
-	return option.series.length ? <ReactECharts option={option} /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+	return option.series.length ? (
+		<ReactECharts option={option} style={{ width: '450' }} />
+	) : (
+		<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+	);
 };
 export default LineComponent;

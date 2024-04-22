@@ -17,7 +17,7 @@
 /**
  * CurrentCluster - 当前已选择的集群
  * @param {function} callback - 引用组件时传入的回调函数，用于定制引用组件的不同场景
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -16,7 +16,7 @@
  */
 /**
  * 仪表盘组件
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState } from 'react';
 import APIConfig from '@/api/config';

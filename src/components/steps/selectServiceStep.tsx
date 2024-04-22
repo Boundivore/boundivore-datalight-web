@@ -16,7 +16,7 @@
  */
 /**
  * SelectServiceStep - 选择服务步骤
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { FC, forwardRef, useImperativeHandle, useEffect, useState, Key } from 'react';
 import _ from 'lodash';

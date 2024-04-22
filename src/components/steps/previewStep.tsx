@@ -16,7 +16,7 @@
  */
 /**
  * PreviewconfigStep - 预览配置
- * @author Tracy.Guo
+ * @author Tracy
  */
 import React, { useImperativeHandle, useEffect, useState, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';

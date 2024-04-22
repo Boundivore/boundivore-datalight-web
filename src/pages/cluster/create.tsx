@@ -16,7 +16,7 @@
  */
 /**
  * 新建集群
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState } from 'react';
 import { Card, Button, Form, Input, Select, List, Tabs, Result } from 'antd';
@@ -35,7 +35,7 @@ const layout = {
 };
 
 const CreateCluster: React.FC = () => {
-	const { navigateToHome, navigateToNodeInit } = useNavigater();
+	const { navigateToClusterList, navigateToNodeInit } = useNavigater();
 	const [success, setSuccess] = useState(false);
 	const [DLCVersion] = useState('');
 	const [serviceList, setServiceList] = useState<ServiceItemType[]>([]);
@@ -192,7 +192,7 @@ const CreateCluster: React.FC = () => {
 							<Button key="continue" type="primary" onClick={() => navigateToNodeInit(jobClusterId)}>
 								{t('cluster.continue')}
 							</Button>,
-							<Button key="backToList" type="primary" onClick={navigateToHome}>
+							<Button key="backToList" type="primary" onClick={navigateToClusterList}>
 								{t('cluster.backToList')}
 							</Button>
 						]}

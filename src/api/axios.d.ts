@@ -16,7 +16,7 @@
  */
 /**
  * 重写axios
- * @author Tracy.Guo
+ * @author Tracy
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import axios from 'axios';

@@ -16,7 +16,7 @@
  */
 /**
  * InitNode - 节点初始化
- * @author Tracy.Guo
+ * @author Tracy
  */
 import React, { forwardRef, useEffect } from 'react';
 import { Card, Col, Row, Steps } from 'antd';

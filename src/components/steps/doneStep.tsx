@@ -16,7 +16,7 @@
  */
 /**
  * DoneStep - 第七步
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { FC, useEffect } from 'react';
 import { Result } from 'antd';

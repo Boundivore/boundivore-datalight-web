@@ -17,7 +17,7 @@
 /**
  * usePolling - 自定义Hook
  * 轮询调用fetchData
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState, useRef } from 'react';
 import { pollRequest } from '@/utils/helper';
