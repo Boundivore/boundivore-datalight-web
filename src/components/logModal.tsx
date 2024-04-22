@@ -21,7 +21,7 @@
  * @param {function} handleCancel - 弹窗取消的回调函数
  * @author Tracy
  */
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, memo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Modal, List, Collapse, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +37,7 @@ interface CheckLogModalProps {
 	type?: string;
 }
 
-const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCancel, type = 'nodeJobProgress' }) => {
+const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handleCancel, type = 'nodeJobProgress' }) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -143,9 +143,9 @@ const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCanc
 		setItemsData(processedData);
 	};
 	useEffect(() => {
-		getLog();
+		(selectCluster || id) && getLog();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [selectCluster, id]);
 	const generateItems =
 		type === 'nodeJobProgress'
 			? [
@@ -334,5 +334,5 @@ const CheckLogModal: FC<CheckLogModalProps> = ({ isModalOpen, nodeId, handleCanc
 			<Collapse items={generateItems} className="data-light-log max-h-[500px] overflow-auto" />
 		</Modal>
 	);
-};
+});
 export default CheckLogModal;

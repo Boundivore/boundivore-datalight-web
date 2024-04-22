@@ -53,7 +53,8 @@ const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, handleOk, type = 'no
 	};
 	const progressData = usePolling(getJobPlan, stableState, 1000, [true]);
 	useEffect(() => {
-		handleEventSign && handleOk();
+		// handleEventSign && handleOk();
+		console.log(handleOk);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [handleEventSign]);
 	return (

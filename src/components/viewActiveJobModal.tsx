@@ -22,7 +22,7 @@
  * @param {string} type - 对应的api，jobProgress和nodeJobProgress
  * @author Tracy
  */
-import { FC, useState } from 'react';
+import { FC, useState, useCallback } from 'react';
 import { Modal, Table, Progress, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
@@ -71,9 +71,9 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 		setIsLogModalOpen(true);
 		setActiveNodeId(nodeId);
 	};
-	const handleLogModalCancel = () => {
+	const handleLogModalCancel = useCallback(() => {
 		setIsLogModalOpen(false);
-	};
+	}, []);
 	const getList = async () => {
 		const apiProgress = APIConfig[type];
 		if (type === 'nodeJobProgress') {
