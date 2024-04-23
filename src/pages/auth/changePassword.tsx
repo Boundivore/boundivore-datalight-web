@@ -18,13 +18,14 @@
  * 修改密码
  * @author Tracy
  */
-import { Form, Input, Button, Card, App } from 'antd';
+import { Form, Input, Button, App } from 'antd';
 import { md5 } from 'js-md5';
 import { useTranslation } from 'react-i18next';
 import useNavigater from '@/hooks/useNavigater';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import { usePersistStore } from '@/store/store';
+import ContainerCard from '@/components/containerCard';
 
 interface ChangePasswordFormValues {
 	Principal: string;
@@ -71,9 +72,10 @@ const ChangePassword: React.FC = () => {
 		}
 	};
 	return (
-		<Card className="min-h-[calc(100%-50px)] m-[20px]" title={t('tabs.changePassword')}>
+		// <ContainerCard title={t('tabs.changePassword')}>
+		<ContainerCard>
 			<Form
-				className="w-[600px]"
+				className="w-[600px] pt-[50px]"
 				name="basic"
 				labelCol={{ span: 8 }}
 				wrapperCol={{ span: 16 }}
@@ -126,7 +128,7 @@ const ChangePassword: React.FC = () => {
 					</Button>
 				</Form.Item>
 			</Form>
-		</Card>
+		</ContainerCard>
 	);
 };
 

@@ -16,12 +16,12 @@
  */
 /**
  * 修改配置文件页面
- * @author Tracy.Guo
+ * @author Tracy
  */
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Tabs, Card, Col, Row, Space, Button, message } from 'antd';
+import { Tabs, Col, Row, Space, Button, message } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import _ from 'lodash';
@@ -36,6 +36,7 @@ import useNavigater from '@/hooks/useNavigater';
 import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
 import { ConfigSummaryVo, ConfigGroupVo, ConfigNodeVo } from '@/api/interface';
+import ContainerCard from '@/components/containerCard';
 
 const ModifyConfig: React.FC = () => {
 	const { t } = useTranslation();
@@ -137,7 +138,7 @@ const ModifyConfig: React.FC = () => {
 	};
 
 	return (
-		<Card className="min-h-[calc(100%-50px)] m-[20px]">
+		<ContainerCard>
 			{contextHolder}
 			<Tabs
 				items={tabsData}
@@ -189,7 +190,7 @@ const ModifyConfig: React.FC = () => {
 					</Button>
 				</Space>
 			</div>
-		</Card>
+		</ContainerCard>
 	);
 };
 

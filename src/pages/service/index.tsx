@@ -20,7 +20,7 @@
  */
 import { FC, Key, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Flex, Space, App, Badge, message, Dropdown } from 'antd';
+import { Table, Button, Flex, Space, App, Badge, message, Dropdown } from 'antd';
 import type { TableColumnsType, MenuProps } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -30,6 +30,7 @@ import { ServiceItemType, BadgeStatus } from '@/api/interface';
 import useStore from '@/store/store';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
+import ContainerCard from '@/components/containerCard';
 
 const stateArray = ['SELECTED', 'SELECTED_ADDITION', 'UNSELECTED', 'REMOVED'];
 const ServiceManage: FC = () => {
@@ -304,7 +305,7 @@ const ServiceManage: FC = () => {
 	};
 	return (
 		<>
-			<Card className="min-h-[calc(100%-50px)] m-[20px]">
+			<ContainerCard>
 				{contextHolder}
 				<Flex justify="space-between">
 					<Space>
@@ -325,7 +326,7 @@ const ServiceManage: FC = () => {
 					columns={columns}
 					dataSource={tableData}
 				/>
-			</Card>
+			</ContainerCard>
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal isModalOpen={isActiveJobModalOpen} handleCancel={handleModalOk} type="jobProgress" />
 			) : null}

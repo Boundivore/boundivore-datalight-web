@@ -51,6 +51,9 @@ export default {
 		serviceTask: '查看服务组件活跃任务',
 		log: '日志管理',
 		viewLog: '查看日志',
+		permission: '权限管理',
+		userManage: '用户管理',
+		roleManage: '角色管理',
 		config: '配置',
 		myAccount: '我的账号',
 		changePassword: '修改密码',
@@ -202,6 +205,16 @@ export default {
 		preconfigInfo: '没有可修改的配置内容',
 		ui: '组件UI'
 	},
+	permission: {
+		addUser: '新增用户',
+		userName: '用户名',
+		createTime: '创建时间',
+		lastLogin: '上次登录时间',
+		updateTime: '更新时间',
+		addRole: '新增角色',
+		roleName: '角色名称',
+		roleDes: '角色描述'
+	},
 	retry: '重试',
 	previous: '上一步',
 	next: '下一步',
@@ -256,5 +269,8 @@ export default {
 	planProgress: '计划进度',
 	viewActiveNodeJob: '正在执行的节点操作',
 	viewActiveJob: '正在执行的组件操作',
-	progress: '进度'
+	progress: '进度',
+	taskID: '任务 ID：',
+	stepID: '步骤 ID：',
+	stageID: '阶段 ID：'
 };

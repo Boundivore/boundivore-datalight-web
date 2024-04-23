@@ -87,7 +87,10 @@ const APIConfig: Actions = {
 	// 日志相关
 	getLogRootDirectory: '/v1/master/log/file/getLogRootDirectory',
 	getLogCollection: '/v1/master/log/file/getLogCollectionWithNodeId',
-	loadFileConten: '/v1/master/log/file/loadFileContentWithNodeId'
+	loadFileConten: '/v1/master/log/file/loadFileContentWithNodeId',
+	//权限相关
+	getUserDetailList: '/v1/master/user/getUserDetailList',
+	getRoleList: '/v1/master/role/getRoleList'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

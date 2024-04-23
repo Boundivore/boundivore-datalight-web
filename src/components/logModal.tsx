@@ -157,13 +157,13 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 								// bordered={false}
 								items={[
 									{
-										label: `任务 ID: ${item.NodeTaskId}`,
+										label: `${t('taskID')}${item.NodeTaskId}`,
 										children: item.steps.map(step => (
 											<Collapse
 												className="border-0 indent-middle"
 												items={[
 													{
-														label: `步骤 ID: ${step.StepId}`,
+														label: `${t('stepID')}${step.StepId}`,
 														children: (
 															<List
 																className="pl-[36px]"
@@ -193,13 +193,13 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 								className="border-0 indent-small"
 								items={[
 									{
-										label: `任务id: ${item.NodeTaskId}`,
+										label: `${t('taskID')}${item.NodeTaskId}`,
 										children: item.steps.map(step => (
 											<Collapse
 												className="border-0 indent-middle"
 												items={[
 													{
-														label: `步骤 ID: ${step.StepId}`,
+														label: `${t('stepID')}${step.StepId}`,
 														children: (
 															<List
 																className="pl-[36px]"
@@ -231,19 +231,19 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 								className="border-0 indent-small"
 								items={[
 									{
-										label: `阶段 ID: ${item.StageId}`,
+										label: `${t('stageID')}${item.StageId}`,
 										children: item.tasks.map(task => (
 											<Collapse
 												className="border-0 indent-middle"
 												items={[
 													{
-														label: `任务 ID: ${task.TaskId}`,
+														label: `${t('taskID')}${task.TaskId}`,
 														children: task.steps.map(step => (
 															<Collapse
 																className="border-0 indent-big"
 																items={[
 																	{
-																		label: `步骤 ID: ${step.StepId}`,
+																		label: `${t('stepID')}${step.StepId}`,
 																		children: (
 																			<List
 																				className="pl-[46px]"
@@ -277,19 +277,19 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 								className="border-0 indent-small"
 								items={[
 									{
-										label: `阶段 ID: ${item.StageId}`,
+										label: `${t('stageID')}${item.StageId}`,
 										children: item.tasks.map(task => (
 											<Collapse
 												className="border-0 indent-middle"
 												items={[
 													{
-														label: `任务id: ${task.TaskId}`,
+														label: `${t('taskID')}${task.TaskId}`,
 														children: task.steps.map(step => (
 															<Collapse
 																className="border-0 indent-big"
 																items={[
 																	{
-																		label: `步骤 ID: ${step.StepId}`,
+																		label: `${t('stepID')}${step.StepId}`,
 																		children: (
 																			<List
 																				className="pl-[46px]"

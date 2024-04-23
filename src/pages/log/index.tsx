@@ -20,7 +20,7 @@
  */
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Flex, Space, Badge } from 'antd';
+import { Table, Button, Flex, Space, Badge } from 'antd';
 import type { TableColumnsType } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -29,6 +29,7 @@ import useStore from '@/store/store';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import { NodeType, BadgeStatus } from '@/api/interface';
+import ContainerCard from '@/components/containerCard';
 
 const LogList: FC = () => {
 	const { t } = useTranslation();
@@ -39,12 +40,12 @@ const LogList: FC = () => {
 
 	// 单条操作按钮配置
 	const buttonConfigItem = (text: [], record: NodeType) => {
-		console.log(record);
 		return [
 			{
 				id: 1,
 				label: t('node.viewLog'),
-				callback: () => navigateToViewLog(record.NodeId, record.Hostname)
+				callback: () => navigateToViewLog(record.NodeId, record.Hostname),
+				disabled: false
 			}
 		];
 	};
@@ -105,7 +106,7 @@ const LogList: FC = () => {
 	}, [selectCluster]);
 
 	return (
-		<Card className="min-h-[calc(100%-50px)] m-[20px]">
+		<ContainerCard>
 			<Flex justify="space-between">
 				<Space>
 					{clusterComponent}
@@ -115,7 +116,7 @@ const LogList: FC = () => {
 				</Space>
 			</Flex>
 			<Table className="mt-[20px]" rowKey="NodeId" columns={columns} dataSource={tableData} />
-		</Card>
+		</ContainerCard>
 	);
 };
 

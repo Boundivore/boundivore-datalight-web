@@ -20,12 +20,13 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, App, Space, message, Badge } from 'antd';
+import { Table, Button, App, Space, message, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
+import ContainerCard from '@/components/containerCard';
 import { ClusterType, BadgeStatus } from '@/api/interface';
 
 const ClusterList: React.FC = () => {
@@ -156,7 +157,7 @@ const ClusterList: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Card className="min-h-[calc(100%-100px)] m-[20px]">
+		<ContainerCard>
 			{contextHolder}
 			<Space>
 				{buttonConfigTop.map(button => (
@@ -166,7 +167,7 @@ const ClusterList: React.FC = () => {
 				))}
 			</Space>
 			<Table className="mt-[20px]" rowKey="ClusterId" columns={columns} dataSource={tableData} loading={loading} />
-		</Card>
+		</ContainerCard>
 	);
 };
 

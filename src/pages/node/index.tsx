@@ -20,7 +20,7 @@
  */
 import { FC, useEffect, useState, Key } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Card, Flex, Space, App, message, Badge } from 'antd';
+import { Table, Button, Flex, Space, App, message, Badge } from 'antd';
 import type { TableColumnsType } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -32,6 +32,7 @@ import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import JobPlanModal from '@/components/jobPlanModal';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import { NodeType, NodeWithComponent, BadgeStatus } from '@/api/interface';
+import ContainerCard from '@/components/containerCard';
 
 const ManageList: FC = () => {
 	const { t } = useTranslation();
@@ -241,7 +242,7 @@ const ManageList: FC = () => {
 
 	return (
 		<>
-			<Card className="min-h-[calc(100%-50px)] m-[20px]">
+			<ContainerCard>
 				{contextHolder}
 				<Flex justify="space-between">
 					<Space>
@@ -267,7 +268,7 @@ const ManageList: FC = () => {
 					columns={columns}
 					dataSource={tableData}
 				/>
-			</Card>
+			</ContainerCard>
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal isModalOpen={isModalOpen} handleCancel={handleModalCancel} type="nodeJobProgress" />
 			) : null}

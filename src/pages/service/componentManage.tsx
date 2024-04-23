@@ -32,6 +32,7 @@ import useStore from '@/store/store';
 // import JobPlanModal from '@/components/jobPlanModal';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import { ComponentSummaryVo, ComponentNodeVo, BadgeStatus } from '@/api/interface';
+import ContainerCard from '@/components/containerCard';
 
 const { Text } = Typography;
 
@@ -345,7 +346,7 @@ const ComponentManage: React.FC = () => {
 	};
 	return (
 		<>
-			<Card className="min-h-[calc(100%-100px)] m-[20px]">
+			<ContainerCard>
 				{contextHolder}
 				<Flex justify="space-between">
 					<Space>
@@ -401,7 +402,7 @@ const ComponentManage: React.FC = () => {
 						</Card>
 					</Col>
 				</Row>
-			</Card>
+			</ContainerCard>
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal isModalOpen={isActiveJobModalOpen} handleCancel={handleModalOk} type="jobProgress" />
 			) : null}

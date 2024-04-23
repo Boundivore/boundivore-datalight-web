@@ -175,7 +175,9 @@ export interface ServiceItemType {
  * @type BadgeStatus 徽标状态
  */
 export type BadgeStatus = 'success' | 'processing' | 'default' | 'error' | 'warning';
-
+/**
+ * 登录用户信息
+ */
 export interface UserInfoType {
 	userId: string;
 	nickName: string;
@@ -453,5 +455,31 @@ export interface ComponentRequest {
 	NodeIdList: number[];
 	SCStateEnum: SCStateEnum;
 	ServiceName: string;
+	[property: string]: any;
+}
+
+// 用户相关
+/**
+ * UserInfoListVo
+ */
+export interface UserInfoListVo {
+	UserInfoList: UserInfoVo[];
+	[property: string]: any;
+}
+
+/**
+ * UserInfoVo
+ */
+export interface UserInfoVo {
+	Avatar: string;
+	CreateTime: number;
+	IsNeedChangePassword: boolean;
+	LastLogin: number;
+	Nickname: string;
+	Realname: string;
+	Token: string;
+	TokenTimeout: number;
+	UpdateTime: number;
+	UserId: number;
 	[property: string]: any;
 }

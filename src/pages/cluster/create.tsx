@@ -19,13 +19,14 @@
  * @author Tracy
  */
 import { useEffect, useState } from 'react';
-import { Card, Button, Form, Input, Select, List, Tabs, Result } from 'antd';
+import { Button, Form, Input, Select, List, Tabs, Result } from 'antd';
 import { useTranslation } from 'react-i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
 import { ClusterType, ServiceItemType } from '@/api/interface';
+import ContainerCard from '@/components/containerCard';
 
 const { Option } = Select;
 
@@ -89,9 +90,10 @@ const CreateCluster: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
-		<Card className="min-h-[calc(100%-50px)] m-[20px]" title={t('cluster.create')}>
+		<ContainerCard>
 			{!success ? (
 				<Form
+					className="pt-[50px]"
 					form={form}
 					name="basic"
 					{...layout}
@@ -199,7 +201,7 @@ const CreateCluster: React.FC = () => {
 					/>
 				</div>
 			)}
-		</Card>
+		</ContainerCard>
 	);
 };
 

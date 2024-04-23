@@ -27,6 +27,7 @@ import useCurrentCluster from '@/hooks/useCurrentCluster';
 import type { GetProps, TreeDataNode } from 'antd';
 import { LogViewer } from '@patternfly/react-log-viewer';
 import { Resizable } from 're-resizable';
+import ContainerCard from '@/components/containerCard';
 type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 
 const { DirectoryTree } = Tree;
@@ -149,7 +150,7 @@ const ViewLog: FC = () => {
 	}, [containerRef.current]);
 
 	return (
-		<Card className="min-h-[calc(100%-100px)] m-[20px]" ref={containerRef}>
+		<ContainerCard ref={containerRef}>
 			<Flex
 				gap="middle"
 				style={{
@@ -190,16 +191,15 @@ const ViewLog: FC = () => {
 						height={400}
 						hasLineNumbers={true}
 						data={fileContent}
-						onScroll={({ scrollDirection, scrollOffset, scrollOffsetToBottom }) => {
-							console.log(scrollDirection, scrollOffset, scrollOffsetToBottom);
-							if (scrollOffsetToBottom >= 0 && scrollOffsetToBottom < 10) {
+						onScroll={({ scrollOffsetToBottom }) => {
+							if (scrollOffsetToBottom >= 0 && scrollOffsetToBottom < 100) {
 								getFileContent(selectedFile);
 							}
 						}}
 					/>
 				</Card>
 			</Flex>
-		</Card>
+		</ContainerCard>
 	);
 };
 

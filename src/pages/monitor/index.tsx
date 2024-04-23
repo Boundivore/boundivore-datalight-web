@@ -30,6 +30,7 @@ import { config, monitorItems } from '@/components/charts/config';
 import { JobNameComponent, TimerComponent } from '@/components/charts/params';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import usePrometheusStatus from '@/hooks/usePrometheusStatus';
+import ContainerCard from '@/components/containerCard';
 
 const componentMap = {
 	gauge: GaugeComponent,
@@ -98,7 +99,7 @@ const Monitor = () => {
 	};
 
 	return (
-		<Card className="min-h-[calc(100%-100px)] m-[20px]">
+		<ContainerCard>
 			{selectCluster ? (
 				<>
 					<Flex justify="space-between">
@@ -148,7 +149,7 @@ const Monitor = () => {
 			) : (
 				<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 			)}
-		</Card>
+		</ContainerCard>
 	);
 };
 export default Monitor;

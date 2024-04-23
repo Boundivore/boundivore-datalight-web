@@ -31,6 +31,7 @@ import GaugeComponent from '@/components/charts/gauge';
 import LineComponent from '@/components/charts/line';
 import TextComponent from '@/components/charts/text';
 import { config } from '@/components/charts/config';
+import ContainerCard from '@/components/containerCard';
 import usePrometheusStatus from '@/hooks/usePrometheusStatus';
 
 // import { TimerComponent } from '@/components/charts/params';
@@ -145,7 +146,7 @@ const Home: React.FC = () => {
 		return activeCluster === record.ClusterName ? 'bg-[#f0fcff]' : '';
 	};
 	return (
-		<Card className="min-h-[calc(100%-100px)] m-[20px]">
+		<ContainerCard>
 			{tableData.length ? (
 				<Row gutter={24} className="mt-[20px]">
 					<Col span={6}>
@@ -185,7 +186,7 @@ const Home: React.FC = () => {
 					</Button>
 				</Empty>
 			)}
-		</Card>
+		</ContainerCard>
 	);
 };
 

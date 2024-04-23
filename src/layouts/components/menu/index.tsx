@@ -24,7 +24,8 @@ import {
 	FundViewOutlined,
 	DashboardOutlined,
 	SecurityScanOutlined,
-	ReconciliationOutlined
+	ReconciliationOutlined,
+	AuditOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -102,6 +103,10 @@ const LayoutMenu: React.FC = () => {
 			getItem(t('tabs.alert'), '/alert"')
 		]),
 		getItem(<NavLink to="/log">{t('tabs.log')}</NavLink>, '/log', <ReconciliationOutlined />),
+		getItem(t('tabs.permission'), '/permission', <AuditOutlined />, [
+			getItem(<NavLink to="/permission/userManage">{t('tabs.userManage')}</NavLink>, '/userManage"'),
+			getItem(<NavLink to="/permission/roleManage">{t('tabs.roleManage')}</NavLink>, '/roleManage"')
+		]),
 		getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
 			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"')
 		])
@@ -114,6 +119,7 @@ const LayoutMenu: React.FC = () => {
 		<>
 			<div className="menu">
 				<Menu
+					className="relative z-10 bg-transparent"
 					mode="horizontal"
 					theme="light"
 					triggerSubMenuAction="click"
