@@ -31,9 +31,10 @@ import GaugeComponent from '@/components/charts/gauge';
 import LineComponent from '@/components/charts/line';
 import TextComponent from '@/components/charts/text';
 import { config } from '@/components/charts/config';
+import usePrometheusStatus from '@/hooks/usePrometheusStatus';
+
 // import { TimerComponent } from '@/components/charts/params';
 
-const STARTED_STATE = 'STARTED';
 const componentMap = {
 	gauge: GaugeComponent,
 	text: TextComponent,
@@ -90,9 +91,9 @@ const Home: React.FC = () => {
 	const [tableData, setTableData] = useState([]);
 	const [activeCluster, setActiveCluster] = useState('');
 	const [activeClusterId, setActiveClusterId] = useState('');
-	const [hasPrometheus, setHasPrometheus] = useState(false); // 是否已部署Prometheus，已部署才可查看监控数据
 	const { stateText, isNeedChangePassword, setIsNeedChangePassword, setJobName } = useStore();
 	const { navigateToChangePassword, navigateToCreateCluster } = useNavigater();
+	const { hasPrometheus } = usePrometheusStatus();
 	const { modal } = App.useApp();
 	const columns: ColumnsType<ClusterType> = [
 		{
@@ -121,44 +122,9 @@ const Home: React.FC = () => {
 		ClusterList.length && setActiveClusterId(ClusterList[0].ClusterId);
 		// setLoading(false);
 	};
-	// const getInstanceData = async () => {
-	// 	const api = APIConfig.prometheus;
-	// 	const params = {
-	// 		Body: '',
-	// 		ClusterId: activeClusterId,
-	// 		Path: '/api/v1/query',
-	// 		QueryParamsMap: {
-	// 			query: `node_uname_info{job="${homeJobName}"}`
-	// 		},
-	// 		RequestMethod: 'GET'
-	// 	};
-	// 	const { Data } = await RequestHttp.post(api, params);
-	// 	const {
-	// 		data: { result }
-	// 	} = JSON.parse(Data);
-	// 	// 提取所有job，并使用Set去重
-	// 	const uniqueSet = new Set(result.map(item => item.metric.instance));
-	// 	setJobName(homeJobName);
-	// 	setInstance([...uniqueSet][0]);
-	// };
-	const getPrometheusStatus = async () => {
-		const api = APIConfig.getPrometheusStatus;
-		const params = {
-			ClusterId: activeClusterId,
-			ServiceName: 'MONITOR',
-			ComponentName: 'Prometheus'
-		};
-		const {
-			Data: { ComponentSimpleList }
-		} = await RequestHttp.get(api, { params });
-		const prometheusStatus =
-			ComponentSimpleList[0].NodeState === STARTED_STATE && ComponentSimpleList[0].SCStateEnum === STARTED_STATE;
-		setHasPrometheus(prometheusStatus);
-		setJobName(homeJobName);
-	};
 
 	useEffect(() => {
-		activeClusterId && getPrometheusStatus();
+		activeClusterId && setJobName(homeJobName);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeClusterId]);
 	useEffect(() => {

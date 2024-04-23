@@ -24,6 +24,7 @@ import { Select, Space, DatePicker, Divider } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
+import usePrometheusStatus from '@/hooks/usePrometheusStatus';
 import { getCurrentAndPastTimestamps, diffInMinutes } from '@/utils/helper';
 
 const { RangePicker } = DatePicker;
@@ -32,6 +33,7 @@ export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
 	const [jobNameOptions, setJobNameOptions] = useState([]);
 	const [instanceOptions, setInstanceOptions] = useState([]);
 	const { jobName, setJobName, instance, setInstance } = useStore();
+	const { hasPrometheus } = usePrometheusStatus();
 	const getData = async () => {
 		const api = APIConfig.prometheus;
 		const params = {
@@ -59,7 +61,6 @@ export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
 		}));
 		setJobNameOptions(jobsArray);
 		setJobName([...uniqueJobsSet][0]);
-		console.log(11111, [...uniqueJobsSet][0]);
 	};
 	const getInstanceData = async () => {
 		const api = APIConfig.prometheus;
@@ -88,13 +89,10 @@ export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
 		setInstance([...uniqueSet][0]);
 	};
 	useEffect(() => {
-		getData();
+		hasPrometheus && getData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-	useEffect(() => {
-		getData();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [activeComponent]);
+	}, [hasPrometheus, activeComponent]);
+
 	useEffect(() => {
 		jobName && getInstanceData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps

@@ -18,12 +18,10 @@
  * 组件管理列表页
  * @author Tracy
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 // import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { Table, Card, Row, Col, Flex, Space, Empty } from 'antd';
-// import RequestHttp from '@/api';
-// import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import GaugeComponent from '@/components/charts/gauge';
 import LineComponent from '@/components/charts/line';
@@ -31,6 +29,7 @@ import TextComponent from '@/components/charts/text';
 import { config, monitorItems } from '@/components/charts/config';
 import { JobNameComponent, TimerComponent } from '@/components/charts/params';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
+import usePrometheusStatus from '@/hooks/usePrometheusStatus';
 
 const componentMap = {
 	gauge: GaugeComponent,
@@ -82,6 +81,7 @@ const Monitor = () => {
 	const { t } = useTranslation();
 	const { jobName, instance } = useStore();
 	const [activeComponent, setActiveComponent] = useState(monitorItems[0].uid);
+	const { hasPrometheus } = usePrometheusStatus();
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 
 	const columns = [
@@ -92,10 +92,11 @@ const Monitor = () => {
 			render: text => <span>{text}</span>
 		}
 	];
+
 	const rowClassName = record => {
 		return activeComponent === record.uid ? 'bg-[#f0fcff]' : '';
 	};
-	useEffect(() => {}, [activeComponent]);
+
 	return (
 		<Card className="min-h-[calc(100%-100px)] m-[20px]">
 			{selectCluster ? (
@@ -131,10 +132,14 @@ const Monitor = () => {
 						</Col>
 						<Col span={18}>
 							<Card className="data-light-card" title={activeComponent}>
-								{selectCluster && jobName && instance && config[activeComponent] ? (
-									renderConfig(config[activeComponent], selectCluster)
+								{hasPrometheus ? (
+									selectCluster && jobName && instance && config[activeComponent] ? (
+										renderConfig(config[activeComponent], selectCluster)
+									) : (
+										<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+									)
 								) : (
-									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span>尚未部署Prometheus</span>}></Empty>
 								)}
 							</Card>
 						</Col>

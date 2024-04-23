@@ -23,8 +23,6 @@ import { useSearchParams } from 'react-router-dom';
 import { Card, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
-// import _ from 'lodash';
-// import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStepLogic from '@/hooks/useStepLogic';
@@ -50,6 +48,8 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { setCurrentPageDisabled, currentPageDisabled, setJobId } = useStore();
 	const { useSetStepData } = useStepLogic();
+	let timer1: ReturnType<typeof setTimeout> | null = null;
+	let timer2: ReturnType<typeof setTimeout> | null = null;
 	const serviceColumn: ColumnsType<TableDataType> = [
 		{
 			title: t('service.serviceName'),
@@ -84,7 +84,12 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 	const handleOk = async () => {
 		setStepData();
 		const data = await deploy();
-		return Promise.resolve(data);
+		// return Promise.resolve(data);
+		return new Promise(resolve => {
+			timer1 = setTimeout(() => {
+				resolve(data);
+			}, 1500);
+		});
 	};
 	const deploy = async () => {
 		setIsModalOpen(true);
@@ -98,15 +103,15 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 		try {
 			const data = await RequestHttp.post(api, params);
 			setJobId(data.Data.JobId);
-			return Promise.resolve(data);
+			return data;
 		} catch (error) {
 			console.error('请求失败:', error);
 		} finally {
-			setIsModalOpen(false); // 在请求完成后关闭模态框，无论成功还是失败
+			timer2 = setTimeout(() => {
+				setIsModalOpen(false);
+			}, 1000); // 在请求完成后关闭模态框，无论成功还是失败
+			// clearTimeout(timer);
 		}
-	};
-	const handleModalOk = () => {
-		setIsModalOpen(false);
 	};
 
 	const getInfo = async () => {
@@ -141,6 +146,10 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 	};
 	useEffect(() => {
 		getInfo();
+		return () => {
+			timer1 && clearTimeout(timer1);
+			timer2 && clearTimeout(timer2);
+		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -160,13 +169,7 @@ const PreviewStep: React.FC = forwardRef((_props, ref) => {
 					scroll={{ y: '400px' }}
 				></Table>
 			</Card>
-			{isModalOpen ? (
-				<JobPlanModal
-					isModalOpen={isModalOpen}
-					handleOk={handleModalOk}
-					// nodeList={nodeList}
-				/>
-			) : null}
+			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} /> : null}
 		</Space>
 	);
 });

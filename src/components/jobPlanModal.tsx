@@ -20,7 +20,7 @@
  * @param {function} handleOk - 弹窗确定的回调函数
  * @author Tracy
  */
-import { FC, useEffect, useState } from 'react';
+import { FC } from 'react';
 import { Modal, Progress } from 'antd';
 import { useTranslation } from 'react-i18next';
 import APIConfig from '@/api/config';
@@ -30,17 +30,15 @@ import useStore from '@/store/store';
 
 interface JobPlanModalProps {
 	isModalOpen: boolean;
-	handleOk: () => void;
 	type?: string;
 }
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 
-const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, handleOk, type = 'nodeJobPlan' }) => {
+const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, type = 'nodeJobPlan' }) => {
 	const { t } = useTranslation();
 	// const [openAlert, setOpenAlert] = useState(false);
 	// const [errorText, setErrorText] = useState('');
 	const { stableState } = useStore();
-	const [handleEventSign, setHandleEventSign] = useState(false);
 
 	const getJobPlan = async () => {
 		const api = APIConfig[type];
@@ -48,19 +46,13 @@ const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, handleOk, type = 'no
 		const {
 			Data: { PlanProgress }
 		} = data;
-		setHandleEventSign(PlanProgress === '100');
-		return [{ PlanProgress, SCStateEnum: PlanProgress === '100' ? 'OK' : 'processing' }];
+		return [{ PlanProgress, SCStateEnum: PlanProgress === '100' || PlanProgress === null ? 'OK' : 'processing' }];
 	};
 	const progressData = usePolling(getJobPlan, stableState, 1000, [true]);
-	useEffect(() => {
-		// handleEventSign && handleOk();
-		console.log(handleOk);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [handleEventSign]);
 	return (
 		<Modal title={t('planProgress')} open={isModalOpen} footer={null} maskClosable={false} closable={false}>
 			{/* {openAlert ? <Alert message={errorText} type="error" /> : null} */}
-			<Progress percent={parseFloat(parseFloat(progressData[0]?.PlanProgress).toFixed(2))} strokeColor={twoColors} />
+			<Progress percent={parseFloat(parseFloat(progressData[0]?.PlanProgress || 100).toFixed(2))} strokeColor={twoColors} />
 		</Modal>
 	);
 };

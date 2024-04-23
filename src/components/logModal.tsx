@@ -15,9 +15,8 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * JobPlanModal - 查询节点异步任务计划生成的进度弹窗
+ * CheckLogModal - 查看日志弹窗
  * @param {boolean} isModalOpen - 弹窗是否打开
- * @param {function} handleOk - 弹窗确定的回调函数
  * @param {function} handleCancel - 弹窗取消的回调函数
  * @author Tracy
  */
