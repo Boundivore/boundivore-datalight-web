@@ -51,7 +51,7 @@ export default {
 		serviceTask: '查看服务组件活跃任务',
 		log: '日志管理',
 		viewLog: '查看日志',
-		permission: '权限管理',
+		permission: '用户&权限',
 		userManage: '用户管理',
 		roleManage: '角色管理',
 		config: '配置',
@@ -176,7 +176,7 @@ export default {
 		deploySuccess: '部署成功，完成',
 		unselected: '未部署',
 		selected: '选择部署',
-		selected_addition: '选择增量部署',
+		selected_addition: '增量部署中',
 		undeployed: '未部署',
 		deployed: '已部署',
 		deploying: '部署中',
@@ -207,13 +207,17 @@ export default {
 	},
 	permission: {
 		addUser: '新增用户',
+		removeUser: '删除用户',
+		asignRole: '分配角色',
+		asignPermission: '分配权限',
 		userName: '用户名',
 		createTime: '创建时间',
 		lastLogin: '上次登录时间',
 		updateTime: '更新时间',
 		addRole: '新增角色',
 		roleName: '角色名称',
-		roleDes: '角色描述'
+		roleDes: '角色描述',
+		removeRole: '删除角色'
 	},
 	retry: '重试',
 	previous: '上一步',
@@ -272,5 +276,6 @@ export default {
 	progress: '进度',
 	taskID: '任务 ID：',
 	stepID: '步骤 ID：',
-	stageID: '阶段 ID：'
+	stageID: '阶段 ID：',
+	continueBoot: '当前存在未完成的集群引导，请优先完成集群引导  <1>继续集群引导</1>'
 };

@@ -19,8 +19,8 @@
  * @author Tracy
  */
 import { FC, Key, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Table, Button, Flex, Space, App, Badge, message, Dropdown } from 'antd';
+import { Trans, useTranslation } from 'react-i18next';
+import { Table, Button, Flex, Space, App, Badge, message, Dropdown, Modal } from 'antd';
 import type { TableColumnsType, MenuProps } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -32,7 +32,7 @@ import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import ContainerCard from '@/components/containerCard';
 
-const stateArray = ['SELECTED', 'SELECTED_ADDITION', 'UNSELECTED', 'REMOVED'];
+const stateArray = ['SELECTED', 'UNSELECTED', 'REMOVED'];
 const ServiceManage: FC = () => {
 	const { t } = useTranslation();
 	const { stateText, setJobId } = useStore();
@@ -41,7 +41,7 @@ const ServiceManage: FC = () => {
 	const [startDisabled, setStartDisabled] = useState(false); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(false); // 是否禁用批量停止
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
-	const { navigateToComManage, navigateToConfig, navigateToAddComponent, navigateToWebUI } = useNavigater();
+	const { navigateToComManage, navigateToConfig, navigateToAddComponent, navigateToWebUI, navigateToNodeInit } = useNavigater();
 	const { clusterComponent, selectCluster } = useCurrentCluster(setAllowAdd);
 	const [dropDownItems, setDropDownItems] = useState<MenuProps['items']>([]);
 	const { modal } = App.useApp();
@@ -82,14 +82,14 @@ const ServiceManage: FC = () => {
 				id: 1,
 				label: t('modifyConfig'),
 				callback: () => navigateToConfig(selectCluster, ServiceName),
-				disabled: record?.SCStateEnum !== 'DEPLOYED'
+				disabled: stateArray.includes(record?.SCStateEnum)
 			},
 			{
 				id: 2,
 				label: t('service.componentManage'),
 				callback: () => navigateToComManage(selectCluster, ServiceName),
 				// disabled: !record.ComponentNodeList || record.ComponentNodeList.length === 0
-				disabled: record?.SCStateEnum !== 'DEPLOYED'
+				disabled: stateArray.includes(record?.SCStateEnum)
 			},
 			{
 				id: 3,
@@ -164,7 +164,7 @@ const ServiceManage: FC = () => {
 			render: (text: string) => {
 				const stateMachine = (currentState: string) => {
 					// 在这里，我们可以添加更复杂的逻辑来处理状态转换
-					// 但由于题目要求不论输入什么状态都返回'undeployed'，所以直接返回即可
+					// 但由于题目要求不论输入什么状态都返回'UNDEPLOYED'，所以直接返回即可
 					if (stateArray.includes(currentState)) {
 						return 'UNDEPLOYED';
 					} else {
@@ -209,7 +209,7 @@ const ServiceManage: FC = () => {
 					<Space>
 						{buttonConfigItem(record).map(button =>
 							button.type === 'dropDown' ? (
-								<Dropdown menu={{ items: dropDownItems }} placement="bottomLeft" trigger={['click']}>
+								<Dropdown key={button.id} menu={{ items: dropDownItems }} placement="bottomLeft" trigger={['click']}>
 									<Button type="primary" size="small" ghost onClick={button.callback}>
 										{button.label}
 									</Button>
@@ -247,7 +247,19 @@ const ServiceManage: FC = () => {
 			navigateToAddComponent(selectCluster);
 		} else {
 			modal.info({
-				title: '当前不支持新增服务操作，请优先服役节点到指定集群'
+				title: (
+					<Trans i18nKey="continueBoot">
+						This should be a{' '}
+						<a
+							onClick={() => {
+								Modal.destroyAll();
+								navigateToNodeInit(selectCluster);
+							}}
+						>
+							link
+						</a>
+					</Trans>
+				)
 			});
 		}
 	};

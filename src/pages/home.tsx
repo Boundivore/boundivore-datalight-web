@@ -20,71 +20,17 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, App, Col, Row, Table, Badge, Space, Empty, Button } from 'antd';
+import { Card, App, Col, Row, Table, Badge, Empty, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
 import { ClusterType, BadgeStatus } from '@/api/interface';
-import GaugeComponent from '@/components/charts/gauge';
-import LineComponent from '@/components/charts/line';
-import TextComponent from '@/components/charts/text';
 import { config } from '@/components/charts/config';
 import ContainerCard from '@/components/containerCard';
 import usePrometheusStatus from '@/hooks/usePrometheusStatus';
-
-// import { TimerComponent } from '@/components/charts/params';
-
-const componentMap = {
-	gauge: GaugeComponent,
-	text: TextComponent,
-	time: TextComponent,
-	number: TextComponent,
-	byte: TextComponent,
-	self: TextComponent,
-	line: LineComponent
-	// 其他类型组件...
-};
-
-const renderComponent = (item, clusterId) => {
-	const ComponentToRender = componentMap[item.type] || null; // 获取对应的组件类型，如果找不到则返回null
-	return ComponentToRender && <ComponentToRender clusterId={clusterId} {...item} height={250} />;
-};
-
-const renderConfig = (config, selectCluster) => {
-	return (
-		<Space direction="vertical" className="flex">
-			{config.map(item => (
-				<Row style={{ height: `${item.height}` }} key={item.key} gutter={8} wrap={false}>
-					{item.cols.map(col => (
-						<Col key={col.title} span={col.span}>
-							{col.rows ? (
-								<Space direction="vertical" className="flex">
-									{col.rows.map(row => {
-										return (
-											// <Row>
-											<Card style={{ height: '170px' }}>
-												<span>{row.title}</span>
-												{renderComponent(row, selectCluster)}
-											</Card>
-											// </Row>
-										);
-									})}
-								</Space>
-							) : (
-								<Card style={{ height: `${item.height}` }}>
-									<span>{col.title}</span>
-									{renderComponent(col, selectCluster)}
-								</Card>
-							)}
-						</Col>
-					))}
-				</Row>
-			))}
-		</Space>
-	);
-};
+import { RenderConfig } from '@/components/charts/renderConfig';
 
 const homeJobName = 'MONITOR-NodeExporter';
 const Home: React.FC = () => {
@@ -172,7 +118,7 @@ const Home: React.FC = () => {
 					<Col span={18}>
 						<Card className="data-light-card" title={activeCluster}>
 							{hasPrometheus ? (
-								activeClusterId && renderConfig(config.HOME, activeClusterId)
+								activeClusterId && <RenderConfig config={config.HOME} selectCluster={activeClusterId} />
 							) : (
 								<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span>尚未部署Prometheus</span>}></Empty>
 							)}

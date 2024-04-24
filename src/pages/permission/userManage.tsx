@@ -27,16 +27,18 @@ import ContainerCard from '@/components/containerCard';
 import { UserInfoVo } from '@/api/interface';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
+import AddUserModal from '@/components/permission/addUserModal';
 
 const UserManage: FC = () => {
 	const { t } = useTranslation();
 	// 顶部操作按钮配置
 	const [tableData, setTableData] = useState<UserInfoVo[]>([]);
+	const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
 	const buttonConfigTop = [
 		{
 			id: 1,
 			label: t('permission.addUser'),
-			callback: () => {},
+			callback: () => setIsAddUserModalOpen(true),
 			disabled: false
 		}
 	];
@@ -47,13 +49,19 @@ const UserManage: FC = () => {
 		return [
 			{
 				id: 1,
-				label: t('node.restart'),
+				label: t('detail'),
 				callback: () => {},
 				disabled: false
 			},
 			{
 				id: 2,
-				label: t('node.remove'),
+				label: t('permission.asignRole'),
+				callback: () => {},
+				disabled: false
+			},
+			{
+				id: 3,
+				label: t('permission.removeUser'),
 				callback: () => {},
 				disabled: false
 			}
@@ -92,6 +100,7 @@ const UserManage: FC = () => {
 			}
 		}
 	];
+
 	const getUserList = async () => {
 		const api = APIConfig.getUserDetailList;
 		const {
@@ -122,6 +131,9 @@ const UserManage: FC = () => {
 				columns={columns}
 				dataSource={tableData}
 			/>
+			{isAddUserModalOpen ? (
+				<AddUserModal isModalOpen={isAddUserModalOpen} handleCancel={() => setIsAddUserModalOpen(false)} />
+			) : null}
 		</ContainerCard>
 	);
 };

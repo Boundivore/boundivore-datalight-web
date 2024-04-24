@@ -19,7 +19,7 @@
  * @author Tracy
  */
 import { FC, useEffect, useState, Key } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Table, Button, Flex, Space, App, message, Badge } from 'antd';
 import type { TableColumnsType } from 'antd';
 import RequestHttp from '@/api';
@@ -39,9 +39,9 @@ const ManageList: FC = () => {
 	const { stateText } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [allowAdd, setAllowAdd] = useState(false); // 是否允许新增节点操作,默认不允许
-	const { navigateToAddNode } = useNavigater();
+	const { navigateToAddNode, navigateToNodeInit } = useNavigater();
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
-	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isModalOpen] = useState(false);
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const { clusterComponent, selectCluster } = useCurrentCluster(setAllowAdd);
 	const [messageApi, contextHolder] = message.useMessage();
@@ -139,7 +139,11 @@ const ManageList: FC = () => {
 			navigateToAddNode(selectCluster);
 		} else {
 			modal.info({
-				title: '当前不支持新增节点操作'
+				title: (
+					<Trans i18nKey="continueBoot">
+						This should be a <a onClick={() => navigateToNodeInit(selectCluster)}>link</a>
+					</Trans>
+				)
 			});
 		}
 	};
@@ -187,20 +191,6 @@ const ManageList: FC = () => {
 			}
 		});
 	};
-	// const viewActiveJob = async () => {
-	// 	const apiList = APIConfig.getActiveNodeJobId;
-	// 	const data = await RequestHttp.get(apiList);
-	// 	const {
-	// 		Data: { ClusterId, NodeJobId }
-	// 	} = data;
-	// 	setJobNodeId(NodeJobId);
-	// 	console.log('NodeJobId', NodeJobId);
-	// 	selectCluster === ClusterId
-	// 		? setIsActiveJobModalOpen(true)
-	// 		: modal.info({
-	// 				title: '当前没有活跃的任务'
-	// 		  });
-	// };
 
 	const getNodeList = async () => {
 		const api = APIConfig.nodeListWithComponent;
@@ -216,9 +206,6 @@ const ManageList: FC = () => {
 		// setTableData(listData);
 	};
 
-	const handleModalOk = () => {
-		setIsModalOpen(false);
-	};
 	const handleModalCancel = () => {
 		setIsActiveJobModalOpen(false);
 	};
@@ -272,7 +259,7 @@ const ManageList: FC = () => {
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal isModalOpen={isModalOpen} handleCancel={handleModalCancel} type="nodeJobProgress" />
 			) : null}
-			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} /> : null}
+			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} /> : null}
 		</>
 	);
 };

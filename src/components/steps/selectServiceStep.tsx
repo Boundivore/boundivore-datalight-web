@@ -87,15 +87,19 @@ const SelectServiceStep: FC = forwardRef((_props, ref) => {
 		setTableData(serviceData);
 		if (serviceName) {
 			setSelectedRowKeys([serviceName]);
+			setSelectedServiceRowsList(
+				serviceData.filter(item => item.ServiceName === serviceName).map(item => ({ ...item, SCStateEnum: 'SELECTED' }))
+			);
 		} else {
 			const defaultSelectedKeys = serviceData
 				.filter(item => selectedStates.includes(item.SCStateEnum))
 				.map(item => item.ServiceName);
 			setSelectedRowKeys(defaultSelectedKeys);
+			setSelectedServiceRowsList(
+				serviceData.filter(item => selectedStates.includes(item.SCStateEnum)).map(item => ({ ...item, SCStateEnum: 'SELECTED' }))
+			);
 		}
-		setSelectedServiceRowsList(
-			serviceData.filter(item => selectedStates.includes(item.SCStateEnum)).map(item => ({ ...item, SCStateEnum: 'SELECTED' }))
-		);
+
 		setCurrentPageDisabled({
 			nextDisabled: true,
 			retryDisabled: false,

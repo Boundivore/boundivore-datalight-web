@@ -42,8 +42,6 @@ const baseOptions = {
 	},
 	yAxis: {
 		type: 'value',
-		// axisLabel: {},
-
 		axisLine: {
 			lineStyle: {
 				type: 'dashed'
@@ -82,14 +80,15 @@ const LineComponent = ({ clusterId, query, multiple, formatter, title }) => {
 		const legendData = lineData.map(item => item.metric.device || item.metric.mountpoint);
 
 		// 提取 x 轴数据
-		const xAxisData = lineData[0].values.map(item => dayjs.unix(item[0]).format('HH:mm'));
+		const xAxisData = lineData[0]?.values.map(item => dayjs.unix(item[0]).format('HH:mm'));
 
 		// 提取 series 数据
 		const seriesData = lineData.map(item => {
 			const data = item.values.map(value => parseFloat(value[1])); // 将字符串转换为数字
 			let seriesItem = {
 				type: 'line',
-				data: data
+				data: data,
+				tooltip: { valueFormatter: value => parseFloat(value).toFixed(2) }
 			};
 
 			if (multiple) {
@@ -142,7 +141,7 @@ const LineComponent = ({ clusterId, query, multiple, formatter, title }) => {
 	}, [monitorStartTime, monitorEndTime, jobName, instance]);
 
 	return option.series.length ? (
-		<ReactECharts option={option} style={{ width: '450' }} />
+		<ReactECharts option={option} style={{ width: '450', height: '300px' }} key={title} />
 	) : (
 		<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 	);

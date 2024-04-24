@@ -85,7 +85,7 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 		// 将表单数据回填到原始数据中
 		if (serviceList.length && items.length) {
 			const values = form.getFieldsValue();
-			const updatedData = _.cloneDeep([...serviceList]);
+			const updatedData = _.cloneDeep([...serviceList]).filter(item => item.PlaceholderInfoList.length);
 			updatedData.forEach((service, serviceIndex) => {
 				service.PlaceholderInfoList.forEach((info, infoIndex) => {
 					info.ConfigPrePropertyList.forEach((property, propertyIndex) => {

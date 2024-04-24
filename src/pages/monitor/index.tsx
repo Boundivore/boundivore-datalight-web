@@ -19,65 +19,16 @@
  * @author Tracy
  */
 import { useState } from 'react';
-// import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { Table, Card, Row, Col, Flex, Space, Empty } from 'antd';
 import useStore from '@/store/store';
-import GaugeComponent from '@/components/charts/gauge';
-import LineComponent from '@/components/charts/line';
-import TextComponent from '@/components/charts/text';
 import { config, monitorItems } from '@/components/charts/config';
 import { JobNameComponent, TimerComponent } from '@/components/charts/params';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import usePrometheusStatus from '@/hooks/usePrometheusStatus';
 import ContainerCard from '@/components/containerCard';
+import { RenderConfig } from '@/components/charts/renderConfig';
 
-const componentMap = {
-	gauge: GaugeComponent,
-	text: TextComponent,
-	time: TextComponent,
-	line: LineComponent
-	// 其他类型组件...
-};
-
-const renderComponent = (type, clusterId, query, unit) => {
-	const ComponentToRender = componentMap[type] || null; // 获取对应的组件类型，如果找不到则返回null
-	return ComponentToRender && <ComponentToRender clusterId={clusterId} query={query} unit={unit} type={type} />;
-};
-
-const renderConfig = (config, selectCluster) => {
-	return (
-		<Space direction="vertical" className="flex">
-			{config.map(item => (
-				<Row style={{ height: `${item.height}` }} key={item.key} gutter={8} wrap={false}>
-					{item.cols.map(col => (
-						<Col key={col.key} span={col.span}>
-							{col.rows ? (
-								<Space direction="vertical" className="flex" key={`${col.key}-space`}>
-									{col.rows.map(row => {
-										return (
-											// <Row>
-											<Card style={{ height: '170px' }}>
-												<span>{row.title}</span>
-												{renderComponent(row.type, selectCluster, row.query, row.unit)}
-											</Card>
-											// </Row>
-										);
-									})}
-								</Space>
-							) : (
-								<Card style={{ height: `${item.height}` }}>
-									<span>{col.title}</span>
-									{renderComponent(col.type, selectCluster, col.query, col.unit)}
-								</Card>
-							)}
-						</Col>
-					))}
-				</Row>
-			))}
-		</Space>
-	);
-};
 const Monitor = () => {
 	const { t } = useTranslation();
 	const { jobName, instance } = useStore();
@@ -135,7 +86,7 @@ const Monitor = () => {
 							<Card className="data-light-card" title={activeComponent}>
 								{hasPrometheus ? (
 									selectCluster && jobName && instance && config[activeComponent] ? (
-										renderConfig(config[activeComponent], selectCluster)
+										<RenderConfig config={config[activeComponent]} selectCluster={selectCluster} />
 									) : (
 										<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 									)

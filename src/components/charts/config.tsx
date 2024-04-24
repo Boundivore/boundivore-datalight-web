@@ -98,6 +98,7 @@ export const config = {
 					key: '2-1',
 					type: 'gauge',
 					span: 6,
+					height: 250,
 					query: `(
                         sum(
                           irate(node_cpu_seconds_total{job="MONITOR-NodeExporter", mode!="idle"}[1m])
@@ -113,6 +114,7 @@ export const config = {
 					key: '2-2',
 					type: 'gauge',
 					span: 6,
+					height: 250,
 					query: `(
                         avg(node_load5{job="MONITOR-NodeExporter"})
                       /
@@ -126,6 +128,7 @@ export const config = {
 					key: '2-3',
 					type: 'gauge',
 					span: 6,
+					height: 250,
 					query: `(
                         avg(node_load15{job="MONITOR-NodeExporter"})
                       /
@@ -139,6 +142,7 @@ export const config = {
 					key: '2-4',
 					type: 'gauge',
 					span: 6,
+					height: 250,
 					query: `avg(
                         (
                             (
@@ -349,14 +353,14 @@ export const config = {
 					span: 12,
 					formatter: {
 						formatterType: `/`,
-						formatterCount: 1000,
+						formatterCount: 1,
 						unit: 'kb/s'
 					},
 					query: `sum by (device) (
                         irate(node_network_receive_bytes_total{job="MONITOR-NodeExporter"}[5m]) * 8
-                      ) or sum by (device) (
+                      ) / 1000 or sum by (device) (
                         irate(node_network_transmit_bytes_total{job="MONITOR-NodeExporter"}[5m]) * 8
-                      )`,
+                      ) / 1000 `,
 					multiple: true // 是否是多条折线展示在一个坐标轴
 				},
 				{
@@ -462,14 +466,24 @@ export const config = {
 					key: '1-2',
 					type: 'line',
 					span: 9,
-					query: `Hadoop_DataNode_Capacity{name="FSDatasetState", instance="{instance}"}`
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'GB'
+					},
+					query: `Hadoop_DataNode_Capacity{name="FSDatasetState", instance="{instance}"} / (1024 * 1024 * 1024)`
 				},
 				{
 					title: 'dn_dfs_used',
 					key: '1-3',
 					type: 'line',
 					span: 9,
-					query: `Hadoop_DataNode_DfsUsed{name="FSDatasetState", instance="{instance}"}`
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'kB'
+					},
+					query: `Hadoop_DataNode_DfsUsed{name="FSDatasetState", instance="{instance}"} / 1024`
 				}
 			],
 			height: '350px',
@@ -482,7 +496,12 @@ export const config = {
 					key: '2-1',
 					type: 'line',
 					span: 12,
-					query: `Hadoop_DataNode_Remaining{name="FSDatasetState", instance="{instance}"}`
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'GB'
+					},
+					query: `Hadoop_DataNode_Remaining{name="FSDatasetState", instance="{instance}"} / (1024 * 1024 * 1024)`
 				},
 				{
 					title: 'dn_last_volume_failures',

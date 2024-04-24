@@ -46,13 +46,15 @@ const useCurrentCluster = (callback?: (allowAdd: boolean) => void) => {
 
 		const currentViewCluster = clusterList.find(cluster => cluster.IsCurrentView === true);
 		if (currentViewCluster) {
+			const allowAddState = currentViewCluster.HasAlreadyNode && !currentViewCluster.IsExistInitProcedure;
 			// 如果找到了，设置setSelectCluster为该项的ClusterId
 			setSelectCluster(currentViewCluster.ClusterId);
-			callback && callback(!currentViewCluster.HasAlreadyNode);
+			callback && callback(allowAddState);
 		} else {
 			// 如果没有找到，则使用第一项的ClusterId
+			const allowAddState = clusterList[0].HasAlreadyNode && !clusterList[0].IsExistInitProcedure;
 			clusterList.length > 0 ? setSelectCluster(clusterList[0].ClusterId) : setSelectCluster(''); // 确保数组不为空
-			clusterList.length > 0 ? callback && callback(!clusterList[0].HasAlreadyNode) : callback && callback(false); // 确保数组不为空
+			clusterList.length > 0 ? callback && callback(allowAddState) : callback && callback(false); // 确保数组不为空
 		}
 	};
 

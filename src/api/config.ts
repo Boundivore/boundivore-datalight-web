@@ -90,7 +90,8 @@ const APIConfig: Actions = {
 	loadFileConten: '/v1/master/log/file/loadFileContentWithNodeId',
 	//权限相关
 	getUserDetailList: '/v1/master/user/getUserDetailList',
-	getRoleList: '/v1/master/role/getRoleList'
+	getRoleList: '/v1/master/role/getRoleList',
+	register: '/v1/master/user/register'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

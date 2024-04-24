@@ -115,6 +115,7 @@ export interface ClusterType {
 	DlcVersion: string;
 	RelativeClusterId: number;
 	IsCurrentView: boolean;
+	IsExistInitProcedure: boolean;
 }
 
 /**

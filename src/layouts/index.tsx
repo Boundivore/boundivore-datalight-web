@@ -43,13 +43,17 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const [collapsed, setCollapsed] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
 	const location = useLocation();
-	const { navigateToLogin, navigateToHome } = useNavigater();
+	const { navigateToLogin, navigateToHome, navigateToChangePassword } = useNavigater();
 	const { modal } = App.useApp();
 	const apiLogout = APIConfig.logout;
 	const items: MenuProps['items'] = [
 		{
 			label: t('header.myAccount'),
 			key: '1'
+		},
+		{
+			label: <a onClick={() => navigateToChangePassword()}>{t('tabs.changePassword')}</a>,
+			key: '2'
 		},
 		{
 			label: (
@@ -69,7 +73,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 					{t('header.logout')}
 				</div>
 			),
-			key: '2'
+			key: '3'
 		}
 	];
 	const handleMouseEnter = () => {
@@ -85,17 +89,17 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 		return [{ title: t(`tabs.${path}`) }];
 	};
 	return (
-		<Layout className="w-full min-w-[1200px] h-[calc(100vh)]">
+		<Layout className="w-full min-w-[1360px] h-[calc(100vh)]">
 			<Header className="flex items-center">
 				<img className="cursor-pointer" src={Logo} height={40} onClick={navigateToHome} />
-				<div className="relative left-[50px]">
+				<div className="relative left-[30px]">
 					<LayoutMenu />
 				</div>
 				<Dropdown menu={{ items }} className="absolute right-[50px]">
 					<Avatar className="bg-[#51c2fe]" size="large" icon={<UserOutlined />} />
 				</Dropdown>
 			</Header>
-			<Layout>
+			<Layout className="overflow-y-auto">
 				{!hideSider ? (
 					<div className="relative bg-[#fff]" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 						<Sider
@@ -126,11 +130,11 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 				<Content>
 					<Breadcrumb className="ml-[44px] mt-[20px] font-bold text-[18px]" items={breadcrumbItems()} />
 					<Suspense fallback={<Spin fullscreen />}>{useRoutes(routes)}</Suspense>
+					<Footer className={`h-[40px] leading-[40px] p-0 text-center bg-white font-bold ${collapsed ? 'hidden' : 'w-full'}`}>
+						{t('poweredBy')}
+					</Footer>
 				</Content>
 			</Layout>
-			<Footer className={`h-[40px] leading-[40px] p-0 text-center bg-white font-bold ${collapsed ? 'hidden' : 'w-full'}`}>
-				{t('poweredBy')}
-			</Footer>
 		</Layout>
 	);
 };

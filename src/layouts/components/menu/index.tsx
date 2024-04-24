@@ -18,7 +18,6 @@ import { useState } from 'react';
 import { Menu, App } from 'antd';
 import {
 	AppstoreOutlined,
-	SettingOutlined,
 	ApartmentOutlined,
 	ClusterOutlined,
 	FundViewOutlined,
@@ -106,10 +105,10 @@ const LayoutMenu: React.FC = () => {
 		getItem(t('tabs.permission'), '/permission', <AuditOutlined />, [
 			getItem(<NavLink to="/permission/userManage">{t('tabs.userManage')}</NavLink>, '/userManage"'),
 			getItem(<NavLink to="/permission/roleManage">{t('tabs.roleManage')}</NavLink>, '/roleManage"')
-		]),
-		getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
-			getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"')
 		])
+		// getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
+		// 	getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"')
+		// ])
 	];
 	const handleModalCancel = () => {
 		setIsActiveJobModalOpen(false);
