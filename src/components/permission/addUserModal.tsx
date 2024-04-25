@@ -20,45 +20,99 @@
  */
 
 import { FC } from 'react';
-import { Modal, Form, Input } from 'antd';
+import { Modal, Form, Input, Select, message } from 'antd';
 // import type { FormProps } from 'antd';
 import { t } from 'i18next';
+import { md5 } from 'js-md5';
+import APIConfig from '@/api/config';
+import RequestHttp from '@/api';
 type FieldType = {
-	username?: string;
-	password?: string;
+	Principal?: string;
+	Credential?: string;
 };
-const AddUserModal: FC = ({ isModalOpen, handleCancel }) => {
+interface AddUserModalProps {
+	isModalOpen: boolean;
+	handleCancel: () => void;
+	handleOk: () => void;
+}
+const identityTypeData = [
+	// { value: 'EMAIL', label: <span>EMAIL</span> },
+	// { value: 'PHONE', label: <span>PHONE</span> },
+	{ value: 'USERNAME', label: <span>用户名</span> }
+];
+const AddUserModal: FC<AddUserModalProps> = ({ isModalOpen, handleCancel, handleOk }) => {
+	const [form] = Form.useForm();
+	const [messageApi] = message.useMessage();
+
+	const addUser = async () => {
+		const values = form.getFieldsValue();
+		console.log(values);
+		const api = APIConfig.register;
+		const params = {
+			UserAuth: {
+				Credential: md5(values.Credential),
+				IdentityType: values.IdentityType,
+				Principal: values.Principal
+			},
+			UserBase: {
+				Avatar: '',
+				Nickname: values.Nickname,
+				Realname: values.Realname
+			}
+		};
+		const { Code } = await RequestHttp.post(api, params);
+		if (Code === '00000') {
+			messageApi.success(t('messageSuccess'));
+			handleOk(); // 刷新用户列表
+			handleCancel(); // 关闭弹窗
+		}
+	};
 	return (
-		<Modal title={t('permission.addUser')} open={isModalOpen} onCancel={handleCancel}>
+		<Modal title={t('permission.addUser')} open={isModalOpen} onCancel={handleCancel} onOk={addUser}>
 			<Form
+				form={form}
 				name="basic"
-				labelCol={{ span: 8 }}
-				wrapperCol={{ span: 16 }}
+				labelCol={{ span: 4 }}
+				wrapperCol={{ span: 20 }}
 				style={{ maxWidth: 600 }}
-				initialValues={{ remember: true }}
+				initialValues={{ IdentityType: 'USERNAME' }}
 				autoComplete="off"
 			>
 				<Form.Item<FieldType>
-					label="Principal"
+					label={t('login.principal')}
 					name="Principal"
 					rules={[{ required: true, message: 'Please input your username!' }]}
 				>
 					<Input />
 				</Form.Item>
+				<Form.Item<FieldType>
+					label={t('permission.identityType')}
+					name="IdentityType"
+					rules={[{ required: true, message: 'Please input your username!' }]}
+				>
+					<Select options={identityTypeData} />
+				</Form.Item>
 
 				<Form.Item<FieldType>
-					label="Password"
-					name="password"
+					label={t('login.credential')}
+					name="Credential"
 					rules={[{ required: true, message: 'Please input your password!' }]}
 				>
 					<Input.Password />
 				</Form.Item>
 				<Form.Item<FieldType>
-					label="RealName"
-					name="password"
+					label={t('permission.realName')}
+					name="Realname"
 					rules={[{ required: true, message: 'Please input your password!' }]}
 				>
-					<Input.Password />
+					<Input />
+				</Form.Item>
+				<Form.Item<FieldType>
+					label={t('permission.nickName')}
+					name="Nickname"
+					rules={[{ required: true, message: 'Please input your password!' }]}
+				>
+					<Input />
 				</Form.Item>
 			</Form>
 		</Modal>

@@ -484,3 +484,139 @@ export interface UserInfoVo {
 	UserId: number;
 	[property: string]: any;
 }
+//角色相关
+
+/**
+ * RoleListVo
+ */
+export interface RoleListVo {
+	/**
+	 * 角色信息列表
+	 */
+	RoleList: RoleVo[];
+	[property: string]: any;
+}
+
+/**
+ * RoleVo
+ */
+export interface RoleVo {
+	/**
+	 * 是否可编辑
+	 */
+	EditEnabled: boolean;
+	/**
+	 * 是否启用标记
+	 */
+	Enabled: boolean;
+	/**
+	 * 角色编码
+	 */
+	RoleCode: string;
+	/**
+	 * 角色备注
+	 */
+	RoleComment?: string;
+	/**
+	 * 角色 ID
+	 */
+	RoleId: number;
+	/**
+	 * 角色名称
+	 */
+	RoleName: string;
+	/**
+	 * 角色类型
+	 */
+	RoleType: RoleType;
+	[property: string]: any;
+}
+
+/**
+ * 角色类型
+ */
+export enum RoleType {
+	RoleDynamic = 'ROLE_DYNAMIC',
+	RoleStatic = 'ROLE_STATIC'
+}
+
+// 权限相关
+/**
+ * PermissionListVo
+ */
+export interface PermissionListVo {
+	/**
+	 * 权限主体列表 响应体
+	 */
+	PermissionList: PermissionVo[];
+	[property: string]: any;
+}
+
+/**
+ * PermissionVo
+ */
+export interface PermissionVo {
+	/**
+	 * 是否生效
+	 */
+	Enabled: boolean;
+	/**
+	 * 是否删除
+	 */
+	IsDeleted: boolean;
+	/**
+	 * 权限编码
+	 */
+	PermissionCode: string;
+	/**
+	 * 权限备注
+	 */
+	PermissionComment: string;
+	/**
+	 * 权限主键 ID
+	 */
+	PermissionId: number;
+	/**
+	 * 权限名称
+	 */
+	PermissionName: string;
+	/**
+	 * 权限类型 枚举：PERMISSION_INTERFACE(0, 接口操作权限),PERMISSION_DATA_ROW(1,
+	 * 数据行读权限),PERMISSION_DATA_COLUMN(2, 数据列读权限),PERMISSION_PAGE(3, 页面操作权限);
+	 */
+	PermissionType: PermissionType;
+	/**
+	 * 权限权重 优先级，取值范围：1 ~ 10
+	 */
+	PermissionWeight: number;
+	/**
+	 * 互斥权限编码
+	 */
+	RejectPermissionCode: string;
+	/**
+	 * 规则主键 ID
+	 */
+	RuleId: number;
+	[property: string]: any;
+}
+
+/**
+ * 权限类型 枚举：PERMISSION_INTERFACE(0, 接口操作权限),PERMISSION_DATA_ROW(1,
+ * 数据行读权限),PERMISSION_DATA_COLUMN(2, 数据列读权限),PERMISSION_PAGE(3, 页面操作权限);
+ */
+export enum PermissionType {
+	PermissionDataColumn = 'PERMISSION_DATA_COLUMN',
+	PermissionDataRow = 'PERMISSION_DATA_ROW',
+	PermissionInterface = 'PERMISSION_INTERFACE',
+	PermissionPage = 'PERMISSION_PAGE'
+}
+
+/**
+ * ComponentWebUI
+ */
+export interface ComponentWebUI {
+	ComponentName: string;
+	ShowName: string;
+	Url: string;
+	[property: string]: any;
+}

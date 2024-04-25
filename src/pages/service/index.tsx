@@ -26,7 +26,7 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import usePolling from '@/hooks/usePolling';
 import useNavigater from '@/hooks/useNavigater';
-import { ServiceItemType, BadgeStatus } from '@/api/interface';
+import { ServiceItemType, BadgeStatus, ComponentWebUI } from '@/api/interface';
 import useStore from '@/store/store';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
@@ -96,14 +96,8 @@ const ServiceManage: FC = () => {
 				label: t('service.ui'),
 				callback: async () => {
 					const items = await navigateToWebUI(selectCluster, ServiceName);
-					// items.map(item => {
-					// 	return {
-					// 		key: item.ComponentName,
-					// 		label: <a href={item.Url}>{item.ShowName}</a>
-					// 	};
-					// });
 					const transformedData = items.length
-						? items.map(item => ({
+						? items.map((item: ComponentWebUI) => ({
 								key: item.ComponentName,
 								label: (
 									<a target="_blank" href={item.Url}>

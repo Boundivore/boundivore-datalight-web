@@ -35,7 +35,7 @@ import { RenderConfig } from '@/components/charts/renderConfig';
 const homeJobName = 'MONITOR-NodeExporter';
 const Home: React.FC = () => {
 	const { t } = useTranslation();
-	const [tableData, setTableData] = useState([]);
+	const [tableData, setTableData] = useState<ClusterType[]>([]);
 	const [activeCluster, setActiveCluster] = useState('');
 	const [activeClusterId, setActiveClusterId] = useState('');
 	const { stateText, isNeedChangePassword, setIsNeedChangePassword, setJobName } = useStore();
@@ -88,7 +88,7 @@ const Home: React.FC = () => {
 		setIsNeedChangePassword(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	const rowClassName = record => {
+	const rowClassName = (record: ClusterType) => {
 		return activeCluster === record.ClusterName ? 'bg-[#f0fcff]' : '';
 	};
 	return (

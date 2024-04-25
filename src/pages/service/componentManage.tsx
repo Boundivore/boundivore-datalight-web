@@ -50,7 +50,7 @@ const ComponentManage: React.FC = () => {
 	const id = searchParams.get('id') || '';
 	const serviceName = searchParams.get('name') || '';
 	// const [loading, setLoading] = useState(false);
-	const [componentTable, setComponentTable] = useState([]);
+	const [componentTable, setComponentTable] = useState<DataType[]>([]);
 	const [activeComponent, setActiveComponent] = useState('');
 	const [selectComponent, setSelectComponent] = useState<DataType[]>([]);
 	const [componentWithNode, setComponentWithNode] = useState({});
@@ -131,7 +131,6 @@ const ComponentManage: React.FC = () => {
 		];
 	};
 	useEffect(() => {
-		console.log(1212, handleButton);
 		// 检查所有组件是否都处于'STOPPED'状态
 		const allStopped = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum === 'STOPPED');
 		const stopAbled = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum !== 'STOPPED');
@@ -141,7 +140,7 @@ const ComponentManage: React.FC = () => {
 		setStopDisabled(!stopAbled); // 如果全是'STOPPED'，则停止按钮禁用
 		setRemoveDisabled(!allStopped); // 如果不全是'STOPPED'，则移除按钮禁用
 	}, [selectComponent, handleButton]); // 在 selectComponent 变化时触发
-	const componentColumns = [
+	const componentColumns: ColumnsType<DataType> = [
 		{
 			title: t('service.componentName'),
 			dataIndex: 'ComponentName',
@@ -341,7 +340,7 @@ const ComponentManage: React.FC = () => {
 			setSelectComponent(mergedArray);
 		}
 	};
-	const rowClassName = record => {
+	const rowClassName = (record: DataType) => {
 		return activeComponent === record.ComponentName ? 'bg-[#f0fcff]' : '';
 	};
 	return (
@@ -385,7 +384,6 @@ const ComponentManage: React.FC = () => {
 					<Col span={18}>
 						<Card className="data-light-card" title={activeComponent}>
 							{componentTable.map(component => {
-								console.log('111111', activeComponent);
 								return (
 									<Table
 										rowSelection={{

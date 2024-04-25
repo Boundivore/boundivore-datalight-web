@@ -91,7 +91,13 @@ const APIConfig: Actions = {
 	//权限相关
 	getUserDetailList: '/v1/master/user/getUserDetailList',
 	getRoleList: '/v1/master/role/getRoleList',
-	register: '/v1/master/user/register'
+	register: '/v1/master/user/register',
+	removeUser: '/api/v1/master/user/removeById',
+	newRole: '/v1/master/role/newRole',
+	getPermissionList: '/v1/master/permission/getPermissionList',
+	attachPermission: '/v1/master/permission/relation/attachPermissionRoleByPermissionRoleId',
+	attachRole: '/v1/master/role/relation/attachRoleUserByRoleUserId',
+	getRoleListByUserId: '/v1/master/role/getRoleListByUserId'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

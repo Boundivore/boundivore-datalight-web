@@ -21,19 +21,24 @@
 
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Flex, Space } from 'antd';
+import { Table, Button, Flex, Space, App, message } from 'antd';
 import type { TableColumnsType } from 'antd';
 import ContainerCard from '@/components/containerCard';
 import { UserInfoVo } from '@/api/interface';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import AddUserModal from '@/components/permission/addUserModal';
+import AttchRoleModal from '@/components/permission/attchRoleModal';
 
 const UserManage: FC = () => {
 	const { t } = useTranslation();
 	// 顶部操作按钮配置
 	const [tableData, setTableData] = useState<UserInfoVo[]>([]);
 	const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+	const [isAttchRoleModalOpen, setIsAttchRoleModalOpen] = useState(false);
+	const [currentUser, setCurrentUser] = useState<UserInfoVo>({} as UserInfoVo);
+	const { modal } = App.useApp();
+	const [messageApi] = message.useMessage();
 	const buttonConfigTop = [
 		{
 			id: 1,
@@ -56,13 +61,16 @@ const UserManage: FC = () => {
 			{
 				id: 2,
 				label: t('permission.asignRole'),
-				callback: () => {},
+				callback: () => {
+					setCurrentUser(record);
+					setIsAttchRoleModalOpen(true);
+				},
 				disabled: false
 			},
 			{
 				id: 3,
 				label: t('permission.removeUser'),
-				callback: () => {},
+				callback: () => removeUser(record.UserId),
 				disabled: false
 			}
 		];
@@ -100,6 +108,24 @@ const UserManage: FC = () => {
 			}
 		}
 	];
+	const removeUser = (userId: string | number) => {
+		modal.confirm({
+			title: t('node.remove'),
+			content: t('node.removeConfirm'),
+			okText: t('confirm'),
+			cancelText: t('cancel'),
+			onOk: async () => {
+				const api = APIConfig.removeUser;
+				const params = {
+					UserId: userId
+				};
+				const { Code } = await RequestHttp.post(api, params);
+				if (Code === '00000') {
+					messageApi.success(t('messageSuccess'));
+				}
+			}
+		});
+	};
 
 	const getUserList = async () => {
 		const api = APIConfig.getUserDetailList;
@@ -132,7 +158,15 @@ const UserManage: FC = () => {
 				dataSource={tableData}
 			/>
 			{isAddUserModalOpen ? (
-				<AddUserModal isModalOpen={isAddUserModalOpen} handleCancel={() => setIsAddUserModalOpen(false)} />
+				<AddUserModal isModalOpen={isAddUserModalOpen} handleCancel={() => setIsAddUserModalOpen(false)} handleOk={getUserList} />
+			) : null}
+			{isAttchRoleModalOpen ? (
+				<AttchRoleModal
+					isModalOpen={isAttchRoleModalOpen}
+					user={currentUser}
+					handleCancel={() => setIsAttchRoleModalOpen(false)}
+					handleOk={getUserList}
+				/>
 			) : null}
 		</ContainerCard>
 	);

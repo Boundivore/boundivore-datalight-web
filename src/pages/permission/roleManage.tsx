@@ -27,16 +27,18 @@ import ContainerCard from '@/components/containerCard';
 import { UserInfoVo } from '@/api/interface';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
+import useNavigater from '@/hooks/useNavigater';
 
 const RoleManage: FC = () => {
 	const { t } = useTranslation();
+	const { navigateToAddRole } = useNavigater();
 	// 顶部操作按钮配置
 	const [tableData, setTableData] = useState<UserInfoVo[]>([]);
 	const buttonConfigTop = [
 		{
 			id: 1,
 			label: t('permission.addRole'),
-			callback: () => {},
+			callback: navigateToAddRole,
 			disabled: false
 		}
 	];

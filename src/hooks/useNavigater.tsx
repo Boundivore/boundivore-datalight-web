@@ -82,8 +82,10 @@ const useNavigater = () => {
 		const {
 			Data: { ComponentWebUIList }
 		} = await RequestHttp.get(api, { params });
-		console.log(ComponentWebUIList);
 		return Promise.resolve(ComponentWebUIList);
+	};
+	const navigateToAddRole = () => {
+		navigate(`/permission/addRole`);
 	};
 
 	return {
@@ -100,7 +102,8 @@ const useNavigater = () => {
 		navigateToComManage,
 		navigateToAddComponent,
 		navigateToViewLog,
-		navigateToWebUI
+		navigateToWebUI,
+		navigateToAddRole
 	};
 };
 

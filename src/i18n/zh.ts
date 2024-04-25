@@ -217,12 +217,17 @@ export default {
 		addRole: '新增角色',
 		roleName: '角色名称',
 		roleDes: '角色描述',
-		removeRole: '删除角色'
+		roleType: '角色类型',
+		removeRole: '删除角色',
+		identityType: '账号类型',
+		realName: '真实姓名',
+		nickName: '昵称'
 	},
 	retry: '重试',
 	previous: '上一步',
 	next: '下一步',
 	cancel: '取消',
+	submit: '确定',
 	add: '服役节点到指定集群',
 	poweredBy: 'Powered by @Boundivore',
 	confirm: '确认',
