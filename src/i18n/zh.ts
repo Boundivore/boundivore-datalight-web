@@ -54,6 +54,7 @@ export default {
 		permission: '用户&权限',
 		userManage: '用户管理',
 		roleManage: '角色管理',
+		addRole: '新增角色',
 		config: '配置',
 		myAccount: '我的账号',
 		changePassword: '修改密码',
@@ -208,17 +209,26 @@ export default {
 	permission: {
 		addUser: '新增用户',
 		removeUser: '删除用户',
-		asignRole: '分配角色',
-		asignPermission: '分配权限',
+		removeUserConfirm: '您确定删除该用户吗？',
+		assignRole: '绑定角色',
+		permission: '权限',
+		assignPermission: '分配权限',
 		userName: '用户名',
 		createTime: '创建时间',
 		lastLogin: '上次登录时间',
 		updateTime: '更新时间',
 		addRole: '新增角色',
+		role: '角色',
 		roleName: '角色名称',
 		roleDes: '角色描述',
 		roleType: '角色类型',
+		ROLE_DYNAMIC: '动态', //使用大写字母是与后端保持一致，方便直接映射
+		ROLE_STATIC: '静态',
+		enable: '是否启用',
+		enabled: '已启用',
+		disabled: '未启用',
 		removeRole: '删除角色',
+		removeRoleConfirm: '您确定删除该角色吗？',
 		identityType: '账号类型',
 		realName: '真实姓名',
 		nickName: '昵称'
@@ -282,5 +292,8 @@ export default {
 	taskID: '任务 ID：',
 	stepID: '步骤 ID：',
 	stageID: '阶段 ID：',
-	continueBoot: '当前存在未完成的集群引导，请优先完成集群引导  <1>继续集群引导</1>'
+	continueBoot: '当前存在未完成的集群引导，请优先完成集群引导  <1>继续集群引导</1>',
+	enable: '启用',
+	disable: '停用',
+	detach: '解除绑定'
 };

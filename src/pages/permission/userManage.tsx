@@ -23,6 +23,7 @@ import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Table, Button, Flex, Space, App, message } from 'antd';
 import type { TableColumnsType } from 'antd';
+import dayjs from 'dayjs';
 import ContainerCard from '@/components/containerCard';
 import { UserInfoVo } from '@/api/interface';
 import RequestHttp from '@/api';
@@ -60,7 +61,7 @@ const UserManage: FC = () => {
 			},
 			{
 				id: 2,
-				label: t('permission.asignRole'),
+				label: t('permission.assignRole'),
 				callback: () => {
 					setCurrentUser(record);
 					setIsAttchRoleModalOpen(true);
@@ -84,12 +85,14 @@ const UserManage: FC = () => {
 		{
 			title: t('permission.createTime'),
 			dataIndex: 'CreateTime',
-			key: 'CreateTime'
+			key: 'CreateTime',
+			render: text => dayjs.unix(text / 1000).format('YYYY-MM-DD HH:mm:ss')
 		},
 		{
 			title: t('permission.updateTime'),
 			dataIndex: 'UpdateTime',
-			key: 'UpdateTime'
+			key: 'UpdateTime',
+			render: text => dayjs.unix(text / 1000).format('YYYY-MM-DD HH:mm:ss')
 		},
 		{
 			title: t('operation'),
@@ -110,8 +113,8 @@ const UserManage: FC = () => {
 	];
 	const removeUser = (userId: string | number) => {
 		modal.confirm({
-			title: t('node.remove'),
-			content: t('node.removeConfirm'),
+			title: t('permission.removeUser'),
+			content: t('permission.removeUserConfirm'),
 			okText: t('confirm'),
 			cancelText: t('cancel'),
 			onOk: async () => {
@@ -122,6 +125,7 @@ const UserManage: FC = () => {
 				const { Code } = await RequestHttp.post(api, params);
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
+					getUserList(); //删除成功更新列表
 				}
 			}
 		});

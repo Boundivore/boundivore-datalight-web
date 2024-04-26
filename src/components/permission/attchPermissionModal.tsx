@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * AttchRoleModal - 绑定用户与角色
+ * AttchPermissionModal - 为角色分配权限
  * @author Tracy
  */
 
@@ -26,54 +26,54 @@ import _ from 'lodash';
 import { t } from 'i18next';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { UserInfoVo, RoleVo } from '@/api/interface';
+import { PermissionVo, RoleVo } from '@/api/interface';
 
 type FieldType = {
 	Principal?: string;
 	Credential?: string;
 };
-interface AttchRoleModalProps {
+interface AttchPermissionModalProps {
 	isModalOpen: boolean;
-	user: UserInfoVo;
+	role: RoleVo;
 	handleCancel: () => void;
 	handleOk: () => void;
 }
-const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCancel, handleOk }) => {
+const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role, handleCancel, handleOk }) => {
 	const [form] = Form.useForm();
 	const [targetKeys, setTargetKeys] = useState<TransferProps['targetKeys']>();
 	const [selectedKeys, setSelectedKeys] = useState<TransferProps['targetKeys']>([]);
-	const [roleList, setRoleList] = useState<RoleVo[]>([]);
-	const [attachedList, setAttachedList] = useState<RoleVo[]>([]);
-	const [hasRoleList, setHasRoleList] = useState(false);
+	const [permissionList, setPermissionList] = useState<PermissionVo[]>([]);
+	const [attachedList, setAttachedList] = useState<PermissionVo[]>([]);
+	const [hasPermission, setHasPermission] = useState(false);
 	const [messageApi] = message.useMessage();
-	const getRoleListByUserId = async () => {
-		const api = APIConfig.getRoleListByUserId;
+	const getPermissionListByRoleId = async () => {
+		const api = APIConfig.getPermissionListByRoleId;
 		const {
-			Data: { RoleList }
-		} = await RequestHttp.get(api, { params: { UserId: user.UserId } });
-		const attchedRoleList = RoleList.map(role => ({
-			...role,
+			Data: { PermissionList }
+		} = await RequestHttp.get(api, { params: { RoleId: role.RoleId } });
+		const attchedPermissionList = PermissionList.map((permission: PermissionVo) => ({
+			...permission,
 			disabled: true
 		}));
-		const keys = RoleList.map((role: RoleVo) => role.RoleId);
+		const keys = PermissionList.map((role: PermissionVo) => role.PermissionId);
 		setTargetKeys(keys);
-		setAttachedList(attchedRoleList);
-		setRoleList([...roleList, ...attchedRoleList]);
+		setAttachedList(attchedPermissionList);
+		setPermissionList([...permissionList, ...attchedPermissionList]);
 	};
-	const getRoleList = async () => {
-		const api = APIConfig.getRoleList;
+	const getPermissionList = async () => {
+		const api = APIConfig.getPermissionList;
 		const {
-			Data: { RoleList }
+			Data: { PermissionList }
 		} = await RequestHttp.get(api);
-		setRoleList(RoleList);
-		setHasRoleList(true);
+		setPermissionList(PermissionList);
+		setHasPermission(true);
 	};
 	useEffect(() => {
-		hasRoleList && getRoleListByUserId();
+		hasPermission && getPermissionListByRoleId();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [hasRoleList]);
+	}, [hasPermission]);
 	useEffect(() => {
-		getRoleList();
+		getPermissionList();
 	}, []);
 	const onChange: TransferProps['onChange'] = nextTargetKeys => {
 		console.log('targetKeys:', nextTargetKeys);
@@ -84,19 +84,19 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 		console.log('targetSelectedKeys:', targetSelectedKeys);
 		setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
 	};
-	const attchRole = async () => {
+	const attchPermission = async () => {
 		const values = form.getFieldsValue();
 		console.log('Success:', values);
 
 		const apiAttach = APIConfig.attachRole;
-		const result = _.differenceWith(values.RoleList, attachedList, (item1, item2) => item1 === item2.RoleId);
-		const RoleIdList = result.map((roleId: string) => ({
-			RoleId: roleId,
-			UserId: user.UserId
+		const result = _.differenceWith(values.PermissionList, attachedList, (item1, item2) => item1 === item2.PermissionId);
+		const RoleIdList = result.map((permissionId: string) => ({
+			PermissionId: permissionId,
+			RoleId: role.RoleId
 		}));
 
 		const paramsAttch = {
-			RoleUserList: RoleIdList
+			PermissionRoleIdList: RoleIdList
 		};
 		const { Code, Data } = await RequestHttp.post(apiAttach, paramsAttch);
 		console.log(Data);
@@ -108,39 +108,39 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 	};
 
 	return (
-		<Modal title={t('permission.assignRole')} open={isModalOpen} onCancel={handleCancel} onOk={attchRole}>
+		<Modal title={t('permission.assignPermission')} open={isModalOpen} onCancel={handleCancel} onOk={attchPermission}>
 			<Form
 				form={form}
 				name="basic"
 				labelCol={{ span: 4 }}
 				wrapperCol={{ span: 20 }}
 				style={{ maxWidth: 600 }}
-				initialValues={{ RealName: user.Realname, RoleList: selectedKeys }}
+				initialValues={{ RoleName: role.RoleName, PermissionList: selectedKeys }}
 				autoComplete="off"
 			>
 				<Form.Item<FieldType>
-					label={t('permission.userName')}
-					name="RealName"
+					label={t('permission.roleName')}
+					name="RoleName"
 					rules={[{ required: true, message: 'Please input your username!' }]}
 				>
 					<Input readOnly />
 				</Form.Item>
 
 				<Form.Item<FieldType>
-					label={t('permission.role')}
-					name="RoleList"
+					label={t('permission.permission')}
+					name="PermissionList"
 					rules={[{ required: true, message: 'Please input your password!' }]}
 				>
 					<Transfer
-						dataSource={roleList}
+						dataSource={permissionList}
 						titles={['未选择', '已选择']}
-						rowKey={record => record.RoleId}
+						rowKey={record => record.PermissionId}
 						targetKeys={targetKeys}
 						selectedKeys={selectedKeys}
 						onChange={onChange}
 						onSelectChange={onSelectChange}
 						// onScroll={onScroll}
-						render={item => <div className="data-light-role">{item.RoleName}</div>}
+						render={item => item.PermissionName}
 						oneWay
 						footer={() => null}
 					/>
@@ -149,4 +149,4 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 		</Modal>
 	);
 };
-export default AttchRoleModal;
+export default AttchPermissionModal;

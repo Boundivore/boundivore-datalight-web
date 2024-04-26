@@ -21,28 +21,32 @@
 
 import { FC, useEffect, useState } from 'react';
 import { t } from 'i18next';
-import { Form, Transfer, Input, Select, Button, Space, Switch } from 'antd';
+import { Form, Transfer, Input, Select, Button, Space, Switch, message } from 'antd';
 import type { TransferProps, FormProps } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import ContainerCard from '@/components/containerCard';
 import { PermissionVo } from '@/api/interface';
+import useNavigater from '@/hooks/useNavigater';
 
 type FieldType = {
 	RoleName: string;
 	RoleComment?: string;
 	RoleType: string;
 	PermissionId: string[];
+	Enabled: boolean;
 };
 const roleType = [
-	{ value: 'ROLE_DYNAMIC', label: <span>ROLE_DYNAMIC</span> },
-	{ value: 'ROLE_STATIC', label: <span>ROLE_STATIC</span> }
+	{ value: 'ROLE_DYNAMIC', label: <span>{t('permission.ROLE_DYNAMIC')}</span> },
+	{ value: 'ROLE_STATIC', label: <span>{t('permission.ROLE_STATIC')}</span> }
 ];
 const AddRole: FC = () => {
 	const [form] = Form.useForm();
+	const [messageApi, contextHolder] = message.useMessage();
 	const [targetKeys, setTargetKeys] = useState<TransferProps['targetKeys']>();
 	const [selectedKeys, setSelectedKeys] = useState<TransferProps['targetKeys']>([]);
 	const [permissionList, setPermissionList] = useState<PermissionVo[]>([]);
+	const { navigateToRoleManage } = useNavigater();
 	const getPermissionList = async () => {
 		const api = APIConfig.getPermissionList;
 		const {
@@ -63,7 +67,7 @@ const AddRole: FC = () => {
 		console.log('Success:', values);
 		const api = APIConfig.newRole;
 		const params = {
-			Enabled: false,
+			Enabled: values.Enabled || false,
 			RoleComment: values.RoleComment,
 			RoleName: values.RoleName,
 			RoleType: values.RoleType
@@ -81,8 +85,11 @@ const AddRole: FC = () => {
 			const paramsAttch = {
 				PermissionRoleIdList: PermissionIdList
 			};
-			const { Data } = await RequestHttp.post(apiAttach, paramsAttch);
-			console.log(Data);
+			const { Code } = await RequestHttp.post(apiAttach, paramsAttch);
+			if (Code === '00000') {
+				messageApi.success(t('messageSuccess'));
+				navigateToRoleManage();
+			}
 		}
 	};
 
@@ -91,6 +98,7 @@ const AddRole: FC = () => {
 	}, []);
 	return (
 		<ContainerCard>
+			{contextHolder}
 			<Form
 				form={form}
 				name="basic"
@@ -123,15 +131,15 @@ const AddRole: FC = () => {
 					<Select options={roleType} />
 				</Form.Item>
 				<Form.Item<FieldType>
-					label={t('permission.roleType')}
+					label={t('permission.enable')}
 					name="Enabled"
 					valuePropName="checked"
-					rules={[{ required: true, message: 'Please input your username!' }]}
+					// rules={[{ required: true, message: 'Please input your username!' }]}
 				>
 					<Switch />
 				</Form.Item>
 				<Form.Item<FieldType>
-					label={t('login.principal')}
+					label={t('permission.assignPermission')}
 					name="PermissionId"
 					rules={[{ required: true, message: 'Please input your username!' }]}
 				>
@@ -149,7 +157,7 @@ const AddRole: FC = () => {
 				</Form.Item>
 				<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 					<Space>
-						<Button>{t('cancel')}</Button>
+						<Button onClick={navigateToRoleManage}>{t('cancel')}</Button>
 						<Button type="primary" htmlType="submit">
 							{t('submit')}
 						</Button>

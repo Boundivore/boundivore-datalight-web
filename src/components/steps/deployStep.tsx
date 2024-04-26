@@ -144,9 +144,9 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 		const basicDisabled = disabledState.includes(JobExecStateEnum);
 		setOpenAlert(JobExecStateEnum === 'ERROR');
 		const disableNext = basicDisabled;
-		const disableRetry = basicDisabled || JobExecStateEnum === 'OK';
-		const disablePrev = disableNext || disableRetry;
-		const disableCancel = disableNext || disableRetry;
+		const disableRetry = JobExecStateEnum === 'RUNNING';
+		const disablePrev = basicDisabled;
+		const disableCancel = JobExecStateEnum === 'RUNNING';
 		setCurrentPageDisabled({
 			nextDisabled: disableNext,
 			retryDisabled: disableRetry,

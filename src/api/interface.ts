@@ -221,18 +221,6 @@ export interface ConfigSummaryListVo {
 }
 
 /**
- * NodeJobLogVo
- */
-export interface NodeJobLogVo {
-	LogErrOut: string;
-	LogStdOut: string;
-	NodeJobId: number;
-	NodeTaskId: number;
-	StepId: number;
-	[property: string]: any;
-}
-
-/**
  * JobProgressVo
  */
 export interface JobProgressVo {
@@ -618,5 +606,52 @@ export interface ComponentWebUI {
 	ComponentName: string;
 	ShowName: string;
 	Url: string;
+	[property: string]: any;
+}
+
+// 日志相关
+/**
+ * JobLogListVo
+ */
+export interface JobLogListVo {
+	ClusterId: number;
+	JobLogList: JobLogVo[];
+	Tag: string;
+	[property: string]: any;
+}
+
+/**
+ * JobLogVo
+ */
+export interface JobLogVo {
+	JobId: number;
+	LogErrOut: string;
+	LogStdOut: string;
+	NodeId: number;
+	StageId: number;
+	StepId: number;
+	TaskId: number;
+	[property: string]: any;
+}
+/**
+ * NodeJobLogListVo
+ */
+export interface NodeJobLogListVo {
+	ClusterId: number;
+	NodeJobLogList: NodeJobLogVo[];
+	Tag: string;
+	[property: string]: any;
+}
+
+/**
+ * NodeJobLogVo
+ */
+export interface NodeJobLogVo {
+	LogErrOut: string;
+	LogStdOut: string;
+	NodeId: number;
+	NodeJobId: number;
+	NodeTaskId: number;
+	StepId: number;
 	[property: string]: any;
 }

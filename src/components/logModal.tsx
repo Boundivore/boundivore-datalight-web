@@ -28,6 +28,7 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
+import { NodeJobLogVo, JobLogVo } from '@/api/interface';
 
 interface CheckLogModalProps {
 	isModalOpen: boolean;
@@ -48,7 +49,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 	// const [errorText, setErrorText] = useState('');
 
 	const getLog = async () => {
-		let api;
+		let api: string;
 		let params;
 
 		if (type === 'jobProgress') {
@@ -65,6 +66,8 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 				NodeJobId: jobNodeId,
 				NodeId: nodeId
 			};
+		} else {
+			throw new Error(`Unknown type: ${type}`);
 		}
 
 		const data = await RequestHttp.get(api, { params });
@@ -75,7 +78,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 		let processedData;
 		if (type === 'jobProgress') {
 			// 处理 job 类型数据
-			processedData = JobLogList.reduce((acc, item) => {
+			processedData = JobLogList.reduce((acc, item: JobLogVo) => {
 				const { StageId, TaskId, StepId } = item;
 				// 查找是否存在对应的 StageId
 				let stageIndex = acc.findIndex(stage => stage.StageId === StageId);
@@ -108,7 +111,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 			}, []);
 		} else if (type === 'nodeJobProgress') {
 			// 处理 node 类型数据
-			processedData = NodeJobLogList.reduce((acc, curr) => {
+			processedData = NodeJobLogList.reduce((acc, curr: NodeJobLogVo) => {
 				// 查找是否已有相同的 NodeTaskId
 				const existingTaskIndex = acc.findIndex(item => item.NodeTaskId === curr.NodeTaskId);
 
