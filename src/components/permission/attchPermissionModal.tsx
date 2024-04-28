@@ -55,7 +55,7 @@ const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role
 			...permission,
 			disabled: true
 		}));
-		const keys = PermissionList.map((role: PermissionVo) => role.PermissionId);
+		const keys = PermissionList.map((permission: PermissionVo) => permission.PermissionId);
 		setTargetKeys(keys);
 		setAttachedList(attchedPermissionList);
 		setPermissionList([...permissionList, ...attchedPermissionList]);
@@ -88,15 +88,15 @@ const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role
 		const values = form.getFieldsValue();
 		console.log('Success:', values);
 
-		const apiAttach = APIConfig.attachRole;
+		const apiAttach = APIConfig.attachPermission;
 		const result = _.differenceWith(values.PermissionList, attachedList, (item1, item2) => item1 === item2.PermissionId);
-		const RoleIdList = result.map((permissionId: string) => ({
+		const PermissionRoleIdList = result.map((permissionId: string) => ({
 			PermissionId: permissionId,
 			RoleId: role.RoleId
 		}));
 
 		const paramsAttch = {
-			PermissionRoleIdList: RoleIdList
+			PermissionRoleIdList
 		};
 		const { Code, Data } = await RequestHttp.post(apiAttach, paramsAttch);
 		console.log(Data);
@@ -107,8 +107,10 @@ const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role
 		}
 	};
 
+	const filterOption = (inputValue: string, option: PermissionVo) => option.PermissionName.indexOf(inputValue) > -1;
+
 	return (
-		<Modal title={t('permission.assignPermission')} open={isModalOpen} onCancel={handleCancel} onOk={attchPermission}>
+		<Modal title={t('permission.attachPermission')} open={isModalOpen} onCancel={handleCancel} onOk={attchPermission}>
 			<Form
 				form={form}
 				name="basic"
@@ -134,6 +136,8 @@ const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role
 					<Transfer
 						dataSource={permissionList}
 						titles={['未选择', '已选择']}
+						showSearch
+						filterOption={filterOption}
 						rowKey={record => record.PermissionId}
 						targetKeys={targetKeys}
 						selectedKeys={selectedKeys}

@@ -90,6 +90,9 @@ const useNavigater = () => {
 	const navigateToRoleManage = () => {
 		navigate(`/permission/roleManage`);
 	};
+	const navigateToUserDetail = (id: number | string) => {
+		navigate(`/permission/userDetail?id=${id}`);
+	};
 
 	return {
 		navigateToLogin,
@@ -107,7 +110,8 @@ const useNavigater = () => {
 		navigateToViewLog,
 		navigateToWebUI,
 		navigateToAddRole,
-		navigateToRoleManage
+		navigateToRoleManage,
+		navigateToUserDetail
 	};
 };
 

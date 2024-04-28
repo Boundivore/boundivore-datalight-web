@@ -60,7 +60,7 @@ const RoleManage: FC = () => {
 			},
 			{
 				id: 2,
-				label: t('permission.assignPermission'),
+				label: t('permission.attachPermission'),
 				callback: () => {
 					setCurrentRole(record);
 					setIsAttchModalOpen(true);
@@ -69,6 +69,12 @@ const RoleManage: FC = () => {
 			},
 			{
 				id: 3,
+				label: t('permission.detachPermission'),
+				callback: () => detachPermission(RoleId),
+				disabled: false
+			},
+			{
+				id: 4,
 				label: t('permission.removeRole'),
 				callback: () => removeRole(RoleId),
 				disabled: false
@@ -117,6 +123,25 @@ const RoleManage: FC = () => {
 			}
 		}
 	];
+	const detachPermission = (roleId: string | number) => {
+		modal.confirm({
+			title: t('permission.detachPermission'),
+			content: t('permission.detachPermissionConfirm'),
+			okText: t('confirm'),
+			cancelText: t('cancel'),
+			onOk: async () => {
+				const api = APIConfig.detachPermissionRoleByRoleId;
+				const params = {
+					RoleIdList: [roleId]
+				};
+				const { Code } = await RequestHttp.post(api, params);
+				if (Code === '00000') {
+					messageApi.success(t('messageSuccess'));
+					getRoleList(); //删除成功更新列表
+				}
+			}
+		});
+	};
 	const removeRole = (roleId: string | number) => {
 		modal.confirm({
 			title: t('permission.removeRole'),

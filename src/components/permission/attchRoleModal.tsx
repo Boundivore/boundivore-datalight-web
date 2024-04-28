@@ -29,8 +29,8 @@ import RequestHttp from '@/api';
 import { UserInfoVo, RoleVo } from '@/api/interface';
 
 type FieldType = {
-	Principal?: string;
-	Credential?: string;
+	RealName: string;
+	RoleList: string[];
 };
 interface AttchRoleModalProps {
 	isModalOpen: boolean;
@@ -51,7 +51,7 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 		const {
 			Data: { RoleList }
 		} = await RequestHttp.get(api, { params: { UserId: user.UserId } });
-		const attchedRoleList = RoleList.map(role => ({
+		const attchedRoleList = RoleList.map((role: RoleVo) => ({
 			...role,
 			disabled: true
 		}));
@@ -90,7 +90,7 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 
 		const apiAttach = APIConfig.attachRole;
 		const result = _.differenceWith(values.RoleList, attachedList, (item1, item2) => item1 === item2.RoleId);
-		const RoleIdList = result.map((roleId: string) => ({
+		const RoleIdList = result.map((roleId: number | string) => ({
 			RoleId: roleId,
 			UserId: user.UserId
 		}));
@@ -106,9 +106,10 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 			handleCancel(); // 关闭弹窗
 		}
 	};
+	const filterOption = (inputValue: string, option: RoleVo) => option.RoleName.indexOf(inputValue) > -1;
 
 	return (
-		<Modal title={t('permission.assignRole')} open={isModalOpen} onCancel={handleCancel} onOk={attchRole}>
+		<Modal title={t('permission.attachRole')} open={isModalOpen} onCancel={handleCancel} onOk={attchRole}>
 			<Form
 				form={form}
 				name="basic"
@@ -123,7 +124,7 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 					name="RealName"
 					rules={[{ required: true, message: 'Please input your username!' }]}
 				>
-					<Input readOnly />
+					<Input disabled />
 				</Form.Item>
 
 				<Form.Item<FieldType>
@@ -133,6 +134,8 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 				>
 					<Transfer
 						dataSource={roleList}
+						showSearch
+						filterOption={filterOption}
 						titles={['未选择', '已选择']}
 						rowKey={record => record.RoleId}
 						targetKeys={targetKeys}

@@ -90,6 +90,7 @@ const APIConfig: Actions = {
 	loadFileConten: '/v1/master/log/file/loadFileContentWithNodeId',
 	//权限相关
 	getUserDetailList: '/v1/master/user/getUserDetailList',
+	getUserDetailById: '/v1/master/user/getUserDetailById',
 	getRoleList: '/v1/master/role/getRoleList',
 	removeRole: '/v1/master/role/removeRoleBatchByIdList',
 	register: '/v1/master/user/register',
@@ -97,7 +98,9 @@ const APIConfig: Actions = {
 	newRole: '/v1/master/role/newRole',
 	getPermissionList: '/v1/master/permission/getPermissionList',
 	attachPermission: '/v1/master/permission/relation/attachPermissionRoleByPermissionRoleId',
+	detachPermissionRoleByRoleId: '/v1/master/permission/relation/detachPermissionRoleByRoleId',
 	attachRole: '/v1/master/role/relation/attachRoleUserByRoleUserId',
+	detachRoleUser: '/v1/master/role/relation/detachRoleUser',
 	getRoleListByUserId: '/v1/master/role/getRoleListByUserId',
 	switchRoleEnabled: '/v1/master/role/switchRoleEnabled',
 	getPermissionListByRoleId: '/v1/master/permission/getPermissionListByRoleId'

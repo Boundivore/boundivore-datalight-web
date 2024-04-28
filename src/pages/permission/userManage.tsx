@@ -30,16 +30,20 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import AddUserModal from '@/components/permission/addUserModal';
 import AttchRoleModal from '@/components/permission/attchRoleModal';
+import ChangePasswordModal from '@/components/permission/changePasswordModal';
+import useNavigater from '@/hooks/useNavigater';
 
 const UserManage: FC = () => {
 	const { t } = useTranslation();
-	// 顶部操作按钮配置
+	const { navigateToUserDetail } = useNavigater();
 	const [tableData, setTableData] = useState<UserInfoVo[]>([]);
 	const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
 	const [isAttchRoleModalOpen, setIsAttchRoleModalOpen] = useState(false);
+	const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
 	const [currentUser, setCurrentUser] = useState<UserInfoVo>({} as UserInfoVo);
 	const { modal } = App.useApp();
-	const [messageApi] = message.useMessage();
+	const [messageApi, contextHolder] = message.useMessage();
+
 	const buttonConfigTop = [
 		{
 			id: 1,
@@ -56,12 +60,12 @@ const UserManage: FC = () => {
 			{
 				id: 1,
 				label: t('detail'),
-				callback: () => {},
+				callback: () => navigateToUserDetail(UserId),
 				disabled: false
 			},
 			{
 				id: 2,
-				label: t('permission.assignRole'),
+				label: t('permission.attachRole'),
 				callback: () => {
 					setCurrentUser(record);
 					setIsAttchRoleModalOpen(true);
@@ -70,6 +74,21 @@ const UserManage: FC = () => {
 			},
 			{
 				id: 3,
+				label: t('permission.detachRole'),
+				callback: () => detachRole(record.UserId),
+				disabled: false
+			},
+			{
+				id: 4,
+				label: t('account.changePassword'),
+				callback: () => {
+					setCurrentUser(record);
+					setIsChangePasswordModalOpen(true);
+				},
+				disabled: false
+			},
+			{
+				id: 5,
 				label: t('permission.removeUser'),
 				callback: () => removeUser(record.UserId),
 				disabled: false
@@ -79,6 +98,11 @@ const UserManage: FC = () => {
 	const columns: TableColumnsType<UserInfoVo> = [
 		{
 			title: t('permission.userName'),
+			dataIndex: 'Principal',
+			key: 'Principal'
+		},
+		{
+			title: t('permission.realName'),
 			dataIndex: 'Realname',
 			key: 'Realname'
 		},
@@ -111,6 +135,25 @@ const UserManage: FC = () => {
 			}
 		}
 	];
+	const detachRole = (userId: string | number) => {
+		modal.confirm({
+			title: t('permission.detachRole'),
+			content: t('permission.detachRoleConfirm'),
+			okText: t('confirm'),
+			cancelText: t('cancel'),
+			onOk: async () => {
+				const api = APIConfig.detachRoleUser;
+				const params = {
+					UserIdList: [userId]
+				};
+				const { Code } = await RequestHttp.post(api, params);
+				if (Code === '00000') {
+					messageApi.success(t('messageSuccess'));
+					getUserList(); //删除成功更新列表
+				}
+			}
+		});
+	};
 	const removeUser = (userId: string | number) => {
 		modal.confirm({
 			title: t('permission.removeUser'),
@@ -143,6 +186,7 @@ const UserManage: FC = () => {
 	}, []);
 	return (
 		<ContainerCard>
+			{contextHolder}
 			<Flex justify="space-between">
 				<Space>
 					{buttonConfigTop.map(button => (
@@ -170,6 +214,14 @@ const UserManage: FC = () => {
 					user={currentUser}
 					handleCancel={() => setIsAttchRoleModalOpen(false)}
 					handleOk={getUserList}
+				/>
+			) : null}
+			{isChangePasswordModalOpen ? (
+				<ChangePasswordModal
+					isModalOpen={isChangePasswordModalOpen}
+					user={currentUser}
+					handleCancel={() => setIsChangePasswordModalOpen(false)}
+					// handleOk={getUserList}
 				/>
 			) : null}
 		</ContainerCard>

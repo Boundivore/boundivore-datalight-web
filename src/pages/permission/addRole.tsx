@@ -139,7 +139,7 @@ const AddRole: FC = () => {
 					<Switch />
 				</Form.Item>
 				<Form.Item<FieldType>
-					label={t('permission.assignPermission')}
+					label={t('permission.attachPermission')}
 					name="PermissionId"
 					rules={[{ required: true, message: 'Please input your username!' }]}
 				>

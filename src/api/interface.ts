@@ -508,7 +508,7 @@ export interface RoleVo {
 	/**
 	 * 角色 ID
 	 */
-	RoleId: number;
+	RoleId: number | string;
 	/**
 	 * 角色名称
 	 */
