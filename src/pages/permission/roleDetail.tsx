@@ -34,7 +34,7 @@ const { Text } = Typography;
 interface RoleInfoItem {
 	key: number;
 	label: ReactNode;
-	text: string | Date;
+	text: ReactNode;
 }
 
 const RoleDetail: FC = () => {
@@ -130,17 +130,17 @@ const RoleDetail: FC = () => {
 			{
 				key: 1,
 				label: <Text strong>{t('permission.roleName')}</Text>,
-				text: Data.RoleName
+				text: <span>{Data.RoleName}</span>
 			},
 			{
 				key: 2,
 				label: <Text strong>{t('permission.roleDes')}</Text>,
-				text: Data.RoleComment
+				text: <span>{Data.RoleComment}</span>
 			},
 			{
 				key: 3,
 				label: <Text strong>{t('permission.roleType')}</Text>,
-				text: t(`permission.${Data.RoleType}`)
+				text: <span>{t(`permission.${Data.RoleType}`)}</span>
 			},
 			{
 				key: 4,

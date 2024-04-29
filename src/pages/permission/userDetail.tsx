@@ -38,7 +38,7 @@ const { Text } = Typography;
 interface UserInfoItem {
 	key: number;
 	label: ReactNode;
-	text: string | Date;
+	text: ReactNode;
 }
 
 const UserDetail: FC = () => {
@@ -141,27 +141,27 @@ const UserDetail: FC = () => {
 			{
 				key: 1,
 				label: <Text strong>{t('permission.principal')}</Text>,
-				text: Data.Principal
+				text: <span>{Data.Principal}</span>
 			},
 			{
 				key: 2,
 				label: <Text strong>{t('permission.realName')}</Text>,
-				text: Data.Realname
+				text: <span>{Data.Realname}</span>
 			},
 			{
 				key: 3,
 				label: <Text strong>{t('permission.nickName')}</Text>,
-				text: Data.Nickname
+				text: <span>{Data.Nickname}</span>
 			},
 			{
 				key: 4,
 				label: <Text strong>{t('permission.createTime')}</Text>,
-				text: dayjs(Data.CreateTime / 1000).format('YYYY-MM-DD HH:mm:ss')
+				text: dayjs.unix(Data.CreateTime / 1000).format('YYYY-MM-DD HH:mm:ss')
 			},
 			{
 				key: 5,
 				label: <Text strong>{t('permission.updateTime')}</Text>,
-				text: dayjs(Data.UpdateTime / 1000).format('YYYY-MM-DD HH:mm:ss')
+				text: dayjs.unix(Data.UpdateTime / 1000).format('YYYY-MM-DD HH:mm:ss')
 			}
 		];
 		setCurrentUser(Data);
