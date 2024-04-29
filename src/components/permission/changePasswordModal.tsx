@@ -45,27 +45,28 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isModalOpen, 
 	const [messageApi, contextHolder] = message.useMessage();
 
 	const onFinish = async () => {
-		const values = form.getFieldsValue();
-		const { NewCredential, OldCredential, Principal, ConfirmNewCredential } = values;
-		const api = APIConfig.changePassword;
-		if (NewCredential !== ConfirmNewCredential) {
-			modal.error({
-				title: t('error'),
-				content: t('account.passwordMismatch'),
-				okText: t('ok')
-			});
-			return;
-		}
-		const params = {
-			NewCredential: md5(NewCredential),
-			OldCredential: md5(OldCredential),
-			Principal
-		};
-		const { Code } = await RequestHttp.post(api, params);
-		if (Code === '00000') {
-			messageApi.success(t('messageSuccess'));
-			handleCancel();
-		}
+		// const values = form.getFieldsValue();
+		form.validateFields().then(async ({ NewCredential, OldCredential, Principal, ConfirmNewCredential }) => {
+			const api = APIConfig.changePassword;
+			if (NewCredential !== ConfirmNewCredential) {
+				modal.error({
+					title: t('error'),
+					content: t('account.passwordMismatch'),
+					okText: t('ok')
+				});
+				return;
+			}
+			const params = {
+				NewCredential: md5(NewCredential),
+				OldCredential: md5(OldCredential),
+				Principal
+			};
+			const { Code } = await RequestHttp.post(api, params);
+			if (Code === '00000') {
+				messageApi.success(t('messageSuccess'));
+				handleCancel();
+			}
+		});
 	};
 	return (
 		<Modal title={t('account.changePassword')} open={isModalOpen} onCancel={handleCancel} onOk={onFinish}>

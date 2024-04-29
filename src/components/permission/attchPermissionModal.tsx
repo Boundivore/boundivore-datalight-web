@@ -76,12 +76,9 @@ const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role
 		getPermissionList();
 	}, []);
 	const onChange: TransferProps['onChange'] = nextTargetKeys => {
-		console.log('targetKeys:', nextTargetKeys);
 		setTargetKeys(nextTargetKeys);
 	};
 	const onSelectChange: TransferProps['onSelectChange'] = (sourceSelectedKeys, targetSelectedKeys) => {
-		console.log('sourceSelectedKeys:', sourceSelectedKeys);
-		console.log('targetSelectedKeys:', targetSelectedKeys);
 		setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
 	};
 	const attchPermission = async () => {
@@ -146,7 +143,6 @@ const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role
 						// onScroll={onScroll}
 						render={item => item.PermissionName}
 						oneWay
-						footer={() => null}
 					/>
 				</Form.Item>
 			</Form>

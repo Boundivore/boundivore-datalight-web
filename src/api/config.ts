@@ -92,6 +92,7 @@ const APIConfig: Actions = {
 	getUserDetailList: '/v1/master/user/getUserDetailList',
 	getUserDetailById: '/v1/master/user/getUserDetailById',
 	getRoleList: '/v1/master/role/getRoleList',
+	getRoleById: '/v1/master/role/getRoleById',
 	removeRole: '/v1/master/role/removeRoleBatchByIdList',
 	register: '/v1/master/user/register',
 	removeUser: '/v1/master/user/removeById',
@@ -99,8 +100,10 @@ const APIConfig: Actions = {
 	getPermissionList: '/v1/master/permission/getPermissionList',
 	attachPermission: '/v1/master/permission/relation/attachPermissionRoleByPermissionRoleId',
 	detachPermissionRoleByRoleId: '/v1/master/permission/relation/detachPermissionRoleByRoleId',
+	detachPermissionRoleByPermissionRoleId: '/v1/master/permission/relation/detachPermissionRoleByPermissionRoleId',
 	attachRole: '/v1/master/role/relation/attachRoleUserByRoleUserId',
 	detachRoleUser: '/v1/master/role/relation/detachRoleUser',
+	detachRoleUserByUserId: '/v1/master/role/relation/detachRoleUserByUserId',
 	getRoleListByUserId: '/v1/master/role/getRoleListByUserId',
 	switchRoleEnabled: '/v1/master/role/switchRoleEnabled',
 	getPermissionListByRoleId: '/v1/master/permission/getPermissionListByRoleId'

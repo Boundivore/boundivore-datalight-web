@@ -28,23 +28,20 @@ import { RoleVo } from '@/api/interface';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
-import AttchPermissionModal from '@/components/permission/attchPermissionModal';
 
 const RoleManage: FC = () => {
 	const { t } = useTranslation();
-	const { navigateToAddRole } = useNavigater();
+	const { navigateToAddRole, navigateToRoleDetail } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi] = message.useMessage();
-	const [isAttchModalOpen, setIsAttchModalOpen] = useState(false);
-	const [currentRole, setCurrentRole] = useState<RoleVo>({} as RoleVo);
+	const [tableData, setTableData] = useState<RoleVo[]>([]);
 
 	// 顶部操作按钮配置
-	const [tableData, setTableData] = useState<RoleVo[]>([]);
 	const buttonConfigTop = [
 		{
 			id: 1,
 			label: t('permission.addRole'),
-			callback: navigateToAddRole,
+			callback: () => navigateToAddRole(),
 			disabled: false
 		}
 	];
@@ -54,27 +51,34 @@ const RoleManage: FC = () => {
 		return [
 			{
 				id: 1,
+				label: t('detail'),
+				callback: () => navigateToRoleDetail(RoleId),
+				disabled: false
+			},
+			{
+				id: 2,
 				label: Enabled ? t('disable') : t('enable'),
 				callback: () => switchRoleEnabled(Enabled, RoleId),
 				disabled: false
 			},
 			{
-				id: 2,
+				id: 3,
 				label: t('permission.attachPermission'),
-				callback: () => {
-					setCurrentRole(record);
-					setIsAttchModalOpen(true);
-				},
+				// callback: () => {
+				// 	setCurrentRole(record);
+				// 	setIsAttchModalOpen(true);
+				// },
+				callback: () => navigateToAddRole(RoleId),
 				disabled: false
 			},
 			{
-				id: 3,
+				id: 4,
 				label: t('permission.detachPermission'),
 				callback: () => detachPermission(RoleId),
 				disabled: false
 			},
 			{
-				id: 4,
+				id: 5,
 				label: t('permission.removeRole'),
 				callback: () => removeRole(RoleId),
 				disabled: false
@@ -85,23 +89,27 @@ const RoleManage: FC = () => {
 		{
 			title: t('permission.roleName'),
 			dataIndex: 'RoleName',
-			key: 'RoleName'
+			key: 'RoleName',
+			width: '15%'
 		},
 		{
 			title: t('permission.roleDes'),
 			dataIndex: 'RoleComment',
-			key: 'RoleComment'
+			key: 'RoleComment',
+			width: '20%'
 		},
 		{
 			title: t('permission.roleType'),
 			dataIndex: 'RoleType',
 			key: 'RoleType',
+			width: '10%',
 			render: text => t(`permission.${text}`)
 		},
 		{
 			title: t('state'),
 			dataIndex: 'Enabled',
 			key: 'Enabled',
+			width: '10%',
 			render: text => (
 				<Badge status={text ? 'success' : 'error'} text={text ? t(`permission.enabled`) : t(`permission.disabled`)} />
 			)
@@ -110,6 +118,7 @@ const RoleManage: FC = () => {
 			title: t('operation'),
 			key: 'operation',
 			dataIndex: 'operation',
+			width: '35%',
 			render: (text, record) => {
 				return (
 					<Space>
@@ -211,14 +220,6 @@ const RoleManage: FC = () => {
 				columns={columns}
 				dataSource={tableData}
 			/>
-			{isAttchModalOpen ? (
-				<AttchPermissionModal
-					isModalOpen={isAttchModalOpen}
-					role={currentRole}
-					handleCancel={() => setIsAttchModalOpen(false)}
-					handleOk={getRoleList}
-				/>
-			) : null}
 		</ContainerCard>
 	);
 };

@@ -91,7 +91,7 @@ const Monitor = () => {
 										<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 									)
 								) : (
-									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span>尚未部署Prometheus</span>}></Empty>
+									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span>{t('noPrometheus')}</span>}></Empty>
 								)}
 							</Card>
 						</Col>

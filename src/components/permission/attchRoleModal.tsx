@@ -29,7 +29,7 @@ import RequestHttp from '@/api';
 import { UserInfoVo, RoleVo } from '@/api/interface';
 
 type FieldType = {
-	RealName: string;
+	Principal: string;
 	RoleList: string[];
 };
 interface AttchRoleModalProps {
@@ -45,7 +45,7 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 	const [roleList, setRoleList] = useState<RoleVo[]>([]);
 	const [attachedList, setAttachedList] = useState<RoleVo[]>([]);
 	const [hasRoleList, setHasRoleList] = useState(false);
-	const [messageApi] = message.useMessage();
+	const [messageApi, contextHolder] = message.useMessage();
 	const getRoleListByUserId = async () => {
 		const api = APIConfig.getRoleListByUserId;
 		const {
@@ -84,54 +84,51 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 		console.log('targetSelectedKeys:', targetSelectedKeys);
 		setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
 	};
-	const attchRole = async () => {
-		const values = form.getFieldsValue();
-		console.log('Success:', values);
+	const attchRole = () => {
+		// const { RoleList } = form.getFieldsValue();
+		form.validateFields().then(async ({ RoleList }) => {
+			const apiAttach = APIConfig.attachRole;
+			const result = _.differenceWith(RoleList, attachedList, (item1, item2) => item1 === item2.RoleId);
+			const RoleIdList = result.map((roleId: number | string) => ({
+				RoleId: roleId,
+				UserId: user.UserId
+			}));
 
-		const apiAttach = APIConfig.attachRole;
-		const result = _.differenceWith(values.RoleList, attachedList, (item1, item2) => item1 === item2.RoleId);
-		const RoleIdList = result.map((roleId: number | string) => ({
-			RoleId: roleId,
-			UserId: user.UserId
-		}));
-
-		const paramsAttch = {
-			RoleUserList: RoleIdList
-		};
-		const { Code, Data } = await RequestHttp.post(apiAttach, paramsAttch);
-		console.log(Data);
-		if (Code === '00000') {
-			messageApi.success(t('messageSuccess'));
-			handleOk(); // 刷新用户列表
-			handleCancel(); // 关闭弹窗
-		}
+			const paramsAttch = {
+				RoleUserList: RoleIdList
+			};
+			const { Code, Data } = await RequestHttp.post(apiAttach, paramsAttch);
+			console.log(Data);
+			if (Code === '00000') {
+				messageApi.success(t('messageSuccess'));
+				handleOk(); // 刷新用户列表
+				handleCancel(); // 关闭弹窗
+			}
+		});
 	};
 	const filterOption = (inputValue: string, option: RoleVo) => option.RoleName.indexOf(inputValue) > -1;
 
 	return (
 		<Modal title={t('permission.attachRole')} open={isModalOpen} onCancel={handleCancel} onOk={attchRole}>
+			{contextHolder}
 			<Form
 				form={form}
 				name="basic"
 				labelCol={{ span: 4 }}
 				wrapperCol={{ span: 20 }}
 				style={{ maxWidth: 600 }}
-				initialValues={{ RealName: user.Realname, RoleList: selectedKeys }}
+				initialValues={{ Principal: user.Principal, RoleList: selectedKeys }}
 				autoComplete="off"
 			>
 				<Form.Item<FieldType>
-					label={t('permission.userName')}
-					name="RealName"
-					rules={[{ required: true, message: 'Please input your username!' }]}
+					label={t('permission.principal')}
+					name="Principal"
+					rules={[{ required: true, message: t('account.inputPrincipal') }]}
 				>
 					<Input disabled />
 				</Form.Item>
 
-				<Form.Item<FieldType>
-					label={t('permission.role')}
-					name="RoleList"
-					rules={[{ required: true, message: 'Please input your password!' }]}
-				>
+				<Form.Item<FieldType> label={t('permission.role')} name="RoleList" rules={[{ required: true, message: t('inputRole') }]}>
 					<Transfer
 						dataSource={roleList}
 						showSearch
@@ -144,8 +141,7 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 						onSelectChange={onSelectChange}
 						// onScroll={onScroll}
 						render={item => <div className="data-light-role">{item.RoleName}</div>}
-						oneWay
-						footer={() => null}
+						// oneWay
 					/>
 				</Form.Item>
 			</Form>

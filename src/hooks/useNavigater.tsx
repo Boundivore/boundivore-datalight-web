@@ -84,14 +84,20 @@ const useNavigater = () => {
 		} = await RequestHttp.get(api, { params });
 		return Promise.resolve(ComponentWebUIList);
 	};
-	const navigateToAddRole = () => {
-		navigate(`/permission/addRole`);
+	const navigateToAddRole = (id?: number | string) => {
+		navigate(`/permission/addRole${id ? '?id=' + id : ''}`);
+	};
+	const navigateToUserManage = () => {
+		navigate(`/permission/userManage`);
+	};
+	const navigateToUserDetail = (id: number | string) => {
+		navigate(`/permission/userDetail?id=${id}`);
 	};
 	const navigateToRoleManage = () => {
 		navigate(`/permission/roleManage`);
 	};
-	const navigateToUserDetail = (id: number | string) => {
-		navigate(`/permission/userDetail?id=${id}`);
+	const navigateToRoleDetail = (id: number | string) => {
+		navigate(`/permission/roleDetail?id=${id}`);
 	};
 
 	return {
@@ -110,7 +116,9 @@ const useNavigater = () => {
 		navigateToViewLog,
 		navigateToWebUI,
 		navigateToAddRole,
+		navigateToUserManage,
 		navigateToRoleManage,
+		navigateToRoleDetail,
 		navigateToUserDetail
 	};
 };

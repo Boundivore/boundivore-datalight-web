@@ -97,26 +97,30 @@ const UserManage: FC = () => {
 	};
 	const columns: TableColumnsType<UserInfoVo> = [
 		{
-			title: t('permission.userName'),
+			title: t('permission.principal'),
 			dataIndex: 'Principal',
-			key: 'Principal'
+			key: 'Principal',
+			width: '10%'
 		},
 		{
 			title: t('permission.realName'),
 			dataIndex: 'Realname',
-			key: 'Realname'
+			key: 'Realname',
+			width: '15%'
 		},
 		{
 			title: t('permission.createTime'),
 			dataIndex: 'CreateTime',
 			key: 'CreateTime',
-			render: text => dayjs.unix(text / 1000).format('YYYY-MM-DD HH:mm:ss')
+			render: text => dayjs.unix(text / 1000).format('YYYY-MM-DD HH:mm:ss'),
+			width: '20%'
 		},
 		{
 			title: t('permission.updateTime'),
 			dataIndex: 'UpdateTime',
 			key: 'UpdateTime',
-			render: text => dayjs.unix(text / 1000).format('YYYY-MM-DD HH:mm:ss')
+			render: text => dayjs.unix(text / 1000).format('YYYY-MM-DD HH:mm:ss'),
+			width: '20%'
 		},
 		{
 			title: t('operation'),

@@ -25,7 +25,7 @@ import { UserOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import routes from '~react-pages';
 import LayoutMenu from './components/menu';
 import { useTranslation } from 'react-i18next';
-import { useRoutes, useLocation } from 'react-router-dom';
+import { useRoutes, useLocation, useSearchParams } from 'react-router-dom';
 import Logo from '@/assets/logo.png';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -43,6 +43,8 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const [collapsed, setCollapsed] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
 	const location = useLocation();
+	const [searchParams] = useSearchParams();
+	const id = searchParams.get('id');
 	// const { navigateToLogin, navigateToChangePassword } = useNavigater();
 	const { navigateToLogin, navigateToHome, navigateToChangePassword } = useNavigater();
 	const { modal } = App.useApp();
@@ -86,7 +88,11 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	};
 	const breadcrumbItems = () => {
 		const parts = location.pathname.split('/');
-		const path = parts[parts.length - 1];
+		let path = parts[parts.length - 1];
+		// 面包屑中有个特殊情况，新增角色页面同时用于分配权限，检测url中param中存在id且 path为addRole
+		if (id && path === 'addRole') {
+			path = 'attachPermission';
+		}
 		return [{ title: t(`tabs.${path}`) }];
 	};
 	return (

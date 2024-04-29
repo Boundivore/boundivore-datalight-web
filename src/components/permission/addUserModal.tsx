@@ -27,8 +27,11 @@ import { md5 } from 'js-md5';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 type FieldType = {
-	Principal?: string;
-	Credential?: string;
+	Principal: string;
+	Credential: string;
+	IdentityType: string;
+	Realname: string;
+	Nickname: string;
 };
 interface AddUserModalProps {
 	isModalOpen: boolean;
@@ -42,33 +45,36 @@ const identityTypeData = [
 ];
 const AddUserModal: FC<AddUserModalProps> = ({ isModalOpen, handleCancel, handleOk }) => {
 	const [form] = Form.useForm();
-	const [messageApi] = message.useMessage();
+	const [messageApi, contextHolder] = message.useMessage();
 
 	const addUser = async () => {
 		const values = form.getFieldsValue();
 		console.log(values);
-		const api = APIConfig.register;
-		const params = {
-			UserAuth: {
-				Credential: md5(values.Credential),
-				IdentityType: values.IdentityType,
-				Principal: values.Principal
-			},
-			UserBase: {
-				Avatar: '',
-				Nickname: values.Nickname,
-				Realname: values.Realname
+		form.validateFields().then(async ({ Credential, IdentityType, Principal, Nickname, Realname }) => {
+			const api = APIConfig.register;
+			const params = {
+				UserAuth: {
+					Credential: md5(Credential),
+					IdentityType,
+					Principal
+				},
+				UserBase: {
+					Avatar: '',
+					Nickname,
+					Realname
+				}
+			};
+			const { Code } = await RequestHttp.post(api, params);
+			if (Code === '00000') {
+				messageApi.success(t('messageSuccess'));
+				handleOk(); // 刷新用户列表
+				handleCancel(); // 关闭弹窗
 			}
-		};
-		const { Code } = await RequestHttp.post(api, params);
-		if (Code === '00000') {
-			messageApi.success(t('messageSuccess'));
-			handleOk(); // 刷新用户列表
-			handleCancel(); // 关闭弹窗
-		}
+		});
 	};
 	return (
 		<Modal title={t('permission.addUser')} open={isModalOpen} onCancel={handleCancel} onOk={addUser}>
+			{contextHolder}
 			<Form
 				form={form}
 				name="basic"
@@ -81,14 +87,14 @@ const AddUserModal: FC<AddUserModalProps> = ({ isModalOpen, handleCancel, handle
 				<Form.Item<FieldType>
 					label={t('login.principal')}
 					name="Principal"
-					rules={[{ required: true, message: 'Please input your username!' }]}
+					rules={[{ required: true, message: t('account.inputPrincipal') }]}
 				>
 					<Input />
 				</Form.Item>
 				<Form.Item<FieldType>
 					label={t('permission.identityType')}
 					name="IdentityType"
-					rules={[{ required: true, message: 'Please input your username!' }]}
+					rules={[{ required: true, message: t('inputIdentityType') }]}
 				>
 					<Select options={identityTypeData} />
 				</Form.Item>
@@ -96,21 +102,27 @@ const AddUserModal: FC<AddUserModalProps> = ({ isModalOpen, handleCancel, handle
 				<Form.Item<FieldType>
 					label={t('login.credential')}
 					name="Credential"
-					rules={[{ required: true, message: 'Please input your password!' }]}
+					rules={[
+						{ required: true, message: t('login.inputPassword') },
+						{
+							pattern: /^[a-f0-9]{32}$/,
+							message: '请输入正确的密码!'
+						}
+					]}
 				>
 					<Input.Password />
 				</Form.Item>
 				<Form.Item<FieldType>
 					label={t('permission.realName')}
 					name="Realname"
-					rules={[{ required: true, message: 'Please input your password!' }]}
+					rules={[{ required: true, message: t('inputRealName') }]}
 				>
 					<Input />
 				</Form.Item>
 				<Form.Item<FieldType>
 					label={t('permission.nickName')}
 					name="Nickname"
-					rules={[{ required: true, message: 'Please input your password!' }]}
+					rules={[{ required: true, message: t('inputNickName') }]}
 				>
 					<Input />
 				</Form.Item>
