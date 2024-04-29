@@ -46,6 +46,8 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 	const [attachedList, setAttachedList] = useState<RoleVo[]>([]);
 	const [hasRoleList, setHasRoleList] = useState(false);
 	const [messageApi, contextHolder] = message.useMessage();
+	let timer: ReturnType<typeof setTimeout> | null = null;
+
 	const getRoleListByUserId = async () => {
 		const api = APIConfig.getRoleListByUserId;
 		const {
@@ -74,14 +76,15 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 	}, [hasRoleList]);
 	useEffect(() => {
 		getRoleList();
+		return () => {
+			timer && clearTimeout(timer);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	const onChange: TransferProps['onChange'] = nextTargetKeys => {
-		console.log('targetKeys:', nextTargetKeys);
 		setTargetKeys(nextTargetKeys);
 	};
 	const onSelectChange: TransferProps['onSelectChange'] = (sourceSelectedKeys, targetSelectedKeys) => {
-		console.log('sourceSelectedKeys:', sourceSelectedKeys);
-		console.log('targetSelectedKeys:', targetSelectedKeys);
 		setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
 	};
 	const attchRole = () => {
@@ -89,20 +92,21 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 		form.validateFields().then(async ({ RoleList }) => {
 			const apiAttach = APIConfig.attachRole;
 			const result = _.differenceWith(RoleList, attachedList, (item1, item2) => item1 === item2.RoleId);
-			const RoleIdList = result.map((roleId: number | string) => ({
-				RoleId: roleId,
+			const RoleIdList = result.map(value => ({
+				RoleId: value,
 				UserId: user.UserId
 			}));
 
 			const paramsAttch = {
 				RoleUserList: RoleIdList
 			};
-			const { Code, Data } = await RequestHttp.post(apiAttach, paramsAttch);
-			console.log(Data);
+			const { Code } = await RequestHttp.post(apiAttach, paramsAttch);
 			if (Code === '00000') {
 				messageApi.success(t('messageSuccess'));
 				handleOk(); // 刷新用户列表
-				handleCancel(); // 关闭弹窗
+				timer = setTimeout(() => {
+					handleCancel(); // 关闭弹窗
+				}, 1000);
 			}
 		});
 	};
@@ -117,7 +121,7 @@ const AttchRoleModal: FC<AttchRoleModalProps> = ({ isModalOpen, user, handleCanc
 				labelCol={{ span: 4 }}
 				wrapperCol={{ span: 20 }}
 				style={{ maxWidth: 600 }}
-				initialValues={{ Principal: user.Principal, RoleList: selectedKeys }}
+				initialValues={{ Principal: user.Principal }}
 				autoComplete="off"
 			>
 				<Form.Item<FieldType>

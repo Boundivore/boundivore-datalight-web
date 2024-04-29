@@ -508,7 +508,7 @@ export interface RoleVo {
 	/**
 	 * 角色 ID
 	 */
-	RoleId: number | string;
+	RoleId: string;
 	/**
 	 * 角色名称
 	 */
@@ -563,7 +563,7 @@ export interface PermissionVo {
 	/**
 	 * 权限主键 ID
 	 */
-	PermissionId: number;
+	PermissionId: string;
 	/**
 	 * 权限名称
 	 */

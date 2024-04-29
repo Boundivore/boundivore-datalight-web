@@ -54,7 +54,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const [activeNodeId, setActiveNodeId] = useState('');
 	const { useGetSepData } = useStepLogic();
 	const { webState } = useGetSepData(preStepName, stepName); //获取前后步骤操作存储的数据
-	const errorText = t('任务执行异常');
+	const errorText = t('errorJob');
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -97,9 +97,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	useImperativeHandle(ref, () => ({
 		deploy
 	}));
-	const handleModalOk = () => {
-		setIsModalOpen(false);
-	};
+
 	const deploy = async () => {
 		setDeployState(false);
 		setIsModalOpen(true);
@@ -176,7 +174,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 				columns={columns}
 				dataSource={tableData}
 			/>
-			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} /> : null}
+			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} /> : null}
 			{isLogModalOpen ? (
 				<LogModal isModalOpen={isLogModalOpen} nodeId={activeNodeId} handleCancel={handleLogModalCancel} type="jobProgress" />
 			) : null}

@@ -16,7 +16,7 @@
  */
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { ConfigProvider, App as AppAnt } from 'antd';
+import { ConfigProvider, App as AppAnt, message } from 'antd';
 import type { Locale } from 'antd/es/locale';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN';
@@ -25,7 +25,10 @@ import Login from '@/pages/auth/login';
 import Layouts from '@/layouts';
 import { getNavigationType } from '@/utils/helper';
 import useStore from '@/store/store';
-
+message.config({
+	duration: 2, // 显示消息的持续时间，单位是秒
+	maxCount: 3
+});
 function App() {
 	const [locale] = useState<Locale>(zhCN);
 	const { setIsRefresh } = useStore();

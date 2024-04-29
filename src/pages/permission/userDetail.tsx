@@ -202,7 +202,7 @@ const UserDetail: FC = () => {
 						extra={
 							<Space>
 								<Button type="primary" disabled={!selectedRole.length} onClick={() => detachRole(selectedRole)}>
-									批量解除绑定
+									{t('permission.batchDetachRole')}
 								</Button>
 								<Button onClick={navigateToUserManage}>{t('back')}</Button>
 							</Space>

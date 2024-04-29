@@ -191,7 +191,7 @@ const RoleDetail: FC = () => {
 						extra={
 							<Space>
 								<Button type="primary" disabled={!selectedPermission.length} onClick={() => detachPermission(selectedPermission)}>
-									批量移除权限
+									{t('permission.batchDetachPermission')}
 								</Button>
 								<Button onClick={navigateToRoleManage}>{t('back')}</Button>
 							</Space>

@@ -23,7 +23,7 @@
  * @author Tracy
  */
 import { FC, useState, useCallback } from 'react';
-import { Modal, Table, Progress, Button } from 'antd';
+import { Modal, Table, Progress, Button, Alert } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import APIConfig from '@/api/config';
@@ -45,6 +45,8 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 	const { jobNodeId, jobId, stableState } = useStore();
 	const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 	const [activeNodeId, setActiveNodeId] = useState('');
+	const [openAlert, setOpenAlert] = useState(false);
+	const errorText = t('errorJob');
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -87,6 +89,7 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 				...obj, // 展开当前对象
 				JobExecStateEnum // 展开新键值对，这将合并到当前对象中
 			}));
+			setOpenAlert(JobExecStateEnum === 'ERROR');
 			return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 		} else if (type === 'jobProgress') {
 			const progressData = await RequestHttp.get(apiProgress, { params: { JobId: jobId } });
@@ -99,6 +102,7 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 				...obj, // 展开当前对象
 				JobExecStateEnum // 展开新键值对，这将合并到当前对象中
 			}));
+			setOpenAlert(JobExecStateEnum === 'ERROR');
 			return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 		}
 	};
@@ -115,6 +119,7 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 				</Button>
 			]}
 		>
+			{openAlert ? <Alert message={errorText} type="error" /> : null}
 			<Table rowKey="NodeId" dataSource={tableData} columns={columns} />
 			{isLogModalOpen ? (
 				<CheckLogModal isModalOpen={isLogModalOpen} nodeId={activeNodeId} handleCancel={handleLogModalCancel} type={type} />

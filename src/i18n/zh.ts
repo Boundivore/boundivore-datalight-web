@@ -216,11 +216,13 @@ export default {
 		removeUserConfirm: '您确定删除该用户吗？',
 		attachRole: '绑定角色',
 		detachRole: '解除绑定',
+		batchDetachRole: '批量解除绑定',
 		detachRoleConfirm: '您确定解除该用户绑定的所有角色吗？',
 		detachRoleConfirm2: '您确定解除该用户绑定的角色吗？',
 		permission: '权限',
 		attachPermission: '分配权限',
 		detachPermission: '移除权限',
+		batchDetachPermission: '批量移除权限',
 		detachPermissionConfirm: '您确定移除该角色的所有权限吗？',
 		detachPermissionConfirm2: '您确定移除该角色的权限吗？',
 		principal: '账号',
@@ -323,5 +325,6 @@ export default {
 	inputIdentityType: '请选择您的账号类型！',
 	inputRealName: '请输入您的真实姓名！',
 	inputNickName: '请输入您的昵称！',
-	inputRole: '请选择您要绑定的角色！'
+	inputRole: '请选择您要绑定的角色！',
+	errorJob: '任务执行异常'
 };

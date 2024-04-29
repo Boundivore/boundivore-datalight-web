@@ -104,8 +104,8 @@ const AddRole: FC = () => {
 
 		const apiAttach = APIConfig.attachPermission;
 		const result = _.differenceWith(values.PermissionId, attachedList, (item1, item2) => item1 === item2.PermissionId);
-		const PermissionRoleIdList = result.map((permissionId: string) => ({
-			PermissionId: permissionId,
+		const PermissionRoleIdList = result.map(value => ({
+			PermissionId: value,
 			RoleId: id
 		}));
 

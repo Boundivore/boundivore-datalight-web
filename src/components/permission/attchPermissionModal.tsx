@@ -29,8 +29,8 @@ import RequestHttp from '@/api';
 import { PermissionVo, RoleVo } from '@/api/interface';
 
 type FieldType = {
-	Principal?: string;
-	Credential?: string;
+	RoleName: string;
+	PermissionList: string[];
 };
 interface AttchPermissionModalProps {
 	isModalOpen: boolean;
@@ -83,12 +83,11 @@ const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role
 	};
 	const attchPermission = async () => {
 		const values = form.getFieldsValue();
-		console.log('Success:', values);
 
 		const apiAttach = APIConfig.attachPermission;
 		const result = _.differenceWith(values.PermissionList, attachedList, (item1, item2) => item1 === item2.PermissionId);
-		const PermissionRoleIdList = result.map((permissionId: string) => ({
-			PermissionId: permissionId,
+		const PermissionRoleIdList = result.map(value => ({
+			PermissionId: value,
 			RoleId: role.RoleId
 		}));
 

@@ -336,7 +336,6 @@ const ComponentManage: React.FC = () => {
 			// // 更新selectComponent数组，包含去重后的新项
 			// console.log('0000000', [...selectComponent, ...mergedAndUnique]);
 			const mergedArray = Object.values({ ...componentWithNode, ...{ [activeComponent]: selectedRows } }).flat();
-			console.log('mergedArray', mergedArray);
 			setSelectComponent(mergedArray);
 		}
 	};
