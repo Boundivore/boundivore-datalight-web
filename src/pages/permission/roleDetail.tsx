@@ -19,26 +19,31 @@
  * @author Tracy
  */
 
-import { FC, Key, useEffect, useState } from 'react';
+import { FC, Key, ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Row, Col, List, Typography, Button, Table, Space, Badge, App, message } from 'antd';
 import type { TableColumnsType } from 'antd';
 import ContainerCard from '@/components/containerCard';
-import { PermissionVo, RoleVo } from '@/api/interface';
+import { PermissionVo } from '@/api/interface';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 
 const { Text } = Typography;
+interface RoleInfoItem {
+	key: number;
+	label: ReactNode;
+	text: string | Date;
+}
 
 const RoleDetail: FC = () => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { navigateToRoleManage } = useNavigater();
-	// 顶部操作按钮配置
-	const [userInfoData, setUserInfoDataData] = useState([]);
+
+	const [roleInfoData, setRoleInfoDataData] = useState<RoleInfoItem[]>([]);
 	const [tableData, setTableData] = useState<PermissionVo[]>([]);
 	const [selectedPermission, setSelectedPermission] = useState<Key[]>([]);
 	const { modal } = App.useApp();
@@ -55,7 +60,7 @@ const RoleDetail: FC = () => {
 			}
 		];
 	};
-	const columns: TableColumnsType<RoleVo> = [
+	const columns: TableColumnsType<PermissionVo> = [
 		{
 			title: t('permission.permissionName'),
 			dataIndex: 'PermissionName',
@@ -148,7 +153,7 @@ const RoleDetail: FC = () => {
 				)
 			}
 		];
-		setUserInfoDataData(RoleInfo);
+		setRoleInfoDataData(RoleInfo);
 	};
 	const getPermissionList = async () => {
 		const api = APIConfig.getPermissionListByRoleId;
@@ -175,7 +180,7 @@ const RoleDetail: FC = () => {
 					<Card className="data-light-card" title="角色信息">
 						<List
 							size="large"
-							dataSource={userInfoData}
+							dataSource={roleInfoData}
 							renderItem={item => (
 								<List.Item>
 									{item.label}: {item.text}

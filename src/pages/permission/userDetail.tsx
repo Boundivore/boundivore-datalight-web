@@ -19,7 +19,7 @@
  * @author Tracy
  */
 
-import { FC, Key, useEffect, useState } from 'react';
+import { FC, Key, ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -35,13 +35,19 @@ import useNavigater from '@/hooks/useNavigater';
 
 const { Text } = Typography;
 
+interface UserInfoItem {
+	key: number;
+	label: ReactNode;
+	text: string | Date;
+}
+
 const UserDetail: FC = () => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { navigateToUserManage } = useNavigater();
-	// 顶部操作按钮配置
-	const [userInfoData, setUserInfoDataData] = useState([]);
+
+	const [userInfoData, setUserInfoDataData] = useState<UserInfoItem[]>([]);
 	const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
 	const [currentUser, setCurrentUser] = useState<UserInfoVo>({} as UserInfoVo);
 	const [tableData, setTableData] = useState<RoleVo[]>([]);
@@ -150,12 +156,12 @@ const UserDetail: FC = () => {
 			{
 				key: 4,
 				label: <Text strong>{t('permission.createTime')}</Text>,
-				text: dayjs.unix(Data.CreateTime / 1000).format('YYYY-MM-DD HH:mm:ss')
+				text: dayjs(Data.CreateTime / 1000).format('YYYY-MM-DD HH:mm:ss')
 			},
 			{
 				key: 5,
 				label: <Text strong>{t('permission.updateTime')}</Text>,
-				text: dayjs.unix(Data.UpdateTime / 1000).format('YYYY-MM-DD HH:mm:ss')
+				text: dayjs(Data.UpdateTime / 1000).format('YYYY-MM-DD HH:mm:ss')
 			}
 		];
 		setCurrentUser(Data);
