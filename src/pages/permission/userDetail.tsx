@@ -23,7 +23,6 @@ import { FC, Key, ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
-// import { App, message, Descriptions } from 'antd';
 import { Card, Row, Col, List, Typography, Button, Table, Space, Badge, App, message } from 'antd';
 import type { TableColumnsType } from 'antd';
 import ContainerCard from '@/components/containerCard';
