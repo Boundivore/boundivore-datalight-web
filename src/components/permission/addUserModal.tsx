@@ -103,11 +103,11 @@ const AddUserModal: FC<AddUserModalProps> = ({ isModalOpen, handleCancel, handle
 					label={t('login.credential')}
 					name="Credential"
 					rules={[
-						{ required: true, message: t('login.inputPassword') },
-						{
-							pattern: /^[a-f0-9]{32}$/,
-							message: '请输入正确的密码!'
-						}
+						{ required: true, message: t('login.inputPassword') }
+						// {
+						// 	pattern: /^[a-f0-9]{32}$/,
+						// 	message: '请输入正确的密码!'
+						// }
 					]}
 				>
 					<Input.Password />
