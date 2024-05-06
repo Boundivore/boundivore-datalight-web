@@ -253,6 +253,13 @@ export default {
 		PERMISSION_DATA_COLUMN: '数据列读权限',
 		PERMISSION_PAGE: '页面操作权限'
 	},
+	alert: {
+		alert: '告警',
+		alertMethod: '告警处理手段',
+		alertRuleName: '告警配置名称',
+		group: '告警规则分组',
+		groupName: '告警规则分组名称'
+	},
 	retry: '重试',
 	previous: '上一步',
 	next: '下一步',

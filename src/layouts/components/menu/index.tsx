@@ -99,7 +99,7 @@ const LayoutMenu: React.FC = () => {
 		]),
 		getItem(t('tabs.monitorAlert'), '/monitor', <SecurityScanOutlined />, [
 			getItem(<NavLink to="/monitor">{t('tabs.monitor')}</NavLink>, '/monitor"'),
-			getItem(t('tabs.alert'), '/alert"')
+			getItem(<NavLink to="/alert">{t('tabs.alert')}</NavLink>, '/alert"')
 		]),
 		getItem(<NavLink to="/log">{t('tabs.log')}</NavLink>, '/log', <ReconciliationOutlined />),
 		getItem(t('tabs.permission'), '/permission', <AuditOutlined />, [

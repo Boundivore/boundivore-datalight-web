@@ -99,6 +99,12 @@ const useNavigater = () => {
 	const navigateToRoleDetail = (id: number | string) => {
 		navigate(`/permission/roleDetail?id=${id}`);
 	};
+	const navigateToAlertList = () => {
+		navigate(`/alert`);
+	};
+	const navigateToCreateAlert = () => {
+		navigate(`/alert/createAlert`);
+	};
 
 	return {
 		navigateToLogin,
@@ -119,7 +125,9 @@ const useNavigater = () => {
 		navigateToUserManage,
 		navigateToRoleManage,
 		navigateToRoleDetail,
-		navigateToUserDetail
+		navigateToUserDetail,
+		navigateToAlertList,
+		navigateToCreateAlert
 	};
 };
 

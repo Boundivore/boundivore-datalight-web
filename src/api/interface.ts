@@ -655,3 +655,14 @@ export interface NodeJobLogVo {
 	StepId: number;
 	[property: string]: any;
 }
+
+/**
+ * AlertSimpleVo
+ */
+export interface AlertSimpleVo {
+	AlertFilePath: string;
+	AlertRuleId: number;
+	AlertRuleName: string;
+	Enabled: boolean;
+	[property: string]: any;
+}

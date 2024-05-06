@@ -106,7 +106,9 @@ const APIConfig: Actions = {
 	detachRoleUserByUserId: '/v1/master/role/relation/detachRoleUserByUserId',
 	getRoleListByUserId: '/v1/master/role/getRoleListByUserId',
 	switchRoleEnabled: '/v1/master/role/switchRoleEnabled',
-	getPermissionListByRoleId: '/v1/master/permission/getPermissionListByRoleId'
+	getPermissionListByRoleId: '/v1/master/permission/getPermissionListByRoleId',
+	//告警相关
+	getAlertSimpleList: '/v1/master/alert/getAlertSimpleList'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];
