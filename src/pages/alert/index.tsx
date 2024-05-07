@@ -18,91 +18,48 @@
  * 告警
  * @author Tracy
  */
-import { FC, useState, useEffect } from 'react';
-import { Tabs, Table, Flex, Space, Button } from 'antd';
-import type { TabsProps, TableColumnsType } from 'antd';
+import { FC, useState } from 'react';
+import { Tabs } from 'antd';
+import type { TabsProps } from 'antd';
 import { t } from 'i18next';
-import APIConfig from '@/api/config';
-import RequestHttp from '@/api';
 import ContainerCard from '@/components/containerCard';
-import useCurrentCluster from '@/hooks/useCurrentCluster';
-import { AlertSimpleVo } from '@/api/interface';
-import useNavigater from '@/hooks/useNavigater';
+import AlertRuleList from '@/components/alert/alertRuleList';
 
 const Alert: FC = () => {
 	const [currentTab, setCurrentTab] = useState('1');
-	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
-	const { clusterComponent, selectCluster } = useCurrentCluster();
-	const { navigateToCreateAlert } = useNavigater();
 
-	// 顶部操作按钮配置
-	const buttonConfigTop = [
-		{
-			id: 1,
-			label: t('node.addNode'),
-			callback: () => {
-				navigateToCreateAlert();
-			},
-			disabled: false
-		}
-	];
-
-	const columns: TableColumnsType<AlertSimpleVo> = [
-		{
-			title: t('node.name'),
-			dataIndex: 'Hostname',
-			key: 'Hostname'
-		}
-	];
 	const items: TabsProps['items'] = [
 		{
 			key: '1',
 			label: t('alert.alert'),
-			children: (
-				<>
-					<Flex justify="space-between">
-						<Space>
-							{buttonConfigTop.map(button => (
-								<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
-									{button.label}
-								</Button>
-							))}
-						</Space>
-						<Space>
-							{clusterComponent}
-							{/* <Button type="primary" onClick={viewActiveJob}>
-							{t('viewActiveJob')}
-						</Button> */}
-						</Space>
-					</Flex>
-					<Table dataSource={alertList} columns={columns}></Table>
-				</>
-			)
+			children: <AlertRuleList />
 		},
 		{
 			key: '2',
 			label: t('alert.alertMethod'),
-			children: 'Content of Tab Pane 1'
+			children: (
+				<Tabs
+					tabPosition="top"
+					items={[
+						{
+							key: '2-1',
+							label: '告警接口处理方式',
+							children: <AlertRuleList />
+						},
+						{
+							key: '2-2',
+							label: '告警邮箱处理方式',
+							children: <AlertRuleList />
+						}
+					]}
+				/>
+			)
 		}
 	];
-	const getAlertList = async () => {
-		const api = APIConfig.getAlertSimpleList;
-		const params = {
-			ClusterId: selectCluster
-		};
-		const {
-			Data: { AlertSimpleList }
-		} = await RequestHttp.get(api, { params });
-		setAlertList(AlertSimpleList);
-		console.log(1212, AlertSimpleList);
-	};
-	useEffect(() => {
-		selectCluster && getAlertList();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectCluster]);
+
 	return (
 		<ContainerCard>
-			<Tabs activeKey={currentTab} items={items} onChange={setCurrentTab}></Tabs>
+			<Tabs tabPosition="left" activeKey={currentTab} items={items} onChange={setCurrentTab}></Tabs>
 		</ContainerCard>
 	);
 };

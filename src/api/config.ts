@@ -108,7 +108,12 @@ const APIConfig: Actions = {
 	switchRoleEnabled: '/v1/master/role/switchRoleEnabled',
 	getPermissionListByRoleId: '/v1/master/permission/getPermissionListByRoleId',
 	//告警相关
-	getAlertSimpleList: '/v1/master/alert/getAlertSimpleList'
+	getAlertSimpleList: '/v1/master/alert/getAlertSimpleList',
+	newAlertRule: '/v1/master/alert/newAlertRule',
+	switchAlertEnabled: '/v1/master/alert/switchAlertEnabled',
+	removeAlertRule: '/v1/master/alert/removeAlertRule',
+	getAlertHandlerMailList: '/v1/master/alert/getAlertHandlerMailList',
+	newAlertHandlerMail: '/v1/master/alert/newAlertHandlerMail'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

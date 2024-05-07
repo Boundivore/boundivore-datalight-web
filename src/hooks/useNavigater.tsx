@@ -102,8 +102,8 @@ const useNavigater = () => {
 	const navigateToAlertList = () => {
 		navigate(`/alert`);
 	};
-	const navigateToCreateAlert = () => {
-		navigate(`/alert/createAlert`);
+	const navigateToCreateAlert = (id: number | string) => {
+		navigate(`/alert/createAlert?id=${id}`);
 	};
 
 	return {

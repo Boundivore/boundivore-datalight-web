@@ -48,6 +48,7 @@ export default {
 		monitorAlert: '监控告警',
 		monitor: '监控',
 		alert: '告警',
+		createAlert: '新增告警配置',
 		nodeTask: '查看节点活跃任务',
 		serviceTask: '查看服务组件活跃任务',
 		log: '日志管理',
@@ -254,11 +255,15 @@ export default {
 		PERMISSION_PAGE: '页面操作权限'
 	},
 	alert: {
-		alert: '告警',
+		alert: '告警配置',
 		alertMethod: '告警处理手段',
 		alertRuleName: '告警配置名称',
 		group: '告警规则分组',
-		groupName: '告警规则分组名称'
+		groupName: '告警规则分组名称',
+		addAlert: '新增告警配置',
+		alertName: '告警配置名称',
+		removeAlert: '删除告警配置',
+		removeAlertConfirm: '您确定删除该告警配置吗？'
 	},
 	retry: '重试',
 	previous: '上一步',
@@ -333,5 +338,8 @@ export default {
 	inputRealName: '请输入您的真实姓名！',
 	inputNickName: '请输入您的昵称！',
 	inputRole: '请选择您要绑定的角色！',
-	errorJob: '任务执行异常'
+	errorJob: '任务执行异常',
+	isEnable: '是否启用',
+	enabled: '已启用',
+	disabled: '未启用'
 };
