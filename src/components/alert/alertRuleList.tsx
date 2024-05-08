@@ -31,7 +31,7 @@ import useNavigater from '@/hooks/useNavigater';
 const AlertRuleList: FC = () => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
 	const { clusterComponent, selectCluster } = useCurrentCluster();
-	const { navigateToCreateAlert } = useNavigater();
+	const { navigateToCreateAlert, navigateToAlertDetail } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	// 顶部操作按钮配置
@@ -52,7 +52,9 @@ const AlertRuleList: FC = () => {
 			{
 				id: 1,
 				label: t('detail'),
-				callback: () => {},
+				callback: () => {
+					navigateToAlertDetail(AlertRuleId);
+				},
 				disabled: false
 			},
 			{

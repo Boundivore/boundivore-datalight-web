@@ -24,6 +24,7 @@ import type { TabsProps } from 'antd';
 import { t } from 'i18next';
 import ContainerCard from '@/components/containerCard';
 import AlertRuleList from '@/components/alert/alertRuleList';
+import AlertHandlerMailList from '@/components/alert/alertHandlerMailList';
 
 const Alert: FC = () => {
 	const [currentTab, setCurrentTab] = useState('1');
@@ -49,7 +50,7 @@ const Alert: FC = () => {
 						{
 							key: '2-2',
 							label: '告警邮箱处理方式',
-							children: <AlertRuleList />
+							children: <AlertHandlerMailList />
 						}
 					]}
 				/>

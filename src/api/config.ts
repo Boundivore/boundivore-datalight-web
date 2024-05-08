@@ -110,10 +110,12 @@ const APIConfig: Actions = {
 	//告警相关
 	getAlertSimpleList: '/v1/master/alert/getAlertSimpleList',
 	newAlertRule: '/v1/master/alert/newAlertRule',
+	getAlertDetailById: '/v1/master/alert/getAlertDetailById',
 	switchAlertEnabled: '/v1/master/alert/switchAlertEnabled',
 	removeAlertRule: '/v1/master/alert/removeAlertRule',
 	getAlertHandlerMailList: '/v1/master/alert/getAlertHandlerMailList',
-	newAlertHandlerMail: '/v1/master/alert/newAlertHandlerMail'
+	newAlertHandlerMail: '/v1/master/alert/newAlertHandlerMail',
+	bindAlertAndAlertHandler: '/v1/master/alert/bindAlertAndAlertHandler'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

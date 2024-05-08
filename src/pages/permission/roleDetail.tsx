@@ -126,7 +126,7 @@ const RoleDetail: FC = () => {
 			RoleId: id
 		};
 		const { Data } = await RequestHttp.get(api, { params });
-		const RoleInfo = [
+		const roleInfo = [
 			{
 				key: 1,
 				label: <Text strong>{t('permission.roleName')}</Text>,
@@ -153,7 +153,7 @@ const RoleDetail: FC = () => {
 				)
 			}
 		];
-		setRoleInfoDataData(RoleInfo);
+		setRoleInfoDataData(roleInfo);
 	};
 	const getPermissionList = async () => {
 		const api = APIConfig.getPermissionListByRoleId;

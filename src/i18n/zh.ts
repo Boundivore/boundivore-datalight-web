@@ -263,7 +263,11 @@ export default {
 		addAlert: '新增告警配置',
 		alertName: '告警配置名称',
 		removeAlert: '删除告警配置',
-		removeAlertConfirm: '您确定删除该告警配置吗？'
+		removeAlertConfirm: '您确定删除该告警配置吗？',
+		addHandlerMail: '新增邮箱处理方式',
+		addHandlerAPI: '新增接口处理方式',
+		mailAccount: '邮箱',
+		bind: '绑定告警规则'
 	},
 	retry: '重试',
 	previous: '上一步',

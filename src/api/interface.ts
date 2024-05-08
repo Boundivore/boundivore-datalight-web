@@ -666,3 +666,83 @@ export interface AlertSimpleVo {
 	Enabled: boolean;
 	[property: string]: any;
 }
+/**
+ * AlertRuleVo
+ */
+export interface AlertRuleVo {
+	AlertFileName: string;
+	AlertFilePath: string;
+	/**
+	 * 告警规则配置解析后的实体
+	 */
+	AlertRuleContent: AlertRuleContentVo;
+	AlertRuleContentBase64: string;
+	AlertRuleId: number;
+	AlertRuleName: string;
+	AlertVersion: number;
+	Enabled: boolean;
+	Sha256: string;
+	[property: string]: any;
+}
+
+/**
+ * 告警规则配置解析后的实体
+ *
+ * AlertRuleContentVo
+ */
+export interface AlertRuleContentVo {
+	/**
+	 * 告警规则分组
+	 */
+	Groups: GroupVo[];
+	[property: string]: any;
+}
+
+/**
+ * GroupVo
+ */
+export interface GroupVo {
+	/**
+	 * 告警规则分组名称
+	 */
+	Name: string;
+	/**
+	 * 告警规则
+	 */
+	Rules: RuleVo[];
+	[property: string]: any;
+}
+
+/**
+ * RuleVo
+ */
+export interface RuleVo {
+	/**
+	 * 告警规则名称
+	 */
+	Alert: string;
+	/**
+	 * 告警规则注解
+	 */
+	Annotations: { [key: string]: string };
+	/**
+	 * 告警规则判断表达式 [Base64 格式]
+	 */
+	Expr: string;
+	/**
+	 * 满足 Expr 表达式多久后执行告警
+	 */
+	For: string;
+	/**
+	 * 告警规则标签
+	 */
+	Labels: { [key: string]: string };
+	[property: string]: any;
+}
+
+export interface Annotations {
+	[key: string]: string;
+}
+export interface Labels {
+	[key: string]: string;
+}

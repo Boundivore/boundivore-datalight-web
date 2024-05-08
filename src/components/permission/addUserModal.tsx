@@ -48,8 +48,6 @@ const AddUserModal: FC<AddUserModalProps> = ({ isModalOpen, handleCancel, handle
 	const [messageApi, contextHolder] = message.useMessage();
 
 	const addUser = async () => {
-		const values = form.getFieldsValue();
-		console.log(values);
 		form.validateFields().then(async ({ Credential, IdentityType, Principal, Nickname, Realname }) => {
 			const api = APIConfig.register;
 			const params = {
