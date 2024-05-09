@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * 告警邮箱处理方式列表
+ * 告警接口处理方式列表
  * @author Tracy
  */
 import { FC, useState, useEffect } from 'react';
@@ -26,11 +26,11 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import { AlertSimpleVo } from '@/api/interface';
-import AddHandlerMailModal from './addHandlerMailModal';
+import AddHandlerInterfaceModal from './addHandlerInterfaceModal';
 import BindAlertAndAlertHandler from './bindAlertAndAlertHandler';
 // import useNavigater from '@/hooks/useNavigater';
 
-const AlertHandlerMailList: FC = () => {
+const AlertHandlerInterfaceList: FC = () => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,10 +43,10 @@ const AlertHandlerMailList: FC = () => {
 	const buttonConfigTop = [
 		{
 			id: 1,
-			label: t('alert.addHandlerMail'),
+			label: t('alert.addHandlerInterface'),
 			callback: () => {
 				// navigateToCreateAlert(selectCluster);
-				addHandlerMail();
+				addHandlerInterface();
 			},
 			disabled: false
 		}
@@ -83,9 +83,9 @@ const AlertHandlerMailList: FC = () => {
 			key: 'HandlerId'
 		},
 		{
-			title: t('alert.mailAccount'),
-			dataIndex: 'MailAccount',
-			key: 'MailAccount'
+			title: t('alert.interfaceUri'),
+			dataIndex: 'InterfaceUri',
+			key: 'InterfaceUri'
 		},
 		{
 			title: t('operation'),
@@ -102,7 +102,7 @@ const AlertHandlerMailList: FC = () => {
 			)
 		}
 	];
-	const addHandlerMail = () => {
+	const addHandlerInterface = () => {
 		setIsModalOpen(true);
 	};
 	const handleCancel = () => setIsModalOpen(false);
@@ -126,20 +126,20 @@ const AlertHandlerMailList: FC = () => {
 				const { Code } = await RequestHttp.post(api, params);
 				if (Code === '00000') {
 					messageApi.success(t('messageSuccess'));
-					getAlertHandlerMailList(); //删除成功更新列表
+					getAlertHandlerInterfaceList(); //删除成功更新列表
 				}
 			}
 		});
 	};
-	const getAlertHandlerMailList = async () => {
-		const api = APIConfig.getAlertHandlerMailList;
+	const getAlertHandlerInterfaceList = async () => {
+		const api = APIConfig.getAlertHandlerInterfaceList;
 		const {
-			Data: { AlertHandlerMailList }
+			Data: { AlertHandlerInterfaceList }
 		} = await RequestHttp.get(api);
-		setAlertList(AlertHandlerMailList);
+		setAlertList(AlertHandlerInterfaceList);
 	};
 	useEffect(() => {
-		selectCluster && getAlertHandlerMailList();
+		selectCluster && getAlertHandlerInterfaceList();
 	}, [selectCluster]);
 	return (
 		<>
@@ -155,9 +155,9 @@ const AlertHandlerMailList: FC = () => {
 				<Space>{clusterComponent}</Space>
 			</Flex>
 			<Table dataSource={alertList} columns={columns}></Table>
-			<AddHandlerMailModal isModalOpen={isModalOpen} handleCancel={handleCancel} callback={getAlertHandlerMailList} />
+			<AddHandlerInterfaceModal isModalOpen={isModalOpen} handleCancel={handleCancel} callback={getAlertHandlerInterfaceList} />
 			<BindAlertAndAlertHandler handlerId={currentHandlerId} isModalOpen={isBindModalOpen} handleCancel={handleBindCancel} />
 		</>
 	);
 };
-export default AlertHandlerMailList;
+export default AlertHandlerInterfaceList;

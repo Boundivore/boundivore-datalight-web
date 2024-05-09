@@ -25,6 +25,7 @@ import { t } from 'i18next';
 import ContainerCard from '@/components/containerCard';
 import AlertRuleList from '@/components/alert/alertRuleList';
 import AlertHandlerMailList from '@/components/alert/alertHandlerMailList';
+import AlertHandlerInterfaceList from '@/components/alert/alertHandlerInterfaceList';
 
 const Alert: FC = () => {
 	const [currentTab, setCurrentTab] = useState('1');
@@ -40,12 +41,12 @@ const Alert: FC = () => {
 			label: t('alert.alertMethod'),
 			children: (
 				<Tabs
-					tabPosition="top"
+					tabPosition="left"
 					items={[
 						{
 							key: '2-1',
 							label: '告警接口处理方式',
-							children: <AlertRuleList />
+							children: <AlertHandlerInterfaceList />
 						},
 						{
 							key: '2-2',
@@ -60,7 +61,7 @@ const Alert: FC = () => {
 
 	return (
 		<ContainerCard>
-			<Tabs tabPosition="left" activeKey={currentTab} items={items} onChange={setCurrentTab}></Tabs>
+			<Tabs type="card" activeKey={currentTab} items={items} onChange={setCurrentTab}></Tabs>
 		</ContainerCard>
 	);
 };

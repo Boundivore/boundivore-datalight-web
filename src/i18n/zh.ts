@@ -49,6 +49,7 @@ export default {
 		monitor: '监控',
 		alert: '告警',
 		createAlert: '新增告警配置',
+		alertDetail: '告警配置详情',
 		nodeTask: '查看节点活跃任务',
 		serviceTask: '查看服务组件活跃任务',
 		log: '日志管理',
@@ -265,9 +266,12 @@ export default {
 		removeAlert: '删除告警配置',
 		removeAlertConfirm: '您确定删除该告警配置吗？',
 		addHandlerMail: '新增邮箱处理方式',
-		addHandlerAPI: '新增接口处理方式',
+		addHandlerInterface: '新增接口处理方式',
 		mailAccount: '邮箱',
-		bind: '绑定告警规则'
+		bind: '绑定告警规则',
+		mailCheck: '请输入正确的邮箱！',
+		interfaceUri: '接口URI',
+		interfaceCheck: '请输入正确的接口URI'
 	},
 	retry: '重试',
 	previous: '上一步',
@@ -345,5 +349,7 @@ export default {
 	errorJob: '任务执行异常',
 	isEnable: '是否启用',
 	enabled: '已启用',
-	disabled: '未启用'
+	disabled: '未启用',
+	edit: '编辑',
+	id: 'ID'
 };

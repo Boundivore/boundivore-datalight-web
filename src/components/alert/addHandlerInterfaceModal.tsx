@@ -21,19 +21,19 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 
 /**
- * 新增告警邮箱处理方式
+ * 新增告警接口处理方式
  * @author Tracy
  */
 const layout = {
 	labelCol: { span: 4 },
 	wrapperCol: { span: 20 }
 };
-const AddHandlerMailModal = ({ isModalOpen, handleCancel, callback }) => {
+const AddHandlerInterfaceModal = ({ isModalOpen, handleCancel, callback }) => {
 	const [form] = Form.useForm();
-	const addHandlerMail = () => {
-		form.validateFields().then(async ({ MailAccount }) => {
-			const api = APIConfig.newAlertHandlerMail;
-			const { Code } = await RequestHttp.post(api, { MailAccount });
+	const addHandlerInterface = () => {
+		form.validateFields().then(async ({ InterfaceUri }) => {
+			const api = APIConfig.newAlertHandlerInterface;
+			const { Code } = await RequestHttp.post(api, { InterfaceUri });
 			if (Code === '00000') {
 				handleCancel && handleCancel();
 				callback && callback();
@@ -41,13 +41,17 @@ const AddHandlerMailModal = ({ isModalOpen, handleCancel, callback }) => {
 		});
 	};
 	return (
-		<Modal title={t('alert.addHandlerMail')} open={isModalOpen} onCancel={handleCancel} onOk={addHandlerMail}>
+		<Modal title={t('alert.addHandlerMail')} open={isModalOpen} onCancel={handleCancel} onOk={addHandlerInterface}>
 			<Form form={form} {...layout} className="pt-[20px]">
-				<Form.Item name="MailAccount" label={t('alert.mailAccount')} rules={[{ required: true, message: t('alert.mailCheck') }]}>
+				<Form.Item
+					name="InterfaceUri"
+					label={t('alert.interfaceUri')}
+					rules={[{ required: true, message: t('alert.interfaceUriCheck') }]}
+				>
 					<Input />
 				</Form.Item>
 			</Form>
 		</Modal>
 	);
 };
-export default AddHandlerMailModal;
+export default AddHandlerInterfaceModal;

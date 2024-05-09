@@ -65,6 +65,14 @@ const AlertRuleList: FC = () => {
 			},
 			{
 				id: 3,
+				label: t('edit'),
+				callback: () => {
+					navigateToAlertDetail(AlertRuleId);
+				},
+				disabled: false
+			},
+			{
+				id: 4,
 				label: t('alert.removeAlert'),
 				callback: () => removeAlert(AlertRuleId),
 				disabled: false

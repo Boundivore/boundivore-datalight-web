@@ -115,7 +115,11 @@ const APIConfig: Actions = {
 	removeAlertRule: '/v1/master/alert/removeAlertRule',
 	getAlertHandlerMailList: '/v1/master/alert/getAlertHandlerMailList',
 	newAlertHandlerMail: '/v1/master/alert/newAlertHandlerMail',
-	bindAlertAndAlertHandler: '/v1/master/alert/bindAlertAndAlertHandler'
+	bindAlertAndAlertHandler: '/v1/master/alert/bindAlertAndAlertHandler',
+	updateAlertRule: '/v1/master/alert/updateAlertRule',
+	getAlertHandlerInterfaceList: '/v1/master/alert/getAlertHandlerInterfaceList',
+	newAlertHandlerInterface: '/v1/master/alert/newAlertHandlerInterface',
+	updateAlertHandlerInterface: '/v1/master/alert/updateAlertHandlerInterface'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

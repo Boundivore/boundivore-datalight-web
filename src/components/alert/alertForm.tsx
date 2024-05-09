@@ -14,6 +14,8 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Form, Input, Card, Space, Button, InputNumber } from 'antd';
 import { t } from 'i18next';
 import { CloseOutlined } from '@ant-design/icons';
@@ -47,7 +49,9 @@ type FieldType = {
 	};
 };
 
-const AlertForm = () => {
+const AlertForm = ({ type = 'add', alertRuleData }) => {
+	const [searchParams] = useSearchParams();
+	const id = searchParams.get('id');
 	const [form] = Form.useForm();
 	const { navigateToAlertList } = useNavigater();
 	const onFinish: FormProps<FieldType>['onFinish'] = async values => {
@@ -85,6 +89,37 @@ const AlertForm = () => {
 		const data = await RequestHttp.post(api, params);
 		console.log('data', data);
 	};
+	const parseAlertDetail = () => {
+		const parseData = { ...alertRuleData };
+		parseData.AlertRuleContent.Groups.forEach(group => {
+			group.Rules.forEach(rule => {
+				// 1. 将 resultString 解析成 { d, h, m, s } 对象
+				const match = rule.For.match(/(\d+)d(\d+)h(\d+)m(\d+)s/);
+				const d = match[1] ? parseInt(match[1]) : 0;
+				const h = match[2] ? parseInt(match[2]) : 0;
+				const m = match[3] ? parseInt(match[3]) : 0;
+				const s = match[4] ? parseInt(match[4]) : 0;
+				rule.For = { d, h, m, s };
+
+				// 2. 将 rule.Expr 进行 base64 解码
+				// rule.Expr = atob(rule.Expr);
+
+				// 3. 将 resultAnnotations 转换回数组
+				const annotationsArray = Object.entries(rule.Annotations).map(([key, value]) => ({ key, value }));
+				rule.Annotations = annotationsArray;
+
+				// 4. 将 resultLabels 转换回数组
+				const labelsArray = Object.entries(rule.Labels).map(([key, value]) => ({ key, value }));
+				rule.Labels = labelsArray;
+			});
+		});
+
+		form.setFieldsValue(parseData);
+	};
+	useEffect(() => {
+		type === 'edit' && parseAlertDetail();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [type]);
 	return (
 		<Form
 			form={form}
@@ -95,7 +130,6 @@ const AlertForm = () => {
 			style={{ maxWidth: 800 }}
 			autoComplete="off"
 			onFinish={onFinish}
-			// initialValues={{ RoleName: roleInfo.RoleName }}
 		>
 			<Form.Item<FieldType>
 				label={t('alert.alertRuleName')}
