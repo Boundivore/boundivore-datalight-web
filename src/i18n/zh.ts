@@ -271,7 +271,10 @@ export default {
 		bind: '绑定告警规则',
 		mailCheck: '请输入正确的邮箱！',
 		interfaceUri: '接口URI',
-		interfaceCheck: '请输入正确的接口URI'
+		interfaceCheck: '请输入正确的接口URI',
+		alertHandlerType: '告警触发后的操作类型',
+		bindAlert: '绑定告警规则',
+		bindHandler: '绑定告警处理手段'
 	},
 	retry: '重试',
 	previous: '上一步',

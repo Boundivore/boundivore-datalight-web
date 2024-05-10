@@ -30,7 +30,7 @@ import AddHandlerMailModal from './addHandlerMailModal';
 import BindAlertAndAlertHandler from './bindAlertAndAlertHandler';
 // import useNavigater from '@/hooks/useNavigater';
 
-const AlertHandlerMailList: FC = () => {
+const AlertHandlerMailList: FC = ({ activeKey }) => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,13 +63,13 @@ const AlertHandlerMailList: FC = () => {
 			},
 			{
 				id: 2,
-				label: t('bind'),
+				label: t('alert.bindAlert'),
 				callback: () => bindAlertAndAlertHandler(HandlerId),
 				disabled: false
 			},
 			{
 				id: 3,
-				label: t('alert.remove'),
+				label: t('remove'),
 				callback: () => removeAlert(HandlerId),
 				disabled: false
 			}
@@ -111,17 +111,21 @@ const AlertHandlerMailList: FC = () => {
 		setIsBindModalOpen(true);
 		setCurrentHandlerId(handlerId);
 	};
-	const removeAlert = (alertId: string | number) => {
+	const removeAlert = (HandlerId: string | number) => {
 		modal.confirm({
 			title: t('alert.removeAlert'),
 			content: t('alert.removeAlertConfirm'),
 			okText: t('confirm'),
 			cancelText: t('cancel'),
 			onOk: async () => {
-				const api = APIConfig.removeAlertRule;
+				const api = APIConfig.removeBatchAlertHandler;
 				const params = {
-					AlertIdList: [alertId],
-					ClusterId: selectCluster
+					AlertHandlerIdTypeList: [
+						{
+							AlertHandlerIdList: [HandlerId],
+							AlertHandlerType: 'ALERT_MAIL'
+						}
+					]
 				};
 				const { Code } = await RequestHttp.post(api, params);
 				if (Code === '00000') {
@@ -139,8 +143,8 @@ const AlertHandlerMailList: FC = () => {
 		setAlertList(AlertHandlerMailList);
 	};
 	useEffect(() => {
-		selectCluster && getAlertHandlerMailList();
-	}, [selectCluster]);
+		selectCluster && activeKey === '2' && getAlertHandlerMailList();
+	}, [selectCluster, activeKey]);
 	return (
 		<>
 			{contextHolder}
@@ -156,7 +160,14 @@ const AlertHandlerMailList: FC = () => {
 			</Flex>
 			<Table dataSource={alertList} columns={columns}></Table>
 			<AddHandlerMailModal isModalOpen={isModalOpen} handleCancel={handleCancel} callback={getAlertHandlerMailList} />
-			<BindAlertAndAlertHandler handlerId={currentHandlerId} isModalOpen={isBindModalOpen} handleCancel={handleBindCancel} />
+			{isBindModalOpen ? (
+				<BindAlertAndAlertHandler
+					type="ALERT_MAIL"
+					handlerId={currentHandlerId}
+					isModalOpen={isBindModalOpen}
+					handleCancel={handleBindCancel}
+				/>
+			) : null}
 		</>
 	);
 };

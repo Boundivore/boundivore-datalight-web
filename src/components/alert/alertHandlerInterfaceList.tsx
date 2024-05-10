@@ -30,7 +30,7 @@ import AddHandlerInterfaceModal from './addHandlerInterfaceModal';
 import BindAlertAndAlertHandler from './bindAlertAndAlertHandler';
 // import useNavigater from '@/hooks/useNavigater';
 
-const AlertHandlerInterfaceList: FC = () => {
+const AlertHandlerInterfaceList: FC = ({ activeKey }) => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,13 +63,13 @@ const AlertHandlerInterfaceList: FC = () => {
 			},
 			{
 				id: 2,
-				label: t('bind'),
+				label: t('alert.bindAlert'),
 				callback: () => bindAlertAndAlertHandler(HandlerId),
 				disabled: false
 			},
 			{
 				id: 3,
-				label: t('alert.remove'),
+				label: t('remove'),
 				callback: () => removeAlert(HandlerId),
 				disabled: false
 			}
@@ -111,17 +111,21 @@ const AlertHandlerInterfaceList: FC = () => {
 		setIsBindModalOpen(true);
 		setCurrentHandlerId(handlerId);
 	};
-	const removeAlert = (alertId: string | number) => {
+	const removeAlert = (HandlerId: string | number) => {
 		modal.confirm({
 			title: t('alert.removeAlert'),
 			content: t('alert.removeAlertConfirm'),
 			okText: t('confirm'),
 			cancelText: t('cancel'),
 			onOk: async () => {
-				const api = APIConfig.removeAlertRule;
+				const api = APIConfig.removeBatchAlertHandler;
 				const params = {
-					AlertIdList: [alertId],
-					ClusterId: selectCluster
+					AlertHandlerIdTypeList: [
+						{
+							AlertHandlerIdList: [HandlerId],
+							AlertHandlerType: 'ALERT_INTERFACE'
+						}
+					]
 				};
 				const { Code } = await RequestHttp.post(api, params);
 				if (Code === '00000') {
@@ -139,8 +143,8 @@ const AlertHandlerInterfaceList: FC = () => {
 		setAlertList(AlertHandlerInterfaceList);
 	};
 	useEffect(() => {
-		selectCluster && getAlertHandlerInterfaceList();
-	}, [selectCluster]);
+		selectCluster && activeKey === '2' && getAlertHandlerInterfaceList();
+	}, [selectCluster, activeKey]);
 	return (
 		<>
 			{contextHolder}
@@ -155,8 +159,17 @@ const AlertHandlerInterfaceList: FC = () => {
 				<Space>{clusterComponent}</Space>
 			</Flex>
 			<Table dataSource={alertList} columns={columns}></Table>
-			<AddHandlerInterfaceModal isModalOpen={isModalOpen} handleCancel={handleCancel} callback={getAlertHandlerInterfaceList} />
-			<BindAlertAndAlertHandler handlerId={currentHandlerId} isModalOpen={isBindModalOpen} handleCancel={handleBindCancel} />
+			{isModalOpen ? (
+				<AddHandlerInterfaceModal isModalOpen={isModalOpen} handleCancel={handleCancel} callback={getAlertHandlerInterfaceList} />
+			) : null}
+			{isBindModalOpen ? (
+				<BindAlertAndAlertHandler
+					type="ALERT_INTERFACE"
+					handlerId={currentHandlerId}
+					isModalOpen={isBindModalOpen}
+					handleCancel={handleBindCancel}
+				/>
+			) : null}
 		</>
 	);
 };

@@ -34,7 +34,7 @@ const Alert: FC = () => {
 		{
 			key: '1',
 			label: t('alert.alert'),
-			children: <AlertRuleList />
+			children: <AlertRuleList activeKey={currentTab} />
 		},
 		{
 			key: '2',
@@ -46,12 +46,12 @@ const Alert: FC = () => {
 						{
 							key: '2-1',
 							label: '告警接口处理方式',
-							children: <AlertHandlerInterfaceList />
+							children: <AlertHandlerInterfaceList activeKey={currentTab} />
 						},
 						{
 							key: '2-2',
 							label: '告警邮箱处理方式',
-							children: <AlertHandlerMailList />
+							children: <AlertHandlerMailList activeKey={currentTab} />
 						}
 					]}
 				/>

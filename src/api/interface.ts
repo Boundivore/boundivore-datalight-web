@@ -661,11 +661,32 @@ export interface NodeJobLogVo {
  */
 export interface AlertSimpleVo {
 	AlertFilePath: string;
+	AlertHandlerList: AlertHandlerVo[];
 	AlertRuleId: number;
 	AlertRuleName: string;
 	Enabled: boolean;
 	[property: string]: any;
 }
+
+/**
+ * AlertHandlerVo
+ */
+export interface AlertHandlerVo {
+	AlertHandlerIdList: number[];
+	AlertHandlerType: AlertHandlerType;
+	[property: string]: any;
+}
+
+export enum AlertHandlerType {
+	AlertDingding = 'ALERT_DINGDING',
+	AlertFeishu = 'ALERT_FEISHU',
+	AlertIgnore = 'ALERT_IGNORE',
+	AlertInterface = 'ALERT_INTERFACE',
+	AlertLog = 'ALERT_LOG',
+	AlertMail = 'ALERT_MAIL',
+	AlertWeichat = 'ALERT_WEICHAT'
+}
+
 /**
  * AlertRuleVo
  */

@@ -41,7 +41,7 @@ const AddHandlerInterfaceModal = ({ isModalOpen, handleCancel, callback }) => {
 		});
 	};
 	return (
-		<Modal title={t('alert.addHandlerMail')} open={isModalOpen} onCancel={handleCancel} onOk={addHandlerInterface}>
+		<Modal title={t('alert.addHandlerInterface')} open={isModalOpen} onCancel={handleCancel} onOk={addHandlerInterface}>
 			<Form form={form} {...layout} className="pt-[20px]">
 				<Form.Item
 					name="InterfaceUri"

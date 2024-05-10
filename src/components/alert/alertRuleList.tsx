@@ -20,15 +20,16 @@
  */
 import { FC, useState, useEffect } from 'react';
 import { t } from 'i18next';
-import { Table, Flex, Space, Button, App, message, Badge } from 'antd';
+import { Table, Flex, Space, Button, App, message, Badge, Tag } from 'antd';
 import type { TableColumnsType } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import { AlertSimpleVo } from '@/api/interface';
 import useNavigater from '@/hooks/useNavigater';
+import { textMap } from './config';
 
-const AlertRuleList: FC = () => {
+const AlertRuleList: FC = ({ activeKey }) => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 	const { navigateToCreateAlert, navigateToAlertDetail } = useNavigater();
@@ -93,9 +94,34 @@ const AlertRuleList: FC = () => {
 			render: text => <Badge status={text ? 'success' : 'error'} text={text ? t(`enabled`) : t(`disabled`)} />
 		},
 		{
+			title: t('alert.alertHandlerType'),
+			dataIndex: 'AlertHandlerList',
+			key: 'AlertHandlerList',
+			width: '20%',
+			// render: text => {
+			// 	text.map(handler => {
+			// 		return (
+			// 			<Tag key={handler.AlertHandlerType} color="processing">
+			// 				{handler.AlertHandlerType}
+			// 			</Tag>
+			// 		);
+			// 	});
+			// },
+			render: (text: []) => (
+				<Flex wrap="wrap" gap="small">
+					{text.map(handler => (
+						<Tag key={handler.AlertHandlerType} bordered={false} color="processing">
+							{textMap[handler.AlertHandlerType]}
+						</Tag>
+					))}
+				</Flex>
+			)
+		},
+		{
 			title: t('operation'),
 			key: 'IsExistInitProcedure',
 			dataIndex: 'IsExistInitProcedure',
+			width: '40%',
 			render: (text, record) => (
 				<Space>
 					{buttonConfigItem(text, record).map(button => (
@@ -163,9 +189,9 @@ const AlertRuleList: FC = () => {
 		setAlertList(AlertSimpleList);
 	};
 	useEffect(() => {
-		selectCluster && getAlertList();
+		selectCluster && activeKey === '1' && getAlertList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectCluster]);
+	}, [selectCluster, activeKey]);
 	return (
 		<>
 			{contextHolder}
