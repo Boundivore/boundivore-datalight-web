@@ -21,11 +21,11 @@
  */
 import { t } from 'i18next';
 export const textMap = {
-	ALERT_DINGDING: t('alert.mailAccount'),
-	ALERT_FEISHU: t('alert.mailAccount'),
-	ALERT_IGNORE: t('alert.mailAccount'),
-	ALERT_INTERFACE: t('alert.interfaceUri'),
-	ALERT_LOG: t('alert.mailAccount'),
+	ALERT_DINGDING: t('alert.ALERT_DINGDING'),
+	ALERT_FEISHU: t('alert.ALERT_FEISHU'),
+	ALERT_IGNORE: t('alert.ALERT_IGNORE'),
+	ALERT_INTERFACE: t('alert.ALERT_INTERFACE'),
+	ALERT_LOG: t('alert.ALERT_LOG'),
 	ALERT_MAIL: t('alert.mailAccount'),
 	ALERT_WEICHAT: t('alert.mailAccount')
 };

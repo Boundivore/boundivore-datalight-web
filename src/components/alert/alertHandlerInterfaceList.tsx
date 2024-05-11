@@ -28,7 +28,7 @@ import useCurrentCluster from '@/hooks/useCurrentCluster';
 import { AlertSimpleVo } from '@/api/interface';
 import AddHandlerInterfaceModal from './addHandlerInterfaceModal';
 import BindAlertAndAlertHandler from './bindAlertAndAlertHandler';
-// import useNavigater from '@/hooks/useNavigater';
+import useNavigater from '@/hooks/useNavigater';
 
 const AlertHandlerInterfaceList: FC = ({ activeKey }) => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
@@ -36,7 +36,7 @@ const AlertHandlerInterfaceList: FC = ({ activeKey }) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isBindModalOpen, setIsBindModalOpen] = useState(false);
 	const [currentHandlerId, setCurrentHandlerId] = useState('');
-	// const { navigateToCreateAlert } = useNavigater();
+	const { navigateToHandlerDetail } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	// 顶部操作按钮配置
@@ -58,7 +58,7 @@ const AlertHandlerInterfaceList: FC = ({ activeKey }) => {
 			{
 				id: 1,
 				label: t('detail'),
-				callback: () => {},
+				callback: () => navigateToHandlerDetail(HandlerId),
 				disabled: false
 			},
 			{

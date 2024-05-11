@@ -257,7 +257,7 @@ export default {
 	},
 	alert: {
 		alert: '告警配置',
-		alertMethod: '告警处理手段',
+		alertMethod: '告警处理方式',
 		alertRuleName: '告警配置名称',
 		group: '告警规则分组',
 		groupName: '告警规则分组名称',
@@ -274,7 +274,14 @@ export default {
 		interfaceCheck: '请输入正确的接口URI',
 		alertHandlerType: '告警触发后的操作类型',
 		bindAlert: '绑定告警规则',
-		bindHandler: '绑定告警处理手段'
+		bindHandler: '绑定告警处理方式',
+		ALERT_DINGDING: '钉钉告警',
+		ALERT_FEISHU: '飞书告警',
+		ALERT_IGNORE: '静默告警',
+		ALERT_INTERFACE: '接口告警',
+		ALERT_LOG: '日志告警',
+		ALERT_MAIL: '邮件告警',
+		ALERT_WEICHAT: '微信告警'
 	},
 	retry: '重试',
 	previous: '上一步',
@@ -339,6 +346,8 @@ export default {
 	enable: '启用',
 	disable: '停用',
 	detach: '解除绑定',
+	batchDetach: '批量解除绑定',
+	detachConfirm: '您确定解除绑定吗？',
 	back: '返回',
 	noPrometheus: '尚未发现活跃的 Prometheus 实例',
 	inputRoleName: '请输入您的角色名称!',

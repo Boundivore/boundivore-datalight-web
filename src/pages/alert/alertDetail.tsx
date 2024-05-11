@@ -21,12 +21,13 @@
 import { FC, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { t } from 'i18next';
-import { Row, Col, Card, List, Typography, Badge, Space, Button } from 'antd';
+import { Row, Col, Card, List, Typography, Badge, Space, Button, Collapse, Tabs } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import ContainerCard from '@/components/containerCard';
 import AlertForm from '@/components/alert/alertForm';
 import useNavigater from '@/hooks/useNavigater';
+import { MailList, InterfaceList } from '@/components/alert/alertHandlerList';
 const { Text } = Typography;
 
 const AlertDetail: FC = () => {
@@ -35,6 +36,7 @@ const AlertDetail: FC = () => {
 	const { navigateToAlertList } = useNavigater();
 	const [alertInfoData, setAlertInfoData] = useState([]);
 	const [alertRuleData, setAlertRuleData] = useState(null);
+	const [tabItems, setTabItems] = useState([]);
 	// const { modal } = App.useApp();
 	// const [messageApi, contextHolder] = message.useMessage();
 	const getAlertDetail = async () => {
@@ -43,7 +45,7 @@ const AlertDetail: FC = () => {
 			AlertId: id
 		};
 		const {
-			Data: { AlertRuleContent, AlertRuleName, Enabled }
+			Data: { AlertRuleContent, AlertRuleName, Enabled, AlertHandlerList }
 		} = await RequestHttp.get(api, { params });
 		// console.log(data);
 		const alertInfo = [
@@ -65,11 +67,43 @@ const AlertDetail: FC = () => {
 		];
 		setAlertInfoData(alertInfo);
 		setAlertRuleData({ AlertRuleName, AlertRuleContent });
+		const tabs = AlertHandlerList.map(handler => {
+			let childrenComponent;
+			if (handler.AlertHandlerType === 'ALERT_MAIL') {
+				childrenComponent = <MailList handlerIdList={handler.AlertHandlerIdList} />;
+			} else if (handler.AlertHandlerType === 'ALERT_INTERFACE') {
+				childrenComponent = <InterfaceList handlerIdList={handler.AlertHandlerIdList} />;
+			} else {
+				// 如果AlertHandlerType不是"mail"或"interface"，你可以定义一个默认的组件或者处理方式
+				childrenComponent = <MailList handlerIdList={handler.AlertHandlerIdList} />;
+			}
+			return {
+				key: handler.AlertHandlerType,
+				label: t(`alert.${handler.AlertHandlerType}`),
+				children: childrenComponent
+			};
+		});
+		setTabItems(tabs);
 	};
 	useEffect(() => {
 		id && getAlertDetail();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id]);
+	const items = [
+		{
+			key: '1',
+			label: <span className="font-semibold text-[16px]">告警规则信息</span>,
+			children: alertRuleData && <AlertForm type="edit" alertRuleData={alertRuleData} />,
+			extra: (
+				<Space>
+					{/* <Button type="primary" disabled={!selectedPermission.length} onClick={() => detachPermission(selectedPermission)}>
+                {t('permission.batchDetachPermission')}
+            </Button> */}
+					<Button onClick={navigateToAlertList}>{t('back')}</Button>
+				</Space>
+			)
+		}
+	];
 	return (
 		<ContainerCard>
 			{/* {contextHolder} */}
@@ -88,19 +122,26 @@ const AlertDetail: FC = () => {
 					</Card>
 				</Col>
 				<Col span={18}>
-					<Card
-						title="告警规则信息"
-						extra={
-							<Space>
-								{/* <Button type="primary" disabled={!selectedPermission.length} onClick={() => detachPermission(selectedPermission)}>
-									{t('permission.batchDetachPermission')}
-								</Button> */}
-								<Button onClick={navigateToAlertList}>{t('back')}</Button>
-							</Space>
-						}
-					>
-						{alertRuleData && <AlertForm type="edit" alertRuleData={alertRuleData} />}
-					</Card>
+					<Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+						<Collapse
+							className="bg-white"
+							items={items}
+							// title="告警规则信息"
+							// extra={
+							// 	<Space>
+							// 		{/* <Button type="primary" disabled={!selectedPermission.length} onClick={() => detachPermission(selectedPermission)}>
+							// 			{t('permission.batchDetachPermission')}
+							// 		</Button> */}
+							// 		<Button onClick={navigateToAlertList}>{t('back')}</Button>
+							// 	</Space>
+							// }
+						>
+							{/* {alertRuleData && <AlertForm type="edit" alertRuleData={alertRuleData} />} */}
+						</Collapse>
+						<Card title="绑定告警处理方式">
+							<Tabs type="card" items={tabItems}></Tabs>
+						</Card>
+					</Space>
 				</Col>
 			</Row>
 		</ContainerCard>

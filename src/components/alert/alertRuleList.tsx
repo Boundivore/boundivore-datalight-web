@@ -27,7 +27,6 @@ import RequestHttp from '@/api';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import { AlertSimpleVo } from '@/api/interface';
 import useNavigater from '@/hooks/useNavigater';
-import { textMap } from './config';
 
 const AlertRuleList: FC = ({ activeKey }) => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
@@ -111,7 +110,7 @@ const AlertRuleList: FC = ({ activeKey }) => {
 				<Flex wrap="wrap" gap="small">
 					{text.map(handler => (
 						<Tag key={handler.AlertHandlerType} bordered={false} color="processing">
-							{textMap[handler.AlertHandlerType]}
+							{t(`alert.${handler.AlertHandlerType}`)}
 						</Tag>
 					))}
 				</Flex>

@@ -69,14 +69,24 @@ const BindAlertAndAlertHandler: FC = ({ type, handlerId, isModalOpen, handleCanc
 	const getBindingAlert = async () => {
 		const api = APIConfig.getBindingAlertHandlerByHandlerId;
 		const params = { HandlerId: handlerId };
-		const { HandlerAndAlertIdList } = await RequestHttp.get(api, { params });
-		const bindedList = HandlerAndAlertIdList[0].AlertHandlerIdList.map(alertId => ({
-			AlertRuleId: alertId,
-			disabled: true
-		}));
-		setTargetKeys(HandlerAndAlertIdList[0].AlertHandlerIdList);
-		setBindedAlertList(bindedList);
-		setAlertList([...alertList, ...bindedList]);
+		const {
+			Data: { AlertIdAndTypeList }
+		} = await RequestHttp.get(api, { params });
+		if (AlertIdAndTypeList) {
+			const bindedList = AlertIdAndTypeList.filter(item => item.AlertHandlerType === type).map(alert => ({
+				// ...alert,
+				AlertRuleId: alert.AlertId,
+				AlertRuleName: alert.AlertName,
+				disabled: true
+			}));
+			const test = AlertIdAndTypeList.filter(item => item.AlertHandlerType === type);
+			console.log(2222, test);
+			const keys = bindedList?.map(alert => alert.AlertRuleId);
+
+			setTargetKeys(keys);
+			setBindedAlertList(bindedList);
+			setAlertList([...alertList, ...bindedList]);
+		}
 	};
 	useEffect(() => {
 		hasBinded && getBindingAlert();
