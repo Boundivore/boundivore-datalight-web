@@ -28,15 +28,16 @@ import useCurrentCluster from '@/hooks/useCurrentCluster';
 import { AlertSimpleVo } from '@/api/interface';
 import AddHandlerMailModal from './addHandlerMailModal';
 import BindAlertAndAlertHandler from './bindAlertAndAlertHandler';
-// import useNavigater from '@/hooks/useNavigater';
+import useNavigater from '@/hooks/useNavigater';
 
-const AlertHandlerMailList: FC = ({ activeKey }) => {
+const type = 'ALERT_MAIL';
+const AlertHandlerMailList: FC = () => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isBindModalOpen, setIsBindModalOpen] = useState(false);
 	const [currentHandlerId, setCurrentHandlerId] = useState('');
-	// const { navigateToCreateAlert } = useNavigater();
+	const { navigateToHandlerDetail } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	// 顶部操作按钮配置
@@ -58,7 +59,7 @@ const AlertHandlerMailList: FC = ({ activeKey }) => {
 			{
 				id: 1,
 				label: t('detail'),
-				callback: () => {},
+				callback: () => navigateToHandlerDetail(HandlerId, type),
 				disabled: false
 			},
 			{
@@ -123,7 +124,7 @@ const AlertHandlerMailList: FC = ({ activeKey }) => {
 					AlertHandlerIdTypeList: [
 						{
 							AlertHandlerIdList: [HandlerId],
-							AlertHandlerType: 'ALERT_MAIL'
+							AlertHandlerType: type
 						}
 					]
 				};
@@ -143,8 +144,8 @@ const AlertHandlerMailList: FC = ({ activeKey }) => {
 		setAlertList(AlertHandlerMailList);
 	};
 	useEffect(() => {
-		selectCluster && activeKey === '2' && getAlertHandlerMailList();
-	}, [selectCluster, activeKey]);
+		selectCluster && getAlertHandlerMailList();
+	}, [selectCluster]);
 	return (
 		<>
 			{contextHolder}
@@ -162,7 +163,7 @@ const AlertHandlerMailList: FC = ({ activeKey }) => {
 			<AddHandlerMailModal isModalOpen={isModalOpen} handleCancel={handleCancel} callback={getAlertHandlerMailList} />
 			{isBindModalOpen ? (
 				<BindAlertAndAlertHandler
-					type="ALERT_MAIL"
+					type={type}
 					handlerId={currentHandlerId}
 					isModalOpen={isBindModalOpen}
 					handleCancel={handleBindCancel}

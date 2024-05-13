@@ -18,27 +18,42 @@
  * 告警规则详情和编辑
  * @author Tracy
  */
-import { FC, useEffect, useState } from 'react';
+import { Key, FC, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { t } from 'i18next';
-import { Row, Col, Card, List, Typography, Badge, Space, Table } from 'antd';
+import { Row, Col, Card, List, Typography, Badge, Space, Table, App, message, Button } from 'antd';
 import type { TableColumnsType } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import ContainerCard from '@/components/containerCard';
-// import useNavigater from '@/hooks/useNavigater';
+import useNavigater from '@/hooks/useNavigater';
 const { Text } = Typography;
 
 const HandlerDetail: FC = () => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	// const { navigateToAlertList } = useNavigater();
+	const type = searchParams.get('type') || '';
+	const { navigateToAlertList } = useNavigater();
 	const [handlerInfoData, setHandlerInfoData] = useState([]);
 	const [tableData, setTableData] = useState([]);
-	// const { modal } = App.useApp();
-	// const [messageApi, contextHolder] = message.useMessage();
+	const [selectedAlert, setSelectedAlert] = useState<Key[]>([]);
+	const { modal } = App.useApp();
+	const [messageApi, contextHolder] = message.useMessage();
+	const buttonConfigItem = (_text: [], record) => {
+		const { AlertId } = record;
+		return [
+			{
+				id: 1,
+				label: t('detach'),
+				callback: () => detach([AlertId]),
+				disabled: false
+			}
+		];
+	};
 	const getHandlerDetail = async () => {
-		const api = APIConfig.getAlertHandlerMailDetailsById;
+		let api = '';
+		type === 'ALERT_INTERFACE' && (api = APIConfig.getAlertHandlerInterfaceDetailsById);
+		type === 'ALERT_MAIL' && (api = APIConfig.getAlertHandlerMailDetailsById);
 		const params = {
 			HandlerId: id
 		};
@@ -59,6 +74,31 @@ const HandlerDetail: FC = () => {
 			// },
 		];
 		setHandlerInfoData(handlerInfo);
+	};
+	const detach = async alertIdList => {
+		modal.confirm({
+			title: t('detach'),
+			content: t('detachConfirm'),
+			okText: t('confirm'),
+			cancelText: t('cancel'),
+			onOk: async () => {
+				const api = APIConfig.bindAlertAndAlertHandler;
+				const idList = alertIdList.map(alertId => ({
+					AlertHandlerTypeEnum: type,
+					AlertId: alertId,
+					HandlerId: id,
+					IsBinding: false
+				}));
+				const params = {
+					HandlerId: idList
+				};
+				const { Code } = await RequestHttp.post(api, params);
+				if (Code === '00000') {
+					messageApi.success(t('messageSuccess'));
+					// callback && callback(); //操作成功更新列表
+				}
+			}
+		});
 	};
 	const getAlertList = async () => {
 		const api = APIConfig.getBindingAlertHandlerByHandlerId;
@@ -83,6 +123,22 @@ const HandlerDetail: FC = () => {
 			dataIndex: 'Enabled',
 			key: 'Enabled',
 			render: text => <Badge status={text ? 'success' : 'error'} text={text ? t(`enabled`) : t(`disabled`)} />
+		},
+		{
+			title: t('operation'),
+			key: 'operation',
+			dataIndex: 'operation',
+			render: (text, record) => {
+				return (
+					<Space>
+						{buttonConfigItem(text, record).map(button => (
+							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
+								{button.label}
+							</Button>
+						))}
+					</Space>
+				);
+			}
 		}
 		// {
 		// 	title: t('alert.alertHandlerType'),
@@ -109,9 +165,14 @@ const HandlerDetail: FC = () => {
 		// 	)
 		// }
 	];
+	const rowSelection = {
+		onChange: (selectedRowKeys: Key[]) => {
+			setSelectedAlert(selectedRowKeys);
+		}
+	};
 	return (
 		<ContainerCard>
-			{/* {contextHolder} */}
+			{contextHolder}
 			<Row gutter={24} className="mt-[20px]">
 				<Col span={6}>
 					<Card className="data-light-card" title="告警配置信息">
@@ -128,11 +189,21 @@ const HandlerDetail: FC = () => {
 				</Col>
 				<Col span={18}>
 					<Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-						<Card title="绑定告警信息">
+						<Card
+							title="绑定告警信息"
+							extra={
+								<Space>
+									<Button type="primary" disabled={!selectedAlert.length} onClick={() => detach(selectedAlert)}>
+										{t('batchDetach')}
+									</Button>
+									<Button onClick={() => navigateToAlertList('handler', type)}>{t('back')}</Button>
+								</Space>
+							}
+						>
 							<Table
-								// rowSelection={{
-								// 	...rowSelection
-								// }}
+								rowSelection={{
+									...rowSelection
+								}}
 								dataSource={tableData}
 								columns={columns}
 								rowKey="AlertId"

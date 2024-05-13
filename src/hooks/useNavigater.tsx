@@ -99,8 +99,8 @@ const useNavigater = () => {
 	const navigateToRoleDetail = (id: number | string) => {
 		navigate(`/permission/roleDetail?id=${id}`);
 	};
-	const navigateToAlertList = () => {
-		navigate(`/alert`);
+	const navigateToAlertList = (tab: string, subTab?: string) => {
+		navigate(`/alert?tab=${tab}${subTab ? '&subTab=' + subTab : ''}`);
 	};
 	const navigateToCreateAlert = (id: number | string) => {
 		navigate(`/alert/createAlert?id=${id}`);
@@ -108,8 +108,8 @@ const useNavigater = () => {
 	const navigateToAlertDetail = (id: number | string) => {
 		navigate(`/alert/alertDetail?id=${id}`);
 	};
-	const navigateToHandlerDetail = (id: number | string) => {
-		navigate(`/alert/handlerDetail?id=${id}`);
+	const navigateToHandlerDetail = (id: number | string, type: string) => {
+		navigate(`/alert/handlerDetail?id=${id}&type=${type}`);
 	};
 
 	return {

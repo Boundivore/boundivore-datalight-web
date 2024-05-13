@@ -28,7 +28,7 @@ import useCurrentCluster from '@/hooks/useCurrentCluster';
 import { AlertSimpleVo } from '@/api/interface';
 import useNavigater from '@/hooks/useNavigater';
 
-const AlertRuleList: FC = ({ activeKey }) => {
+const AlertRuleList: FC = () => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 	const { navigateToCreateAlert, navigateToAlertDetail } = useNavigater();
@@ -188,9 +188,9 @@ const AlertRuleList: FC = ({ activeKey }) => {
 		setAlertList(AlertSimpleList);
 	};
 	useEffect(() => {
-		selectCluster && activeKey === '1' && getAlertList();
+		selectCluster && getAlertList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectCluster, activeKey]);
+	}, [selectCluster]);
 	return (
 		<>
 			{contextHolder}

@@ -123,7 +123,9 @@ const APIConfig: Actions = {
 	removeBatchAlertHandler: '/v1/master/alert/removeBatchAlertHandler',
 	getBindingAlertHandlerByHandlerId: '/v1/master/alert/getBindingAlertHandlerByHandlerId',
 	getAlertHandlerMailListIdList: '/v1/master/alert/getAlertHandlerMailListIdList',
-	getAlertHandlerInterfaceListByIdList: '/v1/master/alert/getAlertHandlerInterfaceListByIdList'
+	getAlertHandlerInterfaceListByIdList: '/v1/master/alert/getAlertHandlerInterfaceListByIdList',
+	getAlertHandlerMailDetailsById: '/v1/master/alert/getAlertHandlerMailDetailsById',
+	getAlertHandlerInterfaceDetailsById: '/v1/master/alert/getAlertHandlerInterfaceDetailsById'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

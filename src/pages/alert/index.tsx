@@ -18,7 +18,8 @@
  * 告警
  * @author Tracy
  */
-import { FC, useState } from 'react';
+import { FC } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import { t } from 'i18next';
@@ -28,30 +29,50 @@ import AlertHandlerMailList from '@/components/alert/alertHandlerMailList';
 import AlertHandlerInterfaceList from '@/components/alert/alertHandlerInterfaceList';
 
 const Alert: FC = () => {
-	const [currentTab, setCurrentTab] = useState('1');
+	const [searchParams] = useSearchParams();
+	const tab = searchParams.get('tab') || '';
+	const subTab = searchParams.get('subTab') || '';
 
 	const items: TabsProps['items'] = [
 		{
-			key: '1',
-			label: t('alert.alert'),
-			children: <AlertRuleList activeKey={currentTab} />
+			key: 'alert',
+			label: (
+				<Link to="/alert?tab=alert" className="text-inherit">
+					{t('alert.alert')}
+				</Link>
+			),
+			children: <AlertRuleList />
 		},
 		{
-			key: '2',
-			label: t('alert.alertMethod'),
+			key: 'handler',
+			label: (
+				<Link to="/alert?tab=handler&subTab=ALERT_INTERFACE" className="text-inherit">
+					{t('alert.alertMethod')}
+				</Link>
+			),
 			children: (
 				<Tabs
 					tabPosition="left"
+					activeKey={subTab}
 					items={[
 						{
-							key: '2-1',
-							label: '告警接口处理方式',
-							children: <AlertHandlerInterfaceList activeKey={currentTab} />
+							key: 'ALERT_INTERFACE',
+							label: (
+								<Link to="/alert?tab=handler&subTab=ALERT_INTERFACE" className="text-inherit">
+									{t('alert.handlerInterface')}
+								</Link>
+							),
+							children: <AlertHandlerInterfaceList />
 						},
 						{
-							key: '2-2',
-							label: '告警邮箱处理方式',
-							children: <AlertHandlerMailList activeKey={currentTab} />
+							key: 'ALERT_MAIL',
+							label: (
+								<Link to="/alert?tab=handler&subTab=ALERT_MAIL" className="text-inherit">
+									{t('alert.handlerMail')}
+								</Link>
+							),
+
+							children: <AlertHandlerMailList />
 						}
 					]}
 				/>
@@ -61,7 +82,7 @@ const Alert: FC = () => {
 
 	return (
 		<ContainerCard>
-			<Tabs type="card" activeKey={currentTab} items={items} onChange={setCurrentTab}></Tabs>
+			<Tabs type="card" activeKey={tab} items={items}></Tabs>
 		</ContainerCard>
 	);
 };

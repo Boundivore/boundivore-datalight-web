@@ -30,7 +30,8 @@ import AddHandlerInterfaceModal from './addHandlerInterfaceModal';
 import BindAlertAndAlertHandler from './bindAlertAndAlertHandler';
 import useNavigater from '@/hooks/useNavigater';
 
-const AlertHandlerInterfaceList: FC = ({ activeKey }) => {
+const type = 'ALERT_INTERFACE';
+const AlertHandlerInterfaceList: FC = () => {
 	const [alertList, setAlertList] = useState<AlertSimpleVo[]>([]);
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,7 +59,7 @@ const AlertHandlerInterfaceList: FC = ({ activeKey }) => {
 			{
 				id: 1,
 				label: t('detail'),
-				callback: () => navigateToHandlerDetail(HandlerId),
+				callback: () => navigateToHandlerDetail(HandlerId, type),
 				disabled: false
 			},
 			{
@@ -123,7 +124,7 @@ const AlertHandlerInterfaceList: FC = ({ activeKey }) => {
 					AlertHandlerIdTypeList: [
 						{
 							AlertHandlerIdList: [HandlerId],
-							AlertHandlerType: 'ALERT_INTERFACE'
+							AlertHandlerType: type
 						}
 					]
 				};
@@ -143,8 +144,8 @@ const AlertHandlerInterfaceList: FC = ({ activeKey }) => {
 		setAlertList(AlertHandlerInterfaceList);
 	};
 	useEffect(() => {
-		selectCluster && activeKey === '2' && getAlertHandlerInterfaceList();
-	}, [selectCluster, activeKey]);
+		selectCluster && getAlertHandlerInterfaceList();
+	}, [selectCluster]);
 	return (
 		<>
 			{contextHolder}
@@ -164,7 +165,7 @@ const AlertHandlerInterfaceList: FC = ({ activeKey }) => {
 			) : null}
 			{isBindModalOpen ? (
 				<BindAlertAndAlertHandler
-					type="ALERT_INTERFACE"
+					type={type}
 					handlerId={currentHandlerId}
 					isModalOpen={isBindModalOpen}
 					handleCancel={handleBindCancel}

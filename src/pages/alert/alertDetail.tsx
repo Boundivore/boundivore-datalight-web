@@ -37,6 +37,7 @@ const AlertDetail: FC = () => {
 	const [alertInfoData, setAlertInfoData] = useState([]);
 	const [alertRuleData, setAlertRuleData] = useState(null);
 	const [tabItems, setTabItems] = useState([]);
+	const [keys, setKeys] = useState([]);
 	// const { modal } = App.useApp();
 	// const [messageApi, contextHolder] = message.useMessage();
 	const getAlertDetail = async () => {
@@ -85,6 +86,12 @@ const AlertDetail: FC = () => {
 		});
 		setTabItems(tabs);
 	};
+	const handleExpand = () => {
+		setKeys(['1']);
+	};
+	const handleChange = (keyArr: string[]) => {
+		setKeys(keyArr);
+	};
 	useEffect(() => {
 		id && getAlertDetail();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,10 +103,10 @@ const AlertDetail: FC = () => {
 			children: alertRuleData && <AlertForm type="edit" alertRuleData={alertRuleData} />,
 			extra: (
 				<Space>
-					{/* <Button type="primary" disabled={!selectedPermission.length} onClick={() => detachPermission(selectedPermission)}>
-                {t('permission.batchDetachPermission')}
-            </Button> */}
-					<Button onClick={navigateToAlertList}>{t('back')}</Button>
+					<Button type="primary" disabled={keys.length} onClick={handleExpand}>
+						{t('edit')}
+					</Button>
+					<Button onClick={() => navigateToAlertList('alert')}>{t('back')}</Button>
 				</Space>
 			)
 		}
@@ -123,21 +130,7 @@ const AlertDetail: FC = () => {
 				</Col>
 				<Col span={18}>
 					<Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-						<Collapse
-							className="bg-white"
-							items={items}
-							// title="告警规则信息"
-							// extra={
-							// 	<Space>
-							// 		{/* <Button type="primary" disabled={!selectedPermission.length} onClick={() => detachPermission(selectedPermission)}>
-							// 			{t('permission.batchDetachPermission')}
-							// 		</Button> */}
-							// 		<Button onClick={navigateToAlertList}>{t('back')}</Button>
-							// 	</Space>
-							// }
-						>
-							{/* {alertRuleData && <AlertForm type="edit" alertRuleData={alertRuleData} />} */}
-						</Collapse>
+						<Collapse className="bg-white" items={items} activeKey={keys} onChange={keyArr => handleChange(keyArr)}></Collapse>
 						<Card title="绑定告警处理方式">
 							<Tabs type="card" items={tabItems}></Tabs>
 						</Card>

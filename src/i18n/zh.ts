@@ -265,6 +265,8 @@ export default {
 		alertName: '告警配置名称',
 		removeAlert: '删除告警配置',
 		removeAlertConfirm: '您确定删除该告警配置吗？',
+		handlerMail: '告警邮箱处理方式',
+		handlerInterface: '告警接口处理方式',
 		addHandlerMail: '新增邮箱处理方式',
 		addHandlerInterface: '新增接口处理方式',
 		mailAccount: '邮箱',
