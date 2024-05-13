@@ -26,18 +26,25 @@ import type { TransferProps } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
-const BindAlertAndAlertHandler: FC = ({ type, handlerId, isModalOpen, handleCancel }) => {
+import { AlertIdAndTypeVo } from '@/api/interface';
+interface BindAlertAndAlertHandlerProps {
+	type: string;
+	handlerId: string;
+	isModalOpen: boolean;
+	handleCancel: () => void;
+}
+const BindAlertAndAlertHandler: FC<BindAlertAndAlertHandlerProps> = ({ type, handlerId, isModalOpen, handleCancel }) => {
 	const [form] = Form.useForm();
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 	const [targetKeys, setTargetKeys] = useState<TransferProps['targetKeys']>();
 	const [selectedKeys, setSelectedKeys] = useState<TransferProps['targetKeys']>([]);
-	const [alertList, setAlertList] = useState([]);
-	const [bindedAlertList, setBindedAlertList] = useState([]);
+	const [alertList, setAlertList] = useState<AlertIdAndTypeVo[]>([]);
+	const [bindedAlertList, setBindedAlertList] = useState<AlertIdAndTypeVo[]>([]);
 	const [hasBinded, setHasBinded] = useState(false);
 	const bindAction = () => {
 		form.validateFields().then(async ({ AlertId }) => {
 			const api = APIConfig.bindAlertAndAlertHandler;
-			const result = _.differenceWith(AlertId, bindedAlertList, (item1, item2) => item1 === item2.AlertRuleId);
+			const result = _.differenceWith(AlertId, bindedAlertList, (item1, item2: AlertIdAndTypeVo) => item1 === item2.AlertRuleId);
 			const handlerIds = result.map(id => {
 				return {
 					AlertHandlerTypeEnum: type,
@@ -73,15 +80,14 @@ const BindAlertAndAlertHandler: FC = ({ type, handlerId, isModalOpen, handleCanc
 			Data: { AlertIdAndTypeList }
 		} = await RequestHttp.get(api, { params });
 		if (AlertIdAndTypeList) {
-			const bindedList = AlertIdAndTypeList.filter(item => item.AlertHandlerType === type).map(alert => ({
-				// ...alert,
-				AlertRuleId: alert.AlertId,
-				AlertRuleName: alert.AlertName,
-				disabled: true
-			}));
-			const test = AlertIdAndTypeList.filter(item => item.AlertHandlerType === type);
-			console.log(2222, test);
-			const keys = bindedList?.map(alert => alert.AlertRuleId);
+			const bindedList = AlertIdAndTypeList.filter((item: AlertIdAndTypeVo) => item.AlertHandlerType === type).map(
+				(alert: AlertIdAndTypeVo) => ({
+					AlertRuleId: alert.AlertId,
+					AlertRuleName: alert.AlertName,
+					disabled: true
+				})
+			);
+			const keys = bindedList?.map((alert: AlertIdAndTypeVo) => alert.AlertRuleId);
 
 			setTargetKeys(keys);
 			setBindedAlertList(bindedList);
@@ -102,7 +108,7 @@ const BindAlertAndAlertHandler: FC = ({ type, handlerId, isModalOpen, handleCanc
 	const onSelectChange: TransferProps['onSelectChange'] = (sourceSelectedKeys, targetSelectedKeys) => {
 		setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
 	};
-	const filterOption = (inputValue: string, option) => option.AlertRuleName.indexOf(inputValue) > -1;
+	const filterOption = (inputValue: string, option: AlertIdAndTypeVo) => option.AlertRuleName.indexOf(inputValue) > -1;
 
 	return (
 		<Modal open={isModalOpen} onCancel={handleCancel} onOk={bindAction} title="绑定告警规则">

@@ -108,7 +108,7 @@ const AlertHandlerInterfaceList: FC = () => {
 	};
 	const handleCancel = () => setIsModalOpen(false);
 	const handleBindCancel = () => setIsBindModalOpen(false);
-	const bindAlertAndAlertHandler = handlerId => {
+	const bindAlertAndAlertHandler = (handlerId: string) => {
 		setIsBindModalOpen(true);
 		setCurrentHandlerId(handlerId);
 	};

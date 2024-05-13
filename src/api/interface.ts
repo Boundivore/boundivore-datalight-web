@@ -686,6 +686,12 @@ export enum AlertHandlerType {
 	AlertMail = 'ALERT_MAIL',
 	AlertWeichat = 'ALERT_WEICHAT'
 }
+export interface AlertIdAndTypeVo {
+	AlertHandlerType: AlertHandlerType;
+	AlertId: number;
+	AlertName: string;
+	[property: string]: any;
+}
 
 /**
  * AlertRuleVo

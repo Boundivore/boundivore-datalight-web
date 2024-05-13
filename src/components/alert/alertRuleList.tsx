@@ -25,7 +25,7 @@ import type { TableColumnsType } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
-import { AlertSimpleVo } from '@/api/interface';
+import { AlertSimpleVo, AlertHandlerVo } from '@/api/interface';
 import useNavigater from '@/hooks/useNavigater';
 
 const AlertRuleList: FC = () => {
@@ -97,18 +97,9 @@ const AlertRuleList: FC = () => {
 			dataIndex: 'AlertHandlerList',
 			key: 'AlertHandlerList',
 			width: '20%',
-			// render: text => {
-			// 	text.map(handler => {
-			// 		return (
-			// 			<Tag key={handler.AlertHandlerType} color="processing">
-			// 				{handler.AlertHandlerType}
-			// 			</Tag>
-			// 		);
-			// 	});
-			// },
 			render: (text: []) => (
 				<Flex wrap="wrap" gap="small">
-					{text.map(handler => (
+					{text.map((handler: AlertHandlerVo) => (
 						<Tag key={handler.AlertHandlerType} bordered={false} color="processing">
 							{t(`alert.${handler.AlertHandlerType}`)}
 						</Tag>
