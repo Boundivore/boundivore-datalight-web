@@ -82,7 +82,7 @@ const AlertRuleList: FC = () => {
 
 	const columns: TableColumnsType<AlertSimpleVo> = [
 		{
-			title: t('alert.alertName'),
+			title: t('alert.alertRuleName'),
 			dataIndex: 'AlertRuleName',
 			key: 'AlertRuleName'
 		},
@@ -195,7 +195,7 @@ const AlertRuleList: FC = () => {
 				</Space>
 				<Space>{clusterComponent}</Space>
 			</Flex>
-			<Table dataSource={alertList} columns={columns}></Table>
+			<Table rowKey="AlertRuleId" dataSource={alertList} columns={columns}></Table>
 		</>
 	);
 };

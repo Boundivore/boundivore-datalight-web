@@ -18,12 +18,11 @@
  * 新建告警规则
  * @author Tracy
  */
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import ContainerCard from '@/components/containerCard';
 import AlertForm from '@/components/alert/alertForm';
 
 const CreateAlert: FC = () => {
-	useEffect(() => {}, []);
 	return (
 		<ContainerCard>
 			<AlertForm />

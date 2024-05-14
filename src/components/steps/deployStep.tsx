@@ -30,7 +30,7 @@ import usePolling from '@/hooks/usePolling';
 import useStepLogic from '@/hooks/useStepLogic';
 import JobPlanModal from '@/components/jobPlanModal';
 import LogModal from '@/components/logModal';
-import { NodeType, ExecProgressPerNodeVo, ExecProgressStepVo } from '@/api/interface';
+import { NodeType, ExecProgressPerNodeVo, ExecProgressStepVo, ServiceItemType } from '@/api/interface';
 
 const { Text } = Typography;
 
@@ -39,14 +39,12 @@ const disabledState = ['RUNNING', 'SUSPEND', 'ERROR'];
 const preStepName = 'previewStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'deployStep'; // 当前步骤结束时需要存储步骤数据
 const operation = 'DEPLOY'; // 当前步骤操作，NodeActionTypeEnum
-// const preStepName = 'dispachStep'; // 当前步骤页面基于上一步的输入和选择生成
-// const stepName = 'deployStep'; // 当前步骤结束时需要存储步骤数据
+
 const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { stableState, jobId, setJobId, setCurrentPageDisabled, isRefresh } = useStore();
-	// const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 	const [openAlert, setOpenAlert] = useState(false);
 	const [deployState, setDeployState] = useState(true);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -97,17 +95,17 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	useImperativeHandle(ref, () => ({
 		deploy
 	}));
-
 	const deploy = async () => {
 		setDeployState(false);
 		setIsModalOpen(true);
+		const filterData = await getServiceList();
 		const api = APIConfig.deploy;
-		const serviceNameList = webState[preStepName];
+		// const serviceNameList = webState[preStepName];
 		const params = {
 			ActionTypeEnum: operation,
 			ClusterId: id,
 			IsOneByOne: false,
-			ServiceNameList: serviceNameList
+			ServiceNameList: filterData
 		};
 		try {
 			const data = await RequestHttp.post(api, params);
@@ -125,6 +123,20 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 	};
 	const handleLogModalCancel = () => {
 		setIsLogModalOpen(false);
+	};
+	const getServiceList = async () => {
+		const api = APIConfig.serviceList;
+		const data = await RequestHttp.get(api, { params: { ClusterId: id } });
+		const {
+			Data: { ServiceSummaryList }
+		} = data;
+		const serviceNameList = webState[preStepName] as string[];
+		const filterService = ServiceSummaryList.filter((service: ServiceItemType) =>
+			serviceNameList.includes(service.ServiceName)
+		).map((item2: ServiceItemType) => {
+			return item2.ServiceName;
+		});
+		return Promise.resolve(filterService);
 	};
 
 	const getList = async () => {

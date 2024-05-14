@@ -30,7 +30,7 @@ import useNavigater from '@/hooks/useNavigater';
 
 interface NodeDataType {
 	// 根据实际情况调整这个接口
-	[key: string]: NodeType[] | ParseHostnameType;
+	[key: string]: NodeType[] | ParseHostnameType | string[];
 }
 
 const useStepLogic = (step: number = 0) => {

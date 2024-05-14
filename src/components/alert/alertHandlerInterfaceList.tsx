@@ -37,6 +37,8 @@ const AlertHandlerInterfaceList: FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isBindModalOpen, setIsBindModalOpen] = useState(false);
 	const [currentHandlerId, setCurrentHandlerId] = useState('');
+	const [currentInterfaceUri, setCurrentInterfaceUri] = useState('');
+	const [operation, setOperation] = useState('add');
 	const { navigateToHandlerDetail } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
@@ -46,7 +48,7 @@ const AlertHandlerInterfaceList: FC = () => {
 			id: 1,
 			label: t('alert.addHandlerInterface'),
 			callback: () => {
-				// navigateToCreateAlert(selectCluster);
+				setCurrentInterfaceUri('');
 				addHandlerInterface();
 			},
 			disabled: false
@@ -54,7 +56,7 @@ const AlertHandlerInterfaceList: FC = () => {
 	];
 	// 单条操作按钮配置
 	const buttonConfigItem = (text: string, record: AlertSimpleVo) => {
-		const { HandlerId } = record;
+		const { HandlerId, InterfaceUri } = record;
 		return [
 			{
 				id: 1,
@@ -64,12 +66,23 @@ const AlertHandlerInterfaceList: FC = () => {
 			},
 			{
 				id: 2,
+				label: t('edit'),
+				callback: () => {
+					setOperation('edit');
+					setCurrentHandlerId(HandlerId);
+					setCurrentInterfaceUri(InterfaceUri);
+					addHandlerInterface();
+				},
+				disabled: false
+			},
+			{
+				id: 3,
 				label: t('alert.bindAlert'),
 				callback: () => bindAlertAndAlertHandler(HandlerId),
 				disabled: false
 			},
 			{
-				id: 3,
+				id: 4,
 				label: t('remove'),
 				callback: () => removeAlert(HandlerId),
 				disabled: false
@@ -90,8 +103,8 @@ const AlertHandlerInterfaceList: FC = () => {
 		},
 		{
 			title: t('operation'),
-			key: 'IsExistInitProcedure',
-			dataIndex: 'IsExistInitProcedure',
+			key: 'operation',
+			dataIndex: 'operation',
 			render: (text, record) => (
 				<Space>
 					{buttonConfigItem(text, record).map(button => (
@@ -161,7 +174,14 @@ const AlertHandlerInterfaceList: FC = () => {
 			</Flex>
 			<Table dataSource={alertList} columns={columns}></Table>
 			{isModalOpen ? (
-				<AddHandlerInterfaceModal isModalOpen={isModalOpen} handleCancel={handleCancel} callback={getAlertHandlerInterfaceList} />
+				<AddHandlerInterfaceModal
+					operation={operation}
+					handlerId={currentHandlerId}
+					interfaceUri={currentInterfaceUri}
+					isModalOpen={isModalOpen}
+					handleCancel={handleCancel}
+					callback={getAlertHandlerInterfaceList}
+				/>
 			) : null}
 			{isBindModalOpen ? (
 				<BindAlertAndAlertHandler

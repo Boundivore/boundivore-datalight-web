@@ -15,25 +15,51 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 
+/**
+ * 新增告警接口处理方式
+ * @author Tracy
+ */
+import { FC } from 'react';
 import { t } from 'i18next';
 import { Modal, Form, Input } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 
-/**
- * 新增告警接口处理方式
- * @author Tracy
- */
+interface AddHandlerInterfaceModalProps {
+	operation?: string;
+	handlerId?: string;
+	interfaceUri?: string;
+	isModalOpen: boolean;
+	handleCancel: () => void;
+	callback: () => void;
+}
 const layout = {
 	labelCol: { span: 4 },
 	wrapperCol: { span: 20 }
 };
-const AddHandlerInterfaceModal = ({ isModalOpen, handleCancel, callback }) => {
+const AddHandlerInterfaceModal: FC<AddHandlerInterfaceModalProps> = ({
+	operation,
+	handlerId,
+	interfaceUri,
+	isModalOpen,
+	handleCancel,
+	callback
+}) => {
 	const [form] = Form.useForm();
 	const addHandlerInterface = () => {
 		form.validateFields().then(async ({ InterfaceUri }) => {
-			const api = APIConfig.newAlertHandlerInterface;
-			const { Code } = await RequestHttp.post(api, { InterfaceUri });
+			let api = APIConfig.newAlertHandlerInterface;
+			let params = {
+				InterfaceUri
+			};
+			if (operation === 'edit') {
+				api = APIConfig.updateAlertHandlerMail;
+				params = {
+					...params,
+					HandlerId: handlerId
+				};
+			}
+			const { Code } = await RequestHttp.post(api, params);
 			if (Code === '00000') {
 				handleCancel && handleCancel();
 				callback && callback();
@@ -42,7 +68,7 @@ const AddHandlerInterfaceModal = ({ isModalOpen, handleCancel, callback }) => {
 	};
 	return (
 		<Modal title={t('alert.addHandlerInterface')} open={isModalOpen} onCancel={handleCancel} onOk={addHandlerInterface}>
-			<Form form={form} {...layout} className="pt-[20px]">
+			<Form form={form} {...layout} className="pt-[20px]" initialValues={{ InterfaceUri: interfaceUri }}>
 				<Form.Item
 					name="InterfaceUri"
 					label={t('alert.interfaceUri')}

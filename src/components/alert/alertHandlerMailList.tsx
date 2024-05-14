@@ -37,6 +37,8 @@ const AlertHandlerMailList: FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isBindModalOpen, setIsBindModalOpen] = useState(false);
 	const [currentHandlerId, setCurrentHandlerId] = useState('');
+	const [currentMailAccount, setCurrentMailAccount] = useState('');
+	const [operation, setOperation] = useState('add');
 	const { navigateToHandlerDetail } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
@@ -46,7 +48,7 @@ const AlertHandlerMailList: FC = () => {
 			id: 1,
 			label: t('alert.addHandlerMail'),
 			callback: () => {
-				// navigateToCreateAlert(selectCluster);
+				setCurrentMailAccount('');
 				addHandlerMail();
 			},
 			disabled: false
@@ -54,7 +56,7 @@ const AlertHandlerMailList: FC = () => {
 	];
 	// 单条操作按钮配置
 	const buttonConfigItem = (text: string, record: AlertSimpleVo) => {
-		const { HandlerId } = record;
+		const { HandlerId, MailAccount } = record;
 		return [
 			{
 				id: 1,
@@ -64,12 +66,23 @@ const AlertHandlerMailList: FC = () => {
 			},
 			{
 				id: 2,
+				label: t('edit'),
+				callback: () => {
+					setOperation('edit');
+					setCurrentHandlerId(HandlerId);
+					setCurrentMailAccount(MailAccount);
+					addHandlerMail();
+				},
+				disabled: false
+			},
+			{
+				id: 3,
 				label: t('alert.bindAlert'),
 				callback: () => bindAlertAndAlertHandler(HandlerId),
 				disabled: false
 			},
 			{
-				id: 3,
+				id: 4,
 				label: t('remove'),
 				callback: () => removeAlert(HandlerId),
 				disabled: false
@@ -90,8 +103,8 @@ const AlertHandlerMailList: FC = () => {
 		},
 		{
 			title: t('operation'),
-			key: 'IsExistInitProcedure',
-			dataIndex: 'IsExistInitProcedure',
+			key: 'operation',
+			dataIndex: 'operation',
 			render: (text, record) => (
 				<Space>
 					{buttonConfigItem(text, record).map(button => (
@@ -108,7 +121,7 @@ const AlertHandlerMailList: FC = () => {
 	};
 	const handleCancel = () => setIsModalOpen(false);
 	const handleBindCancel = () => setIsBindModalOpen(false);
-	const bindAlertAndAlertHandler = handlerId => {
+	const bindAlertAndAlertHandler = (handlerId: string) => {
 		setIsBindModalOpen(true);
 		setCurrentHandlerId(handlerId);
 	};
@@ -160,7 +173,16 @@ const AlertHandlerMailList: FC = () => {
 				<Space>{clusterComponent}</Space>
 			</Flex>
 			<Table dataSource={alertList} columns={columns}></Table>
-			<AddHandlerMailModal isModalOpen={isModalOpen} handleCancel={handleCancel} callback={getAlertHandlerMailList} />
+			{isModalOpen ? (
+				<AddHandlerMailModal
+					operation={operation}
+					handlerId={currentHandlerId}
+					mailAccount={currentMailAccount}
+					isModalOpen={isModalOpen}
+					handleCancel={handleCancel}
+					callback={getAlertHandlerMailList}
+				/>
+			) : null}
 			{isBindModalOpen ? (
 				<BindAlertAndAlertHandler
 					type={type}

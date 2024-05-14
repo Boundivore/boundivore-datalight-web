@@ -14,35 +14,61 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-
+/**
+ * 新增告警邮箱处理方式
+ * @author Tracy
+ */
+import { FC } from 'react';
 import { t } from 'i18next';
 import { Modal, Form, Input } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 
-/**
- * 新增告警邮箱处理方式
- * @author Tracy
- */
+interface AddHandlerMailModalProps {
+	operation?: string;
+	handlerId?: string;
+	mailAccount?: string;
+	isModalOpen: boolean;
+	handleCancel: () => void;
+	callback: () => void;
+}
 const layout = {
 	labelCol: { span: 4 },
 	wrapperCol: { span: 20 }
 };
-const AddHandlerMailModal = ({ isModalOpen, handleCancel, callback }) => {
+const AddHandlerMailModal: FC<AddHandlerMailModalProps> = ({
+	operation,
+	handlerId,
+	mailAccount,
+	isModalOpen,
+	handleCancel,
+	callback
+}) => {
 	const [form] = Form.useForm();
 	const addHandlerMail = () => {
 		form.validateFields().then(async ({ MailAccount }) => {
-			const api = APIConfig.newAlertHandlerMail;
-			const { Code } = await RequestHttp.post(api, { MailAccount });
+			let api = APIConfig.newAlertHandlerMail;
+			let params = {
+				MailAccount
+			};
+			if (operation === 'edit') {
+				api = APIConfig.updateAlertHandlerMail;
+				params = {
+					...params,
+					HandlerId: handlerId
+				};
+			}
+			const { Code } = await RequestHttp.post(api, params);
 			if (Code === '00000') {
 				handleCancel && handleCancel();
 				callback && callback();
 			}
 		});
 	};
+
 	return (
 		<Modal title={t('alert.addHandlerMail')} open={isModalOpen} onCancel={handleCancel} onOk={addHandlerMail}>
-			<Form form={form} {...layout} className="pt-[20px]">
+			<Form form={form} {...layout} className="pt-[20px]" initialValues={{ MailAccount: mailAccount }}>
 				<Form.Item name="MailAccount" label={t('alert.mailAccount')} rules={[{ required: true, message: t('alert.mailCheck') }]}>
 					<Input />
 				</Form.Item>

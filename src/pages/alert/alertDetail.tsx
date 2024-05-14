@@ -21,7 +21,7 @@
 import { FC, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { t } from 'i18next';
-import { Row, Col, Card, List, Typography, Badge, Space, Button, Collapse, Tabs } from 'antd';
+import { Row, Col, Card, List, Typography, Badge, Space, Button, Collapse, Tabs, Empty } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import ContainerCard from '@/components/containerCard';
@@ -46,13 +46,13 @@ const AlertDetail: FC = () => {
 			AlertId: id
 		};
 		const {
-			Data: { AlertRuleContent, AlertRuleName, Enabled, AlertHandlerList }
+			Data: { AlertRuleContent, AlertRuleName, Enabled, AlertRuleId, AlertHandlerList }
 		} = await RequestHttp.get(api, { params });
 		// console.log(data);
 		const alertInfo = [
 			{
 				key: 1,
-				label: <Text strong>{t('permission.roleName')}</Text>,
+				label: <Text strong>{t('alert.alertRuleName')}</Text>,
 				text: <span>{AlertRuleName}</span>
 			},
 			// {
@@ -63,11 +63,11 @@ const AlertDetail: FC = () => {
 			{
 				key: 2,
 				label: <Text strong>{t('state')}</Text>,
-				text: <Badge status={Enabled ? 'success' : 'error'} text={Enabled ? t(`permission.enabled`) : t(`permission.disabled`)} />
+				text: <Badge status={Enabled ? 'success' : 'error'} text={Enabled ? t(`enabled`) : t(`disabled`)} />
 			}
 		];
 		setAlertInfoData(alertInfo);
-		setAlertRuleData({ AlertRuleName, AlertRuleContent });
+		setAlertRuleData({ AlertRuleName, AlertRuleContent, AlertRuleId, Enabled });
 		const tabs = AlertHandlerList.map(handler => {
 			let childrenComponent;
 			if (handler.AlertHandlerType === 'ALERT_MAIL') {
@@ -132,7 +132,7 @@ const AlertDetail: FC = () => {
 					<Space direction="vertical" size="middle" style={{ display: 'flex' }}>
 						<Collapse className="bg-white" items={items} activeKey={keys} onChange={keyArr => handleChange(keyArr)}></Collapse>
 						<Card title="绑定告警处理方式">
-							<Tabs type="card" items={tabItems}></Tabs>
+							{tabItems.length ? <Tabs type="card" items={tabItems}></Tabs> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
 						</Card>
 					</Space>
 				</Col>

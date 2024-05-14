@@ -692,6 +692,43 @@ export interface AlertIdAndTypeVo {
 	AlertName: string;
 	[property: string]: any;
 }
+/**
+ * NewAlertRuleRequest
+ */
+export interface NewAlertRuleRequest {
+	AlertRuleContent: AlertRuleContentRequest;
+	AlertRuleName: string;
+	ClusterId: number;
+	[property: string]: any;
+}
+/**
+ * AlertRuleContentRequest
+ */
+export interface AlertRuleContentRequest {
+	Groups: GroupRequest[];
+	[property: string]: any;
+}
+
+/**
+ * GroupRequest
+ */
+export interface GroupRequest {
+	Name: string;
+	Rules: RuleRequest[];
+	[property: string]: any;
+}
+
+/**
+ * RuleRequest
+ */
+export interface RuleRequest {
+	Alert: string;
+	Annotations: { [key: string]: string };
+	Expr: string;
+	For: string;
+	Labels: { [key: string]: string };
+	[property: string]: any;
+}
 
 /**
  * AlertRuleVo

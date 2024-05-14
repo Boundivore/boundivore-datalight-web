@@ -22,14 +22,13 @@ import { useEffect, useState, useRef } from 'react';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Button, Card, Space, App, message, Typography, Flex, Row, Col, Badge, Tooltip } from 'antd';
+import { Table, Button, Card, Space, App, message, Typography, Flex, Row, Col, Badge } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
 import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
-// import JobPlanModal from '@/components/jobPlanModal';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import { ComponentSummaryVo, ComponentNodeVo, BadgeStatus } from '@/api/interface';
 import ContainerCard from '@/components/containerCard';
@@ -145,16 +144,14 @@ const ComponentManage: React.FC = () => {
 			title: t('service.componentName'),
 			dataIndex: 'ComponentName',
 			key: 'ComponentName',
-			render: (text, record) => {
-				return (
-					<Flex justify="space-between">
-						<span>{text}</span>
-						<Tooltip title="已选节点数">
-							<Badge status="processing" count={record.num} showZero style={{ backgroundColor: '#51c2fe' }} />
-						</Tooltip>
-					</Flex>
-				);
-			}
+			render: text => <span>{text}</span>
+		},
+		{
+			title: '已选节点数',
+			dataIndex: 'ComponentName',
+			key: 'ComponentName',
+			// render: (text, record) => <Badge status="processing" count={record.num} showZero style={{ backgroundColor: '#51c2fe' }} />
+			render: (text, record) => record.num
 		}
 	];
 	const columns: ColumnsType<DataType> = [
@@ -354,11 +351,6 @@ const ComponentManage: React.FC = () => {
 							</Button>
 						))}
 					</Space>
-					{/* <Space>
-						<Button type="primary" onClick={viewActiveJob}>
-							{t('viewActiveJob')}
-						</Button>
-					</Space> */}
 				</Flex>
 				<Row gutter={24} className="mt-[20px]">
 					<Col span={6}>

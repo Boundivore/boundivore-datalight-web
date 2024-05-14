@@ -47,7 +47,7 @@ const Alert: FC = () => {
 			key: 'handler',
 			label: (
 				<Link to="/alert?tab=handler&subTab=ALERT_INTERFACE" className="text-inherit">
-					{t('alert.alertMethod')}
+					{t('alert.alertHandler')}
 				</Link>
 			),
 			children: (

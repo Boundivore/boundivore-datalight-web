@@ -21,7 +21,7 @@
 import { Key, FC, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { t } from 'i18next';
-import { Row, Col, Card, List, Typography, Badge, Space, Table, App, message, Button } from 'antd';
+import { Row, Col, Card, List, Typography, Space, Table, App, message, Button } from 'antd';
 import type { TableColumnsType } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -29,6 +29,8 @@ import ContainerCard from '@/components/containerCard';
 import useNavigater from '@/hooks/useNavigater';
 const { Text } = Typography;
 
+const ALERT_INTERFACE = 'ALERT_INTERFACE';
+const ALERT_MAIL = 'ALERT_MAIL';
 const HandlerDetail: FC = () => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -52,26 +54,32 @@ const HandlerDetail: FC = () => {
 	};
 	const getHandlerDetail = async () => {
 		let api = '';
-		type === 'ALERT_INTERFACE' && (api = APIConfig.getAlertHandlerInterfaceDetailsById);
-		type === 'ALERT_MAIL' && (api = APIConfig.getAlertHandlerMailDetailsById);
+		type === ALERT_INTERFACE && (api = APIConfig.getAlertHandlerInterfaceDetailsById);
+		type === ALERT_MAIL && (api = APIConfig.getAlertHandlerMailDetailsById);
 		const params = {
 			HandlerId: id
 		};
-		const {
-			Data: { HandlerId }
-		} = await RequestHttp.get(api, { params });
-		// console.log(data);
+		const { Data } = await RequestHttp.get(api, { params });
 		const handlerInfo = [
 			{
 				key: 1,
-				label: <Text strong>{t('permission.roleName')}</Text>,
-				text: <span>{HandlerId}</span>
+				label: <Text strong>{t('id')}</Text>,
+				text: <span>{Data.HandlerId}</span>
+			},
+			{
+				key: 2,
+				label: (
+					<Text strong>{type === ALERT_INTERFACE ? t('alert.interfaceUri') : type === ALERT_MAIL && t('alert.mailAccount')}</Text>
+				),
+				text: (
+					<Text
+						ellipsis={{ tooltip: type === ALERT_INTERFACE ? Data.InterfaceUri : type === ALERT_MAIL && Data.MailAccount }}
+						className="w-[150px]"
+					>
+						{type === ALERT_INTERFACE ? Data.InterfaceUri : type === ALERT_MAIL && Data.MailAccount}
+					</Text>
+				)
 			}
-			// {
-			// 	key: 3,
-			// 	label: <Text strong>{t('permission.roleType')}</Text>,
-			// 	text: <span>{t(`permission.${Data.RoleType}`)}</span>
-			// },
 		];
 		setHandlerInfoData(handlerInfo);
 	};
@@ -114,15 +122,9 @@ const HandlerDetail: FC = () => {
 	}, [id]);
 	const columns: TableColumnsType = [
 		{
-			title: t('alert.alertName'),
+			title: t('alert.alertRuleName'),
 			dataIndex: 'AlertName',
 			key: 'AlertName'
-		},
-		{
-			title: t('isEnable'),
-			dataIndex: 'Enabled',
-			key: 'Enabled',
-			render: text => <Badge status={text ? 'success' : 'error'} text={text ? t(`enabled`) : t(`disabled`)} />
 		},
 		{
 			title: t('operation'),
@@ -140,30 +142,6 @@ const HandlerDetail: FC = () => {
 				);
 			}
 		}
-		// {
-		// 	title: t('alert.alertHandlerType'),
-		// 	dataIndex: 'AlertHandlerList',
-		// 	key: 'AlertHandlerList',
-		// 	width: '20%',
-		// 	// render: text => {
-		// 	// 	text.map(handler => {
-		// 	// 		return (
-		// 	// 			<Tag key={handler.AlertHandlerType} color="processing">
-		// 	// 				{handler.AlertHandlerType}
-		// 	// 			</Tag>
-		// 	// 		);
-		// 	// 	});
-		// 	// },
-		// 	render: (text: []) => (
-		// 		<Flex wrap="wrap" gap="small">
-		// 			{text.map(handler => (
-		// 				<Tag key={handler.AlertHandlerType} bordered={false} color="processing">
-		// 					{t(`alert.${handler.AlertHandlerType}`)}
-		// 				</Tag>
-		// 			))}
-		// 		</Flex>
-		// 	)
-		// }
 	];
 	const rowSelection = {
 		onChange: (selectedRowKeys: Key[]) => {
@@ -175,7 +153,7 @@ const HandlerDetail: FC = () => {
 			{contextHolder}
 			<Row gutter={24} className="mt-[20px]">
 				<Col span={6}>
-					<Card className="data-light-card" title="告警配置信息">
+					<Card className="data-light-card" title={t('alert.alertHandler')}>
 						<List
 							size="large"
 							dataSource={handlerInfoData}

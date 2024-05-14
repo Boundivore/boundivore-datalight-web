@@ -14,7 +14,7 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input, Card, Space, Button, InputNumber, message } from 'antd';
 import { t } from 'i18next';
@@ -24,8 +24,9 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useNavigater from '@/hooks/useNavigater';
 import { Annotations, Labels, AlertRuleVo } from '@/api/interface';
-
+import useCurrentCluster from '@/hooks/useCurrentCluster';
 const { Item } = Form;
+const exceptKeys = ['alert_type', 'alert_id', 'alert_job', 'alert_instance'];
 interface TimeFormat {
 	d: number;
 	h: number;
@@ -43,6 +44,7 @@ type FieldType = {
 		Groups: {
 			Name: string;
 			Rules: {
+				Alert: string;
 				For: TimeFormat | string;
 				Expr: string;
 				Annotations: KeyValue[];
@@ -59,67 +61,60 @@ interface AlertFormProps {
 const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
+	const { selectCluster } = useCurrentCluster();
 	const [form] = Form.useForm();
 	const { navigateToAlertList } = useNavigater();
 	const [messageApi, contextHolder] = message.useMessage();
+	const enabled = useRef();
 	const onFinish: FormProps<FieldType>['onFinish'] = async values => {
 		const updatedValues = { ...values };
-
-		updatedValues.AlertRuleContent.Groups.forEach(group => {
-			// group.Rules.forEach(rule => {
-			// 	const { d = 0, h = 0, m = 0, s = 0 } = rule.For as TimeFormat;
-			// 	const resultString = `${d}d${h}h${m}m${s}s`;
-			// 	rule.For = resultString; // 直接修改原始对象中的 For 字段值
-			// 	rule.Expr = btoa(rule.Expr);
-			// 	let resultAnnotations = {};
-			// 	let resultLabels = {};
-			// 	rule.Annotations.forEach((annotation: Annotations) => {
-			// 		resultAnnotations = {
-			// 			...resultAnnotations,
-			// 			[annotation.key]: annotation.value
-			// 		};
-			// 	});
-			// 	rule.Labels.forEach((label: Labels) => {
-			// 		resultLabels = {
-			// 			...resultLabels,
-			// 			[label.key]: label.value
-			// 		};
-			// 	});
-			// 	rule.Annotations = resultAnnotations;
-			// 	rule.Labels = resultLabels;
-			// });
-			group.Rules = group.Rules.map(rule => {
-				const { d = 0, h = 0, m = 0, s = 0 } = rule.For as TimeFormat;
-				const resultString = `${d}d${h}h${m}m${s}s`;
-				let resultAnnotations = {};
-				let resultLabels = {};
-				rule.Annotations.forEach((annotation: Annotations) => {
-					resultAnnotations = {
-						...resultAnnotations,
-						[annotation.key]: annotation.value
-					};
-				});
-				rule.Labels.forEach((label: Labels) => {
-					resultLabels = {
-						...resultLabels,
-						[label.key]: label.value
-					};
-				});
-				const updatedRule = {
-					...rule,
-					For: resultString,
-					Expr: btoa(rule.Expr),
-					Annotations: resultAnnotations,
-					Labels: resultLabels
-				};
-				return updatedRule;
-			});
-		});
-		const params = {
-			...updatedValues,
-			ClusterId: id
+		const updatedAlertRuleVo = {
+			AlertRuleName: updatedValues?.AlertRuleName || '',
+			AlertRuleContent: {
+				Groups: (updatedValues?.AlertRuleContent?.Groups || []).map(group => ({
+					Name: group.Name,
+					Rules: group.Rules.map(rule => {
+						const { d = 0, h = 0, m = 0, s = 0 } = rule.For as TimeFormat;
+						const resultString = `${d}d${h}h${m}m${s}s`;
+						let resultAnnotations = {};
+						let resultLabels = {};
+						rule.Annotations.forEach((annotation: Annotations) => {
+							resultAnnotations = {
+								...resultAnnotations,
+								[annotation.key]: annotation.value
+							};
+						});
+						rule.Labels.forEach((label: Labels) => {
+							resultLabels = {
+								...resultLabels,
+								[label.key]: label.value
+							};
+						});
+						const updatedRule = {
+							Alert: rule.Alert,
+							For: resultString,
+							Expr: btoa(rule.Expr),
+							Annotations: resultAnnotations,
+							Labels: resultLabels
+						};
+						return updatedRule;
+					})
+				}))
+			}
 		};
-		const api = APIConfig.newAlertRule;
+		let params = {
+			...updatedAlertRuleVo,
+			ClusterId: selectCluster
+		};
+		let api = APIConfig.newAlertRule;
+		if (type === 'edit') {
+			api = APIConfig.updateAlertRule;
+			params = {
+				...params,
+				AlertRuleId: id,
+				Enabled: enabled.current
+			};
+		}
 		const { Code } = await RequestHttp.post(api, params);
 		if (Code === '00000') {
 			messageApi.success(t('messageSuccess'));
@@ -141,7 +136,11 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 						const s = match[4] ? parseInt(match[4]) : 0;
 						return {
 							Alert: rule.Alert,
-							Annotations: Object.entries(rule.Annotations).map(([key, value]) => ({ key, value })),
+							Annotations: Object.entries(rule.Annotations)
+								.filter(item => {
+									return exceptKeys.indexOf(item[0]) < 0;
+								})
+								.map(([key, value]) => ({ key, value })),
 							Expr: rule.Expr,
 							For: { d, h, m, s },
 							Labels: Object.entries(rule.Labels).map(([key, value]) => ({ key, value }))
@@ -152,6 +151,7 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 		};
 
 		form.setFieldsValue(updatedFieldType);
+		enabled.current = parseData.Enabled;
 	};
 	useEffect(() => {
 		type === 'edit' && parseAlertDetail();
@@ -173,11 +173,15 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 				<Form.Item<FieldType>
 					label={t('alert.alertRuleName')}
 					name="AlertRuleName"
-					rules={[{ required: true, message: t('inputRoleName') }]}
+					rules={[{ required: true, message: t('alert.alertRuleNameConfirm') }]}
 				>
-					<Input />
+					<Input disabled={type === 'edit'} />
 				</Form.Item>
-				<Form.Item label={t('alert.group')}>
+				<Form.Item
+					name={['AlertRuleContent', 'Groups']}
+					label={t('alert.group')}
+					rules={[{ required: true, message: t('alert.groupConfirm') }]}
+				>
 					<Form.List name={['AlertRuleContent', 'Groups']}>
 						{(fields, { add, remove }) => (
 							<div style={{ display: 'flex', rowGap: 14, flexDirection: 'column' }}>
@@ -185,7 +189,6 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 									return (
 										<Card
 											size="small"
-											// title={form.getFieldsValue()[field.name]?.groupName}
 											title={
 												<Form.Item noStyle shouldUpdate>
 													{() => {
@@ -205,11 +208,15 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 											<Form.Item
 												label={t('alert.groupName')}
 												name={[field.name, 'Name']}
-												rules={[{ required: true, message: t('inputRoleName') }]}
+												rules={[{ required: true, message: t('alert.groupNameConfirm') }]}
 											>
 												<Input />
 											</Form.Item>
-											<Form.Item label="告警规则" rules={[{ required: true, message: t('inputRoleName') }]}>
+											<Form.Item
+												name={[field.name, 'Rules']}
+												label={t('alert.rule')}
+												rules={[{ required: true, message: t('alert.ruleConfirm') }]}
+											>
 												<Form.List name={[field.name, 'Rules']}>
 													{(ruleFields, ruleOpt) => (
 														<div style={{ display: 'flex', flexDirection: 'column', rowGap: 14 }}>
@@ -240,50 +247,50 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 																	}
 																>
 																	<Form.Item
-																		label="规则名称"
+																		label={t('alert.alertName')}
 																		name={[ruleField.name, 'Alert']}
-																		rules={[{ required: true, message: t('inputRoleName') }]}
+																		rules={[{ required: true, message: t('alert.alertNameConfirm') }]}
 																	>
 																		<Input />
 																	</Form.Item>
 																	<Form.Item
-																		label="告警规则判断表达式"
+																		label={t('alert.expr')}
 																		name={[ruleField.name, 'Expr']}
-																		rules={[{ required: true, message: t('inputRoleName') }]}
+																		rules={[{ required: true, message: t('alert.exprConfirm') }]}
 																	>
 																		<Input />
 																	</Form.Item>
 																	<Form.Item
-																		label="多久后执行告警"
+																		label={t('alert.for')}
 																		name={[ruleField.name, 'For']}
-																		rules={[{ required: true, message: t('inputRoleName') }]}
+																		rules={[{ required: true, message: t('alert.forConfirm') }]}
 																	>
 																		<Space.Compact>
 																			<Item
 																				name={[ruleField.name, 'For', 'd']}
 																				noStyle
-																				rules={[{ required: true, message: 'Province is required' }]}
+																				// rules={[{ required: true, message: 'Province is required' }]}
 																			>
 																				<InputNumber min={0} addonAfter="天" style={{ width: '100%' }} />
 																			</Item>
 																			<Item
 																				name={[ruleField.name, 'For', 'h']}
 																				noStyle
-																				rules={[{ required: true, message: 'Province is required' }]}
+																				// rules={[{ required: true, message: 'Province is required' }]}
 																			>
 																				<InputNumber min={0} max={23} addonAfter="小时" style={{ width: '100%' }} />
 																			</Item>
 																			<Item
 																				name={[ruleField.name, 'For', 'm']}
 																				noStyle
-																				rules={[{ required: true, message: 'Province is required' }]}
+																				// rules={[{ required: true, message: 'Province is required' }]}
 																			>
 																				<InputNumber min={0} max={59} addonAfter="分" style={{ width: '100%' }} />
 																			</Item>
 																			<Item
 																				name={[ruleField.name, 'For', 's']}
 																				noStyle
-																				rules={[{ required: true, message: 'Province is required' }]}
+																				// rules={[{ required: true, message: 'Province is required' }]}
 																			>
 																				<InputNumber min={0} max={59} addonAfter="秒" style={{ width: '100%' }} />
 																			</Item>
@@ -291,7 +298,11 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 																	</Form.Item>
 
 																	{/* Nest Form.List */}
-																	<Form.Item label="规则注解" rules={[{ required: true, message: t('inputRoleName') }]}>
+																	<Form.Item
+																		label={t('alert.annotations')}
+																		name={[ruleField.name, 'Annotations']}
+																		rules={[{ required: true, message: t('alert.annotationsConfirm') }]}
+																	>
 																		<Form.List name={[ruleField.name, 'Annotations']}>
 																			{(annotationsFields, annotationsOpt) => (
 																				<div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
@@ -312,13 +323,17 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 																						</Space>
 																					))}
 																					<Button type="dashed" onClick={() => annotationsOpt.add()} block>
-																						+ 新增注解
+																						{t('alert.addAnnotations')}
 																					</Button>
 																				</div>
 																			)}
 																		</Form.List>
 																	</Form.Item>
-																	<Form.Item label="规则标签" rules={[{ required: true, message: t('inputRoleName') }]}>
+																	<Form.Item
+																		label={t('alert.label')}
+																		name={[ruleField.name, 'Labels']}
+																		rules={[{ required: true, message: t('alert.labelConfirm') }]}
+																	>
 																		<Form.List name={[ruleField.name, 'Labels']}>
 																			{(labelsFields, labelsOpt) => (
 																				<div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
@@ -339,7 +354,7 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 																						</Space>
 																					))}
 																					<Button type="dashed" onClick={() => labelsOpt.add()} block>
-																						+ 新增标签
+																						{t('alert.addLabel')}
 																					</Button>
 																				</div>
 																			)}

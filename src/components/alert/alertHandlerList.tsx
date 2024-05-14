@@ -18,7 +18,7 @@
  * 告警接口处理方式列表--多个类型
  * @author Tracy
  */
-import { Key, useEffect, useState } from 'react';
+import { FC, Key, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { t } from 'i18next';
 import { Table, Space, Button, message, App, Flex } from 'antd';
@@ -26,8 +26,8 @@ import type { TableColumnsType } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 
-const useHandlerList = (api: string, handlerIdList: any[], type: string) => {
-	const [handlerList, setHandlerList] = useState<any[]>([]);
+const useHandlerList = (api: string, handlerIdList: Key[], type: string) => {
+	const [handlerList, setHandlerList] = useState([]);
 	useEffect(() => {
 		const getHandlerList = async () => {
 			const params = { HandlerIdList: handlerIdList };
@@ -50,13 +50,13 @@ const useHandlerList = (api: string, handlerIdList: any[], type: string) => {
 	}, [api, handlerIdList, type]);
 	return handlerList;
 };
-const useDetachHandler = type => {
+const useDetachHandler = (type: string) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [messageApi] = message.useMessage();
 	const { modal } = App.useApp();
 
-	const detach = async handlerIdList => {
+	const detach = async (handlerIdList: Key[]) => {
 		modal.confirm({
 			title: t('detach'),
 			content: t('detachConfirm'),
@@ -84,7 +84,13 @@ const useDetachHandler = type => {
 
 	return detach;
 };
-const AlertHandlerTable = ({ handlerIdList, api, type, columnsConfig }) => {
+interface AlertHandlerTableProps {
+	handlerIdList: Key[];
+	api: string;
+	type: string;
+	columnsConfig: TableColumnsType;
+}
+const AlertHandlerTable: FC<AlertHandlerTableProps> = ({ handlerIdList, api, type, columnsConfig }) => {
 	const [selectedHandler, setSelectedHandler] = useState<Key[]>([]);
 	const handlerList = useHandlerList(api, handlerIdList, type);
 	// const [contextHolder] = message.useMessage();
@@ -96,7 +102,6 @@ const AlertHandlerTable = ({ handlerIdList, api, type, columnsConfig }) => {
 			setSelectedHandler(selectedRowKeys);
 		}
 	};
-	console.log(<Table rowSelection={{ ...rowSelection }} rowKey="HandlerId" dataSource={handlerList} columns={columnsConfig} />);
 
 	return (
 		<>
@@ -112,8 +117,10 @@ const AlertHandlerTable = ({ handlerIdList, api, type, columnsConfig }) => {
 		</>
 	);
 };
-
-export const MailList = ({ handlerIdList }) => {
+interface MailListProps {
+	handlerIdList: string[];
+}
+export const MailList: FC<MailListProps> = ({ handlerIdList }) => {
 	const api = APIConfig.getAlertHandlerMailListIdList;
 	const detach = useDetachHandler('ALERT_MAIL');
 	const buttonConfigItem = (_text: [], record) => {
@@ -158,7 +165,10 @@ export const MailList = ({ handlerIdList }) => {
 
 	return <AlertHandlerTable handlerIdList={handlerIdList} api={api} type="ALERT_MAIL" columnsConfig={columns} />;
 };
-export const InterfaceList = ({ handlerIdList }) => {
+interface InterfaceListProps {
+	handlerIdList: string[];
+}
+export const InterfaceList: FC<InterfaceListProps> = ({ handlerIdList }) => {
 	const api = APIConfig.getAlertHandlerInterfaceListByIdList;
 	const detach = useDetachHandler('ALERT_INTERFACE');
 	const buttonConfigItem = (_text: [], record) => {
