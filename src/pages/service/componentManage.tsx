@@ -37,9 +37,9 @@ const { Text } = Typography;
 
 interface DataType extends ComponentNodeVo {
 	ComponentName: string;
-	ComponentNodeList: {
-		ComponentId: string;
-	}[];
+	// ComponentNodeList: {
+	// 	ComponentId: string;
+	// }[];
 	operation: boolean;
 }
 
@@ -294,9 +294,6 @@ const ComponentManage: React.FC = () => {
 				rowKey: `${child.ComponentId}_${child.NodeId}`
 			}));
 			const intersectionByIdList = _.intersectionBy(componentNodeList, selectComponentRef.current, 'ComponentId');
-			// const intersectionList = _.intersection(intersectionByIdList, selectComponentRef.current);
-			// console.log('intersectionList', intersectionList);
-			// setSelectComponent([...componentNodeList, ...selectComponentRef.current]);
 			return {
 				...item,
 				num: intersectionByIdList.filter(component => item.ComponentName === component.ComponentName).length,
@@ -322,19 +319,13 @@ const ComponentManage: React.FC = () => {
 	const rowSelection = {
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setComponentWithNode({ ...componentWithNode, ...{ [activeComponent]: selectedRows } });
-			// let seenRowKeys = new Set(selectComponent.map(item => item.rowKey));
-
-			// // 合并数组并去重
-			// let mergedAndUnique = [...selectedRows].filter(item => {
-			// 	// 检查当前项的rowKey是否已经在seenRowKeys中存在
-			// 	return !seenRowKeys.has(item.rowKey);
-			// });
-
-			// // 更新selectComponent数组，包含去重后的新项
-			// console.log('0000000', [...selectComponent, ...mergedAndUnique]);
-			const mergedArray = Object.values({ ...componentWithNode, ...{ [activeComponent]: selectedRows } }).flat();
+			const mergedArray: DataType[] = Object.values({
+				...componentWithNode,
+				...{ [activeComponent]: selectedRows }
+			}).flat() as DataType[];
 			setSelectComponent(mergedArray);
-		}
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
 	};
 	const rowClassName = (record: DataType) => {
 		return activeComponent === record.ComponentName ? 'bg-[#f0fcff]' : '';
@@ -375,17 +366,26 @@ const ComponentManage: React.FC = () => {
 					<Col span={18}>
 						<Card className="data-light-card" title={activeComponent}>
 							{componentTable.map(component => {
+								const { ComponentNodeList, ComponentName } = component;
 								return (
-									<Table
-										rowSelection={{
-											...rowSelection
-										}}
-										className={`mt-[20px] ${component.ComponentName !== activeComponent && 'hidden'}`}
-										rowKey="rowKey"
-										key={component.ComponentName}
-										columns={columns}
-										dataSource={component.ComponentNodeList}
-									/>
+									<>
+										<h4>{t('totalItems', { total: ComponentNodeList.length, selected: selectComponent.length })}</h4>
+										<Table
+											rowSelection={{
+												...rowSelection
+											}}
+											className={`mt-[20px] ${ComponentName !== activeComponent && 'hidden'}`}
+											rowKey="rowKey"
+											key={ComponentName}
+											columns={columns}
+											dataSource={ComponentNodeList}
+											pagination={{
+												showSizeChanger: true,
+												total: ComponentNodeList.length,
+												showTotal: total => t('totalItems', { total, selected: selectComponent.length })
+											}}
+										/>
+									</>
 								);
 							})}
 						</Card>

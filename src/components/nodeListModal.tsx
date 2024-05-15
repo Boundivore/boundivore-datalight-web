@@ -40,7 +40,7 @@ interface NodeListModalProps {
 	component: string;
 	disableSelectedNode?: boolean; // 是否禁用已经选择的节点
 }
-
+const states = ['REMOVED', 'SELECTED', 'UNSELECTED'];
 const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCancel, component }) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
@@ -84,28 +84,6 @@ const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCa
 			render: (text: string) => <a>{t(text.toLowerCase())}</a>
 		}
 	];
-	const rowSelection = {
-		// selectedRowKeys,
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
-			setSelectedNodeList(selectedRows);
-		},
-		defaultSelectedRowKeys: defaultNodeList
-			?.filter(node => node.SCStateEnum !== 'UNSELECTED')
-			?.map(({ NodeId }) => {
-				return NodeId;
-			}),
-		getCheckboxProps: (record: NodeType) => {
-			const findItem = defaultNodeList.find(node => {
-				return node.NodeId === record.NodeId;
-			});
-			const disabled = !['REMOVED', 'SELECTED', 'UNSELECTED'].includes(
-				findItem?.SCStateEnum === undefined ? 'UNSELECTED' : findItem.SCStateEnum
-			);
-			console.log(disabled);
-			return { disabled };
-			// defaultNodeList?.map(({ NodeId }) => NodeId).includes(record.NodeId) && disableSelectedNode
-		}
-	};
 	const getList = async () => {
 		const apiList = APIConfig.nodeListWithComponent;
 		const params = {
@@ -121,15 +99,6 @@ const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCa
 		});
 		setTableData(listData);
 	};
-	// const selectRow = (record: NodeType) => {
-	// 	const selectedKeys = [...selectedRowKeys];
-	// 	if (selectedKeys.indexOf(record.NodeId) >= 0) {
-	// 		selectedKeys.splice(selectedKeys.indexOf(record.NodeId), 1);
-	// 	} else {
-	// 		selectedKeys.push(record.NodeId);
-	// 	}
-	// 	setSelectedRowKeys(selectedKeys);
-	// };
 	useEffect(() => {
 		getList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -154,7 +123,26 @@ const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCa
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [initialLoad, openAlert]);
-
+	const rowSelection = {
+		// selectedRowKeys,
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: NodeType[]) => {
+			setSelectedNodeList(selectedRows);
+		},
+		defaultSelectedRowKeys: defaultNodeList
+			?.filter(node => node.SCStateEnum !== 'UNSELECTED')
+			?.map(({ NodeId }) => {
+				return NodeId;
+			}),
+		getCheckboxProps: (record: NodeType) => {
+			const findItem = defaultNodeList.find(node => {
+				return node.NodeId === record.NodeId;
+			});
+			const disabled = !states.includes(findItem?.SCStateEnum === undefined ? 'UNSELECTED' : findItem.SCStateEnum);
+			return { disabled };
+			// defaultNodeList?.map(({ NodeId }) => NodeId).includes(record.NodeId) && disableSelectedNode
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
+	};
 	return (
 		<Modal
 			title={t('selectNode')}
@@ -184,6 +172,7 @@ const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCa
 			onCancel={handleCancel}
 		>
 			{openAlert ? <Alert message={errorText} type="error" /> : null}
+			<h4>{t('totalItems', { total: tableData.length, selected: selectedNodeList.length })}</h4>
 			<Table
 				className="data-light-table"
 				rowSelection={{
@@ -192,11 +181,11 @@ const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCa
 				rowKey="NodeId"
 				dataSource={tableData}
 				columns={columns}
-				// onRow={record => {
-				// 	return {
-				// 		onClick: () => selectRow(record) // 点击行
-				// 	};
-				// }}
+				pagination={{
+					showSizeChanger: true,
+					total: tableData.length,
+					showTotal: total => t('totalItems', { total, selected: selectedNodeList.length })
+				}}
 			/>
 		</Modal>
 	);

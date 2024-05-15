@@ -170,7 +170,8 @@ const RoleDetail: FC = () => {
 	const rowSelection = {
 		onChange: (selectedRowKeys: Key[]) => {
 			setSelectedPermission(selectedRowKeys);
-		}
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
 	};
 	return (
 		<ContainerCard>
@@ -202,6 +203,7 @@ const RoleDetail: FC = () => {
 							</Space>
 						}
 					>
+						<h4>{t('totalItems', { total: tableData.length, selected: selectedPermission.length })}</h4>
 						<Table
 							rowSelection={{
 								...rowSelection
@@ -209,7 +211,12 @@ const RoleDetail: FC = () => {
 							dataSource={tableData}
 							columns={columns}
 							rowKey="PermissionId"
-						></Table>
+							pagination={{
+								showSizeChanger: true,
+								total: tableData.length,
+								showTotal: total => t('totalItems', { total, selected: selectedPermission.length })
+							}}
+						/>
 					</Card>
 				</Col>
 			</Row>

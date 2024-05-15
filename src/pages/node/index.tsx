@@ -224,7 +224,8 @@ const ManageList: FC = () => {
 	const rowSelection = {
 		onChange: (_selectedRowKeys: Key[], selectedRows: NodeType[]) => {
 			setSelectedRowsList(selectedRows);
-		}
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
 	};
 
 	return (
@@ -239,13 +240,9 @@ const ManageList: FC = () => {
 							</Button>
 						))}
 					</Space>
-					<Space>
-						{clusterComponent}
-						{/* <Button type="primary" onClick={viewActiveJob}>
-							{t('viewActiveJob')}
-						</Button> */}
-					</Space>
+					<Space>{clusterComponent}</Space>
 				</Flex>
+				<h4>{t('totalItems', { total: tableData.length, selected: selectedRowsList.length })}</h4>
 				<Table
 					className="mt-[20px]"
 					rowKey="NodeId"
@@ -254,6 +251,11 @@ const ManageList: FC = () => {
 					}}
 					columns={columns}
 					dataSource={tableData}
+					pagination={{
+						showSizeChanger: true,
+						total: tableData.length,
+						showTotal: total => t('totalItems', { total, selected: selectedRowsList.length })
+					}}
 				/>
 			</ContainerCard>
 			{isActiveJobModalOpen ? (

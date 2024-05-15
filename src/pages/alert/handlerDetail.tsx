@@ -27,21 +27,27 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import ContainerCard from '@/components/containerCard';
 import useNavigater from '@/hooks/useNavigater';
+import { AlertIdAndTypeVo } from '@/api/interface';
 const { Text } = Typography;
 
 const ALERT_INTERFACE = 'ALERT_INTERFACE';
 const ALERT_MAIL = 'ALERT_MAIL';
+interface HandlerInfoItem {
+	key: number;
+	label: React.ReactNode;
+	text: React.ReactNode;
+}
 const HandlerDetail: FC = () => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const type = searchParams.get('type') || '';
 	const { navigateToAlertList } = useNavigater();
-	const [handlerInfoData, setHandlerInfoData] = useState([]);
+	const [handlerInfoData, setHandlerInfoData] = useState<HandlerInfoItem[]>([]);
 	const [tableData, setTableData] = useState([]);
 	const [selectedAlert, setSelectedAlert] = useState<Key[]>([]);
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
-	const buttonConfigItem = (_text: [], record) => {
+	const buttonConfigItem = (record: AlertIdAndTypeVo) => {
 		const { AlertId } = record;
 		return [
 			{
@@ -60,7 +66,7 @@ const HandlerDetail: FC = () => {
 			HandlerId: id
 		};
 		const { Data } = await RequestHttp.get(api, { params });
-		const handlerInfo = [
+		const handlerInfo: HandlerInfoItem[] = [
 			{
 				key: 1,
 				label: <Text strong>{t('id')}</Text>,
@@ -83,7 +89,7 @@ const HandlerDetail: FC = () => {
 		];
 		setHandlerInfoData(handlerInfo);
 	};
-	const detach = async alertIdList => {
+	const detach = async (alertIdList: Key[]) => {
 		modal.confirm({
 			title: t('detach'),
 			content: t('detachConfirm'),
@@ -120,7 +126,7 @@ const HandlerDetail: FC = () => {
 		id && getAlertList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id]);
-	const columns: TableColumnsType = [
+	const columns: TableColumnsType<AlertIdAndTypeVo> = [
 		{
 			title: t('alert.alertRuleName'),
 			dataIndex: 'AlertName',
@@ -130,10 +136,10 @@ const HandlerDetail: FC = () => {
 			title: t('operation'),
 			key: 'operation',
 			dataIndex: 'operation',
-			render: (text, record) => {
+			render: (_text, record) => {
 				return (
 					<Space>
-						{buttonConfigItem(text, record).map(button => (
+						{buttonConfigItem(record).map(button => (
 							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
 								{button.label}
 							</Button>
@@ -146,7 +152,8 @@ const HandlerDetail: FC = () => {
 	const rowSelection = {
 		onChange: (selectedRowKeys: Key[]) => {
 			setSelectedAlert(selectedRowKeys);
-		}
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
 	};
 	return (
 		<ContainerCard>
@@ -178,6 +185,7 @@ const HandlerDetail: FC = () => {
 								</Space>
 							}
 						>
+							<h4>{t('totalItems', { total: tableData.length, selected: selectedAlert.length })}</h4>
 							<Table
 								rowSelection={{
 									...rowSelection
@@ -185,6 +193,11 @@ const HandlerDetail: FC = () => {
 								dataSource={tableData}
 								columns={columns}
 								rowKey="AlertId"
+								pagination={{
+									showSizeChanger: true,
+									total: tableData.length,
+									showTotal: total => t('totalItems', { total, selected: selectedAlert.length })
+								}}
 							></Table>
 						</Card>
 					</Space>

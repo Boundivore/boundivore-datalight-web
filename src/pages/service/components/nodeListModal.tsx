@@ -80,11 +80,6 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 			)
 		}
 	];
-	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: ConfigNodeVo[]) => {
-			setSelectedNodeList(selectedRows);
-		}
-	};
 	const moveToOtherGroup = (targetGroupIndex: number) => {
 		const data = mergeData(targetGroupIndex, selectedNodeList);
 		setConfigGroupInfo(data);
@@ -148,7 +143,6 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 			.filter((_group, filterIndex) => {
 				return filterIndex !== groupIndex;
 			});
-		console.log('selectedNodeList----33', selectedNodeList);
 		validGroup.map(group => {
 			items.push({
 				key: group.key,
@@ -159,11 +153,16 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 		items.push({
 			key: configGroupInfo.length,
 			label: <div className="w-[115px]">创建新的分组</div>
-			// nodeList: []
 		});
 		setGroupList(items);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [configGroupInfo]);
+	const rowSelection = {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: ConfigNodeVo[]) => {
+			setSelectedNodeList(selectedRows);
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
+	};
 	return (
 		<Modal
 			title={t('selectNode')}
@@ -194,6 +193,7 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 					);
 				})}
 			</Space>
+			<h4>{t('totalItems', { total: tableData.length, selected: selectedNodeList.length })}</h4>
 			<Table
 				rowSelection={{
 					...rowSelection
@@ -201,6 +201,11 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 				rowKey="NodeId"
 				dataSource={tableData}
 				columns={columns}
+				pagination={{
+					showSizeChanger: true,
+					total: tableData.length,
+					showTotal: total => t('totalItems', { total, selected: selectedNodeList.length })
+				}}
 			/>
 		</Modal>
 	);

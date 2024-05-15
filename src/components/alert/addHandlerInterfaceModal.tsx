@@ -67,7 +67,12 @@ const AddHandlerInterfaceModal: FC<AddHandlerInterfaceModalProps> = ({
 		});
 	};
 	return (
-		<Modal title={t('alert.addHandlerInterface')} open={isModalOpen} onCancel={handleCancel} onOk={addHandlerInterface}>
+		<Modal
+			title={t(`alert.${operation === 'edit' ? 'editHandlerInterface' : 'addHandlerInterface'}`)}
+			open={isModalOpen}
+			onCancel={handleCancel}
+			onOk={addHandlerInterface}
+		>
 			<Form form={form} {...layout} className="pt-[20px]" initialValues={{ InterfaceUri: interfaceUri }}>
 				<Form.Item
 					name="InterfaceUri"

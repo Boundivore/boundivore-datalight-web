@@ -22,25 +22,27 @@ import { FC, Key, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { t } from 'i18next';
 import { Table, Space, Button, message, App, Flex } from 'antd';
-import type { TableColumnsType } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import { AlertHandlerInterfaceVo, AlertHandlerMailVo } from '@/api/interface';
 
+const ALERT_INTERFACE = 'ALERT_INTERFACE';
+const ALERT_MAIL = 'ALERT_MAIL';
 const useHandlerList = (api: string, handlerIdList: Key[], type: string) => {
-	const [handlerList, setHandlerList] = useState([]);
+	const [handlerList, setHandlerList] = useState<AlertHandlerInterfaceVo[] | AlertHandlerMailVo[]>([]);
 	useEffect(() => {
 		const getHandlerList = async () => {
 			const params = { HandlerIdList: handlerIdList };
 			const { Data } = await RequestHttp.post(api, params);
 			let responseData;
 			switch (type) {
-				case 'ALERT_MAIL':
+				case ALERT_MAIL:
 					responseData = Data.AlertHandlerMailList;
 					break;
-				case 'ALERT_INTERFACE':
+				case ALERT_INTERFACE:
 					responseData = Data.AlertHandlerInterfaceList;
 					break;
-				// Add more cases for other types if needed
 				default:
 					responseData = [];
 			}
@@ -88,7 +90,7 @@ interface AlertHandlerTableProps {
 	handlerIdList: Key[];
 	api: string;
 	type: string;
-	columnsConfig: TableColumnsType;
+	columnsConfig: ColumnsType<AlertHandlerInterfaceVo> | ColumnsType<AlertHandlerMailVo>;
 }
 const AlertHandlerTable: FC<AlertHandlerTableProps> = ({ handlerIdList, api, type, columnsConfig }) => {
 	const [selectedHandler, setSelectedHandler] = useState<Key[]>([]);
@@ -100,9 +102,9 @@ const AlertHandlerTable: FC<AlertHandlerTableProps> = ({ handlerIdList, api, typ
 	const rowSelection = {
 		onChange: (selectedRowKeys: Key[]) => {
 			setSelectedHandler(selectedRowKeys);
-		}
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
 	};
-
 	return (
 		<>
 			{/* {contextHolder} */}
@@ -113,7 +115,18 @@ const AlertHandlerTable: FC<AlertHandlerTableProps> = ({ handlerIdList, api, typ
 					</Button>
 				</Space>
 			</Flex>
-			<Table rowSelection={{ ...rowSelection }} rowKey="HandlerId" dataSource={handlerList} columns={columnsConfig} />
+			<h4>{t('totalItems', { total: handlerList.length, selected: selectedHandler.length })}</h4>
+			<Table
+				rowSelection={{ ...rowSelection }}
+				rowKey="HandlerId"
+				dataSource={handlerList}
+				columns={columnsConfig as ColumnsType<any>}
+				pagination={{
+					showSizeChanger: true,
+					total: handlerList.length,
+					showTotal: total => t('totalItems', { total, selected: selectedHandler.length })
+				}}
+			/>
 		</>
 	);
 };
@@ -122,8 +135,8 @@ interface MailListProps {
 }
 export const MailList: FC<MailListProps> = ({ handlerIdList }) => {
 	const api = APIConfig.getAlertHandlerMailListIdList;
-	const detach = useDetachHandler('ALERT_MAIL');
-	const buttonConfigItem = (_text: [], record) => {
+	const detach = useDetachHandler(ALERT_MAIL);
+	const buttonConfigItem = (record: AlertHandlerMailVo) => {
 		const { HandlerId } = record;
 		return [
 			{
@@ -134,7 +147,7 @@ export const MailList: FC<MailListProps> = ({ handlerIdList }) => {
 			}
 		];
 	};
-	const columns: TableColumnsType = [
+	const columns: ColumnsType<AlertHandlerMailVo> = [
 		{
 			title: t('id'),
 			dataIndex: 'HandlerId',
@@ -149,10 +162,10 @@ export const MailList: FC<MailListProps> = ({ handlerIdList }) => {
 			title: t('operation'),
 			key: 'operation',
 			dataIndex: 'operation',
-			render: (text, record) => {
+			render: (_text, record) => {
 				return (
 					<Space>
-						{buttonConfigItem(text, record).map(button => (
+						{buttonConfigItem(record).map(button => (
 							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
 								{button.label}
 							</Button>
@@ -163,15 +176,15 @@ export const MailList: FC<MailListProps> = ({ handlerIdList }) => {
 		}
 	];
 
-	return <AlertHandlerTable handlerIdList={handlerIdList} api={api} type="ALERT_MAIL" columnsConfig={columns} />;
+	return <AlertHandlerTable handlerIdList={handlerIdList} api={api} type={ALERT_MAIL} columnsConfig={columns} />;
 };
 interface InterfaceListProps {
 	handlerIdList: string[];
 }
 export const InterfaceList: FC<InterfaceListProps> = ({ handlerIdList }) => {
 	const api = APIConfig.getAlertHandlerInterfaceListByIdList;
-	const detach = useDetachHandler('ALERT_INTERFACE');
-	const buttonConfigItem = (_text: [], record) => {
+	const detach = useDetachHandler(ALERT_INTERFACE);
+	const buttonConfigItem = (record: AlertHandlerInterfaceVo) => {
 		const { HandlerId } = record;
 		return [
 			{
@@ -183,7 +196,7 @@ export const InterfaceList: FC<InterfaceListProps> = ({ handlerIdList }) => {
 		];
 	};
 
-	const columns: TableColumnsType = [
+	const columns: ColumnsType<AlertHandlerInterfaceVo> = [
 		{
 			title: t('id'),
 			dataIndex: 'HandlerId',
@@ -198,10 +211,10 @@ export const InterfaceList: FC<InterfaceListProps> = ({ handlerIdList }) => {
 			title: t('operation'),
 			key: 'operation',
 			dataIndex: 'operation',
-			render: (text, record) => {
+			render: (_text, record) => {
 				return (
 					<Space>
-						{buttonConfigItem(text, record).map(button => (
+						{buttonConfigItem(record).map(button => (
 							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
 								{button.label}
 							</Button>
@@ -212,5 +225,5 @@ export const InterfaceList: FC<InterfaceListProps> = ({ handlerIdList }) => {
 		}
 	];
 
-	return <AlertHandlerTable handlerIdList={handlerIdList} api={api} type="ALERT_INTERFACE" columnsConfig={columns} />;
+	return <AlertHandlerTable handlerIdList={handlerIdList} api={api} type={ALERT_INTERFACE} columnsConfig={columns} />;
 };

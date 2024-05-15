@@ -39,6 +39,7 @@ const disabledState = ['RUNNING', 'SUSPEND', 'ERROR'];
 const preStepName = 'previewStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'deployStep'; // 当前步骤结束时需要存储步骤数据
 const operation = 'DEPLOY'; // 当前步骤操作，NodeActionTypeEnum
+const serviceDeployState = ['SELECTED', 'SELECTED_ADDITION']; //可部署的服务状态
 
 const DeployStep: React.FC = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
@@ -131,10 +132,11 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			Data: { ServiceSummaryList }
 		} = data;
 		const serviceNameList = webState[preStepName] as string[];
-		const filterService = ServiceSummaryList.filter((service: ServiceItemType) =>
-			serviceNameList.includes(service.ServiceName)
-		).map((item2: ServiceItemType) => {
-			return item2.ServiceName;
+		const filterService = ServiceSummaryList.filter(
+			(service: ServiceItemType) =>
+				serviceNameList.includes(service.ServiceName) && serviceDeployState.includes(service.SCStateEnum)
+		).map((item: ServiceItemType) => {
+			return item.ServiceName;
 		});
 		return Promise.resolve(filterService);
 	};

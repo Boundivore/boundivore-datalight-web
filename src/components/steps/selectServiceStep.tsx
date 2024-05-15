@@ -61,14 +61,11 @@ const SelectServiceStep: FC = forwardRef((_props, ref) => {
 	const handleOk = async () => {
 		const apiSelect = APIConfig.selectService;
 		// 合并原数据和本次操作选择的数据
-		console.log('selectedServiceRowsList', selectedServiceRowsList);
-		console.log('tableData', tableData);
 		const combinedArray = selectedServiceRowsList.concat(
 			tableData
 				.filter(itemA => !selectedServiceRowsList.some(itemB => itemA.ServiceName === itemB.ServiceName))
 				.map(item => ({ ...item, SCStateEnum: 'UNSELECTED' }))
 		);
-		console.log('combinedArray', combinedArray);
 		const params = {
 			ClusterId: id,
 			ServiceList: combinedArray.map(({ SCStateEnum, ServiceName }) => ({ SCStateEnum, ServiceName }))
@@ -129,17 +126,26 @@ const SelectServiceStep: FC = forwardRef((_props, ref) => {
 		},
 		getCheckboxProps: () => ({
 			disabled: serviceName ? true : false // Column configuration not to be checked
-		})
+		}),
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
 	};
 	return (
-		<Table
-			rowSelection={{
-				...rowSelection
-			}}
-			rowKey="ServiceName"
-			columns={columns}
-			dataSource={tableData}
-		/>
+		<>
+			<h4>{t('totalItems', { total: tableData.length, selected: selectedServiceRowsList.length })}</h4>
+			<Table
+				rowSelection={{
+					...rowSelection
+				}}
+				rowKey="ServiceName"
+				columns={columns}
+				dataSource={tableData}
+				pagination={{
+					showSizeChanger: true,
+					total: tableData.length,
+					showTotal: total => t('totalItems', { total, selected: selectedServiceRowsList.length })
+				}}
+			/>
+		</>
 	);
 });
 export default SelectServiceStep;

@@ -18,10 +18,10 @@
  * 服务管理列表页
  * @author Tracy
  */
-import { FC, Key, useEffect, useState } from 'react';
+import { FC, Key, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Table, Button, Flex, Space, App, Badge, message, Dropdown, Modal } from 'antd';
-import type { TableColumnsType, MenuProps } from 'antd';
+import type { TableColumnsType, MenuProps, TableProps } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import usePolling from '@/hooks/usePolling';
@@ -31,6 +31,7 @@ import useStore from '@/store/store';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import ContainerCard from '@/components/containerCard';
+type TableRowSelection<T> = TableProps<T>['rowSelection'];
 
 const stateArray = ['SELECTED', 'UNSELECTED', 'REMOVED'];
 const ServiceManage: FC = () => {
@@ -38,15 +39,14 @@ const ServiceManage: FC = () => {
 	const { stateText, setJobId } = useStore();
 	const [selectService, setSelectService] = useState<ServiceItemType[]>([]);
 	const [allowAdd, setAllowAdd] = useState(false); // 是否允许新增服务操作,默认不允许
-	const [startDisabled, setStartDisabled] = useState(false); // 是否禁用批量启动
-	const [stopDisabled, setStopDisabled] = useState(false); // 是否禁用批量停止
+	// const [startDisabled, setStartDisabled] = useState(false); // 是否禁用批量启动
+	// const [stopDisabled, setStopDisabled] = useState(false); // 是否禁用批量停止
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const { navigateToComManage, navigateToConfig, navigateToAddComponent, navigateToWebUI, navigateToNodeInit } = useNavigater();
 	const { clusterComponent, selectCluster } = useCurrentCluster(setAllowAdd);
 	const [dropDownItems, setDropDownItems] = useState<MenuProps['items']>([]);
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
-	console.log(startDisabled, stopDisabled);
 	// 顶部操作按钮配置
 	const buttonConfigTop = [
 		{
@@ -294,20 +294,20 @@ const ServiceManage: FC = () => {
 
 	const tableData: ServiceItemType[] = usePolling(getServiceList, [], 1000, [selectCluster]);
 
-	useEffect(() => {
-		// 检查所有组件是否都处于'STOPPED'状态
-		// const allStopped = selectService.length > 0 && selectService.every(item => item.SCStateEnum === 'STOPPED');
+	// useEffect(() => {
+	// 	// 检查所有组件是否都处于'STOPPED'状态
+	// 	// const allStopped = selectService.length > 0 && selectService.every(item => item.SCStateEnum === 'STOPPED');
 
-		// 更新按钮的禁用状态
-		setStartDisabled(false); // 如果不全是'STOPPED'，则开始按钮禁用
-		setStopDisabled(false); // 如果全是'STOPPED'，则停止按钮禁用
-	}, [selectService]); // 在 selectComponent 变化时触发
-	const rowSelection = {
+	// 	// 更新按钮的禁用状态
+	// 	setStartDisabled(false); // 如果不全是'STOPPED'，则开始按钮禁用
+	// 	setStopDisabled(false); // 如果全是'STOPPED'，则停止按钮禁用
+	// }, [selectService]); // 在 selectComponent 变化时触发
+	const rowSelection: TableRowSelection<ServiceItemType> = {
 		onChange: (_selectedRowKeys: Key[], selectedRows: ServiceItemType[]) => {
-			console.log(selectedRows);
 			// const filteredselectedRows = selectedRows.filter(item => item.ComponentId);
 			setSelectService(selectedRows);
-		}
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
 	};
 	return (
 		<>
@@ -323,6 +323,7 @@ const ServiceManage: FC = () => {
 					</Space>
 					{clusterComponent}
 				</Flex>
+				<h4>{t('totalItems', { total: tableData.length, selected: selectService.length })}</h4>
 				<Table
 					rowSelection={{
 						...rowSelection
@@ -331,6 +332,11 @@ const ServiceManage: FC = () => {
 					rowKey="ServiceName"
 					columns={columns}
 					dataSource={tableData}
+					pagination={{
+						showSizeChanger: true,
+						total: tableData.length,
+						showTotal: total => t('totalItems', { total, selected: selectService.length })
+					}}
 				/>
 			</ContainerCard>
 			{isActiveJobModalOpen ? (

@@ -181,7 +181,8 @@ const UserDetail: FC = () => {
 	const rowSelection = {
 		onChange: (selectedRowKeys: Key[]) => {
 			setSelectedRole(selectedRowKeys);
-		}
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
 	};
 	return (
 		<ContainerCard>
@@ -213,6 +214,7 @@ const UserDetail: FC = () => {
 							</Space>
 						}
 					>
+						<h4>{t('totalItems', { total: tableData.length, selected: selectedRole.length })}</h4>
 						<Table
 							rowKey="RoleId"
 							rowSelection={{
@@ -220,7 +222,12 @@ const UserDetail: FC = () => {
 							}}
 							dataSource={tableData}
 							columns={columns}
-						></Table>
+							pagination={{
+								showSizeChanger: true,
+								total: tableData.length,
+								showTotal: total => t('totalItems', { total, selected: selectedRole.length })
+							}}
+						/>
 					</Card>
 				</Col>
 			</Row>

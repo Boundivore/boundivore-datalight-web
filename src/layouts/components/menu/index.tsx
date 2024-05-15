@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 import { useState } from 'react';
-import { Menu, App } from 'antd';
+import { Menu, App, Typography } from 'antd';
 import {
 	AppstoreOutlined,
 	ApartmentOutlined,
@@ -33,7 +33,7 @@ import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
-
+const { Text } = Typography;
 type MenuItem = Required<MenuProps>['items'][number];
 
 function getItem(
@@ -102,7 +102,7 @@ const LayoutMenu: React.FC = () => {
 			getItem(<NavLink to="/alert?tab=alert">{t('tabs.alert')}</NavLink>, '/alert"')
 		]),
 		getItem(<NavLink to="/log">{t('tabs.log')}</NavLink>, '/log', <ReconciliationOutlined />),
-		getItem(t('tabs.permission'), '/permission', <AuditOutlined />, [
+		getItem(<Text className="min-w-[100px] inline-block">{t('tabs.permission')}</Text>, '/permission', <AuditOutlined />, [
 			getItem(<NavLink to="/permission/userManage">{t('tabs.userManage')}</NavLink>, '/userManage"'),
 			getItem(<NavLink to="/permission/roleManage">{t('tabs.roleManage')}</NavLink>, '/roleManage"')
 		])

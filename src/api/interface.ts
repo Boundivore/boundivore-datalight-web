@@ -688,7 +688,7 @@ export enum AlertHandlerType {
 }
 export interface AlertIdAndTypeVo {
 	AlertHandlerType: AlertHandlerType;
-	AlertId: number;
+	AlertId: string;
 	AlertName: string;
 	[property: string]: any;
 }
@@ -809,4 +809,20 @@ export interface Annotations {
 }
 export interface Labels {
 	[key: string]: string;
+}
+/**
+ * AlertHandlerInterfaceVo
+ */
+export interface AlertHandlerInterfaceVo {
+	HandlerId: string;
+	InterfaceUri: string;
+	[property: string]: any;
+}
+/**
+ * AlertHandlerMailVo
+ */
+export interface AlertHandlerMailVo {
+	HandlerId: string;
+	MailAccount: string;
+	[property: string]: any;
 }

@@ -154,10 +154,12 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 		},
 		getCheckboxProps: (record: NodeType) => ({
 			disabled: !stableState.includes(record.NodeState) // Column configuration not to be checked
-		})
+		}),
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE]
 	};
 	return (
 		<>
+			<h4>{t('totalItems', { total: tableData.length, selected: selectedRowsList.length })}</h4>
 			<Table
 				rowSelection={{
 					...rowSelection
@@ -165,6 +167,11 @@ const CheckStep: React.FC = forwardRef((_props, ref) => {
 				rowKey="NodeId"
 				columns={columns}
 				dataSource={tableData}
+				pagination={{
+					showSizeChanger: true,
+					total: tableData.length,
+					showTotal: total => t('totalItems', { total, selected: selectedRowsList.length })
+				}}
 			/>
 			{isModalOpen ? <CheckLogModal isModalOpen={isModalOpen} nodeId={activeNodeId} handleCancel={handleModalCancel} /> : null}
 		</>

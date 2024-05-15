@@ -67,7 +67,12 @@ const AddHandlerMailModal: FC<AddHandlerMailModalProps> = ({
 	};
 
 	return (
-		<Modal title={t('alert.addHandlerMail')} open={isModalOpen} onCancel={handleCancel} onOk={addHandlerMail}>
+		<Modal
+			title={t(`alert.${operation === 'edit' ? 'editHandlerMail' : 'addHandlerMail'}`)}
+			open={isModalOpen}
+			onCancel={handleCancel}
+			onOk={addHandlerMail}
+		>
 			<Form form={form} {...layout} className="pt-[20px]" initialValues={{ MailAccount: mailAccount }}>
 				<Form.Item name="MailAccount" label={t('alert.mailAccount')} rules={[{ required: true, message: t('alert.mailCheck') }]}>
 					<Input />
