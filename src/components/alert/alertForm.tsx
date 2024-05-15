@@ -23,7 +23,7 @@ import type { FormProps } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useNavigater from '@/hooks/useNavigater';
-import { Annotations, Labels, AlertRuleVo } from '@/api/interface';
+import { Annotations, Labels, AlertRuleVo, NewAlertRuleRequest } from '@/api/interface';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 const { Item } = Form;
 const exceptKeys = ['alert_type', 'alert_id', 'alert_job', 'alert_instance'];
@@ -58,14 +58,17 @@ interface AlertFormProps {
 	type?: string;
 	alertRuleData?: AlertRuleVo;
 }
+interface ParamsType extends NewAlertRuleRequest {
+	AlertRuleId?: string; // 可选的，根据实际情况添加
+}
 const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id');
+	const id = searchParams.get('id') || '';
 	const { selectCluster } = useCurrentCluster();
 	const [form] = Form.useForm();
 	const { navigateToAlertList } = useNavigater();
 	const [messageApi, contextHolder] = message.useMessage();
-	const enabled = useRef();
+	const enabled = useRef<boolean>();
 	const onFinish: FormProps<FieldType>['onFinish'] = async values => {
 		const updatedValues = { ...values };
 		const updatedAlertRuleVo = {
@@ -102,7 +105,7 @@ const AlertForm: FC<AlertFormProps> = ({ type = 'add', alertRuleData }) => {
 				}))
 			}
 		};
-		let params = {
+		let params: ParamsType = {
 			...updatedAlertRuleVo,
 			ClusterId: selectCluster
 		};

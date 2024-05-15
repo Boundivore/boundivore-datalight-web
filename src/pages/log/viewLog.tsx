@@ -126,7 +126,6 @@ const ViewLog: FC = () => {
 	};
 	// const onResize = (event, { size }) => {
 	// 	// 在这里处理拖拽改变大小的逻辑
-	// 	console.log(size);
 	// };
 	const [logViewerWidth, setLogViewerWidth] = useState(0); // 初始化 Log Viewer 的高度为 300px
 

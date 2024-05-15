@@ -33,6 +33,10 @@ interface AddHandlerInterfaceModalProps {
 	handleCancel: () => void;
 	callback: () => void;
 }
+interface ParamsType {
+	InterfaceUri: string;
+	HandlerId?: string; // 可选的，根据实际情况添加
+}
 const layout = {
 	labelCol: { span: 4 },
 	wrapperCol: { span: 20 }
@@ -49,7 +53,7 @@ const AddHandlerInterfaceModal: FC<AddHandlerInterfaceModalProps> = ({
 	const addHandlerInterface = () => {
 		form.validateFields().then(async ({ InterfaceUri }) => {
 			let api = APIConfig.newAlertHandlerInterface;
-			let params = {
+			let params: ParamsType = {
 				InterfaceUri
 			};
 			if (operation === 'edit') {

@@ -94,8 +94,7 @@ const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role
 		const paramsAttch = {
 			PermissionRoleIdList
 		};
-		const { Code, Data } = await RequestHttp.post(apiAttach, paramsAttch);
-		console.log(Data);
+		const { Code } = await RequestHttp.post(apiAttach, paramsAttch);
 		if (Code === '00000') {
 			messageApi.success(t('messageSuccess'));
 			handleOk(); // 刷新用户列表
@@ -139,7 +138,6 @@ const AttchPermissionModal: FC<AttchPermissionModalProps> = ({ isModalOpen, role
 						selectedKeys={selectedKeys}
 						onChange={onChange}
 						onSelectChange={onSelectChange}
-						// onScroll={onScroll}
 						render={item => item.PermissionName}
 						oneWay
 					/>

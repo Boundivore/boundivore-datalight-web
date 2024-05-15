@@ -49,8 +49,6 @@ export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
 		const {
 			data: { result }
 		} = JSON.parse(Data);
-		// console.log('result', _.uniqBy(result, ));
-		// const metricsArray = result.map(item => item.metric);
 		// 提取所有job，并使用Set去重
 		const uniqueJobsSet = new Set(result.map(item => item.metric.job));
 

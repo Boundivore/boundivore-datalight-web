@@ -48,7 +48,6 @@ const AlertDetail: FC = () => {
 		const {
 			Data: { AlertRuleContent, AlertRuleName, Enabled, AlertRuleId, AlertHandlerList }
 		} = await RequestHttp.get(api, { params });
-		// console.log(data);
 		const alertInfo = [
 			{
 				key: 1,

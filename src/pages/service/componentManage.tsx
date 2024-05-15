@@ -151,7 +151,7 @@ const ComponentManage: React.FC = () => {
 			dataIndex: 'ComponentName',
 			key: 'ComponentName',
 			// render: (text, record) => <Badge status="processing" count={record.num} showZero style={{ backgroundColor: '#51c2fe' }} />
-			render: (text, record) => record.num
+			render: (_text, record) => record.num
 		}
 	];
 	const columns: ColumnsType<DataType> = [

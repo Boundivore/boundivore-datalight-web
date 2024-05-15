@@ -53,9 +53,8 @@ const UserManage: FC = () => {
 		}
 	];
 	//单条操作按钮配置;
-	const buttonConfigItem = (text: [], record: UserInfoVo) => {
-		const { UserId, Realname } = record;
-		console.log(UserId, Realname);
+	const buttonConfigItem = (record: UserInfoVo) => {
+		const { UserId } = record;
 		return [
 			{
 				id: 1,
@@ -126,10 +125,10 @@ const UserManage: FC = () => {
 			title: t('operation'),
 			key: 'operation',
 			dataIndex: 'operation',
-			render: (text, record) => {
+			render: (_text, record) => {
 				return (
 					<Space>
-						{buttonConfigItem(text, record).map(button => (
+						{buttonConfigItem(record).map(button => (
 							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
 								{button.label}
 							</Button>

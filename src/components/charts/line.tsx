@@ -107,7 +107,6 @@ const LineComponent = ({ clusterId, query, multiple, formatter, title }) => {
 					formatter: value => {
 						if (formatter.formatterCount && formatter.formatterType && formatter.unit) {
 							const { formatterCount, formatterType, unit } = formatter;
-							console.log(title, formatter);
 							// 在这里进行单位换算，例如将原始数值除以1000并添加单位
 							let expression;
 

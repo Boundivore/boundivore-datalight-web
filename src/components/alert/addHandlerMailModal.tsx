@@ -32,6 +32,10 @@ interface AddHandlerMailModalProps {
 	handleCancel: () => void;
 	callback: () => void;
 }
+interface ParamsType {
+	MailAccount: string;
+	HandlerId?: string; // 可选的，根据实际情况添加
+}
 const layout = {
 	labelCol: { span: 4 },
 	wrapperCol: { span: 20 }
@@ -48,7 +52,7 @@ const AddHandlerMailModal: FC<AddHandlerMailModalProps> = ({
 	const addHandlerMail = () => {
 		form.validateFields().then(async ({ MailAccount }) => {
 			let api = APIConfig.newAlertHandlerMail;
-			let params = {
+			let params: ParamsType = {
 				MailAccount
 			};
 			if (operation === 'edit') {

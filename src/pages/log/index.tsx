@@ -39,7 +39,7 @@ const LogList: FC = () => {
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 
 	// 单条操作按钮配置
-	const buttonConfigItem = (text: [], record: NodeType) => {
+	const buttonConfigItem = (record: NodeType) => {
 		return [
 			{
 				id: 1,
@@ -76,10 +76,10 @@ const LogList: FC = () => {
 			title: t('operation'),
 			key: 'ComponentName',
 			dataIndex: 'ComponentName',
-			render: (text, record) => {
+			render: (_text, record) => {
 				return (
 					<Space>
-						{buttonConfigItem(text, record).map(button => (
+						{buttonConfigItem(record).map(button => (
 							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
 								{button.label}
 							</Button>

@@ -54,7 +54,7 @@ const UserDetail: FC = () => {
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
 	//单条操作按钮配置;
-	const buttonConfigItem = (text: [], record: RoleVo) => {
+	const buttonConfigItem = (record: RoleVo) => {
 		const { RoleId } = record;
 		return [
 			{
@@ -94,10 +94,10 @@ const UserDetail: FC = () => {
 			title: t('operation'),
 			key: 'operation',
 			dataIndex: 'operation',
-			render: (text, record) => {
+			render: (_text, record) => {
 				return (
 					<Space>
-						{buttonConfigItem(text, record).map(button => (
+						{buttonConfigItem(record).map(button => (
 							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
 								{button.label}
 							</Button>

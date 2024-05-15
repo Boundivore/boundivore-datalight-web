@@ -698,7 +698,7 @@ export interface AlertIdAndTypeVo {
 export interface NewAlertRuleRequest {
 	AlertRuleContent: AlertRuleContentRequest;
 	AlertRuleName: string;
-	ClusterId: number;
+	ClusterId: number | string;
 	[property: string]: any;
 }
 /**

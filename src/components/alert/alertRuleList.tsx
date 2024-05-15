@@ -46,7 +46,7 @@ const AlertRuleList: FC = () => {
 		}
 	];
 	// 单条操作按钮配置
-	const buttonConfigItem = (text: string, record: AlertSimpleVo) => {
+	const buttonConfigItem = (record: AlertSimpleVo) => {
 		const { Enabled, AlertRuleId } = record;
 		return [
 			{
@@ -112,9 +112,9 @@ const AlertRuleList: FC = () => {
 			key: 'IsExistInitProcedure',
 			dataIndex: 'IsExistInitProcedure',
 			width: '40%',
-			render: (text, record) => (
+			render: (_text, record) => (
 				<Space>
-					{buttonConfigItem(text, record).map(button => (
+					{buttonConfigItem(record).map(button => (
 						<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
 							{button.label}
 						</Button>
