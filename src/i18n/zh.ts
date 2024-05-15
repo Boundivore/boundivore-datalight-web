@@ -385,5 +385,6 @@ export default {
 	disabled: '未启用',
 	edit: '编辑',
 	id: 'ID',
-	totalItems: '共{{total}}项，已选择{{selected}}项'
+	totalItems: '共{{total}}项，已选择{{selected}}项',
+	waiting: '等待中...'
 };

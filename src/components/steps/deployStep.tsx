@@ -68,7 +68,12 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			key: 'ExecProgress',
 			width: 350,
 			render: text => {
-				return <Progress percent={parseFloat(parseFloat(text).toFixed(2))} strokeColor={twoColors} />;
+				return (
+					<>
+						{parseFloat(text) === 0 ? t('waiting') : null}
+						<Progress percent={parseFloat(parseFloat(text).toFixed(2))} strokeColor={twoColors} />
+					</>
+				);
 			}
 		},
 		{
