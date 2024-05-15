@@ -136,7 +136,15 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 				) : null}
 				<Content>
 					<Breadcrumb className="ml-[44px] mt-[20px] font-bold text-[18px]" items={breadcrumbItems()} />
-					<Suspense fallback={<Spin fullscreen />}>{useRoutes(routes)}</Suspense>
+					<Suspense
+						fallback={
+							<div className="h-[90%]">
+								<Spin fullscreen />
+							</div>
+						}
+					>
+						{useRoutes(routes)}
+					</Suspense>
 					<Footer className={`h-[40px] leading-[40px] p-0 text-center bg-white font-bold ${collapsed ? 'hidden' : 'w-full'}`}>
 						{t('poweredBy')}
 					</Footer>

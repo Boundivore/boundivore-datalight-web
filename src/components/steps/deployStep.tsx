@@ -58,12 +58,14 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
+			key: 'Hostname',
 			width: 100,
 			render: (text: string) => <a>{text}</a>
 		},
 		{
 			title: t('node.deployProgress'),
 			dataIndex: 'ExecProgress',
+			key: 'ExecProgress',
 			width: 350,
 			render: text => {
 				return <Progress percent={parseFloat(parseFloat(text).toFixed(2))} strokeColor={twoColors} />;
@@ -72,6 +74,7 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 		{
 			title: t('node.detail'),
 			dataIndex: 'ExecProgressStepList',
+			key: 'ExecProgressStepList',
 			render: (text: ExecProgressStepVo[]) => {
 				const runningStep = text.find(step => step.StepExecState === 'RUNNING');
 				const errorStep = text.reverse().find(step => step.StepExecState === 'ERROR');
@@ -80,8 +83,10 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 					<Text className="text-blue-500">{runningStep?.StepName}</Text>
 				) : errorStep ? (
 					<Text className="text-red-500">{errorStep?.StepName}</Text>
-				) : (
+				) : okStep ? (
 					<Text className="text-green-500">{okStep?.StepName}</Text>
+				) : (
+					<Text className="text-green-500">{text[text.length - 1].StepName}</Text>
 				);
 			}
 		},

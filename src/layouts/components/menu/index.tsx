@@ -102,7 +102,7 @@ const LayoutMenu: React.FC = () => {
 			getItem(<NavLink to="/alert?tab=alert">{t('tabs.alert')}</NavLink>, '/alert"')
 		]),
 		getItem(<NavLink to="/log">{t('tabs.log')}</NavLink>, '/log', <ReconciliationOutlined />),
-		getItem(<Text className="min-w-[100px] inline-block">{t('tabs.permission')}</Text>, '/permission', <AuditOutlined />, [
+		getItem(<Text className="min-w-[90px] inline-block">{t('tabs.permission')}</Text>, '/permission', <AuditOutlined />, [
 			getItem(<NavLink to="/permission/userManage">{t('tabs.userManage')}</NavLink>, '/userManage"'),
 			getItem(<NavLink to="/permission/roleManage">{t('tabs.roleManage')}</NavLink>, '/roleManage"')
 		])

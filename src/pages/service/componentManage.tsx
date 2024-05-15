@@ -369,7 +369,9 @@ const ComponentManage: React.FC = () => {
 								const { ComponentNodeList, ComponentName } = component;
 								return (
 									<>
-										<h4>{t('totalItems', { total: ComponentNodeList.length, selected: selectComponent.length })}</h4>
+										<h4 className={`${ComponentName !== activeComponent && 'hidden'}`}>
+											{t('totalItems', { total: ComponentNodeList.length, selected: selectComponent.length })}
+										</h4>
 										<Table
 											rowSelection={{
 												...rowSelection
