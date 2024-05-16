@@ -18,7 +18,7 @@
  * 折线图组件
  * @author Tracy
  */
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Empty } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -51,8 +51,18 @@ const baseOptions = {
 	},
 	series: []
 };
-
-const LineComponent = ({ clusterId, query, multiple, formatter, title }) => {
+interface LineComponentProps {
+	clusterId: string;
+	query: string;
+	multiple: boolean;
+	formatter: {
+		formatterType: string;
+		formatterCount: number;
+		unit: string;
+	};
+	title: string;
+}
+const LineComponent: FC<LineComponentProps> = ({ clusterId, query, multiple, formatter, title }) => {
 	const { monitorStartTime, monitorEndTime, jobName, instance } = useStore();
 	const defaultOptions = {
 		...baseOptions,
