@@ -139,7 +139,7 @@ export default {
 		progress: '分发进度',
 		fileProgress: '文件分发进度:',
 		fileName: '文件名:',
-		startWorker: '启动节点 worker 进程',
+		startWorker: '启动节点 Worker 进程',
 		log: '日志',
 		viewLog: '查看日志',
 		resolved: '主机名已解析',

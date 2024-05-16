@@ -14,7 +14,9 @@
  * along with this program; if not, you can obtain a copy at
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
-
+export interface KeyValues {
+	[key: string]: any; // 使用索引签名声明键为字符串类型，值为任意类型
+}
 // 定义后端响应数据结构
 export interface BackendResponse {
 	Code: string;
@@ -218,6 +220,42 @@ export interface ConfigSummaryListVo {
 	 * @memberof ConfigSummaryListVo
 	 */
 	ServiceName: string;
+}
+/**
+ * ConfigPreVo
+ */
+export interface ConfigPreVo {
+	ClusterId: number;
+	ConfigPreServiceList: ConfigPreServiceVo[];
+	[property: string]: any;
+}
+
+/**
+ * ConfigPreServiceVo
+ */
+export interface ConfigPreServiceVo {
+	PlaceholderInfoList: PlaceholderInfoVo[];
+	ServiceName: string;
+	[property: string]: any;
+}
+
+/**
+ * PlaceholderInfoVo
+ */
+export interface PlaceholderInfoVo {
+	ConfigPrePropertyList: ConfigPrePropertyVo[] | undefined;
+	TemplatedFilePath: string;
+	[property: string]: any;
+}
+
+/**
+ * ConfigPrePropertyVo
+ */
+export interface ConfigPrePropertyVo {
+	Default: string;
+	Describe: string;
+	Placeholder: string;
+	[property: string]: any;
 }
 
 /**
@@ -434,6 +472,7 @@ export interface ConfigNodeVo {
 
 export interface StepRefType {
 	handleOk: () => void;
+	[property: string]: any;
 }
 
 /**
@@ -672,7 +711,7 @@ export interface AlertSimpleVo {
  * AlertHandlerVo
  */
 export interface AlertHandlerVo {
-	AlertHandlerIdList: number[];
+	AlertHandlerIdList: number[] | string[];
 	AlertHandlerType: AlertHandlerType;
 	[property: string]: any;
 }
@@ -734,18 +773,18 @@ export interface RuleRequest {
  * AlertRuleVo
  */
 export interface AlertRuleVo {
-	AlertFileName: string;
-	AlertFilePath: string;
+	AlertFileName?: string;
+	AlertFilePath?: string;
 	/**
 	 * 告警规则配置解析后的实体
 	 */
 	AlertRuleContent: AlertRuleContentVo;
-	AlertRuleContentBase64: string;
+	AlertRuleContentBase64?: string;
 	AlertRuleId: number;
 	AlertRuleName: string;
-	AlertVersion: number;
+	AlertVersion?: number;
 	Enabled: boolean;
-	Sha256: string;
+	Sha256?: string;
 	[property: string]: any;
 }
 

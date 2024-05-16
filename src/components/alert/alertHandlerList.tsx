@@ -131,7 +131,7 @@ const AlertHandlerTable: FC<AlertHandlerTableProps> = ({ handlerIdList, api, typ
 	);
 };
 interface MailListProps {
-	handlerIdList: string[];
+	handlerIdList: string[] | number[];
 }
 export const MailList: FC<MailListProps> = ({ handlerIdList }) => {
 	const api = APIConfig.getAlertHandlerMailListIdList;
@@ -179,7 +179,7 @@ export const MailList: FC<MailListProps> = ({ handlerIdList }) => {
 	return <AlertHandlerTable handlerIdList={handlerIdList} api={api} type={ALERT_MAIL} columnsConfig={columns} />;
 };
 interface InterfaceListProps {
-	handlerIdList: string[];
+	handlerIdList: string[] | number[];
 }
 export const InterfaceList: FC<InterfaceListProps> = ({ handlerIdList }) => {
 	const api = APIConfig.getAlertHandlerInterfaceListByIdList;

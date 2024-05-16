@@ -100,16 +100,16 @@ const useNavigater = () => {
 		navigate(`/permission/roleDetail?id=${id}`);
 	};
 	const navigateToAlertList = (tab: string, subTab?: string) => {
-		navigate(`/alert?tab=${tab}${subTab ? '&subTab=' + subTab : ''}`);
+		navigate(`/monitorAlert/alert?tab=${tab}${subTab ? '&subTab=' + subTab : ''}`);
 	};
 	const navigateToCreateAlert = (id: number | string) => {
-		navigate(`/alert/createAlert?id=${id}`);
+		navigate(`/monitorAlert/alert/createAlert?id=${id}`);
 	};
 	const navigateToAlertDetail = (id: number | string) => {
-		navigate(`/alert/alertDetail?id=${id}`);
+		navigate(`/monitorAlert/alert/alertDetail?id=${id}`);
 	};
 	const navigateToHandlerDetail = (id: number | string, type: string) => {
-		navigate(`/alert/handlerDetail?id=${id}&type=${type}`);
+		navigate(`/monitorAlert/alert/handlerDetail?id=${id}&type=${type}`);
 	};
 
 	return {

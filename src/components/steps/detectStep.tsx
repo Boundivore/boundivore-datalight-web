@@ -31,14 +31,14 @@ import usePolling from '@/hooks/usePolling';
 import ItemConfigInfo from '@/components/itemConfigInfo';
 import useStepLogic from '@/hooks/useStepLogic';
 import CheckLogModal from '../logModal';
-import { NodeType, BadgeStatus } from '@/api/interface';
+import { NodeType, BadgeStatus, StepRefType } from '@/api/interface';
 
 const preStepName = 'parseList'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'detectStep'; // 当前步骤结束时需要存储步骤数据
 const disabledState = ['RUNNING', 'SUSPEND'];
 
-const DetectStep: React.FC = memo(
-	forwardRef((_props, ref) => {
+const DetectStep = memo(
+	forwardRef<StepRefType>((_props, ref) => {
 		const { stateText, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh, setJobNodeId } = useStore();
 		const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);
 		const [detectState, setDetectState] = useState(false);

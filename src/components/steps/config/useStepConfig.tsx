@@ -53,9 +53,9 @@ const useStepConfig = () => {
 	const startWorkerStepRef = useRef<StepRefType>(null);
 	const selectServiceRef = useRef<StepRefType>(null);
 	const selectComponentRef = useRef<StepRefType>(null);
-	const PreconfigStepRef = useRef<{ handleOk: () => void; onFinish: (openModal: boolean) => Promise<any> }>(null);
+	const PreconfigStepRef = useRef<StepRefType>(null);
 	const PreviewStepRef = useRef<StepRefType>(null);
-	const DeployStepRef = useRef(null);
+	const DeployStepRef = useRef<StepRefType>(null);
 
 	const nextList = () => parseStepRef.current?.handleOk();
 	const retryParseList = () => parseListStepRef.current?.parseHostname();
@@ -116,9 +116,9 @@ const useStepConfig = () => {
 			title: t('node.add'),
 			content: <DoneStep />,
 			operations: [
-				{ label: t('node.deployService') }, // 不传callback默认进行一下步
-				{ label: t('backHomeTemp'), callback: navigateToHome },
-				{ label: t('done'), callback: useCancelProcedure() }
+				{ label: t('node.deployService'), key: 'deployService' }, // 不传callback默认进行一下步
+				{ label: t('backHomeTemp'), key: 'backHomeTemp', callback: navigateToHome },
+				{ label: t('done'), key: 'done', callback: useCancelProcedure() }
 			],
 			hideInitButton: true
 		}
@@ -158,6 +158,7 @@ const useStepConfig = () => {
 			operations: [
 				{
 					label: t('backHome'),
+					key: 'backHome',
 					callback: () => {
 						clearData();
 						navigateToHome();

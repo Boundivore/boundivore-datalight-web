@@ -18,7 +18,7 @@
  * PreconfigStep - 预配置步骤
  * @author Tracy
  */
-import React, { useImperativeHandle, useEffect, useState, useRef, forwardRef } from 'react';
+import { useImperativeHandle, useEffect, useState, useRef, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Input, Collapse, Col, Button, Space, Result } from 'antd';
 import { DoubleRightOutlined } from '@ant-design/icons';
@@ -28,16 +28,16 @@ import type { CollapseProps } from 'antd';
 import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { ServiceItemType } from '@/api/interface';
+import { ConfigPreServiceVo, KeyValues } from '@/api/interface';
 
 const layout = {
 	labelCol: { span: 10 },
 	wrapperCol: { span: 14 }
 };
-const PreconfigStep: React.FC = forwardRef((_props, ref) => {
+const PreconfigStep = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
-	const [serviceList, setServiceList] = useState<ServiceItemType[]>([]);
-	const [items, setItems] = useState([]);
+	const [serviceList, setServiceList] = useState<ConfigPreServiceVo[]>([]);
+	const [items, setItems] = useState<CollapseProps['items']>([]);
 	const [keys, setKeys] = useState<string[]>([]);
 	const [cachedKeys, setCachedKeys] = useState<string[]>([]);
 	const { setJobId } = useStore();
@@ -68,27 +68,26 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 		setKeys(keysArr);
 		setCachedKeys(keysArr); // 缓存 keys 副本
 
-		// 在组件挂载时，根据原始数据初始化表单
-		const initialValues = {};
-		filterItems.forEach((service, serviceIndex) => {
+		const initialValues: KeyValues = filterItems.reduce((acc: KeyValues, service, serviceIndex) => {
 			service.PlaceholderInfoList.forEach((info, infoIndex) => {
-				info.ConfigPrePropertyList.forEach((property, propertyIndex) => {
+				info.ConfigPrePropertyList?.forEach((property, propertyIndex) => {
 					const formKey = `${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`;
-					initialValues[formKey] = property.Default || property.Value;
+					acc[formKey] = property.Default || property.Value;
 				});
 			});
-		});
+			return acc;
+		}, {});
 		form.setFieldsValue(initialValues);
 	}, [serviceList, form]);
 
 	const onFinish = async () => {
 		// 将表单数据回填到原始数据中
-		if (serviceList.length && items.length) {
+		if (serviceList.length && items?.length) {
 			const values = form.getFieldsValue();
 			const updatedData = _.cloneDeep([...serviceList]).filter(item => item.PlaceholderInfoList.length);
 			updatedData.forEach((service, serviceIndex) => {
 				service.PlaceholderInfoList.forEach((info, infoIndex) => {
-					info.ConfigPrePropertyList.forEach((property, propertyIndex) => {
+					info.ConfigPrePropertyList?.forEach((property, propertyIndex) => {
 						const formKey = `${service.ServiceName}_${serviceIndex}_${infoIndex}_${propertyIndex}`;
 						// 回填时设置为Value属性，并保留 Default 属性
 						property.Value = values[formKey];
@@ -117,7 +116,7 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 			Data: { ConfigPreServiceList }
 		} = data;
 		setServiceList(ConfigPreServiceList);
-		ConfigPreServiceList.map((service: ServiceItemType) => {
+		ConfigPreServiceList.map((service: ConfigPreServiceVo) => {
 			serviceNameList.current.push(service.ServiceName);
 		});
 	};
@@ -144,8 +143,9 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 	const handleUnexpand = () => {
 		setKeys([]);
 	};
-	const handleChange = (keyArr: string[]) => {
-		setKeys(keyArr);
+	const handleChange = (keyArr: string[] | string) => {
+		const keys = typeof keyArr === 'string' ? [keyArr] : keyArr;
+		setKeys(keys);
 	};
 	useEffect(() => {
 		getPreconfigList();
@@ -154,7 +154,7 @@ const PreconfigStep: React.FC = forwardRef((_props, ref) => {
 
 	return (
 		<>
-			{serviceList.length && items.length ? (
+			{serviceList.length && items?.length ? (
 				<>
 					<Col className="mb-[20px]" span={24}>
 						<Space className="flex justify-end">

@@ -37,7 +37,7 @@ const Alert: FC = () => {
 		{
 			key: 'alert',
 			label: (
-				<Link to="/alert?tab=alert" className="text-inherit">
+				<Link to="/monitorAlert/alert?tab=alert" className="text-inherit">
 					{t('alert.alert')}
 				</Link>
 			),
@@ -46,7 +46,7 @@ const Alert: FC = () => {
 		{
 			key: 'handler',
 			label: (
-				<Link to="/alert?tab=handler&subTab=ALERT_INTERFACE" className="text-inherit">
+				<Link to="/monitorAlert/alert?tab=handler&subTab=ALERT_INTERFACE" className="text-inherit">
 					{t('alert.alertHandler')}
 				</Link>
 			),
@@ -58,7 +58,7 @@ const Alert: FC = () => {
 						{
 							key: 'ALERT_INTERFACE',
 							label: (
-								<Link to="/alert?tab=handler&subTab=ALERT_INTERFACE" className="text-inherit">
+								<Link to="/monitorAlert/alert?tab=handler&subTab=ALERT_INTERFACE" className="text-inherit">
 									{t('alert.handlerInterface')}
 								</Link>
 							),
@@ -67,7 +67,7 @@ const Alert: FC = () => {
 						{
 							key: 'ALERT_MAIL',
 							label: (
-								<Link to="/alert?tab=handler&subTab=ALERT_MAIL" className="text-inherit">
+								<Link to="/monitorAlert/alert?tab=handler&subTab=ALERT_MAIL" className="text-inherit">
 									{t('alert.handlerMail')}
 								</Link>
 							),

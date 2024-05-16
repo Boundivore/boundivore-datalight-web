@@ -27,7 +27,7 @@ import useStepLogic from '@/hooks/useStepLogic';
 interface StepConfig {
 	title: string;
 	content: ReactElement;
-	nextStep?: () => boolean;
+	nextStep?: () => boolean | void;
 	retry?: () => void;
 	hideInitButton?: boolean; // 是否隐藏初始化按钮，包括上一步、下一步、重试和取消
 	hideRetry?: boolean; // 是否单独隐藏重试按钮
@@ -36,6 +36,7 @@ interface StepConfig {
 	nextText?: string; // 重置下一步文案
 	operations?: {
 		label: string;
+		key: string;
 		callback?: () => void;
 	}[];
 }
@@ -83,7 +84,7 @@ const StepComponent: FC<MyComponentProps> = ({ config }) => {
 						{stepConfig?.operations?.length
 							? stepConfig.operations.map(operation => {
 									return (
-										<Button type="primary" onClick={operation.callback || next} disabled={nextDisabled}>
+										<Button type="primary" key={operation.key} onClick={operation.callback || next} disabled={nextDisabled}>
 											{operation.label}
 										</Button>
 									);

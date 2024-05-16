@@ -28,8 +28,11 @@ import usePrometheusStatus from '@/hooks/usePrometheusStatus';
 import { getCurrentAndPastTimestamps, diffInMinutes } from '@/utils/helper';
 
 const { RangePicker } = DatePicker;
-
-export const JobNameComponent: React.FC = ({ clusterId, activeComponent }) => {
+interface JobNameComponentProps {
+	clusterId: string;
+	activeComponent: string;
+}
+export const JobNameComponent: React.FC<JobNameComponentProps> = ({ clusterId, activeComponent }) => {
 	const [jobNameOptions, setJobNameOptions] = useState([]);
 	const [instanceOptions, setInstanceOptions] = useState([]);
 	const { jobName, setJobName, instance, setInstance } = useStore();

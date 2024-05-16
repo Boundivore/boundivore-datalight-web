@@ -63,8 +63,6 @@ const AddNode: React.FC = forwardRef(() => {
 		}
 	];
 
-	const stepConfig = nodeStepConfig;
-
 	//获取进度，定位到当前步骤
 	useStepEffect();
 	return (
@@ -75,7 +73,7 @@ const AddNode: React.FC = forwardRef(() => {
 				</Card>
 			</Col>
 			<Col span={19}>
-				<StepComponent config={stepConfig} />
+				<StepComponent config={nodeStepConfig} />
 			</Col>
 		</Row>
 	);

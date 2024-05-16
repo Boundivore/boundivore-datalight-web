@@ -21,6 +21,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Table, Card, Row, Col, Flex, Space, Empty } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
 import { config, monitorItems } from '@/components/charts/config';
 import { JobNameComponent, TimerComponent } from '@/components/charts/params';
@@ -28,7 +29,9 @@ import useCurrentCluster from '@/hooks/useCurrentCluster';
 import usePrometheusStatus from '@/hooks/usePrometheusStatus';
 import ContainerCard from '@/components/containerCard';
 import { RenderConfig } from '@/components/charts/renderConfig';
-
+interface ItemStyle {
+	uid: string;
+}
 const Monitor = () => {
 	const { t } = useTranslation();
 	const { jobName, instance } = useStore();
@@ -36,7 +39,7 @@ const Monitor = () => {
 	const { hasPrometheus } = usePrometheusStatus();
 	const { clusterComponent, selectCluster } = useCurrentCluster();
 
-	const columns = [
+	const columns: ColumnsType<ItemStyle> = [
 		{
 			title: t('service.componentName'),
 			dataIndex: 'uid',
@@ -45,7 +48,7 @@ const Monitor = () => {
 		}
 	];
 
-	const rowClassName = record => {
+	const rowClassName = (record: ItemStyle) => {
 		return activeComponent === record.uid ? 'bg-[#f0fcff]' : '';
 	};
 

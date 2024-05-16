@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 import { useState } from 'react';
-import { Menu, App, Typography } from 'antd';
+import { Menu, App } from 'antd';
 import {
 	AppstoreOutlined,
 	ApartmentOutlined,
@@ -33,7 +33,7 @@ import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
-const { Text } = Typography;
+
 type MenuItem = Required<MenuProps>['items'][number];
 
 function getItem(
@@ -97,14 +97,14 @@ const LayoutMenu: React.FC = () => {
 			getItem(<a onClick={viewActiveNodeJob}>{t('tabs.nodeTask')}</a>, '/nodeTask"'),
 			getItem(<a onClick={viewActiveJob}>{t('tabs.serviceTask')}</a>, '/serviceTask"')
 		]),
-		getItem(t('tabs.monitorAlert'), '/monitor', <SecurityScanOutlined />, [
-			getItem(<NavLink to="/monitor">{t('tabs.monitor')}</NavLink>, '/monitor"'),
-			getItem(<NavLink to="/alert?tab=alert">{t('tabs.alert')}</NavLink>, '/alert"')
+		getItem(t('tabs.monitorAlert'), '/monitorAlert', <SecurityScanOutlined />, [
+			getItem(<NavLink to="/monitorAlert/monitor">{t('tabs.monitor')}</NavLink>, '/monitorAlert/monitor'),
+			getItem(<NavLink to="/monitorAlert/alert?tab=alert">{t('tabs.alert')}</NavLink>, '/monitorAlert/alert')
 		]),
 		getItem(<NavLink to="/log">{t('tabs.log')}</NavLink>, '/log', <ReconciliationOutlined />),
-		getItem(<Text className="min-w-[90px] inline-block">{t('tabs.permission')}</Text>, '/permission', <AuditOutlined />, [
-			getItem(<NavLink to="/permission/userManage">{t('tabs.userManage')}</NavLink>, '/userManage"'),
-			getItem(<NavLink to="/permission/roleManage">{t('tabs.roleManage')}</NavLink>, '/roleManage"')
+		getItem(<span className="min-w-[90px] inline-block">{t('tabs.permission')}</span>, '/permission', <AuditOutlined />, [
+			getItem(<NavLink to="/permission/userManage">{t('tabs.userManage')}</NavLink>, '/permission/userManage'),
+			getItem(<NavLink to="/permission/roleManage">{t('tabs.roleManage')}</NavLink>, '/permission/roleManage')
 		])
 		// getItem(t('tabs.myAccount'), '/auth', <SettingOutlined />, [
 		// 	getItem(<NavLink to="/auth/changePassword">{t('tabs.changePassword')}</NavLink>, '/changePassword"')

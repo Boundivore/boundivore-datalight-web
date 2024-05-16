@@ -41,7 +41,7 @@ const stepName = 'dispatchStep'; // 当前步骤结束时需要存储步骤数�
 const disabledState = ['RUNNING', 'SUSPEND'];
 const operation = 'DISPATCH'; // 当前步骤操作，NodeActionTypeEnum
 
-const DispatchStep: React.FC = forwardRef((_props, ref) => {
+const DispatchStep = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');

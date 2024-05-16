@@ -18,7 +18,7 @@
  * PreviewconfigStep - 预览配置
  * @author Tracy
  */
-import React, { useImperativeHandle, useEffect, useState, forwardRef } from 'react';
+import { useImperativeHandle, useEffect, useState, forwardRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -39,7 +39,7 @@ const undeployedState = ['REMOVED', 'SELECTED', 'UNSELECTED'];
 const serviceDeployState = ['SELECTED', 'SELECTED_ADDITION'];
 const stepName = 'previewStep';
 const operation = 'DEPLOY';
-const PreviewStep: React.FC = forwardRef((_props, ref) => {
+const PreviewStep = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');

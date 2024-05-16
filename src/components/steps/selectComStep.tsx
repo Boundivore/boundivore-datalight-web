@@ -18,7 +18,7 @@
  * SelectComStep - 选择组件步骤
  * @author Tracy
  */
-import { FC, forwardRef, useEffect, useImperativeHandle, useState, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Collapse, Flex, Select, Spin } from 'antd';
 // import { useTranslation } from 'react-i18next';
@@ -61,7 +61,7 @@ interface NodeMap {
 }
 type CustomTagRender = (props: { label?: React.ReactNode; value?: string }) => React.ReactElement;
 
-const SelectComStep: FC = forwardRef((_props, ref) => {
+const SelectComStep = forwardRef((_props, ref) => {
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
 	const [serviceList, setServiceList] = useState<CollapseProps['items']>([]);
 	const [serviceNames, setServiceNames] = useState<string[] | string>([]);
@@ -213,11 +213,13 @@ const SelectComStep: FC = forwardRef((_props, ref) => {
 									?.filter((item: ServiceItemType) => item.SCStateEnum !== 'UNSELECTED')
 									.map((node: NodeType) => node.Hostname);
 								return (
-									<div className="w-1/4">
+									<div className="w-1/4" key={component.ComponentName}>
 										<p>{component.ComponentName}</p>
 										<Select
 											value={nameArray}
 											mode="multiple"
+											maxTagTextLength={8}
+											maxTagCount={8}
 											className="w-4/5"
 											dropdownStyle={{ display: 'none' }} // 不显示下拉菜单
 											tagRender={customTagRender}

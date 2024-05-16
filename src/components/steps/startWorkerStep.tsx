@@ -39,7 +39,7 @@ const disabledState = ['RUNNING', 'SUSPEND'];
 const operation = 'START_WORKER'; // 当前步骤操作，NodeActionTypeEnum
 const nextOperation = 'ADD'; // 下一步操作，NodeActionTypeEnum
 
-const StartWorkerStep: React.FC = forwardRef((_props, ref) => {
+const StartWorkerStep = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');

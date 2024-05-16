@@ -143,7 +143,7 @@ export const getCurrentAndPastTimestamps = (n: number) => {
 };
 
 // 计算两个时间戳相差的分钟数
-export const diffInMinutes = (timestamp1, timestamp2) => {
+export const diffInMinutes = (timestamp1: number, timestamp2: number) => {
 	// 确保timestamp1是较后的时间戳，timestamp2是较早的时间戳
 	let diff = Math.max(timestamp1, timestamp2) - Math.min(timestamp1, timestamp2);
 

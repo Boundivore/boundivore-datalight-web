@@ -28,16 +28,28 @@ import ContainerCard from '@/components/containerCard';
 import AlertForm from '@/components/alert/alertForm';
 import useNavigater from '@/hooks/useNavigater';
 import { MailList, InterfaceList } from '@/components/alert/alertHandlerList';
+import { AlertHandlerVo, AlertRuleVo } from '@/api/interface';
 const { Text } = Typography;
 
+interface AlertInfoItem {
+	key: number;
+	label: React.ReactNode;
+	text: React.ReactNode;
+}
+// interface AlertRuleVo {
+// 	AlertRuleContent: AlertRuleContentVo;
+// 	AlertRuleId: number;
+// 	AlertRuleName: string;
+// 	Enabled: boolean;
+// }
 const AlertDetail: FC = () => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const { navigateToAlertList } = useNavigater();
-	const [alertInfoData, setAlertInfoData] = useState([]);
-	const [alertRuleData, setAlertRuleData] = useState(null);
+	const [alertInfoData, setAlertInfoData] = useState<AlertInfoItem[]>([]);
+	const [alertRuleData, setAlertRuleData] = useState<AlertRuleVo>();
 	const [tabItems, setTabItems] = useState([]);
-	const [keys, setKeys] = useState([]);
+	const [keys, setKeys] = useState<string[]>([]);
 	// const { modal } = App.useApp();
 	// const [messageApi, contextHolder] = message.useMessage();
 	const getAlertDetail = async () => {
@@ -54,11 +66,6 @@ const AlertDetail: FC = () => {
 				label: <Text strong>{t('alert.alertRuleName')}</Text>,
 				text: <span>{AlertRuleName}</span>
 			},
-			// {
-			// 	key: 3,
-			// 	label: <Text strong>{t('permission.roleType')}</Text>,
-			// 	text: <span>{t(`permission.${Data.RoleType}`)}</span>
-			// },
 			{
 				key: 2,
 				label: <Text strong>{t('state')}</Text>,
@@ -67,7 +74,7 @@ const AlertDetail: FC = () => {
 		];
 		setAlertInfoData(alertInfo);
 		setAlertRuleData({ AlertRuleName, AlertRuleContent, AlertRuleId, Enabled });
-		const tabs = AlertHandlerList.map(handler => {
+		const tabs = AlertHandlerList.map((handler: AlertHandlerVo) => {
 			let childrenComponent;
 			if (handler.AlertHandlerType === 'ALERT_MAIL') {
 				childrenComponent = <MailList handlerIdList={handler.AlertHandlerIdList} />;
@@ -88,8 +95,9 @@ const AlertDetail: FC = () => {
 	const handleExpand = () => {
 		setKeys(['1']);
 	};
-	const handleChange = (keyArr: string[]) => {
-		setKeys(keyArr);
+	const handleChange = (keyArr: string[] | string) => {
+		const keys = typeof keyArr === 'string' ? [keyArr] : keyArr;
+		setKeys(keys);
 	};
 	useEffect(() => {
 		id && getAlertDetail();
@@ -102,7 +110,7 @@ const AlertDetail: FC = () => {
 			children: alertRuleData && <AlertForm type="edit" alertRuleData={alertRuleData} />,
 			extra: (
 				<Space>
-					<Button type="primary" disabled={keys.length} onClick={handleExpand}>
+					<Button type="primary" disabled={Boolean(keys.length)} onClick={handleExpand}>
 						{t('edit')}
 					</Button>
 					<Button onClick={() => navigateToAlertList('alert')}>{t('back')}</Button>

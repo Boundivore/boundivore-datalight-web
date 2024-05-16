@@ -41,7 +41,10 @@ export const monitorItems = [
 export const paramsConfig = {
 	DATALIGHT: ['jobName', 'instance']
 };
-export const config = {
+interface ConfigStyle {
+	[key: string]: any[]; // 或者具体的值类型
+}
+export const config: ConfigStyle = {
 	HOME: [
 		{
 			cols: [

@@ -41,7 +41,7 @@ const stepName = 'deployStep'; // 当前步骤结束时需要存储步骤数据
 const operation = 'DEPLOY'; // 当前步骤操作，NodeActionTypeEnum
 const serviceDeployState = ['SELECTED', 'SELECTED_ADDITION']; //可部署的服务状态
 
-const DeployStep: React.FC = forwardRef((_props, ref) => {
+const DeployStep = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -81,17 +81,21 @@ const DeployStep: React.FC = forwardRef((_props, ref) => {
 			dataIndex: 'ExecProgressStepList',
 			key: 'ExecProgressStepList',
 			render: (text: ExecProgressStepVo[]) => {
+				const reversedCopy = [...text].reverse();
 				const runningStep = text.find(step => step.StepExecState === 'RUNNING');
-				const errorStep = text.reverse().find(step => step.StepExecState === 'ERROR');
-				const okStep = text.reverse().find(step => step.StepExecState === 'OK');
+				const errorStep = reversedCopy.find(step => step.StepExecState === 'ERROR');
+				const okStep = reversedCopy.find(step => step.StepExecState === 'OK');
+				const suspendStep = text.find(step => step.StepExecState === 'SUSPEND');
 				return runningStep ? (
 					<Text className="text-blue-500">{runningStep?.StepName}</Text>
 				) : errorStep ? (
 					<Text className="text-red-500">{errorStep?.StepName}</Text>
 				) : okStep ? (
 					<Text className="text-green-500">{okStep?.StepName}</Text>
+				) : suspendStep ? (
+					<Text className="text-black-500">{suspendStep?.StepName}</Text>
 				) : (
-					<Text className="text-green-500">{text[text.length - 1].StepName}</Text>
+					<Text className="text-black-500">{text[text.length - 1]?.StepName}</Text>
 				);
 			}
 		},

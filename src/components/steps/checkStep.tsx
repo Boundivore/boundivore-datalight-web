@@ -38,7 +38,7 @@ const stepName = 'checkStep'; // 当前步骤结束时需要存储步骤数据
 const disabledState = ['RUNNING', 'SUSPEND'];
 const operation = 'CHECK'; // 当前步骤操作，NodeActionTypeEnum
 
-const CheckStep: React.FC = forwardRef((_props, ref) => {
+const CheckStep = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const { stateText, setJobNodeId, stableState, setCurrentPageDisabled, currentPageDisabled, isRefresh } = useStore();
 	const [selectedRowsList, setSelectedRowsList] = useState<NodeType[]>([]);

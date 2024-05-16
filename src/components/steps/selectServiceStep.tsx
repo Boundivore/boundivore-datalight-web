@@ -18,7 +18,7 @@
  * SelectServiceStep - 选择服务步骤
  * @author Tracy
  */
-import { FC, forwardRef, useImperativeHandle, useEffect, useState, Key } from 'react';
+import { forwardRef, useImperativeHandle, useEffect, useState, Key } from 'react';
 import _ from 'lodash';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
@@ -30,7 +30,7 @@ import RequestHttp from '@/api';
 import { BadgeStatus, ServiceItemType } from '@/api/interface';
 
 const selectedStates = ['SELECTED', 'SELECTED_ADDITION']; // 默认选中的状态
-const SelectServiceStep: FC = forwardRef((_props, ref) => {
+const SelectServiceStep = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
