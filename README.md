@@ -1,9 +1,11 @@
 #  boundivore-datalight-web
 
 ### 一、简介
-DataLight 前端项目
+DataLight 前端管理平台
 
 基于 React18、React-Router v6、Zustand、TypeScript、Vite4、Ant-Design、Tailwind、Husky、Commitlint 开源的管理系统。
+
+DataLight 是一个开源的大数据运维管理平台，用于简化和自动化大数据服务的部署、管理和监控。它提供了一套全面的工具来管理您的大数据生态系统，旨在帮助企业实现简洁、快速地构建 OLAP 与 OLTP 统一的业务平台。用户可以通过 plugin 插件，以插拔式的方式快速集成自己的业务服务或其他大数据组件，从而在平台中进行统一管理。
 
 
 ### 二、安装使用步骤
@@ -21,7 +23,7 @@ git clone git@gitee.com:boundivore/boundivore-datalight-web.git
 npm install
 cnpm install
 
-# npm install 安装失败，请升级 nodejs 到 16 以上，或尝试使用以下命令：
+# 若npm install 安装失败，请升级 nodejs 到 16 以上，或尝试使用以下命令：
 npm install --registry=https://registry.npm.taobao.org
 ```
 - **Run：**
