@@ -72,6 +72,7 @@ git commit -m 'bug: 修复 xxx 功能'
 - chore：其他不会修改 src 或者 test 的修改
 - revert：恢复到上一个版本。
 
+更多详细信息请查看[Commitlint官网](https://commitlint.js.org/)
 
 ### 三、架构
 架构说明
