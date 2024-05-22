@@ -865,3 +865,13 @@ export interface AlertHandlerMailVo {
 	MailAccount: string;
 	[property: string]: any;
 }
+/**
+ * LogFileCollectionVo
+ */
+export interface LogFileCollectionVo {
+	Children: LogFileCollectionVo[];
+	DirectoryName: string;
+	DirectoryPath: string;
+	FilePathList: string[];
+	[property: string]: any;
+}

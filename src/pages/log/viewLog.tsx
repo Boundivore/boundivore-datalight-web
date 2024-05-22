@@ -18,8 +18,9 @@
  * 节点管理列表页
  * @author Tracy
  */
-import { FC, useEffect, useState, useRef } from 'react';
+import { FC, useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { debounce } from 'lodash';
 import { Card, Tree, Tooltip, Flex } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
@@ -28,9 +29,17 @@ import type { GetProps, TreeDataNode } from 'antd';
 import { LogViewer } from '@patternfly/react-log-viewer';
 import { Resizable } from 're-resizable';
 import ContainerCard from '@/components/containerCard';
+import useStore from '@/store/store';
+import { LogFileCollectionVo } from '@/api/interface';
 type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 
 const { DirectoryTree } = Tree;
+interface TreeNode {
+	title: React.ReactNode;
+	key: string;
+	children?: TreeNode[];
+	isLeaf: boolean;
+}
 const style = {
 	display: 'flex'
 	// alignItems: 'center',
@@ -38,24 +47,23 @@ const style = {
 	// border: 'solid 1px #ddd'
 	// background: '#f0f0f0'
 };
-
+const offset = 5000;
 const ViewLog: FC = () => {
+	const { eachLog, setEachLog, clearEachLog } = useStore();
 	const [searchParams] = useSearchParams();
 	const nodeId = searchParams.get('node') || '';
 	const hostName = searchParams.get('name') || '';
 	const { selectCluster } = useCurrentCluster();
 	const [treeData, setTreeData] = useState<TreeDataNode[]>([]);
-	const [fileContent, setFileContent] = useState('');
-	const [startOffset] = useState(0);
-	const [endOffset, setEndOffset] = useState(5000);
 	const [selectedFile, setSelectedFile] = useState('');
-	// const [setLeftWidth] = useState('w-[160px]');
-	const containerRef = useRef(null);
-	const textRef = useRef([]);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const textRef = useRef<(HTMLSpanElement | null)[]>([]);
+	const startOffset = useRef(0);
+	const endOffset = useRef(offset);
 
-	const convertToTreeData = (data, startIndex = 0) => {
+	const convertToTreeData = (data: LogFileCollectionVo[], startIndex = 0): TreeNode[] => {
 		let currentIndex = startIndex; // 当前索引
-		return data.map(item => ({
+		return data.map((item: LogFileCollectionVo) => ({
 			title: item.DirectoryName,
 			key: item.DirectoryPath,
 			children: [
@@ -95,22 +103,37 @@ const ViewLog: FC = () => {
 		} = data;
 		const antdTreeData = convertToTreeData(Children);
 		setTreeData(antdTreeData);
-		setSelectedFile(antdTreeData[0].children[0].key);
+		setSelectedFile(antdTreeData[0].children?.[0]?.key || '');
 	};
 	const getFileContent = async (filePath: string) => {
 		const api = APIConfig.loadFileConten;
 		const params = {
 			NodeId: nodeId,
 			FilePath: filePath,
-			StartOffset: startOffset,
-			EndOffset: endOffset
+			StartOffset: startOffset.current,
+			EndOffset: endOffset.current
 		};
 		const {
-			Data: { Content, EndOffset }
+			Data: { Content, StartOffset, EndOffset }
 		} = await RequestHttp.get(api, { params });
-		setEndOffset(parseInt(EndOffset) + 5000);
-		setFileContent(Content);
+		startOffset.current = parseInt(StartOffset) + offset;
+		endOffset.current = parseInt(EndOffset) + offset;
+		setEachLog(Content);
 	};
+	const getFileContentDebounced = useRef(
+		debounce(file => {
+			getFileContent(file);
+		}, 500)
+	).current; // Adjust the debounce delay as needed
+
+	const handleScroll = useCallback(
+		(scrollOffsetToBottom: number) => {
+			if (scrollOffsetToBottom >= 0 && scrollOffsetToBottom < 100) {
+				getFileContentDebounced(selectedFile);
+			}
+		},
+		[selectedFile, getFileContentDebounced]
+	);
 
 	useEffect(() => {
 		selectCluster && getFileList();
@@ -120,23 +143,31 @@ const ViewLog: FC = () => {
 		selectedFile && getFileContent(selectedFile);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedFile]);
+	useEffect(() => {
+		//离开当前页面，清空日志
+		return () => {
+			clearEachLog();
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	const onSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
-		info.node.isLeaf && setSelectedFile(keys[0]);
-		setEndOffset(5000);
+		info.node.isLeaf && setSelectedFile(keys[0] as string);
+		startOffset.current = 0;
+		endOffset.current = offset;
+		clearEachLog();
 	};
 	// const onResize = (event, { size }) => {
 	// 	// 在这里处理拖拽改变大小的逻辑
 	// };
 	const [logViewerWidth, setLogViewerWidth] = useState(0); // 初始化 Log Viewer 的高度为 300px
 
-	const handleResize = (e, direction, ref) => {
-		console.log(ref.offsetWidth);
-		const containWidth = containerRef.current.clientWidth;
-		console.log(containWidth - ref.offsetWidth);
-		// setLeftWidth(`w-[${ref.offsetWidth - 100}px]`);
-		// textRef.current.style.width = `${ref.offsetWidth - 100}px`;
+	const handleResize = (ref: HTMLElement) => {
+		const containWidth = containerRef.current?.clientWidth ?? 0;
+		// console.log(containWidth - ref.offsetWidth);
 		textRef.current.forEach(element => {
-			element.style.width = `${ref.offsetWidth - 200}px`;
+			if (element) {
+				element.style.width = `${ref.offsetWidth - 200}px`;
+			}
 		});
 		setLogViewerWidth(containWidth - ref.offsetWidth - 100);
 	};
@@ -150,51 +181,31 @@ const ViewLog: FC = () => {
 
 	return (
 		<ContainerCard ref={containerRef}>
-			<Flex
-				gap="middle"
-				style={{
-					width: '100%',
-					overflow: 'hidden'
-				}}
-			>
+			<Flex gap="middle" className="w-[100%] overflow-hidden">
 				<Resizable
 					style={style}
 					defaultSize={{
-						width: '25%'
-						// height: 200
+						width: '25%',
+						height: 'auto'
 					}}
 					maxWidth="100%"
 					minWidth="1"
-					onResize={handleResize}
+					onResize={(_e, _direction, ref) => handleResize(ref)}
 				>
 					<Card className="data-light-card h-[515px] overflow-y-auto w-[100%]" title={hostName}>
 						{treeData.length ? (
-							<DirectoryTree
-								multiple
-								defaultExpandAll
-								selectedKeys={[selectedFile]}
-								// fieldNames={{ title: 'DirectoryName', key: 'DirectoryPath', children: 'Children' }}
-								onSelect={onSelect}
-								// onExpand={onExpand}
-								treeData={treeData}
-							/>
+							<DirectoryTree multiple defaultExpandAll selectedKeys={[selectedFile]} onSelect={onSelect} treeData={treeData} />
 						) : null}
 					</Card>
 				</Resizable>
 				<Card style={{ width: '100%', minWidth: '1px' }} title={selectedFile.substring(selectedFile.lastIndexOf('/') + 1)}>
 					<LogViewer
-						// className="bg-[#151515] text-[#fff] pl-[20px]"
-						// style={{}}
 						theme="dark"
 						width={logViewerWidth}
 						height={400}
 						hasLineNumbers={true}
-						data={fileContent}
-						onScroll={({ scrollOffsetToBottom }) => {
-							if (scrollOffsetToBottom >= 0 && scrollOffsetToBottom < 100) {
-								getFileContent(selectedFile);
-							}
-						}}
+						data={eachLog}
+						onScroll={({ scrollOffsetToBottom }) => handleScroll(scrollOffsetToBottom)}
 					/>
 				</Card>
 			</Flex>

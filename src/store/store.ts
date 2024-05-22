@@ -49,6 +49,9 @@ interface MyStore {
 	setMonitorStartTime: (monitorStartTime: number) => void;
 	monitorEndTime: number;
 	setMonitorEndTime: (monitorEndTime: number) => void;
+	eachLog: string;
+	setEachLog: (eachLog: string) => void;
+	clearEachLog: () => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -240,7 +243,10 @@ const useStore = create<MyStore>(set => ({
 	monitorEndTime: new Date().getTime(),
 	setMonitorEndTime: (monitorEndTime: number) => set({ monitorEndTime }),
 	monitorStartTime: new Date().getTime() - 5 * 60 * 1000,
-	setMonitorStartTime: (monitorStartTime: number) => set({ monitorStartTime })
+	setMonitorStartTime: (monitorStartTime: number) => set({ monitorStartTime }),
+	eachLog: '',
+	setEachLog: (eachLog: string) => set(state => ({ eachLog: state.eachLog + eachLog })),
+	clearEachLog: () => set({ eachLog: '' })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(
