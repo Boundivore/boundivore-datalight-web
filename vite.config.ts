@@ -22,8 +22,8 @@ export default defineConfig({
 		react(),
 		viteEslint(),
 		Pages({
-			// dirs: 'src/pages', 默认
-			exclude: ['**/components/*.tsx', '**/auth/login.tsx']
+			dirs: 'src/pages',
+			exclude: ['**/components/*.tsx']
 		})
 	],
 	server: {

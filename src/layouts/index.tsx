@@ -24,7 +24,7 @@ import type { MenuProps } from 'antd';
 import { UserOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import routes from '~react-pages';
 import LayoutMenu from './components/menu';
-import { useTranslation } from 'react-i18next';
+import i18n, { t } from 'i18next';
 import { useRoutes, useLocation, useSearchParams } from 'react-router-dom';
 import Logo from '@/assets/logo.png';
 import APIConfig from '@/api/config';
@@ -39,7 +39,6 @@ interface MyComponentProps {
 }
 
 const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
-	const { t } = useTranslation();
 	const [collapsed, setCollapsed] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
 	const location = useLocation();
@@ -93,7 +92,14 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 		if (id && path === 'addRole') {
 			path = 'attachPermission';
 		}
-		return [{ title: t(`tabs.${path}`) }];
+		if (i18n.exists(`tabs.${path}`)) {
+			// 如果存在，则调用 t() 方法翻译字段
+			return [{ title: t(`tabs.${path}`) }];
+		} else {
+			// 如果不存在，返回空数组
+			return [];
+		}
+		// return [{ title: t(`tabs.${path}`) }];
 	};
 	return (
 		<Layout className="w-full min-w-[1360px] h-[calc(100vh)]">
