@@ -32,6 +32,10 @@ interface JobPlanModalProps {
 	isModalOpen: boolean;
 	type?: string;
 }
+interface ProgressDataType {
+	PlanProgress: string;
+	SCStateEnum: string;
+}
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 
 const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, type = 'nodeJobPlan' }) => {
@@ -40,7 +44,7 @@ const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, type = 'nodeJobPlan'
 	// const [errorText, setErrorText] = useState('');
 	const { stableState } = useStore();
 
-	const getJobPlan = async () => {
+	const getJobPlan = async (): Promise<ProgressDataType[]> => {
 		const api = APIConfig[type];
 		const data = await RequestHttp.get(api);
 		const {
@@ -48,11 +52,11 @@ const JobPlanModal: FC<JobPlanModalProps> = ({ isModalOpen, type = 'nodeJobPlan'
 		} = data;
 		return [{ PlanProgress, SCStateEnum: PlanProgress === '100' || PlanProgress === null ? 'OK' : 'processing' }];
 	};
-	const progressData = usePolling(getJobPlan, stableState, 1000, [true]);
+	const progressData: ProgressDataType[] = usePolling(getJobPlan, stableState, 1000, [true]);
 	return (
 		<Modal title={t('planProgress')} open={isModalOpen} footer={null} maskClosable={false} closable={false}>
 			{/* {openAlert ? <Alert message={errorText} type="error" /> : null} */}
-			<Progress percent={parseFloat(parseFloat(progressData[0]?.PlanProgress || 100).toFixed(2))} strokeColor={twoColors} />
+			<Progress percent={parseFloat(parseFloat(progressData[0]?.PlanProgress || '100').toFixed(2))} strokeColor={twoColors} />
 		</Modal>
 	);
 };

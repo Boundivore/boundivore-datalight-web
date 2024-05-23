@@ -21,7 +21,7 @@
  * @param {function} handleCancel - 弹窗取消的回调函数
  * @author Tracy
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import _ from 'lodash';
 import { Modal, Table, Space, Button, Dropdown, Flex, Tag } from 'antd';
 import type { MenuProps } from 'antd';
@@ -33,15 +33,15 @@ import useStore from '@/store/store';
 import { extractUpperCaseAndNumbers } from '@/utils/helper';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { NodeWithComponent, ConfigNodeVo } from '@/api/interface';
+import { NodeWithComponent, ConfigNodeVo, ConfigGroupVo } from '@/api/interface';
 
 interface NodeListModalProps {
 	isModalOpen: boolean;
-	groupIndex: number | string;
-	handleOk: (index: number, data: ConfigNodeVo[]) => void;
+	groupIndex: number;
+	handleOk: (index: number, data: ConfigGroupVo[]) => void;
 	handleCancel: () => void;
 }
-const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, handleOk, handleCancel }) => {
+const NodeListModal: React.FC<NodeListModalProps> = memo(({ isModalOpen, groupIndex, handleOk, handleCancel }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [selectedNodeList, setSelectedNodeList] = useState<ConfigNodeVo[]>([]);
@@ -173,7 +173,8 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 		>
 			<Space>
 				{buttonConfigTop.map(button => {
-					return button.type === 'dropdown' ? (
+					// return button.type === 'dropdown' ? (
+					return (
 						<Dropdown
 							key={button.id}
 							menu={{ items: groupList, onClick: ({ key }) => button.callback(Number(key)) }}
@@ -186,11 +187,12 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 								</Space>
 							</Button>
 						</Dropdown>
-					) : (
-						<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
-							{button.label}
-						</Button>
 					);
+					// ) : (
+					// 	<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+					// 		{button.label}
+					// 	</Button>
+					// );
 				})}
 			</Space>
 			<h4>{t('totalItems', { total: tableData.length, selected: selectedNodeList.length })}</h4>
@@ -209,5 +211,5 @@ const NodeListModal: React.FC<NodeListModalProps> = ({ isModalOpen, groupIndex, 
 			/>
 		</Modal>
 	);
-};
+});
 export default NodeListModal;

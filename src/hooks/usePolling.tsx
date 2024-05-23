@@ -22,7 +22,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { pollRequest } from '@/utils/helper';
 
-const usePolling = (fetchData: () => Promise<[]>, stableStates: string[], interval: number, dependency: any[]) => {
+const usePolling = (fetchData: () => Promise<any[]>, stableStates: string[], interval: number, dependency: any[]) => {
 	const [data, setData] = useState([]);
 	const stopPollingRef = useRef<Function>();
 

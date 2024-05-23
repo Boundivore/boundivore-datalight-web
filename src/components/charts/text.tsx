@@ -24,7 +24,7 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import { timestampToHoursAgo } from '@/utils/helper';
 import useStore from '@/store/store';
-import { Column } from '@/api/interface';
+import { Column, ServiceItemType } from '@/api/interface';
 
 const { Title } = Typography;
 const regexInstance = new RegExp('{instance}', 'g');
@@ -33,7 +33,7 @@ interface TextComponentProps extends Column {
 	clusterId: string;
 }
 const TextComponent: FC<TextComponentProps> = ({ clusterId, query, unit, type, name }) => {
-	const [textData, setTextData] = useState();
+	const [textData, setTextData] = useState<number | string>();
 	const { jobName, instance } = useStore();
 
 	const getTextData = async () => {
@@ -67,7 +67,7 @@ const TextComponent: FC<TextComponentProps> = ({ clusterId, query, unit, type, n
 				if (name === 'nodeCount') {
 					setTextData(Data.NodeDetailList.length);
 				} else if (name === 'serviceCount') {
-					const count = Data.ServiceSummaryList.filter(service => service.SCStateEnum === 'DEPLOYED').length;
+					const count = Data.ServiceSummaryList.filter((service: ServiceItemType) => service.SCStateEnum === 'DEPLOYED').length;
 					setTextData(count);
 				}
 			} else {

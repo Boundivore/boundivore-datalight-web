@@ -47,9 +47,11 @@ const baseOptions = {
 				type: 'dashed'
 				// ...
 			}
-		}
+		},
+		axisLabel: {}
 	},
-	series: []
+	series: [],
+	legend: {}
 };
 interface LineComponentProps {
 	clusterId: string;
@@ -62,11 +64,21 @@ interface LineComponentProps {
 	};
 	title: string;
 }
+interface SeriesItem {
+	type: string;
+	data: any;
+	tooltip: {
+		valueFormatter: (value: any) => string;
+	};
+	name?: string;
+}
 const LineComponent: FC<LineComponentProps> = ({ clusterId, query, multiple, formatter, title }) => {
 	const { monitorStartTime, monitorEndTime, jobName, instance } = useStore();
 	const defaultOptions = {
 		...baseOptions,
-		...(multiple ? { legend: { data: [] } } : {})
+		legend: {
+			...(multiple ? { data: [] } : {})
+		}
 	};
 	const [option, setOption] = useState(defaultOptions);
 	const getLineData = async () => {
@@ -94,11 +106,11 @@ const LineComponent: FC<LineComponentProps> = ({ clusterId, query, multiple, for
 
 		// 提取 series 数据
 		const seriesData = lineData.map((item: any) => {
-			const data = item.values.map(value => parseFloat(value[1])); // 将字符串转换为数字
-			let seriesItem = {
+			const data = item.values.map((value: any) => parseFloat(value[1])); // 将字符串转换为数字
+			let seriesItem: SeriesItem = {
 				type: 'line',
 				data: data,
-				tooltip: { valueFormatter: value => parseFloat(value).toFixed(2) }
+				tooltip: { valueFormatter: (value: any) => parseFloat(value).toFixed(2) }
 			};
 
 			if (multiple) {
@@ -108,13 +120,16 @@ const LineComponent: FC<LineComponentProps> = ({ clusterId, query, multiple, for
 		});
 
 		const updatedOption = { ...option };
-		multiple && (updatedOption.legend.data = legendData);
+		if (multiple) {
+			updatedOption.legend.data = legendData;
+		}
+
 		updatedOption.xAxis.data = xAxisData;
 		if (formatter) {
 			updatedOption.yAxis = {
 				...updatedOption.yAxis,
 				axisLabel: {
-					formatter: value => {
+					formatter: (value: number) => {
 						if (formatter.formatterCount && formatter.formatterType && formatter.unit) {
 							const { formatterCount, formatterType, unit } = formatter;
 							// 在这里进行单位换算，例如将原始数值除以1000并添加单位

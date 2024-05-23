@@ -21,6 +21,7 @@
 import { useEffect, useState } from 'react';
 // import _ from 'lodash';
 import { Select, Space, DatePicker, Divider } from 'antd';
+import type { SelectProps } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
@@ -33,8 +34,8 @@ interface JobNameComponentProps {
 	activeComponent: string;
 }
 export const JobNameComponent: React.FC<JobNameComponentProps> = ({ clusterId, activeComponent }) => {
-	const [jobNameOptions, setJobNameOptions] = useState([]);
-	const [instanceOptions, setInstanceOptions] = useState([]);
+	const [jobNameOptions, setJobNameOptions] = useState<SelectProps['options']>([]);
+	const [instanceOptions, setInstanceOptions] = useState<SelectProps['options']>([]);
 	const { jobName, setJobName, instance, setInstance } = useStore();
 	const { hasPrometheus } = usePrometheusStatus();
 	const getData = async () => {
@@ -53,10 +54,10 @@ export const JobNameComponent: React.FC<JobNameComponentProps> = ({ clusterId, a
 			data: { result }
 		} = JSON.parse(Data);
 		// 提取所有job，并使用Set去重
-		const uniqueJobsSet = new Set(result.map(item => item.metric.job));
+		const uniqueJobsSet: Set<string> = new Set(result.map((item: any) => item.metric.job));
 
 		// 遍历Set中的每个job，创建新的对象数组
-		const jobsArray = Array.from(uniqueJobsSet).map(job => ({
+		const jobsArray = Array.from(uniqueJobsSet).map((job: string) => ({
 			value: job,
 			label: job
 		}));
@@ -79,7 +80,7 @@ export const JobNameComponent: React.FC<JobNameComponentProps> = ({ clusterId, a
 			data: { result }
 		} = JSON.parse(Data);
 		// 提取所有job，并使用Set去重
-		const uniqueSet = new Set(result.map(item => item.metric.instance));
+		const uniqueSet: Set<string> = new Set(result.map((item: any) => item.metric.instance));
 
 		// 遍历Set中的每个job，创建新的对象数组
 		const jobsArray = Array.from(uniqueSet).map(job => ({

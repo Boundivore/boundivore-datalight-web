@@ -36,6 +36,29 @@ interface CheckLogModalProps {
 	handleCancel: () => void;
 	type?: string;
 }
+interface StepType {
+	StepId: string;
+	LogErrOut: string;
+	LogStdOut: string;
+}
+interface TaskType {
+	TaskId: string;
+	steps: StepType[];
+}
+// 定义 Job 类型的数据结构
+interface JobProcessedData {
+	StageId: string;
+	tasks: TaskType[];
+}
+
+// 定义 Node 类型的数据结构
+interface NodeProcessedData {
+	NodeId: string;
+	NodeJobId: string;
+	NodeTaskId: string;
+	steps: StepType[];
+}
+type ProcessedDataType = JobProcessedData[] | NodeProcessedData[];
 
 const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handleCancel, type = 'nodeJobProgress' }) => {
 	const { t } = useTranslation();
@@ -44,7 +67,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 	const { jobNodeId, jobId } = useStore();
 	const { selectCluster } = useCurrentCluster();
 	// const [setLogData] = useState<NodeJobLogVo[]>([]);
-	const [itemsData, setItemsData] = useState([]);
+	const [itemsData, setItemsData] = useState<ProcessedDataType>([]);
 	// const [openAlert, setOpenAlert] = useState(false);
 	// const [errorText, setErrorText] = useState('');
 
@@ -75,10 +98,10 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 			Data: { NodeJobLogList, JobLogList }
 		} = data;
 		// 根据不同类型处理数据
-		let processedData;
+		let processedData: ProcessedDataType = [];
 		if (type === 'jobProgress') {
 			// 处理 job 类型数据
-			processedData = JobLogList.reduce((acc, item: JobLogVo) => {
+			processedData = JobLogList.reduce((acc: JobProcessedData[], item: JobLogVo) => {
 				const { StageId, TaskId, StepId } = item;
 				// 查找是否存在对应的 StageId
 				let stageIndex = acc.findIndex(stage => stage.StageId === StageId);
@@ -89,7 +112,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 						tasks: [
 							{
 								TaskId,
-								steps: [{ StepId, ...item }]
+								steps: [{ ...item, StepId }]
 							}
 						]
 					});
@@ -100,18 +123,18 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 					if (taskIndex === -1) {
 						acc[stageIndex].tasks.push({
 							TaskId,
-							steps: [{ StepId, ...item }]
+							steps: [{ ...item, StepId }]
 						});
 					} else {
 						// 如果存在，则将当前数据添加到对应的 Task 的 steps 中
-						acc[stageIndex].tasks[taskIndex].steps.push({ StepId, ...item });
+						acc[stageIndex].tasks[taskIndex].steps.push({ ...item, StepId });
 					}
 				}
 				return acc;
 			}, []);
 		} else if (type === 'nodeJobProgress') {
 			// 处理 node 类型数据
-			processedData = NodeJobLogList.reduce((acc, curr: NodeJobLogVo) => {
+			processedData = NodeJobLogList.reduce((acc: NodeProcessedData[], curr: NodeJobLogVo) => {
 				// 查找是否已有相同的 NodeTaskId
 				const existingTaskIndex = acc.findIndex(item => item.NodeTaskId === curr.NodeTaskId);
 
@@ -161,7 +184,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 								items={[
 									{
 										label: `${t('taskID')}${item.NodeTaskId}`,
-										children: item.steps.map(step => (
+										children: item.steps.map((step: StepType) => (
 											<Collapse
 												className="border-0 indent-middle"
 												items={[
@@ -197,7 +220,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 								items={[
 									{
 										label: `${t('taskID')}${item.NodeTaskId}`,
-										children: item.steps.map(step => (
+										children: item.steps.map((step: StepType) => (
 											<Collapse
 												className="border-0 indent-middle"
 												items={[
@@ -235,7 +258,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 								items={[
 									{
 										label: `${t('stageID')}${item.StageId}`,
-										children: item.tasks.map(task => (
+										children: item.tasks.map((task: TaskType) => (
 											<Collapse
 												className="border-0 indent-middle"
 												items={[
@@ -281,7 +304,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 								items={[
 									{
 										label: `${t('stageID')}${item.StageId}`,
-										children: item.tasks.map(task => (
+										children: item.tasks.map((task: TaskType) => (
 											<Collapse
 												className="border-0 indent-middle"
 												items={[

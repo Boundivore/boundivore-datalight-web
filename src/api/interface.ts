@@ -663,13 +663,13 @@ export interface JobLogListVo {
  * JobLogVo
  */
 export interface JobLogVo {
-	JobId: number;
+	JobId: string;
 	LogErrOut: string;
 	LogStdOut: string;
-	NodeId: number;
-	StageId: number;
-	StepId: number;
-	TaskId: number;
+	NodeId: string;
+	StageId: string;
+	StepId: string;
+	TaskId: string;
 	[property: string]: any;
 }
 /**
@@ -688,10 +688,10 @@ export interface NodeJobLogListVo {
 export interface NodeJobLogVo {
 	LogErrOut: string;
 	LogStdOut: string;
-	NodeId: number;
-	NodeJobId: number;
-	NodeTaskId: number;
-	StepId: number;
+	NodeId: string;
+	NodeJobId: string;
+	NodeTaskId: string;
+	StepId: string;
 	[property: string]: any;
 }
 

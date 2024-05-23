@@ -52,6 +52,9 @@ interface MyStore {
 	eachLog: string;
 	setEachLog: (eachLog: string) => void;
 	clearEachLog: () => void;
+	allConfigFile: {}; // 汇总修改配置文件时的所有修改
+	setAllConfigFile: (configFile: ConfigGroupVo[], fileName: string) => void;
+	clearAllConfigFile: () => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -246,7 +249,10 @@ const useStore = create<MyStore>(set => ({
 	setMonitorStartTime: (monitorStartTime: number) => set({ monitorStartTime }),
 	eachLog: '',
 	setEachLog: (eachLog: string) => set(state => ({ eachLog: state.eachLog + eachLog })),
-	clearEachLog: () => set({ eachLog: '' })
+	clearEachLog: () => set({ eachLog: '' }),
+	allConfigFile: {},
+	setAllConfigFile: (configFile: ConfigGroupVo[], fileName: string) => set(state => ({ ...state, [fileName]: configFile })),
+	clearAllConfigFile: () => set({ allConfigFile: {} })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

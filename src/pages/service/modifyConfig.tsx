@@ -18,7 +18,7 @@
  * 修改配置文件页面
  * @author Tracy
  */
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { Tabs, Col, Row, Space, Button, message } from 'antd';
@@ -35,7 +35,7 @@ import useStore from '@/store/store';
 import useNavigater from '@/hooks/useNavigater';
 import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
-import { ConfigSummaryVo, ConfigGroupVo, ConfigNodeVo } from '@/api/interface';
+import { ConfigSummaryVo, ConfigGroupVo } from '@/api/interface';
 import ContainerCard from '@/components/containerCard';
 // 从 TabsProps 中提取 items 类型
 type TabItem = NonNullable<TabsProps['items']>[number];
@@ -115,7 +115,7 @@ const ModifyConfig: React.FC = () => {
 		setCodeEdit(Utf8.stringify(Base64.parse(activeContent[index].ConfigData)));
 		setIsModalOpen(true);
 	};
-	const handleModalOk = (targetGroupIndex: number, data: ConfigNodeVo[]) => {
+	const handleModalOk = useCallback((targetGroupIndex: number, data: ConfigGroupVo[]) => {
 		// 新建分组，添加到其他分组
 		setIsModalOpen(false);
 		if (targetGroupIndex >= data.length) {
@@ -123,10 +123,10 @@ const ModifyConfig: React.FC = () => {
 		} else {
 			setCurrentGroupIndex(targetGroupIndex);
 		}
-	};
-	const handleModalCancel = () => {
+	}, []);
+	const handleModalCancel = useCallback(() => {
 		setIsModalOpen(false);
-	};
+	}, []);
 	const saveChange = async () => {
 		const api = APIConfig.saveByGroup;
 		const editorValue = editorRef.current?.handleSave() ?? '';
@@ -155,6 +155,14 @@ const ModifyConfig: React.FC = () => {
 					setActiveTab(activeKey);
 				}}
 			/>
+			<div className="flex p-4">
+				<Space className="ml-auto">
+					<Button onClick={navigateToService}>{t('cancel')}</Button>
+					<Button type="primary" onClick={saveChange}>
+						{t('save')}
+					</Button>
+				</Space>
+			</div>
 			<Row>
 				<Col span={5}>
 					<Space direction="vertical">
@@ -191,14 +199,6 @@ const ModifyConfig: React.FC = () => {
 					handleCancel={handleModalCancel}
 				/>
 			) : null}
-			<div className="bottom-0 bg-white p-4 shadow-md">
-				<Space>
-					<Button onClick={navigateToService}>{t('cancel')}</Button>
-					<Button type="primary" onClick={saveChange}>
-						{t('save')}
-					</Button>
-				</Space>
-			</div>
 		</ContainerCard>
 	);
 };
