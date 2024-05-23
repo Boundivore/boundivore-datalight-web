@@ -44,7 +44,7 @@ const SelectServiceStep = forwardRef((_props, ref) => {
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceName',
 			render: text => (
-				<div>
+				<div className="flex items-center">
 					<img src={`/service_logo/${text.toLowerCase()}.svg`} width="16" height="16" />
 					<span className="pl-[5px]">{text}</span>
 				</div>

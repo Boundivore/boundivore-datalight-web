@@ -196,7 +196,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 			return {
 				key: item.ServiceName,
 				label: (
-					<div>
+					<div className="flex items-center">
 						<img src={`/service_logo/${item.ServiceName.toLowerCase()}.svg`} width="16" height="16" />
 						<span className="pl-[5px]">{item.ServiceName}</span>
 					</div>

@@ -152,8 +152,11 @@ const CreateCluster: React.FC = () => {
 													<List.Item.Meta
 														title={
 															<div>
-																<p>
-																	{item.ServiceName}-V{item.Version}
+																<p className="flex items-center">
+																	<img src={`/service_logo/${item.ServiceName.toLowerCase()}.svg`} width="16" height="16" />
+																	<span className="pl-[5px]">
+																		{item.ServiceName}-V{item.Version}
+																	</span>
 																</p>
 																<p className="text-stone-500">{item.Desc}</p>
 															</div>
