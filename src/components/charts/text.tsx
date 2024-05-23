@@ -18,17 +18,21 @@
  * 折线图组件
  * @author Tracy
  */
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Typography } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import { timestampToHoursAgo } from '@/utils/helper';
 import useStore from '@/store/store';
+import { Column } from '@/api/interface';
 
 const { Title } = Typography;
 const regexInstance = new RegExp('{instance}', 'g');
 const regexJobName = new RegExp('{jobName}', 'g');
-const TextComponent = ({ clusterId, query, unit, type, name }) => {
+interface TextComponentProps extends Column {
+	clusterId: string;
+}
+const TextComponent: FC<TextComponentProps> = ({ clusterId, query, unit, type, name }) => {
 	const [textData, setTextData] = useState();
 	const { jobName, instance } = useStore();
 

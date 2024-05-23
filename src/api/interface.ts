@@ -875,3 +875,26 @@ export interface LogFileCollectionVo {
 	FilePathList: string[];
 	[property: string]: any;
 }
+/**
+ * 自定义图表配置数据单项结构
+ */
+export interface Column {
+	title: string;
+	key: string;
+	type: 'self' | 'number' | 'byte' | 'text' | 'time';
+	name?: string;
+	query: string;
+	span: number;
+	unit: string;
+	rows?: Column[];
+	height?: string | number;
+}
+/**
+ * 自定义图表配置数据结构
+ */
+export interface DataStructure {
+	cols: Column[];
+	rows?: Column[];
+	height: string;
+	key: string | number;
+}

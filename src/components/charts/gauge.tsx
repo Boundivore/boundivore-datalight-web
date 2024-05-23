@@ -18,15 +18,20 @@
  * 仪表盘组件
  * @author Tracy
  */
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import ReactECharts from 'echarts-for-react';
 import useStore from '@/store/store';
+import { Column } from '@/api/interface';
 
 const regexInstance = new RegExp('{instance}', 'g');
 const regexJobName = new RegExp('{jobName}', 'g');
-const GaugeComponent = ({ clusterId, query, height = 300 }) => {
+
+interface GaugeComponentProps extends Column {
+	clusterId: string;
+}
+const GaugeComponent: FC<GaugeComponentProps> = ({ clusterId, query, height = 300 }) => {
 	const { jobName, instance } = useStore();
 	const [option, setOption] = useState({
 		tooltip: {
@@ -118,7 +123,7 @@ const GaugeComponent = ({ clusterId, query, height = 300 }) => {
 		const {
 			data: { result }
 		} = JSON.parse(Data);
-		const gaugeData = parseFloat(result[0].value[1]).toFixed(2);
+		const gaugeData = parseFloat(parseFloat(result[0].value[1]).toFixed(2));
 		const updatedOption = { ...option };
 		updatedOption.series[0].data[0].value = gaugeData;
 		setOption(updatedOption);

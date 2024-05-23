@@ -1,5 +1,6 @@
-import { memo } from 'react';
+import { FC, memo } from 'react';
 import { Space, Row, Col, Card } from 'antd';
+import { DataStructure, Column } from '@/api/interface';
 import GaugeComponent from '@/components/charts/gauge';
 import LineComponent from '@/components/charts/line';
 import TextComponent from '@/components/charts/text';
@@ -14,13 +15,18 @@ const componentMap = {
 	line: LineComponent
 	// 其他类型组件...
 };
-
-export const RenderComponent = memo(props => {
+interface RenderComponentProps extends Column {
+	clusterId: string;
+}
+export const RenderComponent: FC<RenderComponentProps> = memo(props => {
 	const ComponentToRender = componentMap[props.type] || null; // 获取对应的组件类型，如果找不到则返回null
-	return ComponentToRender && <ComponentToRender {...props} />;
+	return ComponentToRender ? <ComponentToRender {...props} /> : null;
 });
-
-export const RenderConfig = ({ config, selectCluster }) => {
+interface RenderConfigProps {
+	config: DataStructure[];
+	selectCluster: string;
+}
+export const RenderConfig: FC<RenderConfigProps> = ({ config, selectCluster }) => {
 	return (
 		<Space direction="vertical" className="flex">
 			{config.map(item => (

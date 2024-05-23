@@ -87,13 +87,13 @@ const LineComponent: FC<LineComponentProps> = ({ clusterId, query, multiple, for
 		const { Data } = await RequestHttp.post(api, params);
 		const lineData = JSON.parse(Data).data.result;
 		// 提取图例数据
-		const legendData = lineData.map(item => item.metric.device || item.metric.mountpoint);
+		const legendData = lineData.map((item: any) => item.metric.device || item.metric.mountpoint);
 
 		// 提取 x 轴数据
-		const xAxisData = lineData[0]?.values.map(item => dayjs.unix(item[0]).format('HH:mm'));
+		const xAxisData = lineData[0]?.values.map((item: any) => dayjs.unix(item[0]).format('HH:mm'));
 
 		// 提取 series 数据
-		const seriesData = lineData.map(item => {
+		const seriesData = lineData.map((item: any) => {
 			const data = item.values.map(value => parseFloat(value[1])); // 将字符串转换为数字
 			let seriesItem = {
 				type: 'line',

@@ -37,13 +37,22 @@ import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
 import { ConfigSummaryVo, ConfigGroupVo, ConfigNodeVo } from '@/api/interface';
 import ContainerCard from '@/components/containerCard';
+// 从 TabsProps 中提取 items 类型
+type TabItem = NonNullable<TabsProps['items']>[number];
 
+// 使用交叉类型将 ConfigSummaryVo 合并到 TabItem 中
+type MergedTabItem = TabItem & ConfigSummaryVo;
+
+// 定义扩展后的 TabsProps 类型
+type MergedTabsProps = {
+	items: MergedTabItem[];
+};
 const ModifyConfig: React.FC = () => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const serviceName = searchParams.get('name');
-	const [tabsData, setTabsData] = useState<TabsProps['items']>([]);
+	const [tabsData, setTabsData] = useState<MergedTabsProps['items']>([]);
 	const [activeTab, setActiveTab] = useState('');
 	const [activeContent, setActiveContent] = useState<ConfigGroupVo[]>([]);
 	const [codeEdit, setCodeEdit] = useState('');

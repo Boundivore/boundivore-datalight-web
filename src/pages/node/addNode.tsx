@@ -67,12 +67,12 @@ const AddNode: React.FC = forwardRef(() => {
 	useStepEffect();
 	return (
 		<Row className="min-h-[calc(100%-50px)] m-[20px] pb-[50px]">
-			<Col span={5}>
+			<Col span={4}>
 				<Card className="h-full">
 					<Steps size="small" current={stepCurrent} direction="vertical" items={steps} />
 				</Card>
 			</Col>
-			<Col span={19}>
+			<Col span={20}>
 				<StepComponent config={nodeStepConfig} />
 			</Col>
 		</Row>
