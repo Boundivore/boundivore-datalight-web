@@ -123,7 +123,13 @@ const ServiceManage: FC = () => {
 		{
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceName',
-			key: 'ServiceName'
+			key: 'ServiceName',
+			render: text => (
+				<div>
+					<img src={`/service_logo/${text.toLowerCase()}.svg`} width="16" height="16" />
+					<span className="pl-[5px]">{text}</span>
+				</div>
+			)
 		},
 		{
 			title: t('service.serviceType'),

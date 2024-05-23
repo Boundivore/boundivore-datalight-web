@@ -54,7 +54,12 @@ const PreviewStep = forwardRef((_props, ref) => {
 		{
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceSummary',
-			render: text => <a>{text?.ServiceName}</a>
+			render: text => (
+				<div>
+					<img src={`/service_logo/${text?.ServiceName.toLowerCase()}.svg`} width="16" height="16" />
+					<span className="pl-[5px]">{text?.ServiceName}</span>
+				</div>
+			)
 		},
 		{
 			title: t('service.componentName'),

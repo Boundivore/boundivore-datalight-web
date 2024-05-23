@@ -43,7 +43,12 @@ const SelectServiceStep = forwardRef((_props, ref) => {
 		{
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceName',
-			render: (text: string) => <a>{text}</a>
+			render: text => (
+				<div>
+					<img src={`/service_logo/${text.toLowerCase()}.svg`} width="16" height="16" />
+					<span className="pl-[5px]">{text}</span>
+				</div>
+			)
 		},
 		{
 			title: t('description'),

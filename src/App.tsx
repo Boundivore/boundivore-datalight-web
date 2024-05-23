@@ -69,7 +69,7 @@ function App() {
 									</AppAnt>
 								}
 							/>
-							{/* 跟路径重定向至登录页 */}
+							{/* 根路径重定向至登录页 */}
 							<Route path="/" element={<Navigate to="/login" replace />} />
 						</Routes>
 					</Router>

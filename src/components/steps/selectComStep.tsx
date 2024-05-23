@@ -195,7 +195,12 @@ const SelectComStep = forwardRef((_props, ref) => {
 			let disableSelected = false;
 			return {
 				key: item.ServiceName,
-				label: item.ServiceName,
+				label: (
+					<div>
+						<img src={`/service_logo/${item.ServiceName.toLowerCase()}.svg`} width="16" height="16" />
+						<span className="pl-[5px]">{item.ServiceName}</span>
+					</div>
+				),
 				children: (
 					<Spin indicator={<span></span>} spinning={!notSelectedStates.includes(item.SCStateEnum)}>
 						<Flex wrap="wrap">
