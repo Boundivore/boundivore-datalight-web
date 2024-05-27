@@ -86,9 +86,10 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 		setIsVisible(false);
 	};
 	const breadcrumbItems = () => {
-		const parts = location.pathname.split('/');
+		// 将路径按 '/' 分割并过滤掉空项
+		const parts = location.pathname.split('/').filter(part => part);
 		let path = parts[parts.length - 1];
-		// 面包屑中有个特殊情况，新增角色页面同时用于分配权限，检测url中param中存在id且 path为addRole
+		// 面包屑中有个特殊情况，新增角色页面同时用于分配权限，检测url中param中存在id且 path为addRole 则为分配权限页面
 		if (id && path === 'addRole') {
 			path = 'attachPermission';
 		}
@@ -99,7 +100,23 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 			// 如果不存在，返回空数组
 			return [];
 		}
-		// return [{ title: t(`tabs.${path}`) }];
+
+		// 生成面包屑数组
+		// const breadcrumbs = parts
+		// 	.map(part => {
+		// 		// 特殊情况处理
+		// 		if (id && part === 'addRole') {
+		// 			part = 'attachPermission';
+		// 		}
+		// 		// 检查翻译是否存在
+		// 		if (i18n.exists(`tabs.${part}`)) {
+		// 			return { title: t(`tabs.${part}`) };
+		// 		}
+		// 		return null;
+		// 	})
+		// 	.filter(item => item); // 过滤掉 null 项
+
+		// return breadcrumbs;
 	};
 	return (
 		<Layout className="w-full min-w-[1360px] h-[calc(100vh)]">

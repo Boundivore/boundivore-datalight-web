@@ -392,5 +392,10 @@ export default {
 	warningText: '请确定已保存当前配置文件的修改，切换文件可能会导致未保存的修改内容丢失！',
 	switchConfirm: '切换文件前请保存当前文件的修改',
 	switchWorker: '是否自动拉起 Worker',
-	switchWorkerText: '关闭自动拉起时，开关关闭状态持续时间为60秒'
+	switchWorkerText: '关闭自动拉起时，开关关闭状态持续时间为60秒',
+	needRestart: '是否需要重启',
+	needRestartText: '当前该服务组件是否需要重启以生效刚才修改的配置',
+	selectedNodeNum: '已选节点数',
+	yes: '是',
+	no: '否'
 };

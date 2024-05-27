@@ -22,8 +22,9 @@ import { useEffect, useState, useRef } from 'react';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Button, Card, Space, App, message, Typography, Flex, Row, Col, Badge } from 'antd';
+import { Table, Button, Card, Space, App, message, Typography, Flex, Row, Col, Badge, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useNavigater from '@/hooks/useNavigater';
@@ -147,7 +148,7 @@ const ComponentManage: React.FC = () => {
 			render: text => <span>{text}</span>
 		},
 		{
-			title: '已选节点数',
+			title: t('selectedNodeNum'),
 			dataIndex: 'ComponentName',
 			key: 'ComponentName',
 			// render: (text, record) => <Badge status="processing" count={record.num} showZero style={{ backgroundColor: '#51c2fe' }} />
@@ -161,6 +162,21 @@ const ComponentManage: React.FC = () => {
 			key: 'Hostname',
 			render: text => {
 				return <Text ellipsis={true}>{text}</Text>;
+			}
+		},
+		{
+			title: (
+				<Space>
+					{t('needRestart')}
+					<Tooltip title={t('needRestartText')}>
+						<QuestionCircleOutlined />
+					</Tooltip>
+				</Space>
+			),
+			dataIndex: 'NeedRestart',
+			key: 'NeedRestart',
+			render: text => {
+				return <Text ellipsis={true}>{text ? t('yes') : t('no')}</Text>;
 			}
 		},
 		{
@@ -345,9 +361,17 @@ const ComponentManage: React.FC = () => {
 				</Flex>
 				<Row gutter={24} className="mt-[20px]">
 					<Col span={6}>
-						<Card className="data-light-card">
+						<Card
+							className="data-light-card"
+							title={
+								<div className="flex items-center">
+									<img src={`/service_logo/${serviceName.toLowerCase()}.svg`} width="16" height="16" />
+									<span className="pl-[5px]">{serviceName}</span>
+								</div>
+							}
+						>
 							<Table
-								className="mt-[20px] cursor-pointer"
+								className="cursor-pointer"
 								rowKey="ComponentName"
 								columns={componentColumns}
 								dataSource={componentTable}
