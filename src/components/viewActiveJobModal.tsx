@@ -46,7 +46,7 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 	const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 	const [activeNodeId, setActiveNodeId] = useState('');
 	const [openAlert, setOpenAlert] = useState(false);
-	const errorText = t('errorJob');
+	const [openSuccess, setOpenSuccess] = useState(false);
 	const columns: ColumnsType<NodeType> = [
 		{
 			title: t('node.node'),
@@ -90,6 +90,7 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 				JobExecStateEnum // 展开新键值对，这将合并到当前对象中
 			}));
 			setOpenAlert(JobExecStateEnum === 'ERROR');
+			setOpenSuccess(JobExecStateEnum === 'OK');
 			return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 		} else if (type === 'jobProgress') {
 			const progressData = await RequestHttp.get(apiProgress, { params: { JobId: jobId } });
@@ -103,6 +104,8 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 				JobExecStateEnum // 展开新键值对，这将合并到当前对象中
 			}));
 			setOpenAlert(JobExecStateEnum === 'ERROR');
+			setOpenSuccess(JobExecStateEnum === 'OK');
+
 			return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 		}
 	};
@@ -119,7 +122,8 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 				</Button>
 			]}
 		>
-			{openAlert ? <Alert message={errorText} type="error" /> : null}
+			{openAlert ? <Alert message={t('errorJob')} type="error" /> : null}
+			{openSuccess ? <Alert message={t('successJob')} type="success" /> : null}
 			<Table rowKey="NodeId" dataSource={tableData} columns={columns} />
 			{isLogModalOpen ? (
 				<CheckLogModal isModalOpen={isLogModalOpen} nodeId={activeNodeId} handleCancel={handleLogModalCancel} type={type} />

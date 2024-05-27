@@ -177,8 +177,9 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 					{
 						key: '1',
 						label: '标准输出',
-						children: itemsData.map(item => (
+						children: (itemsData as NodeProcessedData[]).map(item => (
 							<Collapse
+								key={item.NodeTaskId}
 								className="border-0 indent-small"
 								// bordered={false}
 								items={[
@@ -186,6 +187,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 										label: `${t('taskID')}${item.NodeTaskId}`,
 										children: item.steps.map((step: StepType) => (
 											<Collapse
+												key={step.StepId}
 												className="border-0 indent-middle"
 												items={[
 													{
@@ -214,14 +216,16 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 					{
 						key: '2',
 						label: '错误输出',
-						children: itemsData.map(item => (
+						children: (itemsData as NodeProcessedData[]).map(item => (
 							<Collapse
+								key={item.NodeTaskId}
 								className="border-0 indent-small"
 								items={[
 									{
 										label: `${t('taskID')}${item.NodeTaskId}`,
 										children: item.steps.map((step: StepType) => (
 											<Collapse
+												key={step.StepId}
 												className="border-0 indent-middle"
 												items={[
 													{
@@ -252,20 +256,23 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 					{
 						key: '1',
 						label: '标准输出',
-						children: itemsData.map(item => (
+						children: (itemsData as JobProcessedData[]).map(item => (
 							<Collapse
+								key={item.StageId}
 								className="border-0 indent-small"
 								items={[
 									{
 										label: `${t('stageID')}${item.StageId}`,
 										children: item.tasks.map((task: TaskType) => (
 											<Collapse
+												key={task.TaskId}
 												className="border-0 indent-middle"
 												items={[
 													{
 														label: `${t('taskID')}${task.TaskId}`,
 														children: task.steps.map(step => (
 															<Collapse
+																key={step.StepId}
 																className="border-0 indent-big"
 																items={[
 																	{
@@ -298,20 +305,23 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 					{
 						key: '2',
 						label: '错误输出',
-						children: itemsData.map(item => (
+						children: (itemsData as JobProcessedData[]).map(item => (
 							<Collapse
+								key={item.StageId}
 								className="border-0 indent-small"
 								items={[
 									{
 										label: `${t('stageID')}${item.StageId}`,
 										children: item.tasks.map((task: TaskType) => (
 											<Collapse
+												key={task.TaskId}
 												className="border-0 indent-middle"
 												items={[
 													{
 														label: `${t('taskID')}${task.TaskId}`,
 														children: task.steps.map(step => (
 															<Collapse
+																key={step.StepId}
 																className="border-0 indent-big"
 																items={[
 																	{

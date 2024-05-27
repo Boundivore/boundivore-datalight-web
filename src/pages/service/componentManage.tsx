@@ -368,7 +368,7 @@ const ComponentManage: React.FC = () => {
 							{componentTable.map(component => {
 								const { ComponentNodeList, ComponentName } = component;
 								return (
-									<>
+									<div key={ComponentName}>
 										<h4 className={`${ComponentName !== activeComponent && 'hidden'}`}>
 											{t('totalItems', { total: ComponentNodeList.length, selected: selectComponent.length })}
 										</h4>
@@ -387,7 +387,7 @@ const ComponentManage: React.FC = () => {
 												showTotal: total => t('totalItems', { total, selected: selectComponent.length })
 											}}
 										/>
-									</>
+									</div>
 								);
 							})}
 						</Card>

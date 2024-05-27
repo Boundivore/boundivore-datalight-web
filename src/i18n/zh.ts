@@ -380,6 +380,7 @@ export default {
 	inputNickName: '请输入您的昵称！',
 	inputRole: '请选择您要绑定的角色！',
 	errorJob: '任务执行异常',
+	successJob: '任务执行完成',
 	isEnable: '是否启用',
 	enabled: '已启用',
 	disabled: '未启用',
