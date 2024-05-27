@@ -102,8 +102,8 @@ const ClusterList: React.FC = () => {
 		{
 			title: (
 				<Space>
-					是否自动拉起 Worker
-					<Tooltip title="关闭自动拉起时，开关关闭状态持续时间为 60 秒">
+					{t('switchWorker')}
+					<Tooltip title={t('switchWorkerText')}>
 						<QuestionCircleOutlined />
 					</Tooltip>
 				</Space>

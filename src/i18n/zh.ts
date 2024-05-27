@@ -389,5 +389,7 @@ export default {
 	waiting: '等待中...',
 	warning: '警告',
 	warningText: '请确定已保存当前配置文件的修改，切换文件可能会导致未保存的修改内容丢失！',
-	switchConfirm: '切换文件前请保存当前文件的修改'
+	switchConfirm: '切换文件前请保存当前文件的修改',
+	switchWorker: '是否自动拉起 Worker',
+	switchWorkerText: '关闭自动拉起时，开关关闭状态持续时间为60秒'
 };
