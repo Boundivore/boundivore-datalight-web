@@ -397,5 +397,6 @@ export default {
 	needRestartText: '当前该服务组件是否需要重启以生效刚才修改的配置',
 	selectedNodeNum: '已选节点数',
 	yes: '是',
-	no: '否'
+	no: '否',
+	noActiveJob: '当前没有活跃的任务'
 };

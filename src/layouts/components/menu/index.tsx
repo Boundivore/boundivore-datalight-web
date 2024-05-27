@@ -71,7 +71,7 @@ const LayoutMenu: React.FC = () => {
 		NodeJobId !== null
 			? setIsActiveJobModalOpen(true)
 			: modal.info({
-					title: '当前没有活跃的任务'
+					title: t('noActiveJob')
 			  });
 	};
 	const viewActiveJob = async () => {
@@ -85,7 +85,7 @@ const LayoutMenu: React.FC = () => {
 		JobId !== null
 			? setIsActiveJobModalOpen(true)
 			: modal.info({
-					title: '当前没有活跃的任务'
+					title: t('noActiveJob')
 			  });
 	};
 	const items: MenuProps['items'] = [
