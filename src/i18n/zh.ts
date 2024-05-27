@@ -386,5 +386,8 @@ export default {
 	edit: '编辑',
 	id: 'ID',
 	totalItems: '共{{total}}项，已选择{{selected}}项',
-	waiting: '等待中...'
+	waiting: '等待中...',
+	warning: '警告',
+	warningText: '请确定已保存当前配置文件的修改，切换文件可能会导致未保存的修改内容丢失！',
+	switchConfirm: '切换文件前请保存当前文件的修改'
 };

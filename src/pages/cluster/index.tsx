@@ -20,8 +20,9 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, App, Space, message, Badge } from 'antd';
+import { Table, Button, App, Space, message, Badge, Switch, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
@@ -34,7 +35,7 @@ const ClusterList: React.FC = () => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const { stateText, isNeedChangePassword, setIsNeedChangePassword } = useStore();
 	const [loading, setLoading] = useState(false);
-	const [tableData, setTableData] = useState([]);
+	const [tableData, setTableData] = useState<ClusterType[]>([]);
 	const { navigateToChangePassword, navigateToNodeInit, navigateToCreateCluster } = useNavigater();
 	const { modal } = App.useApp();
 	// 顶部操作按钮配置
@@ -99,6 +100,22 @@ const ClusterList: React.FC = () => {
 			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		},
 		{
+			title: (
+				<Space>
+					是否自动拉起 Worker
+					<Tooltip title="关闭自动拉起时，开关关闭状态持续时间为 60 秒">
+						<QuestionCircleOutlined />
+					</Tooltip>
+				</Space>
+			),
+			dataIndex: 'AutoPullWorker',
+			key: 'AutoPullWorker',
+			width: '20%',
+			render: (text: boolean, record) => {
+				return <Switch checked={text} onChange={() => switchWorker(record)} />;
+			}
+		},
+		{
 			title: t('operation'),
 			key: 'IsExistInitProcedure',
 			dataIndex: 'IsExistInitProcedure',
@@ -115,6 +132,19 @@ const ClusterList: React.FC = () => {
 			)
 		}
 	];
+	const switchWorker = async (record: ClusterType) => {
+		const api = APIConfig.switchWorker;
+		const params = {
+			AutoPullWorker: !record.AutoPullWorker,
+			CloseDuration: record.AutoPullWorker ? 60 * 1000 : 0,
+			ClusterId: record.ClusterId
+		};
+		const { Code } = await RequestHttp.post(api, params);
+		if (Code === '00000') {
+			messageApi.success(t('messageSuccess'));
+			getData();
+		}
+	};
 	const removeCluster = (clusterName: string, clusterId: string | number) => {
 		modal.confirm({
 			title: t('cluster.remove'),
@@ -133,14 +163,29 @@ const ClusterList: React.FC = () => {
 		});
 	};
 	const getData = async () => {
-		setLoading(false);
-		const api = APIConfig.getClusterList;
-		const data = await RequestHttp.get(api);
-		const {
-			Data: { ClusterList }
-		} = data;
-		setTableData(ClusterList);
-		setLoading(false);
+		setLoading(true);
+		try {
+			const api = APIConfig.getClusterList;
+			const data = await RequestHttp.get(api);
+			const {
+				Data: { ClusterList }
+			} = data;
+			setTableData(ClusterList);
+
+			const apiPull = APIConfig.autoPull;
+			const autoPullWorkerStatus = ClusterList.map(async (item: ClusterType) => {
+				const {
+					Data: { AutoPullWorker }
+				} = await RequestHttp.get(apiPull, { params: { ClusterId: item.ClusterId } });
+				return { ...item, AutoPullWorker };
+			});
+			// 等待所有详细信息请求完成
+			const detailedList: ClusterType[] = await Promise.all(autoPullWorkerStatus);
+
+			setTableData(detailedList);
+		} finally {
+			setLoading(false);
+		}
 	};
 	useEffect(() => {
 		getData();

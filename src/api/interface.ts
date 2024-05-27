@@ -118,6 +118,7 @@ export interface ClusterType {
 	RelativeClusterId: number;
 	IsCurrentView: boolean;
 	IsExistInitProcedure: boolean;
+	[property: string]: any;
 }
 
 /**

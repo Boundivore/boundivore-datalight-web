@@ -21,8 +21,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Tabs, Col, Row, Space, Button, message } from 'antd';
-import { PlusCircleOutlined } from '@ant-design/icons';
+import { Tabs, Col, Row, Space, Button, message, App } from 'antd';
+import { PlusCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import _ from 'lodash';
 import CryptoJS from 'crypto-js';
@@ -37,6 +37,7 @@ import CodeEditor from './codeEditor';
 import NodeListModal from './components/nodeListModal';
 import { ConfigSummaryVo, ConfigGroupVo } from '@/api/interface';
 import ContainerCard from '@/components/containerCard';
+
 // 从 TabsProps 中提取 items 类型
 type TabItem = NonNullable<TabsProps['items']>[number];
 
@@ -61,6 +62,7 @@ const ModifyConfig: React.FC = () => {
 	const { configGroupInfo, setConfigGroupInfo } = useStore();
 	const [messageApi, contextHolder] = message.useMessage();
 	const { navigateToService } = useNavigater();
+	const { modal } = App.useApp();
 
 	const editorRef = useRef<{ handleSave: () => string } | null>(null);
 
@@ -142,7 +144,7 @@ const ModifyConfig: React.FC = () => {
 		const { Code } = data;
 		if (Code === '00000') {
 			messageApi.success(t('messageSuccess'));
-			navigateToService();
+			// navigateToService();
 		}
 	};
 
@@ -151,16 +153,27 @@ const ModifyConfig: React.FC = () => {
 			{contextHolder}
 			<Tabs
 				items={tabsData}
+				activeKey={activeTab}
 				onChange={activeKey => {
-					setActiveTab(activeKey);
+					modal.confirm({
+						title: t('warning'),
+						content: t('warningText'),
+						okText: t('confirm'),
+						cancelText: t('cancel'),
+						onOk: async () => {
+							setActiveTab(activeKey);
+						}
+					});
 				}}
 			/>
 			<div className="flex p-4">
 				<Space className="ml-auto">
-					<Button onClick={navigateToService}>{t('cancel')}</Button>
+					<ExclamationCircleOutlined className="text-[#FAAA14]" />
+					<span className="text-gray-400">{t('switchConfirm')}</span>
 					<Button type="primary" onClick={saveChange}>
 						{t('save')}
 					</Button>
+					<Button onClick={navigateToService}>{t('cancel')}</Button>
 				</Space>
 			</div>
 			<Row>
