@@ -173,7 +173,7 @@ const ModifyConfig: React.FC = () => {
 					<Button type="primary" onClick={saveChange}>
 						{t('save')}
 					</Button>
-					<Button onClick={navigateToService}>{t('cancel')}</Button>
+					<Button onClick={navigateToService}>{t('back')}</Button>
 				</Space>
 			</div>
 			<Row>

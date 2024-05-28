@@ -41,7 +41,7 @@ interface DataType extends ComponentNodeVo {
 	// ComponentNodeList: {
 	// 	ComponentId: string;
 	// }[];
-	operation: boolean;
+	operation?: boolean;
 }
 
 const ComponentManage: React.FC = () => {
@@ -57,6 +57,7 @@ const ComponentManage: React.FC = () => {
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
 	const [startDisabled, setStartDisabled] = useState(true); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(true); // 是否禁用批量停止
+	const [modifyDisabled, setModifyDisabled] = useState(true); // 是否禁用重启以生效配置
 	// const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const [handleButton, setHandleButton] = useState(false);
@@ -98,6 +99,12 @@ const ComponentManage: React.FC = () => {
 			label: t('remove'),
 			callback: () => removeComponent(selectComponent),
 			disabled: removeDisabled
+		},
+		{
+			id: 6,
+			label: '重启以生效配置',
+			callback: () => needRestart(),
+			disabled: modifyDisabled
 		}
 	];
 	// 单条操作按钮配置
@@ -175,15 +182,14 @@ const ComponentManage: React.FC = () => {
 			),
 			dataIndex: 'NeedRestart',
 			key: 'NeedRestart',
-			render: text => {
-				return <Text ellipsis={true}>{text ? t('yes') : t('no')}</Text>;
+			render: (text: boolean) => {
+				return <Badge status={text ? 'warning' : 'success'} text={text ? t('yes') : t('no')} />;
 			}
 		},
 		{
 			title: t('service.componentState'),
 			dataIndex: 'SCStateEnum',
 			key: 'SCStateEnum',
-			// render: (text: string) => text && t(text.toLowerCase())
 			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		},
 		{
@@ -203,6 +209,54 @@ const ComponentManage: React.FC = () => {
 			}
 		}
 	];
+	const needRestart = () => {
+		const callback = () =>
+			modal.confirm({
+				title: '重启以生效配置',
+				content: '重启所有需要重启的组件以生效修改的配置文件',
+				okText: t('confirm'),
+				cancelText: t('cancel'),
+				onOk: async () => {
+					const flattenedArray = componentTable.flatMap(obj => obj.ComponentNodeList);
+					const jobDetailComponentList = flattenedArray.map(component => {
+						const jobDetailNodeList = [
+							{
+								Hostname: component.Hostname,
+								NodeId: component.NodeId,
+								NodeIp: component.NodeIp
+							}
+						];
+
+						return {
+							ComponentName: component.ComponentName,
+							JobDetailNodeList: jobDetailNodeList
+						};
+					});
+					const api = APIConfig.operateService;
+					const params = {
+						ActionTypeEnum: 'RESTART',
+						ClusterId: id,
+						IsOneByOne: false,
+						JobDetailServiceList: [
+							{
+								JobDetailComponentList: jobDetailComponentList,
+								ServiceName: serviceName
+							}
+						]
+					};
+					const data = await RequestHttp.post(api, params);
+					const { Code } = data;
+					if (Code === '00000') {
+						messageApi.success(t('messageSuccess'));
+						viewActiveJob();
+						setModifyDisabled(true);
+						// operation === 'RESTART' && setIsModalOpen(true);
+						// getComponentList(); // 这里不用调接口了，轮询替代了
+					}
+				}
+			});
+		viewActiveJob(callback);
+	};
 	const removeComponent = (componentList: DataType[]) => {
 		const idList = componentList.map(component => ({
 			ComponentId: component.ComponentId
@@ -279,18 +333,19 @@ const ComponentManage: React.FC = () => {
 			}
 		});
 	};
-	const viewActiveJob = async () => {
+	const viewActiveJob = async (
+		callback = () =>
+			modal.info({
+				title: t('noActiveJob')
+			})
+	) => {
 		const apiList = APIConfig.getActiveJobId;
 		const data = await RequestHttp.get(apiList);
 		const {
 			Data: { ClusterId, JobId }
 		} = data;
 		setJobId(JobId);
-		id === ClusterId
-			? setIsActiveJobModalOpen(true)
-			: modal.info({
-					title: '当前没有活跃的任务'
-			  });
+		id === ClusterId ? setIsActiveJobModalOpen(true) : callback();
 	};
 	const handleModalOk = () => {
 		setIsActiveJobModalOpen(false);
@@ -303,19 +358,25 @@ const ComponentManage: React.FC = () => {
 		const {
 			Data: { ServiceComponentSummaryList }
 		} = data;
+		const allIntersectionByIdLists: DataType[] = [];
 		const tempData = ServiceComponentSummaryList[0].ComponentSummaryList.map((item: ComponentSummaryVo) => {
 			const componentNodeList = item.ComponentNodeList.map(child => ({
 				...child,
 				ComponentName: item.ComponentName,
 				rowKey: `${child.ComponentId}_${child.NodeId}`
 			}));
+			const hasModifiedItem = componentNodeList.some(item => item.NeedRestart);
+			setModifyDisabled(!hasModifiedItem);
+
 			const intersectionByIdList = _.intersectionBy(componentNodeList, selectComponentRef.current, 'ComponentId');
+			allIntersectionByIdLists.push(...intersectionByIdList);
 			return {
 				...item,
 				num: intersectionByIdList.filter(component => item.ComponentName === component.ComponentName).length,
 				ComponentNodeList: componentNodeList
 			};
 		});
+		setSelectComponent(allIntersectionByIdLists);
 		setComponentTable(tempData);
 		if (!activeComponentRef.current) {
 			setActiveComponent(ServiceComponentSummaryList[0].ComponentSummaryList[0].ComponentName);
