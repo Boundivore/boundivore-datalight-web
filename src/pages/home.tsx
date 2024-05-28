@@ -31,6 +31,7 @@ import { config } from '@/components/charts/config';
 import ContainerCard from '@/components/containerCard';
 import usePrometheusStatus from '@/hooks/usePrometheusStatus';
 import { RenderConfig } from '@/components/charts/renderConfig';
+import { getCurrentAndPastTimestamps } from '@/utils/helper';
 
 const homeJobName = 'MONITOR-NodeExporter';
 const Home: React.FC = () => {
@@ -38,7 +39,8 @@ const Home: React.FC = () => {
 	const [tableData, setTableData] = useState<ClusterType[]>([]);
 	const [activeCluster, setActiveCluster] = useState('');
 	const [activeClusterId, setActiveClusterId] = useState('');
-	const { stateText, isNeedChangePassword, setIsNeedChangePassword, setJobName } = useStore();
+	const { stateText, isNeedChangePassword, setIsNeedChangePassword, setJobName, setMonitorStartTime, setMonitorEndTime } =
+		useStore();
 	const { navigateToChangePassword, navigateToCreateCluster } = useNavigater();
 	const { hasPrometheus } = usePrometheusStatus();
 	const { modal } = App.useApp();
@@ -76,6 +78,10 @@ const Home: React.FC = () => {
 	}, [activeClusterId]);
 	useEffect(() => {
 		getData();
+		//设置拉取最近5分钟的数据
+		const { past, current } = getCurrentAndPastTimestamps(5);
+		setMonitorStartTime(past);
+		setMonitorEndTime(current);
 		// 登录时判断是否需要修改密码
 		isNeedChangePassword &&
 			modal.confirm({

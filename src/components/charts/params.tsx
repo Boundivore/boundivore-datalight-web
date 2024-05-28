@@ -20,7 +20,7 @@
  */
 import { useEffect, useState } from 'react';
 // import _ from 'lodash';
-import { Select, Space, DatePicker, Divider } from 'antd';
+import { Select, Space, Divider } from 'antd';
 import type { SelectProps } from 'antd';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
@@ -28,7 +28,7 @@ import useStore from '@/store/store';
 import usePrometheusStatus from '@/hooks/usePrometheusStatus';
 import { getCurrentAndPastTimestamps, diffInMinutes } from '@/utils/helper';
 
-const { RangePicker } = DatePicker;
+// const { RangePicker } = DatePicker;
 interface JobNameComponentProps {
 	clusterId: string;
 	activeComponent: string;
@@ -142,7 +142,7 @@ export const TimerComponent = () => {
 				<>
 					{menu}
 					<Divider style={{ margin: '8px 0' }} />
-					<RangePicker showTime />
+					{/* <RangePicker showTime /> */}
 				</>
 			)}
 			value={selectValue}

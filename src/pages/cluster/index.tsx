@@ -33,10 +33,10 @@ import { ClusterType, BadgeStatus } from '@/api/interface';
 const ClusterList: React.FC = () => {
 	const { t } = useTranslation();
 	const [messageApi, contextHolder] = message.useMessage();
-	const { stateText, isNeedChangePassword, setIsNeedChangePassword } = useStore();
+	const { stateText } = useStore();
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState<ClusterType[]>([]);
-	const { navigateToChangePassword, navigateToNodeInit, navigateToCreateCluster } = useNavigater();
+	const { navigateToNodeInit, navigateToCreateCluster } = useNavigater();
 	const { modal } = App.useApp();
 	// 顶部操作按钮配置
 	const buttonConfigTop = [
@@ -190,16 +190,15 @@ const ClusterList: React.FC = () => {
 	useEffect(() => {
 		getData();
 		// 登录时判断是否需要修改密码
-		isNeedChangePassword &&
-			modal.confirm({
-				title: t('login.changePassword'),
-				content: t('login.changePasswordText'),
-				okText: t('confirm'),
-				cancelText: t('cancel'),
-				onOk: navigateToChangePassword
-			});
-		setIsNeedChangePassword(false);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// isNeedChangePassword &&
+		// 	modal.confirm({
+		// 		title: t('login.changePassword'),
+		// 		content: t('login.changePasswordText'),
+		// 		okText: t('confirm'),
+		// 		cancelText: t('cancel'),
+		// 		onOk: navigateToChangePassword
+		// 	});
+		// setIsNeedChangePassword(false);
 	}, []);
 	return (
 		<ContainerCard>

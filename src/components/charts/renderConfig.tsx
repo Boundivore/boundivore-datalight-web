@@ -38,7 +38,7 @@ export const RenderConfig: FC<RenderConfigProps> = ({ config, selectCluster }) =
 									{col.rows.map(row => {
 										return (
 											// <Row>
-											<Card style={{ height: '170px' }}>
+											<Card style={{ height: '170px' }} key={row.key}>
 												<span>{row.title}</span>
 												<RenderComponent {...row} clusterId={selectCluster} />
 											</Card>
@@ -47,7 +47,7 @@ export const RenderConfig: FC<RenderConfigProps> = ({ config, selectCluster }) =
 									})}
 								</Space>
 							) : (
-								<Card style={{ height: `${item.height}` }}>
+								<Card style={{ height: `${item.height}` }} key={col.key}>
 									<span>{col.title}</span>
 									<RenderComponent {...col} clusterId={selectCluster} />
 								</Card>
