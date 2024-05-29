@@ -26,9 +26,10 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import type { GetProps, TreeDataNode } from 'antd';
-import { LogViewer } from '@patternfly/react-log-viewer';
+// import { LogViewer } from '@patternfly/react-log-viewer';
 import { Resizable } from 're-resizable';
 import ContainerCard from '@/components/containerCard';
+import LogViewer2 from '@/components/log/logView';
 import useStore from '@/store/store';
 import { LogFileCollectionVo } from '@/api/interface';
 type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
@@ -47,7 +48,7 @@ const style = {
 	// border: 'solid 1px #ddd'
 	// background: '#f0f0f0'
 };
-const offset = 5000;
+const offset = 1000;
 const ViewLog: FC = () => {
 	const { eachLog, setEachLog, clearEachLog } = useStore();
 	const [searchParams] = useSearchParams();
@@ -59,7 +60,8 @@ const ViewLog: FC = () => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const textRef = useRef<(HTMLSpanElement | null)[]>([]);
 	const startOffset = useRef(0);
-	const endOffset = useRef(offset);
+	const endOffset = useRef(0); //第一次请求，通过StartOffset传递0，EndOffset传递0，来获取最大偏移量
+	const [isFirstLoad, setIsFirstLoad] = useState(true);
 
 	const convertToTreeData = (data: LogFileCollectionVo[], startIndex = 0): TreeNode[] => {
 		let currentIndex = startIndex; // 当前索引
@@ -113,11 +115,21 @@ const ViewLog: FC = () => {
 			StartOffset: startOffset.current,
 			EndOffset: endOffset.current
 		};
+		if (isFirstLoad) {
+			params.StartOffset = 0;
+			params.EndOffset = 0;
+		}
 		const {
-			Data: { Content, StartOffset, EndOffset }
+			Data: { Content, StartOffset, EndOffset, MaxOffset }
 		} = await RequestHttp.get(api, { params });
-		startOffset.current = parseInt(StartOffset) + offset;
-		endOffset.current = parseInt(EndOffset) + offset;
+		if (isFirstLoad) {
+			startOffset.current = Math.max(0, MaxOffset - offset);
+			endOffset.current = MaxOffset;
+			setIsFirstLoad(false);
+		} else {
+			startOffset.current = parseInt(StartOffset) + offset;
+			endOffset.current = parseInt(EndOffset) + offset;
+		}
 		setEachLog(Content);
 	};
 	const getFileContentDebounced = useRef(
@@ -127,8 +139,11 @@ const ViewLog: FC = () => {
 	).current; // Adjust the debounce delay as needed
 
 	const handleScroll = useCallback(
-		(scrollOffsetToBottom: number) => {
-			if (scrollOffsetToBottom >= 0 && scrollOffsetToBottom < 100) {
+		(scrollHeight: number, scrollTop: number, clientHeight: number) => {
+			// if (scrollOffsetToBottom >= 0 && scrollOffsetToBottom < 100) {
+			// 	getFileContentDebounced(selectedFile);
+			// }
+			if (scrollHeight - scrollTop === clientHeight) {
 				getFileContentDebounced(selectedFile);
 			}
 		},
@@ -199,14 +214,18 @@ const ViewLog: FC = () => {
 					</Card>
 				</Resizable>
 				<Card style={{ width: '100%', minWidth: '1px' }} title={selectedFile.substring(selectedFile.lastIndexOf('/') + 1)}>
-					<LogViewer
+					{eachLog ? (
+						<LogViewer2 style={{ with: logViewerWidth }} data={eachLog.split('\n')} handleScroll={handleScroll} />
+					) : null}
+					{/* <LogViewer
 						theme="dark"
 						width={logViewerWidth}
 						height={400}
-						hasLineNumbers={true}
+						hasLineNumbers={false}
+						isTextWrapped={true}
 						data={eachLog}
-						onScroll={({ scrollOffsetToBottom }) => handleScroll(scrollOffsetToBottom)}
-					/>
+						// onScroll={({ scrollOffsetToBottom }) => handleScroll(scrollOffsetToBottom)}
+					/> */}
 				</Card>
 			</Flex>
 		</ContainerCard>
