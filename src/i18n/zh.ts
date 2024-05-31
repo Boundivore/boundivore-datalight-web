@@ -401,5 +401,7 @@ export default {
 	selectedNodeNum: '已选节点数',
 	yes: '是',
 	no: '否',
-	noActiveJob: '当前没有活跃的任务'
+	noActiveJob: '当前没有活跃的任务',
+	loadMore: '加载更多',
+	haveNoMore: '暂无更多'
 };

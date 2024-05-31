@@ -15,23 +15,21 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * 节点管理列表页
+ * 查看日志页
  * @author Tracy
  */
-import { FC, useEffect, useState, useRef, useCallback } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { debounce } from 'lodash';
 import { Card, Tree, Tooltip, Flex } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
 import type { GetProps, TreeDataNode } from 'antd';
-// import { LogViewer } from '@patternfly/react-log-viewer';
 import { Resizable } from 're-resizable';
 import ContainerCard from '@/components/containerCard';
-import LogViewer2 from '@/components/log/logView';
 import useStore from '@/store/store';
 import { LogFileCollectionVo } from '@/api/interface';
+import LogViewer from '@/components/log/logViewer';
 type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 
 const { DirectoryTree } = Tree;
@@ -41,16 +39,9 @@ interface TreeNode {
 	children?: TreeNode[];
 	isLeaf: boolean;
 }
-const style = {
-	display: 'flex'
-	// alignItems: 'center',
-	// justifyContent: 'center'
-	// border: 'solid 1px #ddd'
-	// background: '#f0f0f0'
-};
-const offset = 1000;
+
 const ViewLog: FC = () => {
-	const { eachLog, setEachLog, clearEachLog } = useStore();
+	const { clearEachLog } = useStore();
 	const [searchParams] = useSearchParams();
 	const nodeId = searchParams.get('node') || '';
 	const hostName = searchParams.get('name') || '';
@@ -59,9 +50,8 @@ const ViewLog: FC = () => {
 	const [selectedFile, setSelectedFile] = useState('');
 	const containerRef = useRef<HTMLDivElement>(null);
 	const textRef = useRef<(HTMLSpanElement | null)[]>([]);
-	const startOffset = useRef(0);
-	const endOffset = useRef(0); //第一次请求，通过StartOffset传递0，EndOffset传递0，来获取最大偏移量
-	const [isFirstLoad, setIsFirstLoad] = useState(true);
+
+	//记录向上滚动加载和向下滚动记载的范围
 
 	const convertToTreeData = (data: LogFileCollectionVo[], startIndex = 0): TreeNode[] => {
 		let currentIndex = startIndex; // 当前索引
@@ -107,57 +97,12 @@ const ViewLog: FC = () => {
 		setTreeData(antdTreeData);
 		setSelectedFile(antdTreeData[0].children?.[0]?.key || '');
 	};
-	const getFileContent = async (filePath: string) => {
-		const api = APIConfig.loadFileConten;
-		const params = {
-			NodeId: nodeId,
-			FilePath: filePath,
-			StartOffset: startOffset.current,
-			EndOffset: endOffset.current
-		};
-		if (isFirstLoad) {
-			params.StartOffset = 0;
-			params.EndOffset = 0;
-		}
-		const {
-			Data: { Content, StartOffset, EndOffset, MaxOffset }
-		} = await RequestHttp.get(api, { params });
-		if (isFirstLoad) {
-			startOffset.current = Math.max(0, MaxOffset - offset);
-			endOffset.current = MaxOffset;
-			setIsFirstLoad(false);
-		} else {
-			startOffset.current = parseInt(StartOffset) + offset;
-			endOffset.current = parseInt(EndOffset) + offset;
-		}
-		setEachLog(Content);
-	};
-	const getFileContentDebounced = useRef(
-		debounce(file => {
-			getFileContent(file);
-		}, 500)
-	).current; // Adjust the debounce delay as needed
-
-	const handleScroll = useCallback(
-		(scrollHeight: number, scrollTop: number, clientHeight: number) => {
-			// if (scrollOffsetToBottom >= 0 && scrollOffsetToBottom < 100) {
-			// 	getFileContentDebounced(selectedFile);
-			// }
-			if (scrollHeight - scrollTop === clientHeight) {
-				getFileContentDebounced(selectedFile);
-			}
-		},
-		[selectedFile, getFileContentDebounced]
-	);
 
 	useEffect(() => {
 		selectCluster && getFileList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectCluster]);
-	useEffect(() => {
-		selectedFile && getFileContent(selectedFile);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedFile]);
+
 	useEffect(() => {
 		//离开当前页面，清空日志
 		return () => {
@@ -167,38 +112,33 @@ const ViewLog: FC = () => {
 	}, []);
 	const onSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
 		info.node.isLeaf && setSelectedFile(keys[0] as string);
-		startOffset.current = 0;
-		endOffset.current = offset;
 		clearEachLog();
 	};
-	// const onResize = (event, { size }) => {
-	// 	// 在这里处理拖拽改变大小的逻辑
-	// };
-	const [logViewerWidth, setLogViewerWidth] = useState(0); // 初始化 Log Viewer 的高度为 300px
+
+	// const [logViewerWidth, setLogViewerWidth] = useState(0); // 初始化 Log Viewer 的高度为 300px
 
 	const handleResize = (ref: HTMLElement) => {
-		const containWidth = containerRef.current?.clientWidth ?? 0;
-		// console.log(containWidth - ref.offsetWidth);
+		// const containWidth = containerRef.current?.clientWidth ?? 0;
 		textRef.current.forEach(element => {
 			if (element) {
 				element.style.width = `${ref.offsetWidth - 200}px`;
 			}
 		});
-		setLogViewerWidth(containWidth - ref.offsetWidth - 100);
+		// setLogViewerWidth(containWidth - ref.offsetWidth - 100);
 	};
-	useEffect(() => {
-		if (containerRef.current) {
-			const width = containerRef.current.clientWidth * 0.75; // 以 70% 的宽度初始化
-			setLogViewerWidth(width - 100);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [containerRef.current]);
+	// useEffect(() => {
+	// 	if (containerRef.current) {
+	// 		const width = containerRef.current.clientWidth * 0.75; // 以 70% 的宽度初始化
+	// 		setLogViewerWidth(width - 100);
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [containerRef.current]);
 
 	return (
 		<ContainerCard ref={containerRef}>
 			<Flex gap="middle" className="w-[100%] overflow-hidden">
 				<Resizable
-					style={style}
+					className="flex"
 					defaultSize={{
 						width: '25%',
 						height: 'auto'
@@ -214,9 +154,7 @@ const ViewLog: FC = () => {
 					</Card>
 				</Resizable>
 				<Card style={{ width: '100%', minWidth: '1px' }} title={selectedFile.substring(selectedFile.lastIndexOf('/') + 1)}>
-					{eachLog ? (
-						<LogViewer2 style={{ with: logViewerWidth }} data={eachLog.split('\n')} handleScroll={handleScroll} />
-					) : null}
+					{selectedFile ? <LogViewer selectedFile={selectedFile} /> : null}
 					{/* <LogViewer
 						theme="dark"
 						width={logViewerWidth}

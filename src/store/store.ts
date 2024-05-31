@@ -50,7 +50,7 @@ interface MyStore {
 	monitorEndTime: number;
 	setMonitorEndTime: (monitorEndTime: number) => void;
 	eachLog: string;
-	setEachLog: (eachLog: string) => void;
+	setEachLog: (eachLog: string, appendToEnd: boolean) => void;
 	clearEachLog: () => void;
 	allConfigFile: {}; // 汇总修改配置文件时的所有修改
 	setAllConfigFile: (configFile: ConfigGroupVo[], fileName: string) => void;
@@ -248,7 +248,18 @@ const useStore = create<MyStore>(set => ({
 	monitorStartTime: new Date().getTime() - 5 * 60 * 1000,
 	setMonitorStartTime: (monitorStartTime: number) => set({ monitorStartTime }),
 	eachLog: '',
-	setEachLog: (eachLog: string) => set(state => ({ eachLog: state.eachLog + eachLog })),
+	setEachLog: (eachLog: string, appendToEnd: boolean) =>
+		set(state => ({
+			eachLog: appendToEnd ? state.eachLog + eachLog : eachLog + state.eachLog
+		})),
+	// set(state => {
+	// 	if (appendToEnd) {
+	// 		return state.eachLog + eachLog;
+	// 	} else {
+	// 		return eachLog + state.eachLog;
+	// 	}
+	// 	// { eachLog: state.eachLog + eachLog }
+	// }),
 	clearEachLog: () => set({ eachLog: '' }),
 	allConfigFile: {},
 	setAllConfigFile: (configFile: ConfigGroupVo[], fileName: string) => set(state => ({ ...state, [fileName]: configFile })),
