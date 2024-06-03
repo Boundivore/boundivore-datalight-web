@@ -20,7 +20,9 @@
  */
 import { FC, useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Tree, Tooltip, Flex } from 'antd';
+import { Card, Tree, Tooltip, Flex, InputNumber } from 'antd';
+import type { InputNumberProps } from 'antd';
+import { t } from 'i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useCurrentCluster from '@/hooks/useCurrentCluster';
@@ -48,6 +50,7 @@ const ViewLog: FC = () => {
 	const { selectCluster } = useCurrentCluster();
 	const [treeData, setTreeData] = useState<TreeDataNode[]>([]);
 	const [selectedFile, setSelectedFile] = useState('');
+	const [offset, setOffset] = useState(5000);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const textRef = useRef<(HTMLSpanElement | null)[]>([]);
 
@@ -133,6 +136,10 @@ const ViewLog: FC = () => {
 	// 	}
 	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	// }, [containerRef.current]);
+	const handleOffsetChange: InputNumberProps['onChange'] = value => {
+		const newValue = (value === null || value === undefined ? 5000 : value) as number;
+		setOffset(newValue);
+	};
 
 	return (
 		<ContainerCard ref={containerRef}>
@@ -153,8 +160,25 @@ const ViewLog: FC = () => {
 						) : null}
 					</Card>
 				</Resizable>
-				<Card style={{ width: '100%', minWidth: '1px' }} title={selectedFile.substring(selectedFile.lastIndexOf('/') + 1)}>
-					{selectedFile ? <LogViewer selectedFile={selectedFile} /> : null}
+				<Card
+					style={{ width: '100%', minWidth: '1px' }}
+					title={selectedFile.substring(selectedFile.lastIndexOf('/') + 1)}
+					extra={
+						<>
+							<span>{t('offset')}</span>
+							<InputNumber
+								placeholder={t('offsetPlaceholder')}
+								min={1}
+								max={100000}
+								value={offset}
+								onChange={handleOffsetChange}
+								style={{ width: 200 }}
+								parser={value => value?.replace(/\.\d*/g, '') as unknown as number} // 确保只接受整数输入
+							/>
+						</>
+					}
+				>
+					{selectedFile ? <LogViewer selectedFile={selectedFile} offset={offset} /> : null}
 					{/* <LogViewer
 						theme="dark"
 						width={logViewerWidth}

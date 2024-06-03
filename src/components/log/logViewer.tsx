@@ -30,9 +30,9 @@ import useStore from '@/store/store';
 
 interface LogViewerProps {
 	selectedFile: string;
+	offset: number;
 }
-const offset = 1000;
-const LogViewer: FC<LogViewerProps> = ({ selectedFile }) => {
+const LogViewer: FC<LogViewerProps> = ({ selectedFile, offset }) => {
 	const [searchParams] = useSearchParams();
 	const nodeId = searchParams.get('node') || '';
 	const [messageApi, contextHolder] = message.useMessage();
@@ -78,14 +78,11 @@ const LogViewer: FC<LogViewerProps> = ({ selectedFile }) => {
 			Data: { Content, MaxOffset, StartOffset, EndOffset }
 		} = await RequestHttp.get(api, { params });
 		if (isFirstLoadRef.current) {
-			startOffset.current = Math.max(0, MaxOffset - offset);
 			endOffset.current = parseInt(MaxOffset);
+			startOffset.current = Math.max(0, endOffset.current - offset);
 
-			startOffsetUpRef.current = startOffset.current - offset;
 			endOffsetUpRef.current = startOffset.current;
-
 			startOffsetDownRef.current = endOffset.current;
-			endOffsetDownRef.current = endOffset.current + offset;
 
 			isFirstLoadRef.current = false;
 			getFileContent(filePath, 'present');
@@ -93,7 +90,6 @@ const LogViewer: FC<LogViewerProps> = ({ selectedFile }) => {
 			if (position === 'up') {
 				if (Content) {
 					setEachLog(Content, false);
-					startOffsetUpRef.current = parseInt(StartOffset) - offset;
 					endOffsetUpRef.current = parseInt(StartOffset);
 				} else {
 					messageApi.warning(t('haveNoMore'));
@@ -102,12 +98,13 @@ const LogViewer: FC<LogViewerProps> = ({ selectedFile }) => {
 				if (Content) {
 					setEachLog(Content, true);
 					startOffsetDownRef.current = parseInt(EndOffset);
-					endOffsetDownRef.current = parseInt(EndOffset) + offset;
 				} else {
 					messageApi.warning(t('haveNoMore'));
 				}
 			}
 		}
+		startOffsetUpRef.current = endOffsetUpRef.current - offset;
+		endOffsetDownRef.current = startOffsetDownRef.current + offset;
 		setInitLoading(false);
 		setLoading(false);
 	};
@@ -123,6 +120,11 @@ const LogViewer: FC<LogViewerProps> = ({ selectedFile }) => {
 	const handleLoadMoreOld = () => {
 		getFileContentDebounced(selectedFile, 'up');
 	};
+
+	useEffect(() => {
+		startOffsetUpRef.current = endOffsetUpRef.current - offset;
+		endOffsetDownRef.current = startOffsetDownRef.current + offset;
+	}, [offset]);
 	useEffect(() => {
 		isFirstLoadRef.current = true;
 		selectedFile && getFileContent(selectedFile, 'present');

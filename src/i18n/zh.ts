@@ -403,5 +403,7 @@ export default {
 	no: '否',
 	noActiveJob: '当前没有活跃的任务',
 	loadMore: '加载更多',
-	haveNoMore: '暂无更多'
+	haveNoMore: '暂无更多',
+	offset: '步长：',
+	offsetPlaceholder: '大于1，小于100000'
 };
