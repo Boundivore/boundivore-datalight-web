@@ -78,7 +78,17 @@ const AddHandlerMailModal: FC<AddHandlerMailModalProps> = ({
 			onOk={addHandlerMail}
 		>
 			<Form form={form} {...layout} className="pt-[20px]" initialValues={{ MailAccount: mailAccount }}>
-				<Form.Item name="MailAccount" label={t('alert.mailAccount')} rules={[{ required: true, message: t('alert.mailCheck') }]}>
+				<Form.Item
+					name="MailAccount"
+					label={t('alert.mailAccount')}
+					rules={[
+						{
+							type: 'email',
+							message: t('alert.mailCheck')
+						},
+						{ required: true, message: t('alert.mailCheck') }
+					]}
+				>
 					<Input />
 				</Form.Item>
 			</Form>
