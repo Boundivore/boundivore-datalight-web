@@ -36,6 +36,7 @@ const { Text } = Typography;
 
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 const disabledState = ['RUNNING', 'SUSPEND', 'ERROR'];
+const disableCancelState = ['RUNNING', 'OK'];
 const preStepName = 'previewStep'; // 当前步骤页面基于上一步的输入和选择生成
 const stepName = 'deployStep'; // 当前步骤结束时需要存储步骤数据
 const operation = 'DEPLOY'; // 当前步骤操作，NodeActionTypeEnum
@@ -168,17 +169,17 @@ const DeployStep = forwardRef((_props, ref) => {
 			JobExecStateEnum
 		}));
 		const basicDisabled = disabledState.includes(JobExecStateEnum);
-		setOpenAlert(JobExecStateEnum === 'ERROR');
 		const disableNext = basicDisabled;
 		const disableRetry = JobExecStateEnum !== 'ERROR';
 		const disablePrev = JobExecStateEnum !== 'ERROR';
-		const disableCancel = JobExecStateEnum === 'RUNNING';
+		const disableCancel = disableCancelState.includes(JobExecStateEnum);
 		setCurrentPageDisabled({
 			nextDisabled: disableNext,
 			retryDisabled: disableRetry,
 			prevDisabled: disablePrev,
 			cancelDisabled: disableCancel
 		});
+		setOpenAlert(JobExecStateEnum === 'ERROR');
 		return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
 	};
 	useEffect(() => {

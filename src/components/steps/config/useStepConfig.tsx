@@ -41,9 +41,10 @@ import { StepRefType } from '@/api/interface';
 
 const useStepConfig = () => {
 	const { t } = useTranslation();
-	const { useClearStepData, useCancelProcedure } = useStepLogic();
-	const clearData = useClearStepData();
-	const { navigateToHome } = useNavigater();
+	const { useCancelProcedure } = useStepLogic();
+	// const clearData = useClearStepData();
+	const cancelProcedure = useCancelProcedure();
+	const { navigateToClusterList } = useNavigater();
 
 	const parseStepRef = useRef<StepRefType>(null);
 	const parseListStepRef = useRef<StepRefType>(null);
@@ -117,8 +118,8 @@ const useStepConfig = () => {
 			content: <DoneStep />,
 			operations: [
 				{ label: t('node.deployService'), key: 'deployService' }, // 不传callback默认进行一下步
-				{ label: t('backHomeTemp'), key: 'backHomeTemp', callback: navigateToHome },
-				{ label: t('done'), key: 'done', callback: useCancelProcedure() }
+				{ label: t('backHomeTemp'), key: 'backHomeTemp', callback: navigateToClusterList },
+				{ label: t('done'), key: 'done', callback: cancelProcedure }
 			],
 			hideInitButton: true
 		}
@@ -157,11 +158,11 @@ const useStepConfig = () => {
 			content: <DeployStep ref={DeployStepRef} />,
 			operations: [
 				{
-					label: t('backHome'),
-					key: 'backHome',
+					label: t('done'),
+					key: 'done',
 					callback: () => {
-						clearData();
-						navigateToHome();
+						cancelProcedure();
+						navigateToClusterList();
 					}
 				}
 			],
