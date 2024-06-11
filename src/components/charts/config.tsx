@@ -716,5 +716,98 @@ export const config: ConfigStyle = {
 			],
 			key: '5'
 		}
+	],
+	'HDFS-NameNode': [
+		{
+			cols: [
+				{
+					rows: [
+						{
+							title: '持续时间',
+							key: '1-1-1',
+							type: 'text',
+							query: '(time() - Hadoop_NameNode_NNStartedTimeInMillis{instance="{instance}"} / 1000) /  (60 * 60)',
+							span: 4,
+							unit: '小时'
+						},
+						{
+							title: '开始时间',
+							key: '1-1-2',
+							type: 'time',
+							query: `Hadoop_NameNode_NNStartedTimeInMillis{instance="{instance}"}`,
+							span: 4,
+							unit: '小时前'
+						}
+					],
+					span: 6,
+					key: '1-1'
+				},
+
+				{
+					title: 'nn_total_sync_count',
+					key: '1-2',
+					type: 'line',
+					span: 9,
+					query: `Hadoop_NameNode_TotalSyncCount{name='FSNamesystem'}`
+				},
+				{
+					title: 'nn_dn_total_capacity_remaining',
+					key: '1-3',
+					type: 'line',
+					span: 9,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'TB'
+					},
+					query: `sum(Hadoop_NameNode_CapacityRemaining)`
+				}
+			],
+			height: '350px',
+			key: '1'
+		},
+		{
+			cols: [
+				{
+					title: 'nn_dn_capacity_used',
+					key: '2-1',
+					type: 'line',
+					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'MB'
+					},
+					query: `sum(Hadoop_NameNode_CapacityUsed{name='FSNamesystem'})`
+				},
+				{
+					title: 'nn_file_created_ops',
+					key: '2-2',
+					type: 'line',
+					span: 12,
+					query: `avg(Hadoop_NameNode_CreateFileOps) by (instance)`
+				}
+			],
+			key: '2'
+		},
+		{
+			cols: [
+				{
+					title: 'nn_files_created',
+					key: '3-1',
+					type: 'line',
+					span: 12,
+					query: 'avg(Hadoop_NameNode_FilesCreated) by (instance)'
+				},
+				{
+					title: 'nn_files_appended',
+					key: '3-2',
+					type: 'line',
+					span: 12,
+					query: `avg(Hadoop_NameNode_FilesAppended) by (instance)`
+				}
+			],
+			key: '3'
+		}
 	]
 };
