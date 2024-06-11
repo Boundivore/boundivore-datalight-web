@@ -450,7 +450,14 @@ export const config: ConfigStyle = {
 			cols: [
 				{
 					rows: [
-						{ title: '持续时间', key: '1-1-1', type: 'text', query: 'druid_initial_size', span: 4, unit: '小时' },
+						{
+							title: '持续时间',
+							key: '1-1-1',
+							type: 'text',
+							query: '(time() - java_lang_Runtime_StartTime{instance="{instance}"} / 1000) /  (60 * 60)',
+							span: 4,
+							unit: '小时'
+						},
 						{
 							title: '开始时间',
 							key: '1-1-2',
@@ -515,6 +522,199 @@ export const config: ConfigStyle = {
 				}
 			],
 			key: '2'
+		}
+	],
+	'HDFS-HttpFS': [
+		{
+			cols: [
+				{
+					title: '持续时间',
+					key: '1-1',
+					type: 'text',
+					query: '(time() - java_lang_Runtime_StartTime{instance="{instance}"} / 1000) /  (60 * 60)',
+					span: 12,
+					unit: '小时'
+				},
+				{
+					title: '开始时间',
+					key: '1-2',
+					type: 'time',
+					query: `java_lang_Runtime_StartTime{instance="{instance}"}`,
+					span: 12,
+					unit: '小时前'
+				}
+			]
+		}
+	],
+	'HDFS-JournalNode': [
+		{
+			cols: [
+				{
+					rows: [
+						{
+							title: '持续时间',
+							key: '1-1-1',
+							type: 'text',
+							query: '(time() - java_lang_Runtime_StartTime{instance="{instance}"} / 1000) /  (60 * 60)',
+							span: 4,
+							unit: '小时'
+						},
+						{
+							title: '开始时间',
+							key: '1-1-2',
+							type: 'time',
+							query: `java_lang_Runtime_StartTime{instance="{instance}"}`,
+							span: 4,
+							unit: '小时前'
+						}
+					],
+					span: 6,
+					key: '1-1'
+				},
+
+				{
+					title: 'jn_syncs_60s_95th_percentile_latency_micros',
+					key: '1-2',
+					type: 'line',
+					span: 9,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'μs'
+					},
+					query: `Hadoop_JournalNode_Syncs60s95thPercentileLatencyMicros`
+				},
+				{
+					title: 'jn_syncs_60s_99th_percentile_latency_micros',
+					key: '1-3',
+					type: 'line',
+					span: 9,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'μs'
+					},
+					query: `Hadoop_JournalNode_Syncs60s99thPercentileLatencyMicros`
+				}
+			],
+			height: '350px',
+			key: '1'
+		},
+		{
+			cols: [
+				{
+					title: 'jn_syncs_300s_95th_percentile_latency_micros',
+					key: '2-1',
+					type: 'line',
+					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'μs'
+					},
+					query: 'Hadoop_JournalNode_Syncs300s95thPercentileLatencyMicros'
+				},
+				{
+					title: 'jn_syncs_300s_99th_percentile_latency_micros',
+					key: '2-2',
+					type: 'line',
+					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'μs'
+					},
+					query: `Hadoop_JournalNode_Syncs300s99thPercentileLatencyMicros`
+				}
+			],
+			key: '2'
+		},
+		{
+			cols: [
+				{
+					title: 'jn_batches_written_rate',
+					key: '3-1',
+					type: 'line',
+					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'c/s'
+					},
+					query: 'rate(Hadoop_JournalNode_BatchesWritten{instance="{instance}"}[1m])'
+				},
+				{
+					title: 'nv_bytes_written_rate',
+					key: '3-2',
+					type: 'line',
+					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'B/s'
+					},
+					query: `rate(Hadoop_JournalNode_BytesWritten{instance="{instance}"}[1m])`
+				}
+			],
+			key: '3'
+		},
+		{
+			cols: [
+				{
+					title: 'jjn_jvm_gc_count_rate',
+					key: '4-1',
+					type: 'line',
+					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'c/s'
+					},
+					query: 'rate(Hadoop_JournalNode_GcCount{instance="{instance}"}[1m])'
+				},
+				{
+					title: 'jn_jvm_gc_time_millis_rate',
+					key: '4-2',
+					type: 'line',
+					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'ms'
+					},
+					query: `rate(Hadoop_JournalNode_GcTimeMillis{instance="{instance}"}[1m])`
+				}
+			],
+			key: '4'
+		},
+		{
+			cols: [
+				{
+					title: 'jn_jvm_mem_nonheap_usedM',
+					key: '5-1',
+					type: 'line',
+					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'MB'
+					},
+					query: 'Hadoop_JournalNode_MemNonHeapUsedM{instance="{instance}"}'
+				},
+				{
+					title: 'jn_mem_heap_usedM',
+					key: '5-2',
+					type: 'line',
+					span: 12,
+					formatter: {
+						formatterType: `/`,
+						formatterCount: 1,
+						unit: 'MB'
+					},
+					query: `Hadoop_JournalNode_MemHeapUsedM{instance="{instance}"}`
+				}
+			],
+			key: '5'
 		}
 	]
 };
