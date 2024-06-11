@@ -51,7 +51,7 @@ const baseOptions = {
 		axisLabel: {}
 	},
 	series: [],
-	legend: {}
+	legend: { type: 'scroll' }
 };
 interface LineComponentProps {
 	clusterId: string;
@@ -77,6 +77,7 @@ const LineComponent: FC<LineComponentProps> = ({ clusterId, query, multiple, for
 	const defaultOptions = {
 		...baseOptions,
 		legend: {
+			...baseOptions.legend,
 			...(multiple ? { data: [] } : {})
 		}
 	};
