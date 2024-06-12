@@ -24,7 +24,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Table, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
-import useStore from '@/store/store';
+import useStore, { useScrollStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import { BadgeStatus, ServiceItemType } from '@/api/interface';
@@ -37,6 +37,7 @@ const SelectServiceStep = forwardRef((_props, ref) => {
 	const serviceName = searchParams.get('service');
 	const { selectedServiceRowsList, setSelectedServiceRowsList, stateText, setCurrentPageDisabled, currentPageDisabled } =
 		useStore();
+	const { setScrollTop } = useScrollStore();
 	const [tableData, setTableData] = useState<ServiceItemType[]>([]);
 	const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
 	const columns: ColumnsType<ServiceItemType> = [
@@ -111,6 +112,7 @@ const SelectServiceStep = forwardRef((_props, ref) => {
 	};
 	useEffect(() => {
 		getList();
+		setScrollTop(1);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	useEffect(() => {
