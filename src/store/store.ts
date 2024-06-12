@@ -77,6 +77,10 @@ interface ComponentAndNodeStore {
 	nodeList: { [key: string]: any };
 	setNodeList: (info: object) => void;
 }
+interface ScrollStore {
+	scrollTop: number;
+	setScrollTop: (newScrollTop: number) => void;
+}
 const useStore = create<MyStore>(set => ({
 	isNeedChangePassword: false,
 	setIsNeedChangePassword: (changePassword: boolean) => set({ isNeedChangePassword: changePassword }),
@@ -288,5 +292,10 @@ export const useComponentAndNodeStore = create<ComponentAndNodeStore>()(
 		}
 	)
 );
+export const useScrollStore = create<ScrollStore>(set => ({
+	scrollTop: 0, // 初始滚动位置
+	setScrollTop: (newScrollTop: number) => set({ scrollTop: newScrollTop }) // 更新滚动位置的函数
+	// ... 其他状态或函数
+}));
 
 export default useStore;

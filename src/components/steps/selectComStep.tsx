@@ -27,7 +27,7 @@ import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import NodeListModal from '../nodeListModal';
-import useStore from '@/store/store';
+import useStore, { useScrollStore } from '@/store/store';
 import {
 	NodeType,
 	ServiceItemType,
@@ -69,6 +69,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 	const [currentComponent, setCurrentComponent] = useState('');
 	const [disableSelectedNode, setDisableSelectedNode] = useState(false);
 	const { setCurrentPageDisabled, currentPageDisabled } = useStore();
+	const { setScrollTop } = useScrollStore();
 	const [tempData, setTempData] = useState<ServiceItemType[]>([]);
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id') || '';
@@ -247,6 +248,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 	}, [nodeList, tempData]);
 	useEffect(() => {
 		getList();
+		setScrollTop(0);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (

@@ -30,6 +30,7 @@ import Logo from '@/assets/logo.png';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useNavigater from '@/hooks/useNavigater';
+import { useScrollStore } from '@/store/store';
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -46,7 +47,8 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const id = searchParams.get('id');
 	// const { navigateToLogin, navigateToChangePassword } = useNavigater();
 	const { navigateToLogin, navigateToHome, navigateToChangePassword } = useNavigater();
-	const scrollableRef = useRef<HTMLDivElement>(null);
+	const scrollRef = useRef<HTMLDivElement>(null);
+	const { scrollTop } = useScrollStore();
 	const { modal } = App.useApp();
 	const apiLogout = APIConfig.logout;
 	const items: MenuProps['items'] = [
@@ -121,11 +123,11 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	};
 	useEffect(() => {
 		// 确保DOM元素已经挂载
-		if (scrollableRef.current) {
+		if (scrollRef.current) {
 			// 滚动到顶部
-			scrollableRef.current.scrollTop = 0;
+			scrollRef.current.scrollTop = 0;
 		}
-	}, []);
+	}, [scrollTop]);
 	return (
 		<Layout className="w-full min-w-[1360px] h-[calc(100vh)]">
 			<Header className="flex items-center">
@@ -137,7 +139,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 					<Avatar className="bg-[#51c2fe]" size="large" icon={<UserOutlined />} />
 				</Dropdown>
 			</Header>
-			<Layout className="overflow-y-auto" ref={scrollableRef}>
+			<Layout className="overflow-y-auto" ref={scrollRef}>
 				{!hideSider ? (
 					<div className="relative bg-[#fff]" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 						<Sider
