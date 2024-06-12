@@ -152,3 +152,24 @@ export const diffInMinutes = (timestamp1: number, timestamp2: number) => {
 
 	return minutesDiff;
 };
+
+export const convertByteSize = (bytes: number) => {
+	const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+	const factors = [1, 1024, 1024 * 1024, 1024 * 1024 * 1024, 1024 * 1024 * 1024 * 1024];
+	// const factors = [1, 1000, 1000 * 1000, 1000 * 1000 * 1000, 1000 * 1000 * 1000 * 1000];
+
+	// 遍历单位数组和因子数组，直到找到一个不大于给定字节数的因子
+	for (let i = 0; i < factors.length; i++) {
+		if (bytes < factors[i]) {
+			// 使用前一个因子（因为当前因子太大了）
+			const factor = factors[i - 1] || 1; // 如果i是0，则使用1作为因子
+			const unit = units[i - 1] || units[0]; // 如果i是0，则使用'B'作为单位
+
+			// 计算并返回带有适当单位的字符串
+			return (bytes / factor).toFixed(2) + ' ' + unit;
+		}
+	}
+
+	// 如果给定的字节数非常大，以至于超过了TB，我们可以选择返回'PB'或其他更大的单位，但在这个例子中，我们仅返回'TB'
+	return (bytes / factors[factors.length - 1]).toFixed(2) + ' TB';
+};

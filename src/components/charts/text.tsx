@@ -20,9 +20,10 @@
  */
 import { FC, useEffect, useState } from 'react';
 import { Typography } from 'antd';
+import dayjs from 'dayjs';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { timestampToHoursAgo } from '@/utils/helper';
+import { convertByteSize } from '@/utils/helper';
 import useStore from '@/store/store';
 import { Column, ServiceItemType } from '@/api/interface';
 
@@ -79,13 +80,13 @@ const TextComponent: FC<TextComponentProps> = ({ clusterId, query, unit, type, n
 						setTextData(parseFloat(result[0].value[1]).toFixed(2));
 						break;
 					case 'time':
-						setTextData(timestampToHoursAgo(result[0].value[1]));
+						setTextData(dayjs.unix(result[0].value[1] / 1000).format('YYYY-MM-DD HH:mm:ss'));
 						break;
 					case 'number':
 						setTextData(result[0].value[1]);
 						break;
 					case 'byte':
-						setTextData((parseFloat(result[0].value[1]) / 1024).toFixed(2));
+						setTextData(convertByteSize(parseFloat(result[0].value[1])));
 						break;
 					default:
 						break;

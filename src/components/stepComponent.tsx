@@ -45,7 +45,7 @@ interface MyComponentProps {
 	config: StepConfig[];
 }
 // 适配集群引导和新增组件，新增组件重新定义步骤进度，将前边节点相关步骤减去
-const stepNum = 6;
+const stepNum = 7;
 
 const StepComponent: FC<MyComponentProps> = ({ config }) => {
 	const { t } = useTranslation();

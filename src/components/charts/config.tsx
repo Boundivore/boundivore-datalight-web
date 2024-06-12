@@ -70,25 +70,22 @@ export const config: ConfigStyle = {
 					title: 'RootFS Total',
 					key: '1-5',
 					type: 'byte',
-					query: `sum(node_filesystem_size_bytes{job="MONITOR-NodeExporter", mountpoint="/", fstype!="rootfs"}) / (1024 * 1024)`,
-					span: 4,
-					unit: 'GiB'
+					query: `sum(node_filesystem_size_bytes{job="MONITOR-NodeExporter", mountpoint="/", fstype!="rootfs"})`,
+					span: 4
 				},
 				{
 					title: 'RAM Total',
 					key: '1-6',
 					type: 'byte',
-					query: `sum(node_memory_MemTotal_bytes{job="MONITOR-NodeExporter"}) / (1024 * 1024)`,
-					span: 4,
-					unit: 'GiB'
+					query: `sum(node_memory_MemTotal_bytes{job="MONITOR-NodeExporter"})`,
+					span: 4
 				},
 				{
 					title: 'SWAP Total',
 					key: '1-7',
 					type: 'byte',
-					query: `sum(node_memory_SwapTotal_bytes{job="MONITOR-NodeExporter"}) / (1024 * 1024)`,
-					span: 4,
-					unit: 'GiB'
+					query: `sum(node_memory_SwapTotal_bytes{job="MONITOR-NodeExporter"})`,
+					span: 4
 				}
 			],
 			height: '150px',
@@ -398,8 +395,7 @@ export const config: ConfigStyle = {
 							key: '1-1-2',
 							type: 'time',
 							query: `avg(process_start_time_seconds{job="{jobName}", instance=~"{instance}"})*1000`,
-							span: 4,
-							unit: '小时前'
+							span: 4
 						}
 					],
 					span: 6,
@@ -463,8 +459,7 @@ export const config: ConfigStyle = {
 							key: '1-1-2',
 							type: 'time',
 							query: `avg(process_start_time_seconds{job="{jobName}", instance=~"{instance}"})*1000`,
-							span: 4,
-							unit: '小时前'
+							span: 4
 						}
 					],
 					span: 6,
@@ -540,8 +535,49 @@ export const config: ConfigStyle = {
 					key: '1-2',
 					type: 'time',
 					query: `java_lang_Runtime_StartTime{instance="{instance}"}`,
+					span: 12
+				}
+			]
+		}
+	],
+	'HDFS-ZKFailoverController': [
+		{
+			cols: [
+				{
+					title: '开始时间',
+					key: '1-2',
+					type: 'time',
+					query: `java_lang_Runtime_StartTime{instance="{instance}"}`,
+					span: 12
+				},
+				{
+					title: '持续时间',
+					key: '1-1',
+					type: 'text',
+					query: '(time() - java_lang_Runtime_StartTime{instance="{instance}"} / 1000) /  (60 * 60)',
 					span: 12,
-					unit: '小时前'
+					unit: '小时'
+				}
+			]
+		}
+	],
+	'HIVE-MetaStore': [
+		{
+			cols: [
+				{
+					title: '开始时间',
+					key: '1-2',
+					type: 'time',
+					query: `java_lang_Runtime_StartTime{instance="{instance}"}`,
+					span: 12
+				},
+				{
+					title: '持续时间',
+					key: '1-1',
+					type: 'text',
+					query: '(time() - java_lang_Runtime_StartTime{instance="{instance}"} / 1000) /  (60 * 60)',
+					span: 12,
+					unit: '小时'
 				}
 			]
 		}
@@ -564,8 +600,7 @@ export const config: ConfigStyle = {
 							key: '1-1-2',
 							type: 'time',
 							query: `java_lang_Runtime_StartTime{instance="{instance}"}`,
-							span: 4,
-							unit: '小时前'
+							span: 4
 						}
 					],
 					span: 6,
@@ -735,32 +770,25 @@ export const config: ConfigStyle = {
 							key: '1-1-2',
 							type: 'time',
 							query: `Hadoop_NameNode_NNStartedTimeInMillis{instance="{instance}"}`,
-							span: 4,
-							unit: '小时前'
+							span: 4
 						}
 					],
 					span: 6,
 					key: '1-1'
 				},
-
-				{
-					title: 'nn_total_sync_count',
-					key: '1-2',
-					type: 'line',
-					span: 9,
-					query: `Hadoop_NameNode_TotalSyncCount{name='FSNamesystem'}`
-				},
 				{
 					title: 'nn_dn_total_capacity_remaining',
-					key: '1-3',
-					type: 'line',
+					key: '1-2',
+					type: 'byte',
 					span: 9,
-					formatter: {
-						formatterType: `/`,
-						formatterCount: 1024 * 1024,
-						unit: 'TB'
-					},
-					query: `sum(Hadoop_NameNode_CapacityRemaining)`
+					query: `Hadoop_NameNode_CapacityRemaining{ name="FSNamesystem",instance="{instance}"}`
+				},
+				{
+					title: 'nn_dn_capacity_used',
+					key: '1-3',
+					type: 'byte',
+					span: 9,
+					query: `Hadoop_NameNode_CapacityUsed{name='FSNamesystem',instance="{instance}"}`
 				}
 			],
 			height: '350px',
@@ -769,16 +797,11 @@ export const config: ConfigStyle = {
 		{
 			cols: [
 				{
-					title: 'nn_dn_capacity_used',
+					title: 'nn_total_sync_count',
 					key: '2-1',
 					type: 'line',
 					span: 12,
-					formatter: {
-						formatterType: `/`,
-						formatterCount: 1,
-						unit: 'MB'
-					},
-					query: `sum(Hadoop_NameNode_CapacityUsed{name='FSNamesystem'})`
+					query: `Hadoop_NameNode_TotalSyncCount{name='FSNamesystem'}`
 				},
 				{
 					title: 'nn_file_created_ops',
