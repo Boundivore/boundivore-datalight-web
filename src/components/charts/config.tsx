@@ -757,7 +757,7 @@ export const config: ConfigStyle = {
 					span: 9,
 					formatter: {
 						formatterType: `/`,
-						formatterCount: 1,
+						formatterCount: 1024 * 1024,
 						unit: 'TB'
 					},
 					query: `sum(Hadoop_NameNode_CapacityRemaining)`

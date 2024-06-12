@@ -18,7 +18,7 @@
  * Layouts -页面框架
  * @author Tracy
  */
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useRef, useEffect } from 'react';
 import { Layout, Avatar, Dropdown, App, Spin, Button, Breadcrumb } from 'antd';
 import type { MenuProps } from 'antd';
 import { UserOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
@@ -46,6 +46,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const id = searchParams.get('id');
 	// const { navigateToLogin, navigateToChangePassword } = useNavigater();
 	const { navigateToLogin, navigateToHome, navigateToChangePassword } = useNavigater();
+	const scrollableRef = useRef<HTMLDivElement>(null);
 	const { modal } = App.useApp();
 	const apiLogout = APIConfig.logout;
 	const items: MenuProps['items'] = [
@@ -118,6 +119,13 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 
 		// return breadcrumbs;
 	};
+	useEffect(() => {
+		// 确保DOM元素已经挂载
+		if (scrollableRef.current) {
+			// 滚动到顶部
+			scrollableRef.current.scrollTop = 0;
+		}
+	}, []);
 	return (
 		<Layout className="w-full min-w-[1360px] h-[calc(100vh)]">
 			<Header className="flex items-center">
@@ -129,7 +137,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 					<Avatar className="bg-[#51c2fe]" size="large" icon={<UserOutlined />} />
 				</Dropdown>
 			</Header>
-			<Layout className="overflow-y-auto">
+			<Layout className="overflow-y-auto" ref={scrollableRef}>
 				{!hideSider ? (
 					<div className="relative bg-[#fff]" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 						<Sider
