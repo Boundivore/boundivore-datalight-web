@@ -40,7 +40,7 @@ const PreconfigStep = forwardRef((_props, ref) => {
 	const [items, setItems] = useState<CollapseProps['items']>([]);
 	const [keys, setKeys] = useState<string[]>([]);
 	const [cachedKeys, setCachedKeys] = useState<string[]>([]);
-	const { setJobId } = useStore();
+	const { setCurrentPageDisabled, setJobId } = useStore();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [form] = Form.useForm();
@@ -118,6 +118,12 @@ const PreconfigStep = forwardRef((_props, ref) => {
 		setServiceList(ConfigPreServiceList);
 		ConfigPreServiceList.map((service: ConfigPreServiceVo) => {
 			serviceNameList.current.push(service.ServiceName);
+		});
+		setCurrentPageDisabled({
+			nextDisabled: false,
+			retryDisabled: false,
+			prevDisabled: false,
+			cancelDisabled: false
 		});
 	};
 	useImperativeHandle(ref, () => ({
