@@ -27,6 +27,7 @@ import useStepLogic from '@/hooks/useStepLogic';
 interface StepConfig {
 	title: string;
 	content: ReactElement;
+	extra: ReactElement;
 	nextStep?: () => boolean | void;
 	retry?: () => void;
 	hideInitButton?: boolean; // 是否隐藏初始化按钮，包括上一步、下一步、重试和取消
@@ -77,7 +78,7 @@ const StepComponent: FC<MyComponentProps> = ({ config }) => {
 	const cancel = useCancelProcedure();
 	return (
 		<>
-			<Card className="h-full" title={stepConfig.title}>
+			<Card className="h-full" title={stepConfig.title} extra={stepConfig?.extra}>
 				{stepConfig.content}
 				<Col className="mt-[24px]" span={24}>
 					<Space className="flex justify-center">
