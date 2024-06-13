@@ -27,7 +27,7 @@ import useStepLogic from '@/hooks/useStepLogic';
 interface StepConfig {
 	title: string;
 	content: ReactElement;
-	extra: ReactElement;
+	extra?: ReactElement;
 	nextStep?: () => boolean | void;
 	retry?: () => void;
 	hideInitButton?: boolean; // 是否隐藏初始化按钮，包括上一步、下一步、重试和取消
