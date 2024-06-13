@@ -405,5 +405,8 @@ export default {
 	loadMore: '加载更多',
 	haveNoMore: '暂无更多',
 	offset: '步长：',
-	offsetPlaceholder: '大于1，小于100000'
+	offsetPlaceholder: '大于1，小于100000',
+	process: '执行',
+	wait: '等待',
+	fail: '失败'
 };

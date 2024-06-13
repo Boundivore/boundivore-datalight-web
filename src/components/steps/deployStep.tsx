@@ -20,7 +20,7 @@
  */
 import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Table, Progress, Typography, Alert } from 'antd';
+import { Table, Progress, Typography, Alert, Flex, Space, Badge } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import useStore from '@/store/store';
@@ -197,6 +197,14 @@ const DeployStep = forwardRef((_props, ref) => {
 	return (
 		<>
 			{openAlert ? <Alert message={errorText} type="error" /> : null}
+			<Flex justify="flex-end">
+				<Space>
+					<Badge key="blue" color="blue" text={t('process')} />
+					<Badge key="green" color="green" text={t('done')} />
+					<Badge key="black" color="black" text={t('wait')} />
+					<Badge key="red" color="red" text={t('fail')} />
+				</Space>
+			</Flex>
 			<Table
 				className="data-light-table" //使用自定义class重定义table行高
 				rowKey="NodeId"
