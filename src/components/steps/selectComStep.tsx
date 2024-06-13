@@ -20,7 +20,7 @@
  */
 import { forwardRef, useEffect, useImperativeHandle, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Collapse, Flex, Select, Spin } from 'antd';
+import { Button, Collapse, Flex, Select, Spin } from 'antd';
 // import { useTranslation } from 'react-i18next';
 import type { CollapseProps } from 'antd';
 import { useComponentAndNodeStore } from '@/store/store';
@@ -188,6 +188,19 @@ const SelectComStep = forwardRef((_props, ref) => {
 			{label}
 		</span>
 	);
+	const genExtra = () => (
+		<Button
+			type="primary"
+			size="small"
+			ghost
+			onClick={event => {
+				// If you don't want click extra trigger collapse, you can prevent this:
+				event.stopPropagation();
+			}}
+		>
+			推荐分布
+		</Button>
+	);
 	useEffect(() => {
 		const cdata = tempData.map(item => {
 			let tempList = { [id]: {} };
@@ -202,6 +215,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 						<span className="pl-[5px]">{item.ServiceName}</span>
 					</div>
 				),
+				extra: genExtra(),
 				children: (
 					<Spin indicator={<span></span>} spinning={!notSelectedStates.includes(item.SCStateEnum)}>
 						<Flex wrap="wrap">
