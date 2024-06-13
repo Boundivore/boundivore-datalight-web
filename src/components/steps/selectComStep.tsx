@@ -21,7 +21,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button, Collapse, Flex, Select, Spin } from 'antd';
-// import { useTranslation } from 'react-i18next';
+import { t } from 'i18next';
 import type { CollapseProps } from 'antd';
 import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
@@ -198,7 +198,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 				event.stopPropagation();
 			}}
 		>
-			推荐分布
+			{t('recommend')}
 		</Button>
 	);
 	useEffect(() => {

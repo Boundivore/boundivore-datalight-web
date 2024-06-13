@@ -408,5 +408,7 @@ export default {
 	offsetPlaceholder: '大于1，小于100000',
 	process: '执行',
 	wait: '等待',
-	fail: '失败'
+	fail: '失败',
+	recommend: '推荐分布',
+	batchRecommend: '批量推荐'
 };

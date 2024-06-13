@@ -38,6 +38,7 @@ import DeployStep from '@/components/steps/deployStep';
 import useStepLogic from '@/hooks/useStepLogic';
 import useNavigater from '@/hooks/useNavigater';
 import { StepRefType } from '@/api/interface';
+import { Button } from 'antd';
 
 const useStepConfig = () => {
 	const { t } = useTranslation();
@@ -133,6 +134,11 @@ const useStepConfig = () => {
 		},
 		{
 			title: t('service.selectComponent'),
+			extra: (
+				<Button type="primary" ghost>
+					{t('batchRecommend')}
+				</Button>
+			),
 			content: <SelectComStep ref={selectComponentRef} />,
 			nextStep: nextPreconfig,
 			hideRetry: true
