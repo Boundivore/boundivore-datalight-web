@@ -194,8 +194,42 @@ const SelectComStep = forwardRef((_props, ref) => {
 			ClusterId: id,
 			ServiceNames: serviceNames
 		};
-		const { Data } = await RequestHttp.get(api, { params });
-		console.log(Data);
+		const {
+			Data: { ServicePlacementList }
+		} = await RequestHttp.get(api, { params });
+		let tempList = { [id]: {} }; // 初始化临时数据，用id作为唯一key值
+		ServicePlacementList.map(item => {
+			const result = {};
+
+			// 遍历组件列表
+			item.ComponentPlacementList.forEach(component => {
+				// 初始化结果对象中当前组件名对应的条目（如果尚不存在）
+				if (!result[component.ComponentName]) {
+					result[component.ComponentName] = {
+						ComponentName: component.ComponentName,
+						ComponentNodeList: []
+					};
+				}
+
+				// 将节点信息添加到ComponentNodeList
+				result[component.ComponentName].ComponentNodeList.push({
+					NodeId: component.NodeId,
+					Hostname: component.Hostname,
+					NodeIp: component.NodeIp,
+					NodeState: component.NodeState
+				});
+			});
+
+			// item.ComponentPlacementList.map(component => {
+			tempList[id] = {
+				...tempList[id],
+				[component.ComponentName]: { ...tempList[id][component.ComponentName], componentNodeList: result[component.ComponentName].ComponentNodeList }
+			};
+			// setNodeList(tempList);
+			// });
+		});
+
+		console.log(1111, tempList);
 	};
 	const genExtra = (isDisabled: boolean, serviceNames: string) => (
 		<Button
@@ -203,9 +237,9 @@ const SelectComStep = forwardRef((_props, ref) => {
 			size="small"
 			disabled={isDisabled}
 			ghost
-			onClick={() => {
+			onClick={event => {
 				// If you don't want click extra trigger collapse, you can prevent this:
-				// event.stopPropagation();
+				event.stopPropagation();
 				getRecommendation(serviceNames);
 			}}
 		>
