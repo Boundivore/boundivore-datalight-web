@@ -129,7 +129,8 @@ const APIConfig: Actions = {
 	updateAlertHandlerMail: '/v1/master/alert/updateAlertHandlerMail',
 	//自动拉起开关
 	autoPull: '/v1/master/auto/pull/get',
-	switchWorker: '/v1/master/auto/pull/switch/worker'
+	switchWorker: '/v1/master/auto/pull/switch/worker',
+	getComponentPlacementRecommendation: '/v1/master/advisor/getComponentPlacementRecommendation'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

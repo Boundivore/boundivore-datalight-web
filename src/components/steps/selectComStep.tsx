@@ -188,15 +188,25 @@ const SelectComStep = forwardRef((_props, ref) => {
 			{label}
 		</span>
 	);
-	const genExtra = (isDisabled: boolean) => (
+	const getRecommendation = async (serviceNames: string) => {
+		const api = APIConfig.getComponentPlacementRecommendation;
+		const params = {
+			ClusterId: id,
+			ServiceNames: serviceNames
+		};
+		const { Data } = await RequestHttp.get(api, { params });
+		console.log(Data);
+	};
+	const genExtra = (isDisabled: boolean, serviceNames: string) => (
 		<Button
 			type="primary"
 			size="small"
 			disabled={isDisabled}
 			ghost
-			onClick={event => {
+			onClick={() => {
 				// If you don't want click extra trigger collapse, you can prevent this:
-				event.stopPropagation();
+				// event.stopPropagation();
+				getRecommendation(serviceNames);
 			}}
 		>
 			{t('recommend')}
@@ -204,23 +214,24 @@ const SelectComStep = forwardRef((_props, ref) => {
 	);
 	useEffect(() => {
 		const cdata = tempData.map(item => {
+			const { ServiceName, SCStateEnum, ComponentSummaryList } = item;
 			let tempList = { [id]: {} };
 			// 是否禁用已经选择的节点
 			// let disableSelected = item.SCStateEnum === 'SELECTED_ADDITION';
 			let disableSelected = false;
 			return {
-				key: item.ServiceName,
+				key: ServiceName,
 				label: (
 					<div className="flex items-center">
-						<img src={`/service_logo/${item.ServiceName.toLowerCase()}.svg`} width="16" height="16" />
-						<span className="pl-[5px]">{item.ServiceName}</span>
+						<img src={`/service_logo/${ServiceName.toLowerCase()}.svg`} width="16" height="16" />
+						<span className="pl-[5px]">{ServiceName}</span>
 					</div>
 				),
-				extra: genExtra(item.SCStateEnum !== 'SELECTED'),
+				extra: genExtra(SCStateEnum !== 'SELECTED', ServiceName),
 				children: (
-					<Spin indicator={<span></span>} spinning={!notSelectedStates.includes(item.SCStateEnum)}>
+					<Spin indicator={<span></span>} spinning={!notSelectedStates.includes(SCStateEnum)}>
 						<Flex wrap="wrap">
-							{item.ComponentSummaryList.map((component: ComponentSummaryVo) => {
+							{ComponentSummaryList.map((component: ComponentSummaryVo) => {
 								tempList[id] = {
 									...tempList[id],
 									[component.ComponentName]: {
@@ -231,7 +242,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 								};
 								// setNodeList(tempList);
 								const nameArray = (nodeList[id] || tempList[id])[component.ComponentName].componentNodeList
-									?.filter((item: ServiceItemType) => item.SCStateEnum !== 'UNSELECTED')
+									?.filter((serviceItem: ServiceItemType) => serviceItem.SCStateEnum !== 'UNSELECTED')
 									.map((node: NodeType) => node.Hostname);
 								return (
 									<div className="w-1/4" key={component.ComponentName}>
