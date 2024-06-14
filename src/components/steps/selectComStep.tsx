@@ -178,9 +178,9 @@ const SelectComStep = forwardRef((_props, ref) => {
 					...tempList[id],
 					[component.ComponentName]: { componentNodeList: component.ComponentNodeList, min: component.Min, max: component.Max }
 				};
-				setNodeList(tempList);
 			});
 		});
+		setNodeList(tempList);
 		setCurrentPageDisabled({ ...currentPageDisabled, nextDisabled: false, prevDisabled: false });
 	};
 	const customTagRender: CustomTagRender = ({ label, value }) => (
@@ -194,42 +194,33 @@ const SelectComStep = forwardRef((_props, ref) => {
 			ClusterId: id,
 			ServiceNames: serviceNames
 		};
+
 		const {
 			Data: { ServicePlacementList }
 		} = await RequestHttp.get(api, { params });
-		let tempList = { [id]: {} }; // 初始化临时数据，用id作为唯一key值
-		ServicePlacementList.map(item => {
-			const result = {};
+		let tempList = { [id]: nodeList[id] }; // 初始化临时数据，用id作为唯一key值
 
+		ServicePlacementList.map(item => {
 			// 遍历组件列表
 			item.ComponentPlacementList.forEach(component => {
-				// 初始化结果对象中当前组件名对应的条目（如果尚不存在）
-				if (!result[component.ComponentName]) {
-					result[component.ComponentName] = {
-						ComponentName: component.ComponentName,
-						ComponentNodeList: []
-					};
-				}
-
+				let componentNodeList = [];
 				// 将节点信息添加到ComponentNodeList
-				result[component.ComponentName].ComponentNodeList.push({
+				componentNodeList.push({
 					NodeId: component.NodeId,
 					Hostname: component.Hostname,
 					NodeIp: component.NodeIp,
 					NodeState: component.NodeState
 				});
+				tempList[id] = {
+					...tempList[id],
+					[component.ComponentName]: {
+						...tempList[id][component.ComponentName],
+						componentNodeList
+					}
+				};
 			});
-
-			// item.ComponentPlacementList.map(component => {
-			tempList[id] = {
-				...tempList[id],
-				[component.ComponentName]: { ...tempList[id][component.ComponentName], componentNodeList: result[component.ComponentName].ComponentNodeList }
-			};
-			// setNodeList(tempList);
-			// });
 		});
-
-		console.log(1111, tempList);
+		setNodeList(tempList);
 	};
 	const genExtra = (isDisabled: boolean, serviceNames: string) => (
 		<Button
