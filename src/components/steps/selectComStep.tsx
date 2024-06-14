@@ -188,10 +188,11 @@ const SelectComStep = forwardRef((_props, ref) => {
 			{label}
 		</span>
 	);
-	const genExtra = () => (
+	const genExtra = (isDisabled: boolean) => (
 		<Button
 			type="primary"
 			size="small"
+			disabled={isDisabled}
 			ghost
 			onClick={event => {
 				// If you don't want click extra trigger collapse, you can prevent this:
@@ -215,7 +216,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 						<span className="pl-[5px]">{item.ServiceName}</span>
 					</div>
 				),
-				extra: genExtra(),
+				extra: genExtra(item.SCStateEnum !== 'SELECTED'),
 				children: (
 					<Spin indicator={<span></span>} spinning={!notSelectedStates.includes(item.SCStateEnum)}>
 						<Flex wrap="wrap">
