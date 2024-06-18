@@ -130,7 +130,8 @@ const APIConfig: Actions = {
 	//自动拉起开关
 	autoPull: '/v1/master/auto/pull/get',
 	switchWorker: '/v1/master/auto/pull/switch/worker',
-	getComponentPlacementRecommendation: '/v1/master/advisor/getComponentPlacementRecommendation'
+	getComponentPlacementRecommendation: '/v1/master/advisor/getComponentPlacementRecommendation',
+	resetPrometheus: '/v1/master/operation/prometheus/resetPrometheusConfig'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

@@ -410,7 +410,7 @@ export enum NodeState {
 }
 
 export enum SCStateEnum {
-	BeingDecommissioned = 'BEING_DECOMMISSIONED',
+	Decommissioning = 'DECOMMISSIONING',
 	Changing = 'CHANGING',
 	Decommissioned = 'DECOMMISSIONED',
 	Deployed = 'DEPLOYED',
@@ -898,4 +898,52 @@ export interface DataStructure {
 	rows?: Column[];
 	height: string;
 	key: string | number;
+}
+
+/**
+ * PlacementAdvisorVo
+ */
+export interface PlacementAdvisorVo {
+	ClusterId: number;
+	ServicePlacementList: ServicePlacementVo[];
+	[property: string]: any;
+}
+
+/**
+ * ServicePlacementVo
+ */
+export interface ServicePlacementVo {
+	ComponentPlacementList: ComponentPlacementVo[];
+	ServiceName: string;
+	[property: string]: any;
+}
+
+/**
+ * ComponentPlacementVo
+ */
+export interface ComponentPlacementVo {
+	ComponentName: string;
+	ComponentState: ComponentState;
+	Hostname: string;
+	NodeId: number;
+	NodeIp: string;
+	NodeState: NodeState;
+	[property: string]: any;
+}
+
+export enum ComponentState {
+	Changing = 'CHANGING',
+	Decommissioned = 'DECOMMISSIONED',
+	Decommissioning = 'DECOMMISSIONING',
+	Deployed = 'DEPLOYED',
+	Deploying = 'DEPLOYING',
+	Removed = 'REMOVED',
+	Restarting = 'RESTARTING',
+	Selected = 'SELECTED',
+	SelectedAddition = 'SELECTED_ADDITION',
+	Started = 'STARTED',
+	Starting = 'STARTING',
+	Stopped = 'STOPPED',
+	Stopping = 'STOPPING',
+	Unselected = 'UNSELECTED'
 }

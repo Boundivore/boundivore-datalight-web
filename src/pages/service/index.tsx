@@ -77,7 +77,7 @@ const ServiceManage: FC = () => {
 	// 单条操作按钮配置
 	const buttonConfigItem = (record: ServiceItemType) => {
 		const { ServiceName } = record;
-		return [
+		let buttonConfigArr = [
 			{
 				id: 1,
 				label: t('modifyConfig'),
@@ -113,11 +113,19 @@ const ServiceManage: FC = () => {
 						  ];
 					setDropDownItems(transformedData);
 				},
-				type: 'dropDown'
-				// disabled: !record.ComponentNodeList || record.ComponentNodeList.length === 0
-				// disabled: record?.SCStateEnum !== 'DEPLOYED'
+				type: 'dropDown',
+				disabled: stateArray.includes(record?.SCStateEnum)
 			}
 		];
+		if (ServiceName === 'MONITOR') {
+			buttonConfigArr.push({
+				id: 4,
+				label: t('resetPrometheus'),
+				callback: resetPrometheus,
+				disabled: stateArray.includes(record?.SCStateEnum)
+			});
+		}
+		return buttonConfigArr;
 	};
 	const columns: TableColumnsType<ServiceItemType> = [
 		{
@@ -209,7 +217,13 @@ const ServiceManage: FC = () => {
 					<Space>
 						{buttonConfigItem(record).map(button =>
 							button.type === 'dropDown' ? (
-								<Dropdown key={button.id} menu={{ items: dropDownItems }} placement="bottomLeft" trigger={['click']}>
+								<Dropdown
+									key={button.id}
+									menu={{ items: dropDownItems }}
+									placement="bottomLeft"
+									trigger={['click']}
+									disabled={button.disabled}
+								>
 									<Button type="primary" size="small" ghost onClick={button.callback}>
 										{button.label}
 									</Button>
@@ -225,6 +239,14 @@ const ServiceManage: FC = () => {
 			}
 		}
 	];
+	const resetPrometheus = async () => {
+		const api = APIConfig.resetPrometheus;
+		const params = { ClusterId: selectCluster };
+		const { Code } = await RequestHttp.get(api, { params });
+		if (Code === '00000') {
+			messageApi.success(t('messageSuccess'));
+		}
+	};
 
 	const viewActiveJob = async () => {
 		const apiList = APIConfig.getActiveJobId;

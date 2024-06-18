@@ -72,6 +72,7 @@ const useStepConfig = () => {
 	const nextAdd = () => startWorkerStepRef.current?.handleOk();
 	const nextComponent = () => selectServiceRef.current?.handleOk();
 	const nextPreconfig = () => selectComponentRef.current?.handleOk();
+	const recommendation = () => selectComponentRef.current?.recommendation();
 	const nextPreview = () => PreconfigStepRef.current?.onFinish(true);
 	const nextDeploy = () => PreviewStepRef.current?.handleOk();
 	const retryDeploy = () => DeployStepRef.current?.deploy();
@@ -135,7 +136,7 @@ const useStepConfig = () => {
 		{
 			title: t('service.selectComponent'),
 			extra: (
-				<Button type="primary" ghost>
+				<Button type="primary" ghost onClick={recommendation}>
 					{t('batchRecommend')}
 				</Button>
 			),

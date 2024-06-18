@@ -205,7 +205,7 @@ const useStore = create<MyStore>(set => ({
 			label: 'service.restarting',
 			status: 'processing'
 		},
-		BEING_DECOMMISSIONED: {
+		DECOMMISSIONING: {
 			label: 'service.decommissioning',
 			status: 'processing'
 		},

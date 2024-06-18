@@ -34,7 +34,8 @@ import {
 	ServiceComponentSummaryVo,
 	ComponentSummaryVo,
 	ServiceSummaryVo,
-	ComponentRequest
+	ComponentRequest,
+	ServicePlacementVo
 } from '@/api/interface';
 
 const notSelectedStates = ['SELECTED', 'SELECTED_ADDITION'];
@@ -64,7 +65,8 @@ type CustomTagRender = (props: { label?: React.ReactNode; value?: string }) => R
 const SelectComStep = forwardRef((_props, ref) => {
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
 	const [serviceList, setServiceList] = useState<CollapseProps['items']>([]);
-	const [serviceNames, setServiceNames] = useState<string[] | string>([]);
+	const [expandServiceNames, setExpandServiceNames] = useState<string[] | string>([]);
+	const [allSerciveNames, setAllServiceNames] = useState<string>('');
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentComponent, setCurrentComponent] = useState('');
 	const [disableSelectedNode, setDisableSelectedNode] = useState(false);
@@ -75,7 +77,8 @@ const SelectComStep = forwardRef((_props, ref) => {
 	const id = searchParams.get('id') || '';
 	const componentListRef = useRef([]);
 	useImperativeHandle(ref, () => ({
-		handleOk
+		handleOk,
+		recommendation: () => getRecommendation(allSerciveNames)
 	}));
 	const handleOk = async () => {
 		const apiSelect = APIConfig.selectComponent;
@@ -153,7 +156,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 	};
 
 	const handleChange = (names: string[] | string) => {
-		setServiceNames(names);
+		setExpandServiceNames(names);
 	};
 
 	const getList = async () => {
@@ -200,7 +203,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 		} = await RequestHttp.get(api, { params });
 		let tempList = { [id]: nodeList[id] }; // 初始化临时数据，用id作为唯一key值
 
-		ServicePlacementList.map(item => {
+		ServicePlacementList.map((item: ServicePlacementVo) => {
 			// 遍历组件列表
 			item.ComponentPlacementList.forEach(component => {
 				let componentNodeList = [];
@@ -293,7 +296,9 @@ const SelectComStep = forwardRef((_props, ref) => {
 		const serviceNamesList = tempData
 			.filter(service => notSelectedStates.includes(service.SCStateEnum))
 			.map(item => item.ServiceName);
-		setServiceNames(serviceNamesList);
+		const serviceNamesStr = tempData.map(item => item.ServiceName).join(',');
+		setExpandServiceNames(serviceNamesList);
+		setAllServiceNames(serviceNamesStr);
 		setServiceList(cdata);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [nodeList, tempData]);
@@ -304,7 +309,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 	}, []);
 	return (
 		<>
-			<Collapse items={serviceList} activeKey={serviceNames} onChange={name => handleChange(name)} />
+			<Collapse items={serviceList} activeKey={expandServiceNames} onChange={name => handleChange(name)} />
 			{isModalOpen ? (
 				<NodeListModal
 					isModalOpen={isModalOpen}

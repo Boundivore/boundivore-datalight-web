@@ -410,5 +410,6 @@ export default {
 	wait: '等待',
 	fail: '失败',
 	recommend: '推荐分布',
-	batchRecommend: '批量推荐'
+	batchRecommend: '批量推荐',
+	resetPrometheus: '重置 Prometheus 配置'
 };
