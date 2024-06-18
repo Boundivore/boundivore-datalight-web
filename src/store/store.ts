@@ -55,6 +55,8 @@ interface MyStore {
 	allConfigFile: {}; // 汇总修改配置文件时的所有修改
 	setAllConfigFile: (configFile: ConfigGroupVo[], fileName: string) => void;
 	clearAllConfigFile: () => void;
+	batchRecommendationDisabled: boolean;
+	setBatchRecommendationDisabled: (batchRecommendationDisabled: boolean) => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -267,7 +269,9 @@ const useStore = create<MyStore>(set => ({
 	clearEachLog: () => set({ eachLog: '' }),
 	allConfigFile: {},
 	setAllConfigFile: (configFile: ConfigGroupVo[], fileName: string) => set(state => ({ ...state, [fileName]: configFile })),
-	clearAllConfigFile: () => set({ allConfigFile: {} })
+	clearAllConfigFile: () => set({ allConfigFile: {} }),
+	batchRecommendationDisabled: true,
+	setBatchRecommendationDisabled: (batchRecommendationDisabled: boolean) => set({ batchRecommendationDisabled })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

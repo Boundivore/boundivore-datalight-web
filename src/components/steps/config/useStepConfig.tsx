@@ -23,6 +23,7 @@
  */
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Button } from 'antd';
 import ParseStep from '@/components/steps/parseStep';
 import ParseList from '@/components/steps/parseList';
 import DetectStep from '@/components/steps/detectStep';
@@ -38,7 +39,7 @@ import DeployStep from '@/components/steps/deployStep';
 import useStepLogic from '@/hooks/useStepLogic';
 import useNavigater from '@/hooks/useNavigater';
 import { StepRefType } from '@/api/interface';
-import { Button } from 'antd';
+import useStore from '@/store/store';
 
 const useStepConfig = () => {
 	const { t } = useTranslation();
@@ -46,6 +47,7 @@ const useStepConfig = () => {
 	// const clearData = useClearStepData();
 	const cancelProcedure = useCancelProcedure();
 	const { navigateToClusterList } = useNavigater();
+	const { batchRecommendationDisabled } = useStore();
 
 	const parseStepRef = useRef<StepRefType>(null);
 	const parseListStepRef = useRef<StepRefType>(null);
@@ -136,7 +138,7 @@ const useStepConfig = () => {
 		{
 			title: t('service.selectComponent'),
 			extra: (
-				<Button type="primary" ghost onClick={recommendation}>
+				<Button type="primary" ghost onClick={recommendation} disabled={batchRecommendationDisabled}>
 					{t('batchRecommend')}
 				</Button>
 			),

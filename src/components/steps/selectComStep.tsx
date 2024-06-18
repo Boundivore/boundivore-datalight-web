@@ -70,7 +70,7 @@ const SelectComStep = forwardRef((_props, ref) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentComponent, setCurrentComponent] = useState('');
 	const [disableSelectedNode, setDisableSelectedNode] = useState(false);
-	const { setCurrentPageDisabled, currentPageDisabled } = useStore();
+	const { setCurrentPageDisabled, currentPageDisabled, setBatchRecommendationDisabled } = useStore();
 	const { setScrollTop } = useScrollStore();
 	const [tempData, setTempData] = useState<ServiceItemType[]>([]);
 	const [searchParams] = useSearchParams();
@@ -302,6 +302,10 @@ const SelectComStep = forwardRef((_props, ref) => {
 		setServiceList(cdata);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [nodeList, tempData]);
+	useEffect(() => {
+		setBatchRecommendationDisabled(tempData.some(item => item.SCStateEnum === 'SELECTED_ADDITION'));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [tempData]);
 	useEffect(() => {
 		getList();
 		setScrollTop(0);
