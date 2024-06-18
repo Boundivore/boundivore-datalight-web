@@ -18,7 +18,7 @@
  * 服务管理列表页
  * @author Tracy
  */
-import { FC, Key, useState } from 'react';
+import { FC, Key, useState, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Table, Button, Flex, Space, App, Badge, message, Dropdown, Modal } from 'antd';
 import type { TableColumnsType, MenuProps, TableProps } from 'antd';
@@ -39,7 +39,7 @@ const ServiceManage: FC = () => {
 	const { stateText, setJobId } = useStore();
 	const [selectService, setSelectService] = useState<ServiceItemType[]>([]);
 	const [allowAdd, setAllowAdd] = useState(false); // 是否允许新增服务操作,默认不允许
-	// const [startDisabled, setStartDisabled] = useState(false); // 是否禁用批量启动
+	const [startDisabled, setStartDisabled] = useState(true); // 是否禁用批量启动, 默认处于禁用状态
 	// const [stopDisabled, setStopDisabled] = useState(false); // 是否禁用批量停止
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const { navigateToComManage, navigateToConfig, navigateToAddComponent, navigateToWebUI, navigateToNodeInit } = useNavigater();
@@ -59,19 +59,19 @@ const ServiceManage: FC = () => {
 			id: 2,
 			label: t('service.startService'),
 			callback: () => operateComponent('START'),
-			disabled: selectService.length === 0
+			disabled: startDisabled
 		},
 		{
 			id: 3,
 			label: t('service.stopService'),
 			callback: () => operateComponent('STOP'),
-			disabled: selectService.length === 0
+			disabled: startDisabled
 		},
 		{
 			id: 4,
 			label: t('service.restartService'),
 			callback: () => operateComponent('RESTART'),
-			disabled: selectService.length === 0
+			disabled: startDisabled
 		}
 	];
 	// 单条操作按钮配置
@@ -322,14 +322,14 @@ const ServiceManage: FC = () => {
 
 	const tableData: ServiceItemType[] = usePolling(getServiceList, [], 1000, [selectCluster]);
 
-	// useEffect(() => {
-	// 	// 检查所有组件是否都处于'STOPPED'状态
-	// 	// const allStopped = selectService.length > 0 && selectService.every(item => item.SCStateEnum === 'STOPPED');
+	useEffect(() => {
+		// 	// 检查所有组件是否都处于'STOPPED'状态
+		// 	// const allStopped = selectService.length > 0 && selectService.every(item => item.SCStateEnum === 'STOPPED');
 
-	// 	// 更新按钮的禁用状态
-	// 	setStartDisabled(false); // 如果不全是'STOPPED'，则开始按钮禁用
-	// 	setStopDisabled(false); // 如果全是'STOPPED'，则停止按钮禁用
-	// }, [selectService]); // 在 selectComponent 变化时触发
+		// 	// 更新按钮的禁用状态
+		setStartDisabled(selectService.length === 0 || selectService.some(item => stateArray.includes(item.SCStateEnum)));
+		// 	setStopDisabled(false); // 如果全是'STOPPED'，则停止按钮禁用
+	}, [selectService]);
 	const rowSelection: TableRowSelection<ServiceItemType> = {
 		onChange: (_selectedRowKeys: Key[], selectedRows: ServiceItemType[]) => {
 			// const filteredselectedRows = selectedRows.filter(item => item.ComponentId);

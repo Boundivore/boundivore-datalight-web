@@ -200,8 +200,8 @@ const ModifyConfig: React.FC = () => {
 						})}
 					</Space>
 				</Col>
-				<Col className="min-h-[500px]" span={19}>
-					{codeEdit ? <CodeEditor ref={editorRef} data={codeEdit} /> : null}
+				<Col className="min-h-[500px] border border-solid border-grey-500" span={19}>
+					<CodeEditor ref={editorRef} data={codeEdit} />
 				</Col>
 			</Row>
 			{isModalOpen ? (

@@ -20,7 +20,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, App, Space, message, Badge, Switch, Tooltip } from 'antd';
+import { Table, Button, App, Space, message, Badge, Switch, Tooltip, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import RequestHttp from '@/api';
@@ -30,6 +30,12 @@ import useNavigater from '@/hooks/useNavigater';
 import ContainerCard from '@/components/containerCard';
 import { ClusterType, BadgeStatus } from '@/api/interface';
 
+const durationOptions = [
+	{ value: 10 * 60 * 1000, label: '10分钟' },
+	{ value: 30 * 60 * 1000, label: '30分钟' },
+	{ value: 6 * 60 * 60 * 1000, label: '6小时' },
+	{ value: 12 * 60 * 60 * 1000, label: '12小时' }
+];
 const ClusterList: React.FC = () => {
 	const { t } = useTranslation();
 	const [messageApi, contextHolder] = message.useMessage();
@@ -96,23 +102,38 @@ const ClusterList: React.FC = () => {
 			dataIndex: 'ClusterState',
 			key: 'ClusterState',
 			width: '10%',
-			// render: (text: string) => t(text.toLowerCase())
 			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
+		},
+		{
+			title: t('switchWorker'),
+			dataIndex: 'AutoPullWorker',
+			key: 'AutoPullWorker',
+			width: '12%',
+			render: (text: boolean, record) => {
+				return text !== undefined && <Switch defaultChecked={text} onChange={() => switchWorker(record)} />;
+			}
 		},
 		{
 			title: (
 				<Space>
-					{t('switchWorker')}
+					{t('duration')}
 					<Tooltip title={t('switchWorkerText')}>
 						<QuestionCircleOutlined />
 					</Tooltip>
 				</Space>
 			),
-			dataIndex: 'AutoPullWorker',
-			key: 'AutoPullWorker',
-			width: '20%',
-			render: (text: boolean, record) => {
-				return <Switch checked={text} onChange={() => switchWorker(record)} />;
+			dataIndex: 'Duration',
+			key: 'Duration',
+			width: '10%',
+			render: (text, record) => {
+				return text ? (
+					<Select
+						defaultValue={text}
+						style={{ width: 120 }}
+						onChange={value => handleDurationChange(record.ClusterId, value)}
+						options={durationOptions}
+					/>
+				) : null;
 			}
 		},
 		{
@@ -132,17 +153,32 @@ const ClusterList: React.FC = () => {
 			)
 		}
 	];
+	const handleDurationChange = (clusterId: string | number, newDuration: number) => {
+		// 使用map创建一个新的数组，但只修改id匹配的项
+		const newData = tableData.map(item => {
+			if (item.ClusterId === clusterId) {
+				// 创建一个新的对象，并返回它，但只更新duration属性
+				return { ...item, Duration: newDuration };
+			}
+			// 对于其他项，直接返回原对象（这样它们在新数组中保持不变）
+			return item;
+		});
+
+		// 使用新的数组更新状态
+		setTableData(newData);
+	};
 	const switchWorker = async (record: ClusterType) => {
 		const api = APIConfig.switchWorker;
+		const { AutoPullWorker, Duration, ClusterId } = record;
 		const params = {
-			AutoPullWorker: !record.AutoPullWorker,
-			CloseDuration: record.AutoPullWorker ? 60 * 1000 : 0,
-			ClusterId: record.ClusterId
+			AutoPullWorker: !AutoPullWorker,
+			CloseDuration: AutoPullWorker ? Duration : 0,
+			ClusterId: ClusterId
 		};
 		const { Code } = await RequestHttp.post(api, params);
 		if (Code === '00000') {
 			messageApi.success(t('messageSuccess'));
-			getData();
+			// getData();
 		}
 	};
 	const removeCluster = (clusterName: string, clusterId: string | number) => {
@@ -175,9 +211,14 @@ const ClusterList: React.FC = () => {
 			const apiPull = APIConfig.autoPull;
 			const autoPullWorkerStatus = ClusterList.map(async (item: ClusterType) => {
 				const {
-					Data: { AutoPullWorker }
+					Data: { AutoPullWorker, AutoCloseBeginTimeWorker, AutoCloseEndTimeWorker }
 				} = await RequestHttp.get(apiPull, { params: { ClusterId: item.ClusterId } });
-				return { ...item, AutoPullWorker };
+
+				return {
+					...item,
+					AutoPullWorker,
+					Duration: AutoCloseEndTimeWorker - AutoCloseBeginTimeWorker || durationOptions[0].value
+				};
 			});
 			// 等待所有详细信息请求完成
 			const detailedList: ClusterType[] = await Promise.all(autoPullWorkerStatus);
