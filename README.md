@@ -7,6 +7,18 @@ DataLight 前端管理平台
 
 DataLight 是一个开源的大数据运维管理平台，用于简化和自动化大数据服务的部署、管理和监控。它提供了一套全面的工具来管理您的大数据生态系统，旨在帮助企业实现简洁、快速地构建 OLAP 与 OLTP 统一的业务平台。用户可以通过 plugin 插件，以插拔式的方式快速集成自己的业务服务或其他大数据组件，从而在平台中进行统一管理。
 
+资源汇总如下：
+
+* [项目官网](http://datalight.boundivore.cn) 
+
+* [后端 Gitee 主仓库](https://gitee.com/boundivore/boundivore-datalight) 
+* [后端 Github 镜像仓库](https://github.com/Boundivore/boundivore-datalight) 
+* [前端 Gitee 主仓库](https://gitee.com/boundivore/boundivore-datalight-web) 
+* [前端 Github 镜像仓库](https://github.com/Boundivore/boundivore-datalight-web) 
+* [产品手册](https://gitee.com/boundivore/boundivore-datalight/blob/master/.documents/docs/产品手册.md)
+* [开发手册](https://gitee.com/boundivore/boundivore-datalight/blob/master/.documents/docs/开发手册.md)
+
+* [资源包下载地址](https://pan.baidu.com/s/1342bIcEBDQHdFA35KUTjbQ) `网盘提取码: data`
 
 ### 二、安装使用步骤
 
