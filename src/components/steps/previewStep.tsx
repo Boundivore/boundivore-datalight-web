@@ -56,7 +56,7 @@ const PreviewStep = forwardRef((_props, ref) => {
 			dataIndex: 'ServiceSummary',
 			render: text => (
 				<div className="flex items-center">
-					<img src={`/service_logo/${text?.ServiceName.toLowerCase()}.svg`} width="16" height="16" />
+					{text?.ServiceName ? <img src={`/service_logo/${text?.ServiceName.toLowerCase()}.svg`} width="16" height="16" /> : null}
 					<span className="pl-[5px]">{text?.ServiceName}</span>
 				</div>
 			)

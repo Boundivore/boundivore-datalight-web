@@ -925,7 +925,7 @@ export interface ComponentPlacementVo {
 	ComponentName: string;
 	ComponentState: ComponentState;
 	Hostname: string;
-	NodeId: number;
+	NodeId: number | string;
 	NodeIp: string;
 	NodeState: NodeState;
 	[property: string]: any;

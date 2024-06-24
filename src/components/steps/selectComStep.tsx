@@ -45,7 +45,12 @@ interface Node {
 	NodeId: string;
 	// 其他节点属性...
 }
-
+interface NodeInfo {
+	NodeId: string | number;
+	Hostname: string;
+	NodeIp: string;
+	NodeState: string;
+}
 interface NodeList {
 	[componentName: string]: {
 		componentNodeList: {
@@ -205,20 +210,29 @@ const SelectComStep = forwardRef((_props, ref) => {
 
 		ServicePlacementList.map((item: ServicePlacementVo) => {
 			// 遍历组件列表
+			let reorganizedData: { [key: string]: NodeInfo[] } = {};
 			item.ComponentPlacementList.forEach(component => {
-				let componentNodeList = [];
-				// 将节点信息添加到ComponentNodeList
-				componentNodeList.push({
+				const componentName = component.ComponentName;
+
+				// 检查新对象是否已经有这个键，如果没有则初始化为一个空数组
+				if (!reorganizedData[componentName]) {
+					reorganizedData[componentName] = [];
+				}
+
+				// 提取并存储相关节点信息
+				const nodeData: NodeInfo = {
 					NodeId: component.NodeId,
 					Hostname: component.Hostname,
 					NodeIp: component.NodeIp,
 					NodeState: component.NodeState
-				});
+				};
+				// 将节点信息添加到对应组件名的数组中
+				reorganizedData[componentName].push(nodeData);
 				tempList[id] = {
 					...tempList[id],
 					[component.ComponentName]: {
 						...tempList[id][component.ComponentName],
-						componentNodeList
+						componentNodeList: reorganizedData[componentName]
 					}
 				};
 			});
@@ -296,9 +310,9 @@ const SelectComStep = forwardRef((_props, ref) => {
 		const serviceNamesList = tempData
 			.filter(service => notSelectedStates.includes(service.SCStateEnum))
 			.map(item => item.ServiceName);
-		const serviceNamesStr = tempData.map(item => item.ServiceName).join(',');
+		// const serviceNamesStr = tempData.map(item => item.ServiceName).join(',');
 		setExpandServiceNames(serviceNamesList);
-		setAllServiceNames(serviceNamesStr);
+		setAllServiceNames(serviceNamesList.join(','));
 		setServiceList(cdata);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [nodeList, tempData]);
