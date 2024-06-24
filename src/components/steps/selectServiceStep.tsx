@@ -44,6 +44,7 @@ const SelectServiceStep = forwardRef((_props, ref) => {
 		{
 			title: t('service.serviceName'),
 			dataIndex: 'ServiceName',
+			key: 'ServiceName',
 			render: text => (
 				<div className="flex items-center">
 					<img src={`/service_logo/${text.toLowerCase()}.svg`} width="16" height="16" />
@@ -53,11 +54,13 @@ const SelectServiceStep = forwardRef((_props, ref) => {
 		},
 		{
 			title: t('description'),
-			dataIndex: 'Desc'
+			dataIndex: 'Desc',
+			key: 'Desc'
 		},
 		{
 			title: t('node.state'),
 			dataIndex: 'SCStateEnum',
+			key: 'SCStateEnum',
 			render: (text: string) => <Badge status={stateText[text].status as BadgeStatus} text={t(stateText[text].label)} />
 		}
 	];

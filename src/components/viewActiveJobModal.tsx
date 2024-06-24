@@ -51,14 +51,24 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 		{
 			title: t('node.node'),
 			dataIndex: 'Hostname',
+			key: 'Hostname',
 			width: '20%',
 			render: (text: string) => <a>{text}</a>
 		},
 		{
 			title: t('progress'),
 			dataIndex: 'ExecProgress',
-			render: text => {
-				return <Progress percent={parseFloat(parseFloat(text).toFixed(2))} strokeColor={twoColors} />;
+			key: 'ExecProgress',
+			render: (text, record) => {
+				const reversedCopy = [...record.ExecProgressStepList].reverse();
+				const errorStep = reversedCopy.find(step => step.StepExecState === 'ERROR');
+				return (
+					<Progress
+						percent={parseFloat(parseFloat(text).toFixed(2))}
+						strokeColor={errorStep ? 'red' : twoColors}
+						status={errorStep && 'exception'}
+					/>
+				);
 			}
 		},
 		{
@@ -76,8 +86,20 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 	const handleLogModalCancel = useCallback(() => {
 		setIsLogModalOpen(false);
 	}, []);
+	const updateArrayAndSetStates = (execProgressPerNodeList: ExecProgressPerNodeVo[], jobExecStateEnum: string) => {
+		const updatedArray = execProgressPerNodeList.map((obj: ExecProgressPerNodeVo) => ({
+			...obj,
+			JobExecStateEnum: jobExecStateEnum // 直接将JobExecStateEnum作为新属性添加到每个对象中
+		}));
+
+		setOpenAlert(jobExecStateEnum === 'ERROR');
+		setOpenSuccess(jobExecStateEnum === 'OK');
+
+		return updatedArray;
+	};
 	const getList = async () => {
 		const apiProgress = APIConfig[type];
+
 		if (type === 'nodeJobProgress') {
 			const progressData = await RequestHttp.get(apiProgress, { params: { NodeJobId: jobNodeId } });
 			const {
@@ -85,13 +107,7 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 					NodeJobExecProgress: { ExecProgressPerNodeList, JobExecStateEnum }
 				}
 			} = progressData;
-			const updatedArray = ExecProgressPerNodeList.map((obj: ExecProgressPerNodeVo) => ({
-				...obj, // 展开当前对象
-				JobExecStateEnum // 展开新键值对，这将合并到当前对象中
-			}));
-			setOpenAlert(JobExecStateEnum === 'ERROR');
-			setOpenSuccess(JobExecStateEnum === 'OK');
-			return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
+			return updateArrayAndSetStates(ExecProgressPerNodeList, JobExecStateEnum);
 		} else if (type === 'jobProgress') {
 			const progressData = await RequestHttp.get(apiProgress, { params: { JobId: jobId } });
 			const {
@@ -99,15 +115,9 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 					JobExecProgress: { ExecProgressPerNodeList, JobExecStateEnum }
 				}
 			} = progressData;
-			const updatedArray = ExecProgressPerNodeList.map((obj: ExecProgressPerNodeVo) => ({
-				...obj, // 展开当前对象
-				JobExecStateEnum // 展开新键值对，这将合并到当前对象中
-			}));
-			setOpenAlert(JobExecStateEnum === 'ERROR');
-			setOpenSuccess(JobExecStateEnum === 'OK');
-
-			return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
+			return updateArrayAndSetStates(ExecProgressPerNodeList, JobExecStateEnum);
 		}
+		throw new Error(`Unsupported type: ${type}`);
 	};
 	const tableData = usePolling(getList, stableState, 1000, [true]);
 
