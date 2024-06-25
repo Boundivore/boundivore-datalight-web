@@ -72,6 +72,12 @@ const ServiceManage: FC = () => {
 			label: t('service.restartService'),
 			callback: () => operateComponent('RESTART'),
 			disabled: startDisabled
+		},
+		{
+			id: 5,
+			label: t('rollingRestart'),
+			callback: () => operateComponent('RESTART', true), //滚动重启，第二个参数为true
+			disabled: startDisabled
 		}
 	];
 	// 单条操作按钮配置
@@ -108,7 +114,7 @@ const ServiceManage: FC = () => {
 						: [
 								{
 									key: 1,
-									label: '没有组件UI'
+									label: t('noUI')
 								}
 						  ];
 					setDropDownItems(transformedData);
@@ -258,7 +264,7 @@ const ServiceManage: FC = () => {
 		selectCluster === ClusterId
 			? setIsActiveJobModalOpen(true)
 			: modal.info({
-					title: '当前没有活跃的任务'
+					title: t('noActiveJob')
 			  });
 	};
 	const handleModalOk = () => {
@@ -285,7 +291,7 @@ const ServiceManage: FC = () => {
 			});
 		}
 	};
-	const operateComponent = (operation: string) => {
+	const operateComponent = (operation: string, isOneByOne: boolean = false) => {
 		modal.confirm({
 			title: t(operation.toLowerCase()),
 			content: t('operationServiceConfirm', { operation: t(operation.toLowerCase()) }),
@@ -296,7 +302,7 @@ const ServiceManage: FC = () => {
 				const params = {
 					ActionTypeEnum: operation,
 					ClusterId: selectCluster,
-					IsOneByOne: false,
+					IsOneByOne: isOneByOne,
 					ServiceNameList: selectService.map(service => service.ServiceName)
 				};
 				const data = await RequestHttp.post(api, params);

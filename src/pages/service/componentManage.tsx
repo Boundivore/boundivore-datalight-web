@@ -96,13 +96,19 @@ const ComponentManage: React.FC = () => {
 		},
 		{
 			id: 5,
+			label: t('rollingRestart'),
+			callback: () => operateComponent('RESTART', selectComponent, true), //滚动重启，第三个参数设置为true
+			disabled: selectComponent.length === 0
+		},
+		{
+			id: 6,
 			label: t('remove'),
 			callback: () => removeComponent(selectComponent),
 			disabled: removeDisabled
 		},
 		{
-			id: 6,
-			label: '重启以生效配置',
+			id: 7,
+			label: t('restartToActivate'),
 			callback: () => needRestart(),
 			disabled: modifyDisabled
 		}
@@ -212,8 +218,8 @@ const ComponentManage: React.FC = () => {
 	const needRestart = () => {
 		const callback = () =>
 			modal.confirm({
-				title: '重启以生效配置',
-				content: '重启所有需要重启的组件以生效修改的配置文件',
+				title: t('restartToActivate'),
+				content: t('restartToActivateNote'),
 				okText: t('confirm'),
 				cancelText: t('cancel'),
 				onOk: async () => {
@@ -288,7 +294,7 @@ const ComponentManage: React.FC = () => {
 			}
 		});
 	};
-	const operateComponent = (operation: string, componentList: DataType[]) => {
+	const operateComponent = (operation: string, componentList: DataType[], isOneByOne: boolean = false) => {
 		const jobDetailComponentList = componentList.map(component => {
 			const jobDetailNodeList = [
 				{
@@ -313,7 +319,7 @@ const ComponentManage: React.FC = () => {
 				const params = {
 					ActionTypeEnum: operation,
 					ClusterId: id,
-					IsOneByOne: false,
+					IsOneByOne: isOneByOne,
 					JobDetailServiceList: [
 						{
 							JobDetailComponentList: jobDetailComponentList,

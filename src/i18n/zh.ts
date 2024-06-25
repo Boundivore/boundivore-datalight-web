@@ -412,5 +412,8 @@ export default {
 	fail: '失败',
 	recommend: '推荐分布',
 	batchRecommend: '批量推荐',
-	resetPrometheus: '重置 Prometheus 配置'
+	resetPrometheus: '重置 Prometheus 配置',
+	restartToActivate: '重启以生效配置',
+	restartToActivateNote: '重启所有需要重启的组件以生效修改的配置文件',
+	rollingRestart: '滚动重启'
 };
