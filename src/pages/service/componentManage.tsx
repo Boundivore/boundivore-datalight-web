@@ -57,6 +57,7 @@ const ComponentManage: React.FC = () => {
 	const [removeDisabled, setRemoveDisabled] = useState(true); // 是否禁用批量删除
 	const [startDisabled, setStartDisabled] = useState(true); // 是否禁用批量启动
 	const [stopDisabled, setStopDisabled] = useState(true); // 是否禁用批量停止
+	const [decommissionDisabled, setDecommissionDisabled] = useState(true); // 是否禁用批量退役
 	const [modifyDisabled, setModifyDisabled] = useState(true); // 是否禁用重启以生效配置
 	// const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
@@ -102,15 +103,29 @@ const ComponentManage: React.FC = () => {
 		},
 		{
 			id: 6,
+			label: t('decommission'),
+			callback: () => operateComponent('DECOMMISSION', selectComponent),
+			disabled: decommissionDisabled,
+			hidden: !(serviceName === 'HDFS' && activeComponent === 'DataNode')
+		},
+		{
+			id: 7,
 			label: t('remove'),
 			callback: () => removeComponent(selectComponent),
 			disabled: removeDisabled
 		},
 		{
-			id: 7,
+			id: 8,
 			label: t('restartToActivate'),
 			callback: () => needRestart(),
 			disabled: modifyDisabled
+		},
+		{
+			id: 9,
+			label: t('refreshDecommission'),
+			callback: () => refreshDecommission(),
+			disabled: false,
+			hidden: !(serviceName === 'HDFS' && activeComponent === 'DataNode')
 		}
 	];
 	// 单条操作按钮配置
@@ -137,6 +152,13 @@ const ComponentManage: React.FC = () => {
 			},
 			{
 				id: 4,
+				label: t('decommission'),
+				callback: () => operateComponent('DECOMMISSION', [record]),
+				disabled: record.SCStateEnum === 'STOPPING' || record.SCStateEnum === 'DECOMMISSIONING',
+				hidden: !(serviceName === 'HDFS' && activeComponent === 'DataNode')
+			},
+			{
+				id: 5,
 				label: t('remove'),
 				callback: () => removeComponent([record]),
 				disabled: record.SCStateEnum !== 'STOPPED'
@@ -147,11 +169,13 @@ const ComponentManage: React.FC = () => {
 		// 检查所有组件是否都处于'STOPPED'状态
 		const allStopped = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum === 'STOPPED');
 		const stopAbled = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum !== 'STOPPED');
+		const noDecommissioning = selectComponent.length > 0 && selectComponent.every(item => item.SCStateEnum !== 'DECOMMISSIONING');
 
 		// 更新按钮的禁用状态
 		setStartDisabled(!allStopped); // 如果不全是'STOPPED'，则开始按钮禁用
 		setStopDisabled(!stopAbled); // 如果全是'STOPPED'，则停止按钮禁用
 		setRemoveDisabled(!allStopped); // 如果不全是'STOPPED'，则移除按钮禁用
+		setDecommissionDisabled(!noDecommissioning); // 如果包含'DECOMMISSIONING'，则退役按钮禁用
 	}, [selectComponent, handleButton]); // 在 selectComponent 变化时触发
 	const componentColumns: ColumnsType<DataType> = [
 		{
@@ -205,11 +229,13 @@ const ComponentManage: React.FC = () => {
 			render: (_text, record) => {
 				return (
 					<Space>
-						{buttonConfigItem(record).map(button => (
-							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
-								{button.label}
-							</Button>
-						))}
+						{buttonConfigItem(record)
+							.filter(button => !button.hidden)
+							.map(button => (
+								<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
+									{button.label}
+								</Button>
+							))}
 					</Space>
 				);
 			}
@@ -262,6 +288,26 @@ const ComponentManage: React.FC = () => {
 				}
 			});
 		viewActiveJob(callback);
+	};
+	const refreshDecommission = () => {
+		modal.confirm({
+			title: t('refreshDecommissionNote'),
+			content: '',
+			okText: t('confirm'),
+			cancelText: t('cancel'),
+			onOk: async () => {
+				const api = APIConfig.refreshDecommission;
+				const params = {
+					ClusterId: id
+				};
+				const data = await RequestHttp.get(api, { params });
+				const { Code } = data;
+				if (Code === '00000') {
+					messageApi.success(t('messageSuccess'));
+					// viewActiveJob();
+				}
+			}
+		});
 	};
 	const removeComponent = (componentList: DataType[]) => {
 		const idList = componentList.map(component => ({
@@ -419,11 +465,13 @@ const ComponentManage: React.FC = () => {
 				{contextHolder}
 				<Flex justify="space-between">
 					<Space>
-						{buttonConfigTop.map(button => (
-							<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
-								{button.label}
-							</Button>
-						))}
+						{buttonConfigTop
+							.filter(button => !button.hidden)
+							.map(button => (
+								<Button key={button.id} type="primary" disabled={button.disabled} onClick={button.callback}>
+									{button.label}
+								</Button>
+							))}
 					</Space>
 				</Flex>
 				<Row gutter={24} className="mt-[20px]">

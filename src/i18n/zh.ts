@@ -415,5 +415,9 @@ export default {
 	resetPrometheus: '重置 Prometheus 配置',
 	restartToActivate: '重启以生效配置',
 	restartToActivateNote: '重启所有需要重启的组件以生效修改的配置文件',
-	rollingRestart: '滚动重启'
+	rollingRestart: '滚动重启',
+	noUI: '没有组件UI',
+	decommission: '退役',
+	refreshDecommission: '刷新退役情况',
+	refreshDecommissionNote: '您确定刷新退役情况？'
 };
