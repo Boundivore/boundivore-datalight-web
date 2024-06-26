@@ -58,6 +58,7 @@ export default {
 		serviceTask: '查看服务组件活跃任务',
 		log: '日志管理',
 		viewLog: '查看日志',
+		audit: '审计管理',
 		permission: '用户 & 权限',
 		userManage: '用户管理',
 		userDetail: '用户详情',

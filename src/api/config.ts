@@ -132,7 +132,10 @@ const APIConfig: Actions = {
 	switchWorker: '/v1/master/auto/pull/switch/worker',
 	getComponentPlacementRecommendation: '/v1/master/advisor/getComponentPlacementRecommendation',
 	resetPrometheus: '/v1/master/operation/prometheus/resetPrometheusConfig',
-	refreshDecommission: '/v1/master/component/datanode/decommission/refresh'
+	refreshDecommission: '/v1/master/component/datanode/decommission/refresh',
+	//审计日志相关
+	getAuditLogSimpleList: '/v1/master/audit/getAuditLogSimpleList',
+	getAuditLogDetail: '/v1/master/audit/getAuditLogDetail'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

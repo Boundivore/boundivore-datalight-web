@@ -24,7 +24,8 @@ import {
 	DashboardOutlined,
 	SecurityScanOutlined,
 	ReconciliationOutlined,
-	AuditOutlined
+	AuditOutlined,
+	UsergroupAddOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -102,7 +103,8 @@ const LayoutMenu: React.FC = () => {
 			getItem(<NavLink to="/monitorAlert/alert?tab=alert">{t('tabs.alert')}</NavLink>, '/monitorAlert/alert')
 		]),
 		getItem(<NavLink to="/log">{t('tabs.log')}</NavLink>, '/log', <ReconciliationOutlined />),
-		getItem(<span className="min-w-[90px] inline-block">{t('tabs.permission')}</span>, '/permission', <AuditOutlined />, [
+		getItem(<NavLink to="/audit">{t('tabs.audit')}</NavLink>, '/audit', <AuditOutlined />),
+		getItem(<span className="min-w-[90px] inline-block">{t('tabs.permission')}</span>, '/permission', <UsergroupAddOutlined />, [
 			getItem(<NavLink to="/permission/userManage">{t('tabs.userManage')}</NavLink>, '/permission/userManage'),
 			getItem(<NavLink to="/permission/roleManage">{t('tabs.roleManage')}</NavLink>, '/permission/roleManage')
 		])
