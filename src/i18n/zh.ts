@@ -308,6 +308,14 @@ export default {
 		ALERT_MAIL: '邮件告警',
 		ALERT_WEICHAT: '微信告警'
 	},
+	audit: {
+		opName: '操作名称',
+		logType: '日志类型',
+		ip: '操作IP',
+		dateFormat: '操作时间',
+		operation: '操作',
+		detail: '审计日志信息'
+	},
 	retry: '重试',
 	previous: '上一步',
 	next: '下一步',

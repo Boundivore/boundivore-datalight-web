@@ -111,6 +111,12 @@ const useNavigater = () => {
 	const navigateToHandlerDetail = (id: number | string, type: string) => {
 		navigate(`/monitorAlert/alert/handlerDetail?id=${id}&type=${type}`);
 	};
+	const navigateToAudit = () => {
+		navigate(`/audit`);
+	};
+	const navigateToAuditDetail = (id: number | string) => {
+		navigate(`/audit/detail?id=${id}`);
+	};
 
 	return {
 		navigateToLogin,
@@ -135,7 +141,9 @@ const useNavigater = () => {
 		navigateToAlertList,
 		navigateToCreateAlert,
 		navigateToAlertDetail,
-		navigateToHandlerDetail
+		navigateToHandlerDetail,
+		navigateToAudit,
+		navigateToAuditDetail
 	};
 };
 

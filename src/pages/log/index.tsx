@@ -74,8 +74,8 @@ const LogList: FC = () => {
 		},
 		{
 			title: t('operation'),
-			key: 'ComponentName',
-			dataIndex: 'ComponentName',
+			key: 'Operation',
+			dataIndex: 'Operation',
 			render: (_text, record) => {
 				return (
 					<Space>
