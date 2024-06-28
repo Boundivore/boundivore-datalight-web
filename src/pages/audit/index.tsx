@@ -62,14 +62,16 @@ const convertObject = (obj: FieldType) => {
 	delete newObj.RangeTime;
 	return newObj;
 };
+
 const AuditList: FC = () => {
 	const [form] = Form.useForm();
 	const [tableData, setTableData] = useState([]);
 
-	const defaultParams = {
+	const [defaultParams, setDefaultParams] = useState({
 		CurrentPage: 1,
 		PageSize: 10
-	};
+	});
+
 	const [pagination, setPagination] = useState({
 		total: 0,
 		page: defaultParams.CurrentPage,
@@ -159,20 +161,30 @@ const AuditList: FC = () => {
 		});
 		setTableData(AuditLogSimpleList);
 	};
-	const onFinish = (values: any) => {
+	const onFinish = (values: FieldType) => {
 		const convertedObject = convertObject(values);
-		getList({
+		const mergeObject = {
 			...defaultParams,
 			...convertedObject
-		});
+		};
+		// getList(mergeObject);
+		setDefaultParams(mergeObject);
 	};
 	const onReset = () => {
-		getList();
+		setDefaultParams({
+			CurrentPage: 1,
+			PageSize: 10
+		});
+		// getList();
 	};
+	// useEffect(() => {
+	// 	getList();
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, []);
 	useEffect(() => {
 		getList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [defaultParams]);
 	return (
 		<ContainerCard>
 			<Form form={form} name="horizontal_login" layout="inline" onFinish={onFinish}>
