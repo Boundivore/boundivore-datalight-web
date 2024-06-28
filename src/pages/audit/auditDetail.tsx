@@ -112,7 +112,7 @@ const AuditDetail: FC = () => {
 							dataSource={auditInfoData}
 							renderItem={item => (
 								<List.Item>
-									{item.label}: {item.text}
+									<div className="inline-block w-[70px]">{item.label}:</div> {item.text}
 								</List.Item>
 							)}
 						/>
@@ -121,7 +121,7 @@ const AuditDetail: FC = () => {
 				<Col span={18}>
 					<Card
 						className="data-light-card"
-						title="审计日志详情"
+						title={t('tabs.auditDetail')}
 						extra={
 							<Space>
 								<Button onClick={navigateToAudit}>{t('back')}</Button>
@@ -129,10 +129,10 @@ const AuditDetail: FC = () => {
 						}
 					>
 						<h3>URI: {uri}</h3>
-						<Card title="参数">
+						<Card title={t('params')}>
 							<JsonView value={paramsView} />
 						</Card>
-						<Card title="响应结果">
+						<Card title={t('result')}>
 							<JsonView value={resultView} />
 						</Card>
 					</Card>

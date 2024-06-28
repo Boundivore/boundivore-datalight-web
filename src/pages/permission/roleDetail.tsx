@@ -184,7 +184,7 @@ const RoleDetail: FC = () => {
 							dataSource={roleInfoData}
 							renderItem={item => (
 								<List.Item>
-									{item.label}: {item.text}
+									<div className="inline-block w-[70px]">{item.label}:</div> {item.text}
 								</List.Item>
 							)}
 						/>

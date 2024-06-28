@@ -434,5 +434,7 @@ export default {
 	userId: '用户 ID',
 	logName: '日志名称',
 	search: '搜索',
-	reset: '重置'
+	reset: '重置',
+	params: '参数',
+	result: '响应结果'
 };

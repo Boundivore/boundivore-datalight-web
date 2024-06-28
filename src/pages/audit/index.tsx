@@ -177,10 +177,7 @@ const AuditList: FC = () => {
 		});
 		// getList();
 	};
-	// useEffect(() => {
-	// 	getList();
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, []);
+
 	useEffect(() => {
 		getList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -202,6 +199,7 @@ const AuditList: FC = () => {
 						<Select
 							placeholder={t('audit.logType')}
 							style={{ width: 120 }}
+							allowClear
 							options={[
 								{ value: 'MASTER', label: 'MASTER' },
 								{ value: 'WORKER', label: 'WORKER' }
