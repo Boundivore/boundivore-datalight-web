@@ -23,6 +23,9 @@ import { FC, ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Row, Col, List, Typography, Button, Space } from 'antd';
+import Base64 from 'crypto-js/enc-base64';
+import Utf8 from 'crypto-js/enc-utf8';
+import JsonView from '@uiw/react-json-view';
 import ContainerCard from '@/components/containerCard';
 // import { UserInfoVo } from '@/api/interface';
 import RequestHttp from '@/api';
@@ -31,7 +34,7 @@ import useNavigater from '@/hooks/useNavigater';
 
 const { Text } = Typography;
 
-interface UserInfoItem {
+interface AuditInfoItem {
 	key: number;
 	label: ReactNode;
 	text: ReactNode;
@@ -41,42 +44,59 @@ const AuditDetail: FC = () => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const { navigateToUserManage } = useNavigater();
+	const { navigateToAudit } = useNavigater();
 
-	const [userInfoData, setUserInfoDataData] = useState<UserInfoItem[]>([]);
-	// const [currentUser, setCurrentUser] = useState<UserInfoVo>({} as UserInfoVo);
-	// const [ contextHolder] = message.useMessage();
+	const [auditInfoData, setAuditInfoDataData] = useState<AuditInfoItem[]>([]);
+	const [paramsView, setParamsView] = useState([]);
+	const [resultView, setResultView] = useState({});
+	const [uri, setUri] = useState('');
 
 	const getAuditDetail = async () => {
 		const api = APIConfig.getAuditLogDetail;
 		const params = {
 			AuditLogId: id
 		};
-		const { Data } = await RequestHttp.get(api, { params });
-		const UserInfo = [
+		const {
+			Data: { ParamsBase64, ResultBase64, Principal, OpName, LogType, Ip, DateFormat, Uri, UserId }
+		} = await RequestHttp.get(api, { params });
+		const auditInfo = [
 			{
 				key: 1,
 				label: <Text strong>{t('audit.opName')}</Text>,
-				text: <span>{Data.OpName}</span>
+				text: <span>{OpName}</span>
 			},
 			{
 				key: 2,
 				label: <Text strong>{t('audit.logType')}</Text>,
-				text: <span>{Data.LogType}</span>
+				text: <span>{LogType}</span>
 			},
 			{
 				key: 3,
-				label: <Text strong>{t('audit.ip')}</Text>,
-				text: <span>{Data.Ip}</span>
+				label: <Text strong>{t('userId')}</Text>,
+				text: <span>{UserId}</span>
 			},
 			{
 				key: 4,
+				label: <Text strong>{t('audit.ip')}</Text>,
+				text: <span>{Ip}</span>
+			},
+			{
+				key: 5,
+				label: <Text strong>{t('audit.principal')}</Text>,
+				text: <span>{Principal}</span>
+			},
+			{
+				key: 6,
 				label: <Text strong>{t('audit.dateFormat')}</Text>,
-				text: <span>{Data.DateFormat}</span>
+				text: <span>{DateFormat}</span>
 			}
 		];
-		// setCurrentUser(Data);
-		setUserInfoDataData(UserInfo);
+		const paramsInput = JSON.parse(Utf8.stringify(Base64.parse(ParamsBase64)));
+		const result = JSON.parse(Utf8.stringify(Base64.parse(ResultBase64)));
+		setUri(Uri);
+		setParamsView(paramsInput);
+		setResultView(result);
+		setAuditInfoDataData(auditInfo);
 	};
 	useEffect(() => {
 		getAuditDetail();
@@ -84,13 +104,12 @@ const AuditDetail: FC = () => {
 	}, []);
 	return (
 		<ContainerCard>
-			{/* {contextHolder} */}
 			<Row gutter={24} className="mt-[20px]">
 				<Col span={6}>
 					<Card className="data-light-card" title={t('audit.detail')}>
 						<List
 							size="large"
-							dataSource={userInfoData}
+							dataSource={auditInfoData}
 							renderItem={item => (
 								<List.Item>
 									{item.label}: {item.text}
@@ -102,13 +121,21 @@ const AuditDetail: FC = () => {
 				<Col span={18}>
 					<Card
 						className="data-light-card"
-						title="已绑定角色"
+						title="审计日志详情"
 						extra={
 							<Space>
-								<Button onClick={navigateToUserManage}>{t('back')}</Button>
+								<Button onClick={navigateToAudit}>{t('back')}</Button>
 							</Space>
 						}
-					></Card>
+					>
+						<h3>URI: {uri}</h3>
+						<Card title="参数">
+							<JsonView value={paramsView} />
+						</Card>
+						<Card title="响应结果">
+							<JsonView value={resultView} />
+						</Card>
+					</Card>
 				</Col>
 			</Row>
 		</ContainerCard>

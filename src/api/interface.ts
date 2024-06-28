@@ -947,3 +947,67 @@ export enum ComponentState {
 	Stopping = 'STOPPING',
 	Unselected = 'UNSELECTED'
 }
+
+/**
+ * AuditLogSimpleVo
+ */
+export interface AuditLogSimpleVo {
+	AuditLogId: number;
+	ClassName: string;
+	DateFormat: string;
+	Ip: string;
+	LogType: LogType;
+	MethodName: string;
+	OpName: string;
+	Principal: string;
+	ResultCode: string;
+	ResultEnum: ResultEnum;
+	Timestamp: number;
+	Uri: string;
+	UserId: number;
+	[property: string]: any;
+}
+
+export enum LogType {
+	Master = 'MASTER',
+	Worker = 'WORKER'
+}
+
+export enum ResultEnum {
+	Fail404 = 'FAIL_404',
+	FailAuth = 'FAIL_AUTH',
+	FailAuthException = 'FAIL_AUTH_EXCEPTION',
+	FailBeReplacedException = 'FAIL_BE_REPLACED_EXCEPTION',
+	FailBusinessException = 'FAIL_BUSINESS_EXCEPTION',
+	FailDataDuplication = 'FAIL_DATA_DUPLICATION',
+	FailDataFormat = 'FAIL_DATA_FORMAT',
+	FailDataUnauthorized = 'FAIL_DATA_UNAUTHORIZED',
+	FailDatabaseException = 'FAIL_DATABASE_EXCEPTION',
+	FailExecutorException = 'FAIL_EXECUTOR_EXCEPTION',
+	FailExecutorIoException = 'FAIL_EXECUTOR_IO_EXCEPTION',
+	FailExecutorTimeoutException = 'FAIL_EXECUTOR_TIMEOUT_EXCEPTION',
+	FailFileDownloadException = 'FAIL_FILE_DOWNLOAD_EXCEPTION',
+	FailFileUploadException = 'FAIL_FILE_UPLOAD_EXCEPTION',
+	FailGateway = 'FAIL_GATEWAY',
+	FailHTTPNotReadableException = 'FAIL_HTTP_NOT_READABLE_EXCEPTION',
+	FailIllegalArgument = 'FAIL_ILLEGAL_ARGUMENT',
+	FailInterfaceUnauthorized = 'FAIL_INTERFACE_UNAUTHORIZED',
+	FailInvalidTokenException = 'FAIL_INVALID_TOKEN_EXCEPTION',
+	FailJSON = 'FAIL_JSON',
+	FailKickOutException = 'FAIL_KICK_OUT_EXCEPTION',
+	FailLockException = 'FAIL_LOCK_EXCEPTION',
+	FailMemInsufficientException = 'FAIL_MEM_INSUFFICIENT_EXCEPTION',
+	FailNoPrefixException = 'FAIL_NO_PREFIX_EXCEPTION',
+	FailNotTokenException = 'FAIL_NOT_TOKEN_EXCEPTION',
+	FailOauth2 = 'FAIL_OAUTH2',
+	FailRemoteInvokeException = 'FAIL_REMOTE_INVOKE_EXCEPTION',
+	FailRequestMethod = 'FAIL_REQUEST_METHOD',
+	FailRequestParamMissing = 'FAIL_REQUEST_PARAM_MISSING',
+	FailRequestTypeMismatch = 'FAIL_REQUEST_TYPE_MISMATCH',
+	FailTokenFreezeException = 'FAIL_TOKEN_FREEZE_EXCEPTION',
+	FailTokenTimeoutException = 'FAIL_TOKEN_TIMEOUT_EXCEPTION',
+	FailUnknown = 'FAIL_UNKNOWN',
+	FailUnknownTokenException = 'FAIL_UNKNOWN_TOKEN_EXCEPTION',
+	FailUserPwdNotMatchException = 'FAIL_USER_PWD_NOT_MATCH_EXCEPTION',
+	Success = 'SUCCESS'
+}

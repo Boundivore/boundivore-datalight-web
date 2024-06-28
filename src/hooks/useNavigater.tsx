@@ -115,7 +115,7 @@ const useNavigater = () => {
 		navigate(`/audit`);
 	};
 	const navigateToAuditDetail = (id: number | string) => {
-		navigate(`/audit/detail?id=${id}`);
+		navigate(`/audit/auditDetail?id=${id}`);
 	};
 
 	return {

@@ -18,6 +18,7 @@
 	"dependencies": {
 		"@uiw/codemirror-extensions-langs": "^4.21.24",
 		"@uiw/react-codemirror": "^4.21.24",
+		"@uiw/react-json-view": "^2.0.0-alpha.24",
 		"antd": "^5.15.0",
 		"axios": "^1.6.1",
 		"crypto-js": "^4.2.0",

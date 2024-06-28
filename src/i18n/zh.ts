@@ -58,7 +58,8 @@ export default {
 		serviceTask: '查看服务组件活跃任务',
 		log: '日志管理',
 		viewLog: '查看日志',
-		audit: '审计管理',
+		audit: '审计日志管理',
+		auditDetail: '审计日志详情',
 		permission: '用户 & 权限',
 		userManage: '用户管理',
 		userDetail: '用户详情',
@@ -314,7 +315,8 @@ export default {
 		ip: '操作IP',
 		dateFormat: '操作时间',
 		operation: '操作',
-		detail: '审计日志信息'
+		detail: '审计日志信息',
+		principal: '用户主体'
 	},
 	retry: '重试',
 	previous: '上一步',
@@ -428,5 +430,9 @@ export default {
 	noUI: '没有组件UI',
 	decommission: '退役',
 	refreshDecommission: '刷新退役情况',
-	refreshDecommissionNote: '您确定刷新退役情况？'
+	refreshDecommissionNote: '您确定刷新退役情况？',
+	userId: '用户 ID',
+	logName: '日志名称',
+	search: '搜索',
+	reset: '重置'
 };
