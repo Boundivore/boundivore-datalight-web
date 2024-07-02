@@ -259,7 +259,9 @@ export default {
 		PERMISSION_INTERFACE: '接口操作权限',
 		PERMISSION_DATA_ROW: '数据行读权限',
 		PERMISSION_DATA_COLUMN: '数据列读权限',
-		PERMISSION_PAGE: '页面操作权限'
+		PERMISSION_PAGE: '页面操作权限',
+		boundRole: '已绑定角色',
+		userInfo: '用户信息'
 	},
 	alert: {
 		alert: '告警配置',

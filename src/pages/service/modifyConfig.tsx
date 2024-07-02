@@ -101,6 +101,7 @@ const ModifyConfig: React.FC = () => {
 		setCodeEdit(codeData);
 		setConfigGroupInfo(copyData);
 	};
+
 	useEffect(() => {
 		setActiveContent(configGroupInfo);
 	}, [configGroupInfo]);

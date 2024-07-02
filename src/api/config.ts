@@ -135,7 +135,9 @@ const APIConfig: Actions = {
 	refreshDecommission: '/v1/master/component/datanode/decommission/refresh',
 	//审计日志相关
 	getAuditLogSimpleList: '/v1/master/audit/getAuditLogSimpleList',
-	getAuditLogDetail: '/v1/master/audit/getAuditLogDetail'
+	getAuditLogDetail: '/v1/master/audit/getAuditLogDetail',
+	//AIGC相关
+	sendMessage: '/v1/master/aigc/sendMessage'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

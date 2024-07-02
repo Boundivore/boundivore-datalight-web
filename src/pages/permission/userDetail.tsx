@@ -189,7 +189,7 @@ const UserDetail: FC = () => {
 			{contextHolder}
 			<Row gutter={24} className="mt-[20px]">
 				<Col span={6}>
-					<Card className="data-light-card" title="用户信息">
+					<Card className="data-light-card" title={t('permission.userInfo')}>
 						<List
 							size="large"
 							dataSource={userInfoData}
@@ -204,7 +204,7 @@ const UserDetail: FC = () => {
 				<Col span={18}>
 					<Card
 						className="data-light-card"
-						title="已绑定角色"
+						title={t('permission.boundRole')}
 						extra={
 							<Space>
 								<Button type="primary" disabled={!selectedRole.length} onClick={() => detachRole(selectedRole)}>

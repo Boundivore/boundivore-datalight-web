@@ -57,6 +57,10 @@ interface MyStore {
 	clearAllConfigFile: () => void;
 	batchRecommendationDisabled: boolean;
 	setBatchRecommendationDisabled: (batchRecommendationDisabled: boolean) => void;
+	message: string;
+	setMessage: (message: string) => void;
+	showerAI: boolean; //  是否展开AI抽屉
+	setShowerAI: (showerAI: boolean) => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -271,7 +275,11 @@ const useStore = create<MyStore>(set => ({
 	setAllConfigFile: (configFile: ConfigGroupVo[], fileName: string) => set(state => ({ ...state, [fileName]: configFile })),
 	clearAllConfigFile: () => set({ allConfigFile: {} }),
 	batchRecommendationDisabled: true,
-	setBatchRecommendationDisabled: (batchRecommendationDisabled: boolean) => set({ batchRecommendationDisabled })
+	setBatchRecommendationDisabled: (batchRecommendationDisabled: boolean) => set({ batchRecommendationDisabled }),
+	showerAI: false, //  是否展开AI抽屉
+	setShowerAI: (showerAI: boolean) => set({ showerAI }),
+	message: '',
+	setMessage: (message: string) => set({ message })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

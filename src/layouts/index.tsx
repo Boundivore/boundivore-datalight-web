@@ -19,18 +19,20 @@
  * @author Tracy
  */
 import { useState, Suspense, useRef, useEffect } from 'react';
-import { Layout, Avatar, Dropdown, App, Spin, Button, Breadcrumb } from 'antd';
+import { Layout, Avatar, Dropdown, App, Spin, Button, Breadcrumb, Flex } from 'antd';
 import type { MenuProps } from 'antd';
 import { UserOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import routes from '~react-pages';
 import LayoutMenu from './components/menu';
 import i18n, { t } from 'i18next';
 import { useRoutes, useLocation, useSearchParams } from 'react-router-dom';
+import useStore from '@/store/store';
 import Logo from '@/assets/logo.png';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useNavigater from '@/hooks/useNavigater';
 import { useScrollStore } from '@/store/store';
+import AIGCDrawer from '@/components/aigcDrawer';
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -42,6 +44,7 @@ interface MyComponentProps {
 const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	const [collapsed, setCollapsed] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
+	const { setShowerAI } = useStore();
 	const location = useLocation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
@@ -130,14 +133,19 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 	}, [scrollTop]);
 	return (
 		<Layout className="w-full min-w-[1360px] h-[calc(100vh)]">
-			<Header className="flex items-center">
-				<img className="cursor-pointer" src={Logo} height={40} onClick={navigateToHome} />
-				<div className="relative left-[30px]">
+			<Header className="flex items-center justify-between">
+				<Flex align="center">
+					<img className="cursor-pointer" src={Logo} height={40} onClick={navigateToHome} />
 					<LayoutMenu />
-				</div>
-				<Dropdown menu={{ items }} className="absolute right-[50px]">
-					<Avatar className="bg-[#51c2fe]" size="large" icon={<UserOutlined />} />
-				</Dropdown>
+				</Flex>
+				<Flex gap="small">
+					<Button type="primary" ghost shape="circle" className="h-[40px] w-[40px]" onClick={() => setShowerAI(true)}>
+						AI
+					</Button>
+					<Dropdown menu={{ items }}>
+						<Avatar className="bg-[#51c2fe]" size="large" icon={<UserOutlined />} />
+					</Dropdown>
+				</Flex>
 			</Header>
 			<Layout className="overflow-y-auto" ref={scrollRef}>
 				{!hideSider ? (
@@ -178,6 +186,7 @@ const Layouts: React.FC<MyComponentProps> = ({ hideSider }) => {
 					>
 						{useRoutes(routes)}
 					</Suspense>
+					<AIGCDrawer />
 					<Footer className={`h-[40px] leading-[40px] p-0 text-center bg-white font-bold ${collapsed ? 'hidden' : 'w-full'}`}>
 						{t('poweredBy')}
 					</Footer>
