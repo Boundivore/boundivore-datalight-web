@@ -33,6 +33,7 @@ import useStore from '@/store/store';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
 import { ComponentSummaryVo, ComponentNodeVo, BadgeStatus } from '@/api/interface';
 import ContainerCard from '@/components/containerCard';
+import NameNodeMigrate from '@/components/nameNodeMigrate';
 
 const { Text } = Typography;
 
@@ -126,6 +127,12 @@ const ComponentManage: React.FC = () => {
 			callback: () => refreshDecommission(),
 			disabled: false,
 			hidden: !(serviceName === 'HDFS' && activeComponent === 'DataNode')
+		},
+		{
+			id: 10,
+			label: 'NameNode 迁移',
+			callback: () => {},
+			disabled: false
 		}
 	];
 	// 单条操作按钮配置
@@ -536,6 +543,7 @@ const ComponentManage: React.FC = () => {
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal isModalOpen={isActiveJobModalOpen} handleCancel={handleModalOk} type="jobProgress" />
 			) : null}
+			<NameNodeMigrate />
 			{/* {isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null} */}
 		</>
 	);
