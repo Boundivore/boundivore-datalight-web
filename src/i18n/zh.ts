@@ -438,5 +438,7 @@ export default {
 	search: '搜索',
 	reset: '重置',
 	params: '参数',
-	result: '响应结果'
+	result: '响应结果',
+	ai: 'AI分析',
+	aiPrompt: '请帮我分析并优化一下以下内容，并输出markdown格式的回复\n'
 };

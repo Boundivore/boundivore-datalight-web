@@ -1,6 +1,7 @@
 import { useState, useImperativeHandle, forwardRef, useEffect, useRef } from 'react';
 import { Button } from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
+import { t } from 'i18next';
 // import { langs } from '@uiw/codemirror-extensions-langs';
 import { StreamLanguage } from '@codemirror/language';
 import { shell } from '@codemirror/legacy-modes/mode/shell';
@@ -28,7 +29,7 @@ const CodeEditor = forwardRef<{ handleSave: () => string } | null, Props>(({ dat
 	}));
 
 	useEffect(() => {
-		let divNode = null; // 创建一个局部变量来存储DOM节点
+		let divNode: HTMLDivElement | null = null; // 创建一个局部变量来存储DOM节点
 
 		if (editableDivRef.current) {
 			divNode = editableDivRef.current; // 在effect内部复制ref的值
@@ -46,7 +47,7 @@ const CodeEditor = forwardRef<{ handleSave: () => string } | null, Props>(({ dat
 
 		function handleMouseUp() {
 			const selection = window.getSelection();
-			if (selection.rangeCount > 0 && selection?.toString()) {
+			if (selection && selection.rangeCount > 0 && selection?.toString()) {
 				// 文本被选中
 				const rect = selection.getRangeAt(0).getBoundingClientRect();
 				setIsButtonVisible(true);
@@ -87,7 +88,7 @@ const CodeEditor = forwardRef<{ handleSave: () => string } | null, Props>(({ dat
 						setMessage(selectedText);
 					}}
 				>
-					AI分析
+					{t('ai')}
 				</Button>
 			)}
 		</>

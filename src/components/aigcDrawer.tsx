@@ -19,10 +19,12 @@
  * @author Tracy
  */
 import { FC, useEffect, useState } from 'react';
-import { Drawer, Input, Button } from 'antd';
+import { Drawer, Input, Button, Skeleton } from 'antd';
+import { t } from 'i18next';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
+import MarkdownViewer from '@/components/markdownViewer';
 
 const { TextArea } = Input;
 
@@ -31,29 +33,40 @@ interface AIGCDrawerProps {
 }
 const AIGCDrawer: FC<AIGCDrawerProps> = () => {
 	const [aiMessage, setAiMessage] = useState('');
+	const [loading, setLoading] = useState(true);
+	const [inputMessage, setInputMessage] = useState('');
 	const { showerAI, setShowerAI, message } = useStore();
-	const sendMessage = async () => {
+	const sendMessage = async (currentMessage: string = '') => {
+		setLoading(true);
 		const api = APIConfig.sendMessage;
-		const params = { AIGCType: 'QIANFAN', Message: '请帮我分析并优化一下以下内容，并输出markdown格式的回复' + message };
-		const { Data } = await RequestHttp.post(api, params);
-		console.log(11, Data);
-		setAiMessage(Data);
+		const params = { AIGCType: 'QIANFAN', Message: currentMessage || inputMessage };
+		try {
+			const { Data } = await RequestHttp.post(api, params);
+			setAiMessage(Data);
+		} finally {
+			setLoading(false);
+		}
 	};
 	useEffect(() => {
-		message && sendMessage();
+		if (message) {
+			setInputMessage(t('aiPrompt') + message);
+			sendMessage(t('aiPrompt') + message);
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [message]);
+
 	return (
 		<Drawer open={showerAI} className="text-end" onClose={() => setShowerAI(false)}>
 			<TextArea
 				showCount
-				value={'请帮我分析并优化一下以下内容，并输出markdown格式的回复' + message}
+				value={inputMessage} // 绑定到inputMessage
+				onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setInputMessage(e.target.value)}
 				style={{ height: 120, resize: 'none' }}
 			/>
-			<Button type="primary" onClick={sendMessage} className="my-[5px]">
-				AI分析
+			<Button type="primary" onClick={() => sendMessage()} className="my-[20px]" loading={loading}>
+				{t('ai')}
 			</Button>
-			<p className="text-start">{aiMessage}</p>
+			{loading ? <Skeleton active /> : <MarkdownViewer markdown={aiMessage} />}
 		</Drawer>
 	);
 };
