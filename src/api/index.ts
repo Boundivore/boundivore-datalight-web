@@ -22,7 +22,7 @@ import { BackendResponse } from '@/api/interface';
 import i18n from '@/i18n';
 
 const config = {
-	timeout: 1000 * 10 * 6,
+	timeout: 1000 * 10,
 	withCredentials: false
 };
 let lastErrorTimestamp = 0;

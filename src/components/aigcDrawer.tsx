@@ -41,7 +41,10 @@ const AIGCDrawer: FC<AIGCDrawerProps> = () => {
 		const api = APIConfig.sendMessage;
 		const params = { AIGCType: 'QIANFAN', Message: currentMessage || inputMessage };
 		try {
-			const { Data } = await RequestHttp.post(api, params);
+			const { Data } = await RequestHttp.post(api, params, {
+				// 自定义超时时间
+				timeout: 1000 * 10 * 6
+			});
 			setAiMessage(Data);
 		} finally {
 			setLoading(false);
