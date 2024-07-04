@@ -39,6 +39,12 @@ const SelectNameNode: React.FC = () => {
 			dataIndex: 'ComponentName',
 			key: 'ComponentName',
 			render: text => <span>{text}</span>
+		},
+		{
+			title: t('service.node'),
+			dataIndex: 'ComponentName',
+			key: 'ComponentName',
+			render: text => <span>{text}</span>
 		}
 	];
 	const getComponentList = async () => {
@@ -56,6 +62,6 @@ const SelectNameNode: React.FC = () => {
 		getComponentList();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	return <Table columns={columns} dataSource={componentList} />;
+	return <Table rowKey="ComponentName" columns={columns} dataSource={componentList} />;
 };
 export default SelectNameNode;
