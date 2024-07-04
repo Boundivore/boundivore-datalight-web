@@ -19,20 +19,22 @@
  * @author Tracy
  */
 import React from 'react';
+
 import { Drawer, Collapse } from 'antd';
 import type { CollapseProps } from 'antd';
+import SelectNameNode from '@/components/nameNodeSteps/selectNameNode';
 
 const text = `
   A dog is a type of domesticated animal.
   Known for its loyalty and faithfulness,
   it can be found as a welcome guest in many households across the world.
 `;
-const NameNodeMigrate: React.FC = () => {
+const NameNodeMigrate: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
 	const items: CollapseProps['items'] = [
 		{
 			key: '1',
-			label: 'This is panel header 1',
-			children: <p>{text}</p>
+			label: '第一步',
+			children: <SelectNameNode />
 		},
 		{
 			key: '2',
@@ -45,8 +47,9 @@ const NameNodeMigrate: React.FC = () => {
 			children: <p>{text}</p>
 		}
 	];
+
 	return (
-		<Drawer width={640} open={true}>
+		<Drawer width={640} onClose={onClose} open={isOpen}>
 			<Collapse items={items} defaultActiveKey={['1']} />
 		</Drawer>
 	);

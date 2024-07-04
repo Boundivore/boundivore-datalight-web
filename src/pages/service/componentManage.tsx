@@ -69,6 +69,7 @@ const ComponentManage: React.FC = () => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const activeComponentRef = useRef(activeComponent);
 	const selectComponentRef = useRef(selectComponent);
+	const [isOpen, setIsOpen] = useState(false);
 
 	// 顶部操作按钮配置
 	const buttonConfigTop = [
@@ -131,7 +132,7 @@ const ComponentManage: React.FC = () => {
 		{
 			id: 10,
 			label: 'NameNode 迁移',
-			callback: () => {},
+			callback: () => showDrawer(),
 			disabled: false
 		}
 	];
@@ -452,6 +453,13 @@ const ComponentManage: React.FC = () => {
 		activeComponentRef.current = activeComponent;
 	}, [activeComponent]);
 
+	const showDrawer = () => {
+		setIsOpen(true);
+	};
+
+	const closeDrawer = () => {
+		setIsOpen(false);
+	};
 	const rowSelection = {
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setComponentWithNode({ ...componentWithNode, ...{ [activeComponent]: selectedRows } });
@@ -543,7 +551,7 @@ const ComponentManage: React.FC = () => {
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal isModalOpen={isActiveJobModalOpen} handleCancel={handleModalOk} type="jobProgress" />
 			) : null}
-			<NameNodeMigrate />
+			<NameNodeMigrate isOpen={isOpen} onClose={closeDrawer} />
 			{/* {isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null} */}
 		</>
 	);
