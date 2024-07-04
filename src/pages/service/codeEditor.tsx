@@ -67,7 +67,7 @@ const CodeEditor = forwardRef<{ handleSave: () => string } | null, Props>(({ dat
 
 	return (
 		<>
-			<div ref={editableDivRef} contentEditable="true">
+			<div ref={editableDivRef}>
 				<CodeMirror
 					value={value}
 					height="500px"

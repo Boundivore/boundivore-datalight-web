@@ -33,7 +33,7 @@ interface AIGCDrawerProps {
 }
 const AIGCDrawer: FC<AIGCDrawerProps> = () => {
 	const [aiMessage, setAiMessage] = useState('');
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [inputMessage, setInputMessage] = useState('');
 	const { showerAI, setShowerAI, message } = useStore();
 	const sendMessage = async (currentMessage: string = '') => {
