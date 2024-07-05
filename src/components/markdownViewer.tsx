@@ -33,7 +33,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown }) => {
 		marked.setOptions({
 			renderer: renderer,
 			gfm: true,
-			breaks: false,
+			breaks: true,
 			pedantic: false
 		});
 

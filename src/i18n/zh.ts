@@ -440,5 +440,6 @@ export default {
 	params: '参数',
 	result: '响应结果',
 	ai: 'AI分析',
-	aiPrompt: '请帮我分析并优化一下以下内容，并输出markdown格式的回复\n'
+	aiPrompt: '请帮我分析并优化一下以下内容，并输出markdown格式的回复\n',
+	revert: '复位'
 };
