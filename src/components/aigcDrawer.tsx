@@ -18,7 +18,7 @@
  * AIGC抽屉
  * @author Tracy
  */
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useCallback } from 'react';
 import { Drawer, Input, Button, Skeleton } from 'antd';
 import { t } from 'i18next';
 import RequestHttp from '@/api';
@@ -33,7 +33,7 @@ interface AIGCDrawerProps {
 }
 const AIGCDrawer: FC<AIGCDrawerProps> = () => {
 	const [aiMessage, setAiMessage] = useState('');
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [inputMessage, setInputMessage] = useState('');
 	const { showerAI, setShowerAI, message } = useStore();
 	const sendMessage = async (currentMessage: string = '') => {
@@ -50,6 +50,31 @@ const AIGCDrawer: FC<AIGCDrawerProps> = () => {
 			setLoading(false);
 		}
 	};
+	const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+		let isDown = false;
+		const startX = e.clientX;
+		const drawerElement = document.getElementsByClassName('ant-drawer-content-wrapper')[0];
+		const startWidth = drawerElement.clientWidth;
+		console.log('startWidth', startWidth);
+		const handleMouseMove = (moveEvent: MouseEvent) => {
+			if (!isDown) return;
+
+			const newWidth = startWidth - (moveEvent.clientX - startX);
+			(drawerElement as HTMLElement).style.width = `${newWidth > 378 ? newWidth : 378}px`;
+		};
+		const handleMouseUp = () => {
+			isDown = false;
+			window.removeEventListener('mousemove', handleMouseMove);
+			window.removeEventListener('mouseup', handleMouseUp);
+			drawerElement.removeEventListener('mouseup', handleMouseUp);
+		};
+
+		isDown = true;
+		window.addEventListener('mousemove', handleMouseMove);
+		window.addEventListener('mouseup', handleMouseUp);
+		drawerElement.addEventListener('mouseup', handleMouseUp);
+	}, []);
+
 	useEffect(() => {
 		if (message) {
 			setInputMessage(t('aiPrompt') + message);
@@ -59,7 +84,28 @@ const AIGCDrawer: FC<AIGCDrawerProps> = () => {
 	}, [message]);
 
 	return (
-		<Drawer open={showerAI} className="text-end" onClose={() => setShowerAI(false)}>
+		<Drawer
+			open={showerAI}
+			extra={
+				<Button
+					type="primary"
+					ghost
+					onClick={() => {
+						const drawerElement = document.getElementsByClassName('ant-drawer-content-wrapper')[0] as HTMLElement;
+						drawerElement.style.width = '378px';
+					}}
+				>
+					{t('revert')}
+				</Button>
+			}
+			className="text-end"
+			onClose={() => setShowerAI(false)}
+		>
+			<div
+				id="line"
+				className="absolute left-0 w-[8px] h-[90%] bg-white hover:bg-gray-100 cursor-ew-resize"
+				onMouseDown={e => handleMouseDown(e)}
+			></div>
 			<TextArea
 				showCount
 				value={inputMessage} // 绑定到inputMessage
