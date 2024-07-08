@@ -15,7 +15,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * SelectNameNode- 选择要迁移的NameNode
+ * SelectNameNode- 选择要迁移的NameNode, 第一步
  * @author Tracy
  */
 import React, { useEffect, useState } from 'react';
