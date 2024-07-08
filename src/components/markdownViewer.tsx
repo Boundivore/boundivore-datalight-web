@@ -19,7 +19,10 @@
  * @author Tracy
  */
 import React, { useEffect, useState } from 'react';
-import { marked } from 'marked';
+import { Marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-dark.css';
 
 interface MarkdownViewerProps {
 	markdown: string;
@@ -29,13 +32,15 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown }) => {
 	const [htmlContent, setHtmlContent] = useState<string | Promise<string>>('');
 
 	useEffect(() => {
-		const renderer = new marked.Renderer();
-		marked.setOptions({
-			renderer: renderer,
-			gfm: true,
-			breaks: true,
-			pedantic: false
-		});
+		const marked = new Marked(
+			markedHighlight({
+				langPrefix: 'hljs language-',
+				highlight(code, lang) {
+					const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+					return hljs.highlight(code, { language }).value;
+				}
+			})
+		);
 
 		const html = marked.parse(markdown);
 		setHtmlContent(html);
