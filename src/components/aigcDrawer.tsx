@@ -55,7 +55,7 @@ const AIGCDrawer: FC<AIGCDrawerProps> = () => {
 		const startX = e.clientX;
 		const drawerElement = document.getElementsByClassName('ant-drawer-content-wrapper')[0];
 		const startWidth = drawerElement.clientWidth;
-		console.log('startWidth', startWidth);
+
 		const handleMouseMove = (moveEvent: MouseEvent) => {
 			if (!isDown) return;
 
