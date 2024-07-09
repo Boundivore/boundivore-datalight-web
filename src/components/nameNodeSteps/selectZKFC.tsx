@@ -15,19 +15,19 @@
  * http://www.apache.org/licenses/LICENSE-2.0.
  */
 /**
- * SelectNameNode- 选择要迁移的NameNode, 第一步
+ * SelectZKFC- 选择要迁移的ZKFC, 第二步
  * @author Tracy
  */
 import React from 'react';
 import { t } from 'i18next';
 import { Table, Badge, Button, Space } from 'antd';
-import { ComponentSummaryVo, ComponentNodeVo, BadgeStatus } from '@/api/interface';
+import { ComponentSummaryVo, BadgeStatus } from '@/api/interface';
 import useStore from '@/store/store';
 
-const SelectNameNode: React.FC = ({ componentList }) => {
-	const { stateText, setSelectedNameNode } = useStore();
+const SelectZKFC: React.FC = ({ componentList }) => {
+	const { stateText } = useStore();
 	// 单条操作按钮配置
-	const buttonConfigItem = (record: ComponentNodeVo) => {
+	const buttonConfigItem = (record: DataType) => {
 		// const { NodeId, Hostname, SshPort } = record;
 		return [
 			{
@@ -55,19 +55,15 @@ const SelectNameNode: React.FC = ({ componentList }) => {
 			title: t('service.node'),
 			dataIndex: 'ComponentNodeList',
 			key: 'ComponentNodeList',
-			render: text => <span>{text.length ? text[0].Hostname : '无'}</span>
+			render: text => <span>{text[0].Hostname}</span>
 		},
 		{
 			title: t('service.componentState'),
 			dataIndex: 'ComponentNodeList',
 			key: 'SCStateEnum',
-			render: (text: string) => {
-				text.length ? (
-					<Badge status={stateText[text[0].SCStateEnum].status as BadgeStatus} text={t(stateText[text[0].SCStateEnum].label)} />
-				) : (
-					'无'
-				);
-			}
+			render: (text: string) => (
+				<Badge status={stateText[text[0].SCStateEnum].status as BadgeStatus} text={t(stateText[text[0].SCStateEnum].label)} />
+			)
 		},
 		{
 			title: t('operation'),
@@ -90,8 +86,7 @@ const SelectNameNode: React.FC = ({ componentList }) => {
 	];
 
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: ComponentNodeVo[]) => {
-			setSelectedNameNode(selectedRows);
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			if (selectedRows.length > 0) {
 				// const { setStepData } = useSetStepData(1);
 				// setStepData({
@@ -111,4 +106,4 @@ const SelectNameNode: React.FC = ({ componentList }) => {
 		/>
 	);
 };
-export default SelectNameNode;
+export default SelectZKFC;

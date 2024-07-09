@@ -17,7 +17,7 @@
 // store.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { ServiceItemType, ConfigGroupVo } from '@/api/interface';
+import { ServiceItemType, ConfigGroupVo, ComponentNodeVo } from '@/api/interface';
 
 interface MyStore {
 	isNeedChangePassword: boolean; //当前用户是否需要修改密码
@@ -61,6 +61,8 @@ interface MyStore {
 	setMessage: (message: string) => void;
 	showerAI: boolean; //  是否展开AI抽屉
 	setShowerAI: (showerAI: boolean) => void;
+	selectedNameNode: ComponentNodeVo[];
+	setSelectedNameNode: (selectedNameNode: ComponentNodeVo[]) => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -279,7 +281,9 @@ const useStore = create<MyStore>(set => ({
 	showerAI: false, //  是否展开AI抽屉
 	setShowerAI: (showerAI: boolean) => set({ showerAI }),
 	message: '',
-	setMessage: (message: string) => set({ message })
+	setMessage: (message: string) => set({ message }),
+	selectedNameNode: [],
+	setSelectedNameNode: (selectedNameNode: ComponentNodeVo[]) => set({ selectedNameNode })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

@@ -133,7 +133,8 @@ const ComponentManage: React.FC = () => {
 			id: 10,
 			label: 'NameNode 迁移',
 			callback: () => showDrawer(),
-			disabled: false
+			disabled: false,
+			hidden: serviceName !== 'HDFS'
 		}
 	];
 	// 单条操作按钮配置
