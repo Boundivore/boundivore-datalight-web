@@ -137,7 +137,9 @@ const APIConfig: Actions = {
 	getAuditLogSimpleList: '/v1/master/audit/getAuditLogSimpleList',
 	getAuditLogDetail: '/v1/master/audit/getAuditLogDetail',
 	//AIGC相关
-	sendMessage: '/v1/master/aigc/sendMessage'
+	sendMessage: '/v1/master/aigc/sendMessage',
+	//迁移相关
+	migrate: '/v1/master/migrate/hdfs'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];

@@ -21,11 +21,11 @@
 import React from 'react';
 import { t } from 'i18next';
 import { Table, Badge, Button, Space } from 'antd';
-import { ComponentSummaryVo, BadgeStatus } from '@/api/interface';
+import { ComponentSummaryVo, BadgeStatus, ComponentNodeVo } from '@/api/interface';
 import useStore from '@/store/store';
 
 const SelectZKFC: React.FC = ({ componentList }) => {
-	const { stateText } = useStore();
+	const { stateText, setSelectedZKFC } = useStore();
 	// 单条操作按钮配置
 	const buttonConfigItem = (record: DataType) => {
 		// const { NodeId, Hostname, SshPort } = record;
@@ -55,7 +55,7 @@ const SelectZKFC: React.FC = ({ componentList }) => {
 			title: t('service.node'),
 			dataIndex: 'ComponentNodeList',
 			key: 'ComponentNodeList',
-			render: text => <span>{text[0].Hostname}</span>
+			render: text => <span>{text[0]?.Hostname}</span>
 		},
 		{
 			title: t('service.componentState'),
@@ -86,7 +86,8 @@ const SelectZKFC: React.FC = ({ componentList }) => {
 	];
 
 	const rowSelection = {
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: ComponentNodeVo[]) => {
+			setSelectedZKFC(selectedRows);
 			if (selectedRows.length > 0) {
 				// const { setStepData } = useSetStepData(1);
 				// setStepData({

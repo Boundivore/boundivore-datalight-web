@@ -63,6 +63,8 @@ interface MyStore {
 	setShowerAI: (showerAI: boolean) => void;
 	selectedNameNode: ComponentNodeVo[];
 	setSelectedNameNode: (selectedNameNode: ComponentNodeVo[]) => void;
+	selectedZKFC: ComponentNodeVo[];
+	setSelectedZKFC: (selectedZKFC: ComponentNodeVo[]) => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -283,7 +285,9 @@ const useStore = create<MyStore>(set => ({
 	message: '',
 	setMessage: (message: string) => set({ message }),
 	selectedNameNode: [],
-	setSelectedNameNode: (selectedNameNode: ComponentNodeVo[]) => set({ selectedNameNode })
+	setSelectedNameNode: (selectedNameNode: ComponentNodeVo[]) => set({ selectedNameNode }),
+	selectedZKFC: [],
+	setSelectedZKFC: (selectedZKFC: ComponentNodeVo[]) => set({ selectedZKFC })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

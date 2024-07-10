@@ -50,7 +50,7 @@ const NodeListModal: FC<NodeListModalProps> = ({ isModalOpen, handleOk, handleCa
 	const [openAlert, setOpenAlert] = useState(false);
 	const [errorText, setErrorText] = useState('');
 	const { nodeList } = useComponentAndNodeStore();
-	const defaultNodeList: NodeType[] = nodeList[id][component].componentNodeList;
+	const defaultNodeList: NodeType[] = nodeList[id]?.[component].componentNodeList || [];
 	const [selectedNodeList, setSelectedNodeList] = useState<NodeType[]>(defaultNodeList);
 
 	// const [selectedRowKeys, setSelectedRowKeys] = useState(nodeList[id][component]?.map(({ NodeId }) => NodeId));

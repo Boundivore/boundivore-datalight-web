@@ -27,6 +27,7 @@ import APIConfig from '@/api/config';
 import SelectNameNode from '@/components/nameNodeSteps/selectNameNode';
 import SelectNewNode from '@/components/nameNodeSteps/selectNewNode';
 import SelectZKFC from '@/components/nameNodeSteps/selectZKFC';
+import MigrateList from '@/components/nameNodeSteps/migrateList';
 import { ComponentSummaryVo } from '@/api/interface';
 import useStore from '@/store/store';
 
@@ -53,6 +54,11 @@ const NameNodeMigrate: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ i
 			key: '3',
 			label: '第三步',
 			children: <SelectNewNode />
+		},
+		{
+			key: '4',
+			label: '第四步',
+			children: <MigrateList />
 		}
 	];
 	const getComponentList = async () => {

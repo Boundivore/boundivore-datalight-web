@@ -26,7 +26,7 @@ import type { CollapseProps } from 'antd';
 import { useComponentAndNodeStore } from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import NodeListModal from '../nodeListModal';
+import NodeListModal from '@/components/nodeListModal';
 import useStore, { useScrollStore } from '@/store/store';
 import {
 	NodeType,
