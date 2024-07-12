@@ -61,9 +61,13 @@ const SelectZKFC: React.FC = ({ componentList }) => {
 			title: t('service.componentState'),
 			dataIndex: 'ComponentNodeList',
 			key: 'SCStateEnum',
-			render: (text: string) => (
-				<Badge status={stateText[text[0].SCStateEnum].status as BadgeStatus} text={t(stateText[text[0].SCStateEnum].label)} />
-			)
+			render: (text: string) => {
+				text.length ? (
+					<Badge status={stateText[text[0].SCStateEnum].status as BadgeStatus} text={t(stateText[text[0].SCStateEnum].label)} />
+				) : (
+					'无'
+				);
+			}
 		},
 		{
 			title: t('operation'),
