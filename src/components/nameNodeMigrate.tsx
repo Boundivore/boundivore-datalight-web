@@ -28,6 +28,7 @@ import SelectNameNode from '@/components/nameNodeSteps/selectNameNode';
 import SelectNewNode from '@/components/nameNodeSteps/selectNewNode';
 import SelectZKFC from '@/components/nameNodeSteps/selectZKFC';
 import MigrateList from '@/components/nameNodeSteps/migrateList';
+import DiffConfigFile from '@/components/nameNodeSteps/diffConfigFile';
 import { ComponentSummaryVo } from '@/api/interface';
 import useStore from '@/store/store';
 
@@ -39,6 +40,7 @@ const NameNodeMigrate: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ i
 	const [componentList, setComponentList] = useState<ComponentSummaryVo[]>([]);
 	const [zkFailoverControllerList, setZkFailoverControllerList] = useState<ComponentSummaryVo[]>([]);
 	const [nameNodeList, setNameNodeList] = useState<ComponentSummaryVo[]>([]);
+
 	const items: CollapseProps['items'] = [
 		{
 			key: '1',
@@ -59,6 +61,11 @@ const NameNodeMigrate: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ i
 			key: '4',
 			label: '第四步',
 			children: <MigrateList />
+		},
+		{
+			key: '5',
+			label: '第五步',
+			children: <DiffConfigFile />
 		}
 	];
 	const getComponentList = async () => {
@@ -106,7 +113,7 @@ const NameNodeMigrate: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ i
 	}, [selectedNameNode]);
 
 	return (
-		<Drawer width={640} onClose={onClose} open={isOpen}>
+		<Drawer width="90%" onClose={onClose} open={isOpen}>
 			<Collapse items={items} defaultActiveKey={['1']} />
 		</Drawer>
 	);

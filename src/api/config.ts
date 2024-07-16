@@ -139,7 +139,8 @@ const APIConfig: Actions = {
 	//AIGC相关
 	sendMessage: '/v1/master/aigc/sendMessage',
 	//迁移相关
-	migrate: '/v1/master/migrate/hdfs'
+	migrate: '/v1/master/migrate/hdfs',
+	getNewHdfsSiteConfigListByGroup: '/v1/master/migrate/getNewHdfsSiteConfigListByGroup'
 };
 for (let key in APIConfig) {
 	// APIConfig[key] = '/mock/2601924' + APIConfig[key];
