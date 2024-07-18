@@ -18,15 +18,15 @@
  * SelectNewNode- 选择要迁移到的新节点, 第三步
  * @author Tracy
  */
-import React, { useEffect, useState } from 'react';
-import { Button, Flex, Select } from 'antd';
+import { FC, useEffect, useState } from 'react';
+import { Button, Flex, Select, Space } from 'antd';
 import { useSearchParams } from 'react-router-dom';
-import { ComponentSummaryVo } from '@/api/interface';
 import useStore, { useComponentAndNodeStore } from '@/store/store';
 import NodeListModal from '@/components/nodeListModal';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-const SelectNewNode: React.FC = () => {
+import { ComponentSummaryVo, ServiceItemType } from '@/api/interface';
+const SelectNewNode: FC = () => {
 	const { selectedNameNode, selectedZKFC } = useStore();
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
 	const [tempData, setTempData] = useState([]);
@@ -38,6 +38,7 @@ const SelectNewNode: React.FC = () => {
 	let tempList = { [id]: {} };
 	let disableSelected = false;
 	const handleOk = async () => {
+		await getServiceList();
 		const apiSelect = APIConfig.selectComponent;
 		// 将 nodeList 转换为以 ComponentName 为 key 的对象
 		const nodeMap: NodeMap = Object.entries(nodeList[id] as NodeList).reduce((result: NodeMap, [componentName, nodes]) => {
@@ -76,6 +77,30 @@ const SelectNewNode: React.FC = () => {
 		};
 		const jobData = await RequestHttp.post(apiSelect, params);
 		return Promise.resolve(jobData);
+	};
+	const getServiceList = async () => {
+		const apiList = APIConfig.serviceList;
+		const params = {
+			ClusterId: id
+		};
+		const data = await RequestHttp.get(apiList, { params });
+		const serviceData: ServiceItemType[] = data.Data.ServiceSummaryList;
+		selectService(serviceData);
+	};
+	const selectService = async serviceData => {
+		const apiSelect = APIConfig.selectService;
+		// 合并原数据和本次操作选择的数据
+		// const combinedArray = serviceData.map(item => ({ ...item, SCStateEnum: 'UNSELECTED' }));
+		const transformedData = serviceData.map(item => ({
+			SCStateEnum: item.ServiceName === 'HDFS' ? 'SELECTED' : 'UNSELECTED',
+			ServiceName: item.ServiceName
+		}));
+		const params = {
+			ClusterId: id,
+			ServiceList: transformedData
+		};
+		const jobData = await RequestHttp.post(apiSelect, params);
+		console.log(jobData);
 	};
 	useEffect(() => {
 		const transformedData = [...selectedNameNode, ...selectedZKFC];
@@ -149,9 +174,11 @@ const SelectNewNode: React.FC = () => {
 					// nodeList={nodeList}
 				/>
 			) : null}
-			<Button type="primary" onClick={handleOk}>
-				下一步
-			</Button>
+			<Space className="mt-[20px] flex justify-center">
+				<Button type="primary" disabled={tempData.length <= 1} onClick={handleOk}>
+					下一步
+				</Button>
+			</Space>
 		</>
 	);
 };

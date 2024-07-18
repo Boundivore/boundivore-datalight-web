@@ -30,7 +30,7 @@ let errorTime = 5000;
 
 const handleError = (errorMessage: string) => {
 	const currentTimestamp = Date.now();
-	// 如果距离上一次错误时间超过 10 秒，则执行错误处理
+	// 如果距离上一次错误时间超过 5 秒，则执行错误处理
 	if (currentTimestamp - lastErrorTimestamp > errorTime) {
 		message.error(errorMessage, 5);
 		lastErrorTimestamp = currentTimestamp;

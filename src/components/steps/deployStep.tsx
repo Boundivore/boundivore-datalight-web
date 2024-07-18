@@ -149,7 +149,7 @@ const DeployStep = forwardRef((_props, ref) => {
 		const serviceNameList = webState[preStepName] as string[];
 		const filterService = ServiceSummaryList.filter(
 			(service: ServiceItemType) =>
-				serviceNameList.includes(service.ServiceName) && serviceDeployState.includes(service.SCStateEnum)
+				serviceNameList?.includes(service.ServiceName) && serviceDeployState.includes(service.SCStateEnum)
 		).map((item: ServiceItemType) => {
 			return item.ServiceName;
 		});

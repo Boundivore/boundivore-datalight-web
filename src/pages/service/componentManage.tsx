@@ -552,7 +552,7 @@ const ComponentManage: React.FC = () => {
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal isModalOpen={isActiveJobModalOpen} handleCancel={handleModalOk} type="jobProgress" />
 			) : null}
-			<NameNodeMigrate isOpen={isOpen} onClose={closeDrawer} />
+			{isOpen ? <NameNodeMigrate isOpen={isOpen} onClose={closeDrawer} /> : null}
 			{/* {isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null} */}
 		</>
 	);
