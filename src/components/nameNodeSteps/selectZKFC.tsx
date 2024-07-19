@@ -21,21 +21,15 @@
 import { FC, useState, useEffect } from 'react';
 import { t } from 'i18next';
 import { Table, Badge, Button, Space } from 'antd';
-import { useSearchParams } from 'react-router-dom';
+import type { TableColumnsType } from 'antd';
 import { ComponentSummaryVo, BadgeStatus, ComponentNodeVo } from '@/api/interface';
 import useStore from '@/store/store';
-import RequestHttp from '@/api';
-import APIConfig from '@/api/config';
 import useComponentOperations from '@/hooks/useComponentOperations';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
 
-const SelectZKFC: FC = () => {
-	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id') || '';
-	const serviceName = searchParams.get('name') || '';
-	const { stateText, setSelectedZKFC, selectedNameNode } = useStore();
+const SelectZKFC: FC = ({ zkfcList }) => {
+	const { stateText, setSelectedZKFC, selectedNameNode, setMigrateStep } = useStore();
 	const [selectedRows, setSelectedRows] = useState<ComponentNodeVo[]>([]);
-	const [componentList, setComponentList] = useState<ComponentNodeVo[]>([]);
 	const [zkFailoverControllerList, setZkFailoverControllerList] = useState<ComponentSummaryVo[]>([]);
 	const { removeComponent, operateComponent, isActiveJobModalOpen, handleModalOk, contextHolder } =
 		useComponentOperations('HDFS');
@@ -62,7 +56,7 @@ const SelectZKFC: FC = () => {
 			}
 		];
 	};
-	const columns: TableColumnType<ComponentSummaryVo> = [
+	const columns: TableColumnsType<ComponentSummaryVo> = [
 		{
 			title: t('service.componentName'),
 			dataIndex: 'ComponentName',
@@ -73,7 +67,7 @@ const SelectZKFC: FC = () => {
 			title: t('service.node'),
 			dataIndex: 'ComponentNodeList',
 			key: 'ComponentNodeList',
-			render: text => <span>{text[0]?.Hostname}</span>
+			render: text => <span>{text.length ? text[0].Hostname : '无'}</span>
 		},
 		{
 			title: t('service.componentState'),
@@ -110,23 +104,12 @@ const SelectZKFC: FC = () => {
 	];
 	const handleOk = () => {
 		setSelectedZKFC(selectedRows);
+		setMigrateStep(['3']);
 	};
-	const getComponentList = async () => {
-		// setLoading(true);
-		const api = APIConfig.componentListByServiceName;
-		const params = { ClusterId: id, ServiceName: serviceName };
-		const {
-			Data: { ServiceComponentSummaryList }
-		} = await RequestHttp.get(api, { params });
-		setComponentList(ServiceComponentSummaryList[0].ComponentSummaryList);
-	};
-	useEffect(() => {
-		getComponentList();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+
 	useEffect(() => {
 		// setLoading(false);
-		const zkFailoverControllers = componentList.filter(component => {
+		const zkFailoverControllers = zkfcList.filter(component => {
 			// 检查ComponentName是否以"ZKFailoverController"开头
 			if (component.ComponentName.startsWith('ZKFailoverController')) {
 				// 提取ZKFailoverController名称中的数字部分
@@ -149,8 +132,7 @@ const SelectZKFC: FC = () => {
 			return false;
 		});
 		setZkFailoverControllerList(zkFailoverControllers);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedNameNode]);
+	}, [selectedNameNode, zkfcList]);
 
 	const rowSelection = {
 		type: 'radio',

@@ -18,8 +18,7 @@
  * SelectNameNode- 选择要迁移的NameNode, 第一步
  * @author Tracy
  */
-import { FC, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { FC, useState } from 'react';
 import { t } from 'i18next';
 import { Table, Badge, Button, Space } from 'antd';
 import type { TableColumnsType } from 'antd';
@@ -27,16 +26,10 @@ import { ComponentSummaryVo, ComponentNodeVo, BadgeStatus } from '@/api/interfac
 import useStore from '@/store/store';
 import useComponentOperations from '@/hooks/useComponentOperations';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
-import RequestHttp from '@/api';
-import APIConfig from '@/api/config';
 
-const SelectNameNode: FC = () => {
-	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id') || '';
-	const serviceName = searchParams.get('name') || '';
-	const [nameNodeList, setNameNodeList] = useState<ComponentSummaryVo[]>([]);
+const SelectNameNode: FC = ({ nameNodeList }) => {
 	const [selectedRows, setSelectedRows] = useState<ComponentNodeVo[]>([]);
-	const { stateText, setSelectedNameNode } = useStore();
+	const { stateText, setSelectedNameNode, setMigrateStep } = useStore();
 	const { removeComponent, operateComponent, isActiveJobModalOpen, handleModalOk, contextHolder } =
 		useComponentOperations('HDFS');
 	// 单条操作按钮配置
@@ -107,24 +100,10 @@ const SelectNameNode: FC = () => {
 			}
 		}
 	];
-	const getComponentList = async () => {
-		// setLoading(true);
-		const api = APIConfig.componentListByServiceName;
-		const params = { ClusterId: id, ServiceName: serviceName };
-		const {
-			Data: { ServiceComponentSummaryList }
-		} = await RequestHttp.get(api, { params });
 
-		setNameNodeList(
-			ServiceComponentSummaryList[0].ComponentSummaryList.filter(component => component.ComponentName.includes('NameNode'))
-		);
-	};
-	useEffect(() => {
-		getComponentList();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 	const handleOk = () => {
 		setSelectedNameNode(selectedRows);
+		setMigrateStep([2]);
 	};
 
 	const rowSelection = {

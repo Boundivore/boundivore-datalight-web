@@ -18,7 +18,7 @@
  * 组件管理列表页
  * @author Tracy
  */
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -63,6 +63,8 @@ const ComponentManage: React.FC = () => {
 	// const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const [handleButton, setHandleButton] = useState(false);
+	const [nameNodeList, setNameNodeList] = useState<ComponentSummaryVo[]>([]);
+	const [zkfcList, setZkfcList] = useState<ComponentSummaryVo[]>([]);
 	const { setJobId, stateText } = useStore();
 	const { navigateToAddComponent, navigateToService } = useNavigater();
 	const { modal } = App.useApp();
@@ -437,6 +439,14 @@ const ComponentManage: React.FC = () => {
 				ComponentNodeList: componentNodeList
 			};
 		});
+		setNameNodeList(
+			ServiceComponentSummaryList[0].ComponentSummaryList.filter(component => component.ComponentName.includes('NameNode'))
+		);
+		setZkfcList(
+			ServiceComponentSummaryList[0].ComponentSummaryList.filter(component =>
+				component.ComponentName.includes('ZKFailoverController')
+			)
+		);
 		setSelectComponent(allIntersectionByIdLists);
 		setComponentTable(tempData);
 		if (!activeComponentRef.current) {
@@ -458,9 +468,10 @@ const ComponentManage: React.FC = () => {
 		setIsOpen(true);
 	};
 
-	const closeDrawer = () => {
+	const closeDrawer = useCallback(() => {
 		setIsOpen(false);
-	};
+	}, []);
+
 	const rowSelection = {
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
 			setComponentWithNode({ ...componentWithNode, ...{ [activeComponent]: selectedRows } });
@@ -552,7 +563,7 @@ const ComponentManage: React.FC = () => {
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal isModalOpen={isActiveJobModalOpen} handleCancel={handleModalOk} type="jobProgress" />
 			) : null}
-			{isOpen ? <NameNodeMigrate isOpen={isOpen} onClose={closeDrawer} /> : null}
+			{isOpen && <NameNodeMigrate isOpen={isOpen} onClose={closeDrawer} nameNodeList={nameNodeList} zkfcList={zkfcList} />}
 			{/* {isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} handleOk={handleModalOk} type="jobPlan" /> : null} */}
 		</>
 	);

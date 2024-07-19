@@ -25,9 +25,10 @@ import useStore, { useComponentAndNodeStore } from '@/store/store';
 import NodeListModal from '@/components/nodeListModal';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import { arraysEqual } from '@/utils/helper';
 import { ComponentSummaryVo, ServiceItemType } from '@/api/interface';
-const SelectNewNode: FC = () => {
-	const { selectedNameNode, selectedZKFC } = useStore();
+const SelectNewNode: FC = ({ nextStep }) => {
+	const { selectedNameNode, selectedZKFC, setMigrateStep, migrateStep } = useStore();
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
 	const [tempData, setTempData] = useState([]);
 	const [searchParams] = useSearchParams();
@@ -75,9 +76,15 @@ const SelectNewNode: FC = () => {
 			ClusterId: id,
 			ComponentList: paramsComponentList
 		};
-		const jobData = await RequestHttp.post(apiSelect, params);
-		return Promise.resolve(jobData);
+		const { Code } = await RequestHttp.post(apiSelect, params);
+		if (Code === '00000') {
+			setMigrateStep(['4']);
+		}
 	};
+	useEffect(() => {
+		arraysEqual(migrateStep, ['4']) && nextStep();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [migrateStep]);
 	const getServiceList = async () => {
 		const apiList = APIConfig.serviceList;
 		const params = {

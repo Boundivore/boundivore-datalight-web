@@ -57,9 +57,9 @@ const useStepConfig = () => {
 	const startWorkerStepRef = useRef<StepRefType>(null);
 	const selectServiceRef = useRef<StepRefType>(null);
 	const selectComponentRef = useRef<StepRefType>(null);
-	const PreconfigStepRef = useRef<StepRefType>(null);
-	const PreviewStepRef = useRef<StepRefType>(null);
-	const DeployStepRef = useRef<StepRefType>(null);
+	const preconfigStepRef = useRef<StepRefType>(null);
+	const previewStepRef = useRef<StepRefType>(null);
+	const deployStepRef = useRef<StepRefType>(null);
 
 	const nextList = () => parseStepRef.current?.handleOk();
 	const retryParseList = () => parseListStepRef.current?.parseHostname();
@@ -75,9 +75,9 @@ const useStepConfig = () => {
 	const nextComponent = () => selectServiceRef.current?.handleOk();
 	const nextPreconfig = () => selectComponentRef.current?.handleOk();
 	const recommendation = () => selectComponentRef.current?.recommendation();
-	const nextPreview = () => PreconfigStepRef.current?.onFinish(true);
-	const nextDeploy = () => PreviewStepRef.current?.handleOk();
-	const retryDeploy = () => DeployStepRef.current?.deploy();
+	const nextPreview = () => preconfigStepRef.current?.onFinish(true);
+	const nextDeploy = () => previewStepRef.current?.handleOk();
+	const retryDeploy = () => deployStepRef.current?.deploy();
 
 	const nodeStepConfig = [
 		{
@@ -148,7 +148,7 @@ const useStepConfig = () => {
 		},
 		{
 			title: t('service.preConfig'),
-			content: <PreconfigStep ref={PreconfigStepRef} />,
+			content: <PreconfigStep ref={preconfigStepRef} />,
 			nextStep: nextPreview,
 			hideRetry: true,
 			nextText: t('preview')
@@ -156,7 +156,7 @@ const useStepConfig = () => {
 		},
 		{
 			title: t('service.deployOverview'),
-			content: <PreviewconfigStep ref={PreviewStepRef} />,
+			content: <PreviewconfigStep ref={previewStepRef} />,
 			nextStep: nextDeploy,
 			hideRetry: true,
 			nextText: t('startDeploy')
@@ -164,7 +164,7 @@ const useStepConfig = () => {
 		},
 		{
 			title: t('service.deployStep'),
-			content: <DeployStep ref={DeployStepRef} />,
+			content: <DeployStep ref={deployStepRef} />,
 			operations: [
 				{
 					label: t('done'),

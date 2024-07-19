@@ -32,6 +32,22 @@ const useComponentOperations = serviceName => {
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const [handleButton, setHandleButton] = useState(false);
 	const [messageApi, contextHolder] = message.useMessage();
+	const viewActiveJob = useCallback(
+		async (callback = () => info({ title: t('noActiveJob') })) => {
+			const apiList = APIConfig.getActiveJobId;
+			const data = await RequestHttp.get(apiList);
+			const {
+				Data: { ClusterId, JobId }
+			} = data;
+			setJobId(JobId);
+			id === ClusterId ? setIsActiveJobModalOpen(true) : callback();
+		},
+		[id, setJobId, t]
+	);
+
+	const handleModalOk = () => {
+		setIsActiveJobModalOpen(false);
+	};
 
 	const removeComponent = useCallback(
 		componentList => {
@@ -107,23 +123,6 @@ const useComponentOperations = serviceName => {
 		},
 		[id, serviceName, messageApi, t, viewActiveJob]
 	);
-
-	const viewActiveJob = useCallback(
-		async (callback = () => info({ title: t('noActiveJob') })) => {
-			const apiList = APIConfig.getActiveJobId;
-			const data = await RequestHttp.get(apiList);
-			const {
-				Data: { ClusterId, JobId }
-			} = data;
-			setJobId(JobId);
-			id === ClusterId ? setIsActiveJobModalOpen(true) : callback();
-		},
-		[id, setJobId, t]
-	);
-
-	const handleModalOk = () => {
-		setIsActiveJobModalOpen(false);
-	};
 
 	return {
 		removeComponent,

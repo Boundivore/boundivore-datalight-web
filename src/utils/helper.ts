@@ -173,3 +173,15 @@ export const convertByteSize = (bytes: number) => {
 	// 如果给定的字节数非常大，以至于超过了TB，我们可以选择返回'PB'或其他更大的单位，但在这个例子中，我们仅返回'TB'
 	return (bytes / factors[factors.length - 1]).toFixed(2) + ' TB';
 };
+
+export const arraysEqual = (arr1: [], arr2: []) => {
+	if (arr1.length !== arr2.length) return false;
+
+	for (let i = 0; i < arr1.length; i++) {
+		if (arr1[i] !== arr2[i]) {
+			return false;
+		}
+	}
+
+	return true;
+};

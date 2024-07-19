@@ -65,6 +65,8 @@ interface MyStore {
 	setSelectedNameNode: (selectedNameNode: ComponentNodeVo[]) => void;
 	selectedZKFC: ComponentNodeVo[];
 	setSelectedZKFC: (selectedZKFC: ComponentNodeVo[]) => void;
+	migrateStep: string[]; //NameNode迁移步骤
+	setMigrateStep: (migrateStep: string[]) => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -117,7 +119,7 @@ const useStore = create<MyStore>(set => ({
 		PROCEDURE_SELECT_COMPONENT: 8,
 		PROCEDURE_PRE_CONFIG: 9,
 		PROCEDURE_DEPLOYING: 11, //部署信息总览只是前端页面，不是后端步骤，所以跳过10
-		PROCEDURE_MIGRATE_DEPLOYING: 11
+		PROCEDURE_MIGRATE_DEPLOYING: 11 //迁移部署和部署共用
 	},
 	stateText: {
 		STARTED: {
@@ -288,7 +290,9 @@ const useStore = create<MyStore>(set => ({
 	selectedNameNode: [],
 	setSelectedNameNode: (selectedNameNode: ComponentNodeVo[]) => set({ selectedNameNode }),
 	selectedZKFC: [],
-	setSelectedZKFC: (selectedZKFC: ComponentNodeVo[]) => set({ selectedZKFC })
+	setSelectedZKFC: (selectedZKFC: ComponentNodeVo[]) => set({ selectedZKFC }),
+	migrateStep: ['1'], //默认处于第一步
+	setMigrateStep: (migrateStep: string[]) => set({ migrateStep })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(
