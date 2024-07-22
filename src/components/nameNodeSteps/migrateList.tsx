@@ -18,7 +18,7 @@
  * DeployStep - 部署步骤
  * @author Tracy
  */
-import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Progress, Typography, Alert, Flex, Space, Badge, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -43,9 +43,8 @@ const MigrateList = forwardRef((_props, ref) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
-	const { stableState, jobId, setJobId, setCurrentPageDisabled, stepCurrent, setMigrateStep } = useStore();
+	const { stableState, jobId, setJobId, setCurrentPageDisabled, setMigrateStep, stepCurrent } = useStore();
 	const [openAlert, setOpenAlert] = useState(false);
-	const [deployState, setDeployState] = useState(true);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 	const [activeNodeId, setActiveNodeId] = useState('');
@@ -108,7 +107,6 @@ const MigrateList = forwardRef((_props, ref) => {
 		deploy
 	}));
 	const deploy = async () => {
-		setDeployState(false);
 		setIsModalOpen(true);
 		const api = APIConfig.migrate;
 		// const serviceNameList = webState[preStepName];
@@ -120,11 +118,9 @@ const MigrateList = forwardRef((_props, ref) => {
 		};
 		try {
 			const {
-				Code,
 				Data: { JobId }
 			} = await RequestHttp.post(api, params);
 			setJobId(JobId);
-			setDeployState(Code === '00000');
 		} catch (error) {
 			console.error('请求失败:', error);
 		} finally {
@@ -140,41 +136,38 @@ const MigrateList = forwardRef((_props, ref) => {
 	};
 
 	const getList = async () => {
-		if (stepCurrent === 11) {
-			const api = APIConfig.jobProgress;
-			const progressData = await RequestHttp.get(api, { params: { JobId: jobId } });
-			const {
-				Data: {
-					JobExecProgress: { ExecProgressPerNodeList, JobExecStateEnum }
-				}
-			} = progressData;
-			const updatedArray = ExecProgressPerNodeList.map((obj: ExecProgressPerNodeVo) => ({
-				...obj,
-				JobExecStateEnum
-			}));
-			const basicDisabled = disabledState.includes(JobExecStateEnum);
-			const disableNext = basicDisabled;
-			const disableRetry = JobExecStateEnum !== 'ERROR';
-			const disablePrev = JobExecStateEnum !== 'ERROR';
-			const disableCancel = disableCancelState.includes(JobExecStateEnum);
-			setCurrentPageDisabled({
-				nextDisabled: disableNext,
-				retryDisabled: disableRetry,
-				prevDisabled: disablePrev,
-				cancelDisabled: disableCancel
-			});
-			setOpenAlert(JobExecStateEnum === 'ERROR');
-			return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
-		}
+		// if (stepCurrent === 11) {
+		const api = APIConfig.jobProgress;
+		const progressData = await RequestHttp.get(api, { params: { JobId: jobId } });
+		const {
+			Data: {
+				JobExecProgress: { ExecProgressPerNodeList, JobExecStateEnum }
+			}
+		} = progressData;
+		const updatedArray = ExecProgressPerNodeList.map((obj: ExecProgressPerNodeVo) => ({
+			...obj,
+			JobExecStateEnum
+		}));
+		const basicDisabled = disabledState.includes(JobExecStateEnum);
+		const disableNext = basicDisabled;
+		const disableRetry = JobExecStateEnum !== 'ERROR';
+		const disablePrev = JobExecStateEnum !== 'ERROR';
+		const disableCancel = disableCancelState.includes(JobExecStateEnum);
+		setCurrentPageDisabled({
+			nextDisabled: disableNext,
+			retryDisabled: disableRetry,
+			prevDisabled: disablePrev,
+			cancelDisabled: disableCancel
+		});
+		setOpenAlert(JobExecStateEnum === 'ERROR');
+		return updatedArray; // 将JobExecStateEnum并入每一条数据，作为轮询终止的条件
+		// }
 	};
 	const handleOk = () => {
 		setMigrateStep(['5']);
 	};
 
-	const tableData = usePolling(getList, stableState, 1000, [deployState]);
-	useEffect(() => {
-		//deploy(); //当前有未完成的迁移部署进程则执行
-	}, []);
+	const tableData = usePolling(getList, stableState, 1000, [stepCurrent === 11]);
 	//获取进度，定位到当前步骤
 	useStepEffect();
 

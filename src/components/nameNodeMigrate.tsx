@@ -64,9 +64,6 @@ const NameNodeMigrate: FC<{ isOpen: boolean; onClose: () => void; nameNodeList: 
 		];
 		const handleChange = (key: string[]) => {
 			setMigrateStep(key);
-			// useStore.setState({
-			// 	migrateStep: [key]
-			// });
 		};
 
 		return (

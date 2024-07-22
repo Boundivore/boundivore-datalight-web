@@ -16,13 +16,13 @@
  */
 import { useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { message, Modal } from 'antd';
+import { message, App } from 'antd';
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import { useTranslation } from 'react-i18next';
 
-const { confirm, info } = Modal;
+// const { confirm, info } = Modal;
 
 const useComponentOperations = serviceName => {
 	const { t } = useTranslation();
@@ -32,6 +32,9 @@ const useComponentOperations = serviceName => {
 	const [isActiveJobModalOpen, setIsActiveJobModalOpen] = useState(false);
 	const [handleButton, setHandleButton] = useState(false);
 	const [messageApi, contextHolder] = message.useMessage();
+	const {
+		modal: { confirm, info }
+	} = App.useApp();
 	const viewActiveJob = useCallback(
 		async (callback = () => info({ title: t('noActiveJob') })) => {
 			const apiList = APIConfig.getActiveJobId;
@@ -42,7 +45,7 @@ const useComponentOperations = serviceName => {
 			setJobId(JobId);
 			id === ClusterId ? setIsActiveJobModalOpen(true) : callback();
 		},
-		[id, setJobId, t]
+		[id, setJobId, t, info]
 	);
 
 	const handleModalOk = () => {
@@ -75,7 +78,7 @@ const useComponentOperations = serviceName => {
 				}
 			});
 		},
-		[serviceName, messageApi, id, t]
+		[serviceName, messageApi, id, t, confirm]
 	);
 
 	const operateComponent = useCallback(
@@ -121,7 +124,7 @@ const useComponentOperations = serviceName => {
 				}
 			});
 		},
-		[id, serviceName, messageApi, t, viewActiveJob]
+		[id, serviceName, messageApi, t, viewActiveJob, confirm]
 	);
 
 	return {

@@ -17,7 +17,7 @@
 // store.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { ServiceItemType, ConfigGroupVo, ComponentNodeVo } from '@/api/interface';
+import { ServiceItemType, ConfigGroupVo, ComponentSummaryVo } from '@/api/interface';
 
 interface MyStore {
 	isNeedChangePassword: boolean; //当前用户是否需要修改密码
@@ -61,12 +61,14 @@ interface MyStore {
 	setMessage: (message: string) => void;
 	showerAI: boolean; //  是否展开AI抽屉
 	setShowerAI: (showerAI: boolean) => void;
-	selectedNameNode: ComponentNodeVo[];
-	setSelectedNameNode: (selectedNameNode: ComponentNodeVo[]) => void;
-	selectedZKFC: ComponentNodeVo[];
-	setSelectedZKFC: (selectedZKFC: ComponentNodeVo[]) => void;
+	selectedNameNode: ComponentSummaryVo[];
+	setSelectedNameNode: (selectedNameNode: ComponentSummaryVo[]) => void;
+	selectedZKFC: ComponentSummaryVo[];
+	setSelectedZKFC: (selectedZKFC: ComponentSummaryVo[]) => void;
 	migrateStep: string[]; //NameNode迁移步骤
 	setMigrateStep: (migrateStep: string[]) => void;
+	migrateDeploy: boolean; //是否执行迁移操作
+	setMigrateDeploy: (migrateDeploy: boolean) => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -288,11 +290,13 @@ const useStore = create<MyStore>(set => ({
 	message: '',
 	setMessage: (message: string) => set({ message }),
 	selectedNameNode: [],
-	setSelectedNameNode: (selectedNameNode: ComponentNodeVo[]) => set({ selectedNameNode }),
+	setSelectedNameNode: (selectedNameNode: ComponentSummaryVo[]) => set({ selectedNameNode }),
 	selectedZKFC: [],
-	setSelectedZKFC: (selectedZKFC: ComponentNodeVo[]) => set({ selectedZKFC }),
+	setSelectedZKFC: (selectedZKFC: ComponentSummaryVo[]) => set({ selectedZKFC }),
 	migrateStep: ['1'], //默认处于第一步
-	setMigrateStep: (migrateStep: string[]) => set({ migrateStep })
+	setMigrateStep: (migrateStep: string[]) => set({ migrateStep }),
+	migrateDeploy: false, //是否执行迁移操作, 默认不执行
+	setMigrateDeploy: (migrateDeploy: boolean) => set({ migrateDeploy })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

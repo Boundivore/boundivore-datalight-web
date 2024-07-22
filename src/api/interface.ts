@@ -481,7 +481,7 @@ export interface StepRefType {
  */
 export interface ComponentRequest {
 	ComponentName: string;
-	NodeIdList: number[];
+	NodeIdList: string[];
 	SCStateEnum: SCStateEnum;
 	ServiceName: string;
 	[property: string]: any;

@@ -21,16 +21,45 @@
 import { FC, useEffect, useState } from 'react';
 import { Button, Flex, Select, Space } from 'antd';
 import { useSearchParams } from 'react-router-dom';
+import { t } from 'i18next';
 import useStore, { useComponentAndNodeStore } from '@/store/store';
 import NodeListModal from '@/components/nodeListModal';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
-import { arraysEqual } from '@/utils/helper';
-import { ComponentSummaryVo, ServiceItemType } from '@/api/interface';
-const SelectNewNode: FC = ({ nextStep }) => {
-	const { selectedNameNode, selectedZKFC, setMigrateStep, migrateStep } = useStore();
+import { ComponentSummaryVo, ServiceItemType, ComponentRequest, NodeType } from '@/api/interface';
+interface SelectNewNodeProps {
+	nextStep?: () => void;
+}
+interface Node {
+	SCStateEnum: 'UNSELECTED' | 'SELECTED';
+	NodeId: string;
+	// 其他节点属性...
+}
+// interface NodeInfo {
+// 	NodeId: string | number;
+// 	Hostname: string;
+// 	NodeIp: string;
+// 	NodeState: string;
+// }
+interface NodeList {
+	[componentName: string]: {
+		componentNodeList: {
+			[key: string]: Node;
+		};
+	};
+}
+interface NodeMap {
+	[componentName: string]: {
+		selected?: string[];
+		unselected?: string[];
+	};
+}
+const operation = 'MIGRATE';
+const serviceName = 'HDFS';
+const SelectNewNode: FC<SelectNewNodeProps> = () => {
+	const { selectedNameNode, selectedZKFC, setMigrateDeploy, setMigrateStep, setJobId } = useStore();
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
-	const [tempData, setTempData] = useState([]);
+	const [tempData, setTempData] = useState<ComponentSummaryVo[]>([]);
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id') || '';
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,8 +67,11 @@ const SelectNewNode: FC = ({ nextStep }) => {
 	const [disableSelectedNode, setDisableSelectedNode] = useState(false);
 	let tempList = { [id]: {} };
 	let disableSelected = false;
-	const handleOk = async () => {
-		await getServiceList();
+	const handleOk = () => {
+		setMigrateDeploy(false);
+		getServiceList();
+	};
+	const selectComponent = async () => {
 		const apiSelect = APIConfig.selectComponent;
 		// 将 nodeList 转换为以 ComponentName 为 key 的对象
 		const nodeMap: NodeMap = Object.entries(nodeList[id] as NodeList).reduce((result: NodeMap, [componentName, nodes]) => {
@@ -66,7 +98,7 @@ const SelectNewNode: FC = ({ nextStep }) => {
 				ComponentName: componentName,
 				NodeIdList: nodeMap[componentName] === undefined ? [] : nodeMap[componentName].selected,
 				SCStateEnum: 'SELECTED',
-				ServiceName: 'HDFS'
+				ServiceName: serviceName
 			};
 
 			return result;
@@ -79,35 +111,39 @@ const SelectNewNode: FC = ({ nextStep }) => {
 		const { Code } = await RequestHttp.post(apiSelect, params);
 		if (Code === '00000') {
 			setMigrateStep(['4']);
+			// setMigrateDeploy(true);
+			deploy();
 		}
 	};
-	useEffect(() => {
-		arraysEqual(migrateStep, ['4']) && nextStep();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [migrateStep]);
+	// useEffect(() => {
+	// 	migrateDeploy && nextStep();
+	// 	// migrateDeploy && ;
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [migrateDeploy]);
 	const getServiceList = async () => {
 		const apiList = APIConfig.serviceList;
 		const params = {
 			ClusterId: id
 		};
-		const data = await RequestHttp.get(apiList, { params });
-		const serviceData: ServiceItemType[] = data.Data.ServiceSummaryList;
-		selectService(serviceData);
+		const {
+			Data: { ServiceSummaryList }
+		} = await RequestHttp.get(apiList, { params });
+		selectService(ServiceSummaryList);
 	};
-	const selectService = async serviceData => {
+	const selectService = async (serviceData: ServiceItemType[]) => {
 		const apiSelect = APIConfig.selectService;
 		// 合并原数据和本次操作选择的数据
 		// const combinedArray = serviceData.map(item => ({ ...item, SCStateEnum: 'UNSELECTED' }));
 		const transformedData = serviceData.map(item => ({
-			SCStateEnum: item.ServiceName === 'HDFS' ? 'SELECTED' : 'UNSELECTED',
+			SCStateEnum: item.ServiceName === serviceName ? 'SELECTED' : 'UNSELECTED',
 			ServiceName: item.ServiceName
 		}));
 		const params = {
 			ClusterId: id,
 			ServiceList: transformedData
 		};
-		const jobData = await RequestHttp.post(apiSelect, params);
-		console.log(jobData);
+		await RequestHttp.post(apiSelect, params);
+		selectComponent();
 	};
 	useEffect(() => {
 		const transformedData = [...selectedNameNode, ...selectedZKFC];
@@ -123,7 +159,6 @@ const SelectNewNode: FC = ({ nextStep }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedNameNode, selectedZKFC]);
 	const handleModalOk = (selectedRows: NodeType[]) => {
-		console.log(selectedRows);
 		setNodeList({
 			[id]: { ...nodeList[id], [currentComponent]: { ...nodeList[id][currentComponent], componentNodeList: selectedRows } }
 		});
@@ -137,6 +172,30 @@ const SelectNewNode: FC = ({ nextStep }) => {
 		setIsModalOpen(true);
 		setCurrentComponent(componentName);
 		setDisableSelectedNode(disableSelected);
+	};
+	const deploy = async () => {
+		// setDeployState(false);
+		setIsModalOpen(true);
+		const api = APIConfig.migrate;
+		// const serviceNameList = webState[preStepName];
+		const params = {
+			ActionTypeEnum: operation,
+			ClusterId: id,
+			IsOneByOne: false,
+			ServiceNameList: ['HDFS']
+		};
+		try {
+			const {
+				// Code,
+				Data: { JobId }
+			} = await RequestHttp.post(api, params);
+			setJobId(JobId);
+			// setDeployState(Code === '00000');
+		} catch (error) {
+			console.error('请求失败:', error);
+		} finally {
+			setIsModalOpen(false); // 在请求完成后关闭模态框，无论成功还是失败
+		}
 	};
 	return (
 		<>
@@ -183,7 +242,7 @@ const SelectNewNode: FC = ({ nextStep }) => {
 			) : null}
 			<Space className="mt-[20px] flex justify-center">
 				<Button type="primary" disabled={tempData.length <= 1} onClick={handleOk}>
-					下一步
+					{t('next')}
 				</Button>
 			</Space>
 		</>

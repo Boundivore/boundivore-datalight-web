@@ -22,19 +22,24 @@ import { FC, useState, useEffect } from 'react';
 import { t } from 'i18next';
 import { Table, Badge, Button, Space } from 'antd';
 import type { TableColumnsType } from 'antd';
+import { RowSelectionType } from 'antd/es/table/interface';
 import { ComponentSummaryVo, BadgeStatus, ComponentNodeVo } from '@/api/interface';
 import useStore from '@/store/store';
 import useComponentOperations from '@/hooks/useComponentOperations';
 import ViewActiveJobModal from '@/components/viewActiveJobModal';
 
-const SelectZKFC: FC = ({ zkfcList }) => {
+interface SelectZKFCProps {
+	zkfcList: ComponentSummaryVo[];
+}
+const serviceName = 'HDFS';
+const SelectZKFC: FC<SelectZKFCProps> = ({ zkfcList }) => {
 	const { stateText, setSelectedZKFC, selectedNameNode, setMigrateStep } = useStore();
-	const [selectedRows, setSelectedRows] = useState<ComponentNodeVo[]>([]);
+	const [selectedRows, setSelectedRows] = useState<ComponentSummaryVo[]>([]);
 	const [zkFailoverControllerList, setZkFailoverControllerList] = useState<ComponentSummaryVo[]>([]);
 	const { removeComponent, operateComponent, isActiveJobModalOpen, handleModalOk, contextHolder } =
-		useComponentOperations('HDFS');
+		useComponentOperations(serviceName);
 	// 单条操作按钮配置
-	const buttonConfigItem = (record: DataType) => {
+	const buttonConfigItem = (record: ComponentSummaryVo) => {
 		// const { NodeId, Hostname, SshPort } = record;
 		const { ComponentNodeList, ComponentName } = record;
 		const mergeData = ComponentNodeList.map(node => ({
@@ -73,7 +78,7 @@ const SelectZKFC: FC = ({ zkfcList }) => {
 			title: t('service.componentState'),
 			dataIndex: 'ComponentNodeList',
 			key: 'SCStateEnum',
-			render: (text: string) => {
+			render: (text: ComponentNodeVo[]) => {
 				return text.length ? (
 					<Badge status={stateText[text[0].SCStateEnum].status as BadgeStatus} text={t(stateText[text[0].SCStateEnum].label)} />
 				) : (
@@ -88,13 +93,11 @@ const SelectZKFC: FC = ({ zkfcList }) => {
 			render: (_text, record) => {
 				return record.ComponentNodeList.length ? (
 					<Space>
-						{buttonConfigItem(record)
-							.filter(button => !button.hidden)
-							.map(button => (
-								<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
-									{button.label}
-								</Button>
-							))}
+						{buttonConfigItem(record).map(button => (
+							<Button key={button.id} type="primary" size="small" ghost disabled={button.disabled} onClick={button.callback}>
+								{button.label}
+							</Button>
+						))}
 					</Space>
 				) : (
 					'无'
@@ -135,12 +138,12 @@ const SelectZKFC: FC = ({ zkfcList }) => {
 	}, [selectedNameNode, zkfcList]);
 
 	const rowSelection = {
-		type: 'radio',
-		onChange: (_selectedRowKeys: React.Key[], selectedRows: ComponentNodeVo[]) => {
+		type: 'radio' as RowSelectionType,
+		onChange: (_selectedRowKeys: React.Key[], selectedRows: ComponentSummaryVo[]) => {
 			setSelectedRows(selectedRows);
 		},
 		getCheckboxProps: (record: ComponentSummaryVo) => ({
-			disabled: record.ComponentNodeList.length // Column configuration not to be checked
+			disabled: !!record.ComponentNodeList.length // Column configuration not to be checked
 		})
 	};
 	return (
@@ -156,7 +159,7 @@ const SelectZKFC: FC = ({ zkfcList }) => {
 			/>
 			<Space className="mt-[20px] flex justify-center">
 				<Button type="primary" disabled={!selectedRows.length} onClick={handleOk}>
-					下一步
+					{t('next')}
 				</Button>
 			</Space>
 			{isActiveJobModalOpen ? (
