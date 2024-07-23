@@ -24,8 +24,6 @@ import { RedoOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import ReactDiffViewer from 'react-diff-viewer-continued';
 import _ from 'lodash';
-import CryptoJS from 'crypto-js';
-import sha256 from 'crypto-js/sha256';
 import Base64 from 'crypto-js/enc-base64';
 import Utf8 from 'crypto-js/enc-utf8';
 import { t } from 'i18next';
@@ -44,6 +42,7 @@ const DiffConfigFile: FC<DiffConfigFileProps> = ({ onClose }) => {
 	const [newCode, setNewCode] = useState('');
 	const [oldCode, setOldCode] = useState('');
 	const [configGroup, setConfigGroup] = useState<ConfigGroupVo[]>([]);
+	const [newConfigGroup, setNewConfigGroup] = useState<ConfigGroupVo[]>([]);
 	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
 	const { setSelectedNameNode, setSelectedZKFC, setReloadMigrateList, setReloadConfigFile } = useStore();
 	// const [groupNodeList, setGroupNodeList] = useState([]);
@@ -90,6 +89,7 @@ const DiffConfigFile: FC<DiffConfigFileProps> = ({ onClose }) => {
 				const codeData = Utf8.stringify(Base64.parse(copyData[0].ConfigData));
 				setNewCode(codeData);
 				getConfigFile();
+				setNewConfigGroup(copyData);
 			}
 		} catch (error) {
 			console.log(error);
@@ -97,14 +97,10 @@ const DiffConfigFile: FC<DiffConfigFileProps> = ({ onClose }) => {
 	};
 	const saveChange = async () => {
 		const api = APIConfig.saveByGroup;
-		const editorValue = newCode;
-		const base64Data = btoa(unescape(encodeURIComponent(editorValue)));
-		const hashDigest = sha256(editorValue).toString(CryptoJS.enc.Hex);
-		_.merge(configGroup[currentGroupIndex], { Sha256: hashDigest, ConfigData: base64Data });
 		const params = {
 			ClusterId: id,
-			ConfigGroupList: configGroup,
-			ServiceName: 'HDFS'
+			ConfigGroupList: newConfigGroup,
+			ServiceName: serviceName
 		};
 		const data = await RequestHttp.post(api, params);
 		const { Code } = data;
@@ -125,6 +121,9 @@ const DiffConfigFile: FC<DiffConfigFileProps> = ({ onClose }) => {
 		getNewHdfsSiteConfigListByGroup();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	const codeFoldMessageRenderer = (totalFoldedLines: number) => {
+		return <div style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>展开 {totalFoldedLines} 行</div>;
+	};
 	return (
 		<>
 			{contextHolder}
@@ -167,7 +166,12 @@ const DiffConfigFile: FC<DiffConfigFileProps> = ({ onClose }) => {
 							同步最新配置文件
 						</Button>
 					</Space>
-					<ReactDiffViewer oldValue={oldCode} newValue={newCode} splitView={true} />
+					<ReactDiffViewer
+						oldValue={oldCode}
+						newValue={newCode}
+						splitView={true}
+						codeFoldMessageRenderer={codeFoldMessageRenderer}
+					/>
 				</>
 			) : (
 				<Empty image={Empty.PRESENTED_IMAGE_SIMPLE}>
