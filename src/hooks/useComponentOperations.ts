@@ -21,10 +21,13 @@ import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
 import useStore from '@/store/store';
 import { useTranslation } from 'react-i18next';
+import { ComponentNodeVo } from '@/api/interface';
 
-// const { confirm, info } = Modal;
-
-const useComponentOperations = serviceName => {
+interface DataType extends ComponentNodeVo {
+	ComponentName: string;
+	operation?: boolean;
+}
+const useComponentOperations = (serviceName: string) => {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id') || '';
@@ -53,7 +56,7 @@ const useComponentOperations = serviceName => {
 	};
 
 	const removeComponent = useCallback(
-		componentList => {
+		(componentList: DataType[]) => {
 			const idList = componentList.map(component => ({
 				ComponentId: component.ComponentId
 			}));
@@ -82,7 +85,7 @@ const useComponentOperations = serviceName => {
 	);
 
 	const operateComponent = useCallback(
-		(operation, componentList, isOneByOne = false) => {
+		(operation: string, componentList: DataType[], isOneByOne = false) => {
 			const jobDetailComponentList = componentList.map(component => {
 				const jobDetailNodeList = [
 					{

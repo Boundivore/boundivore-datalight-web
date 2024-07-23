@@ -18,7 +18,7 @@
  * DeployStep - 部署步骤
  * @author Tracy
  */
-import { forwardRef, useState } from 'react';
+import { FC, useState } from 'react';
 import { Table, Progress, Typography, Alert, Flex, Space, Badge, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
@@ -35,8 +35,10 @@ const { Text } = Typography;
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 const disabledState = ['RUNNING', 'SUSPEND', 'ERROR'];
 const disableCancelState = ['RUNNING', 'OK'];
-
-const MigrateList = forwardRef(() => {
+interface MigrateListProps {
+	onClose: () => void;
+}
+const MigrateList: FC<MigrateListProps> = ({ onClose }) => {
 	const { t } = useTranslation();
 	const { stableState, jobId, setCurrentPageDisabled, setMigrateStep, stepCurrent, currentPageDisabled, setReloadConfigFile } =
 		useStore();
@@ -44,7 +46,7 @@ const MigrateList = forwardRef(() => {
 	const [openAlert, setOpenAlert] = useState(false);
 	const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 	const [activeNodeId, setActiveNodeId] = useState('');
-	const { useStepEffect } = useStepLogic();
+	const { useStepEffect, useCancelProcedure } = useStepLogic();
 	const errorText = t('errorJob');
 	const columns: ColumnsType<NodeType> = [
 		{
@@ -139,6 +141,7 @@ const MigrateList = forwardRef(() => {
 		setMigrateStep(['5']);
 		setReloadConfigFile(true);
 	};
+	const handleCancel = useCancelProcedure(onClose);
 
 	const tableData = usePolling(getList, stableState, 1000, [stepCurrent === 11]);
 	//获取进度，定位到当前步骤
@@ -165,7 +168,7 @@ const MigrateList = forwardRef(() => {
 				<Button type="primary" onClick={handleOk} disabled={nextDisabled}>
 					{t('next')}
 				</Button>
-				<Button type="primary" ghost disabled={cancelDisabled}>
+				<Button type="primary" ghost onClick={handleCancel} disabled={cancelDisabled}>
 					{t('cancel')}
 				</Button>
 			</Space>
@@ -175,5 +178,5 @@ const MigrateList = forwardRef(() => {
 			) : null}
 		</>
 	);
-});
+};
 export default MigrateList;

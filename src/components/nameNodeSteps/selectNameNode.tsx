@@ -30,11 +30,13 @@ import ViewActiveJobModal from '@/components/viewActiveJobModal';
 
 interface SelectNameNodeProps {
 	nameNodeList: ComponentSummaryVo[];
+	onClose: () => void;
 }
 const serviceName = 'HDFS';
-const SelectNameNode: FC<SelectNameNodeProps> = ({ nameNodeList }) => {
+const SelectNameNode: FC<SelectNameNodeProps> = ({ nameNodeList, onClose }) => {
 	const [selectedRows, setSelectedRows] = useState<ComponentSummaryVo[]>([]);
-	const { stateText, setSelectedNameNode, setMigrateStep } = useStore();
+	const { stateText, setSelectedNameNode, setMigrateStep, setSelectedZKFC, setReloadConfigFile, setReloadMigrateList } =
+		useStore();
 	const { removeComponent, operateComponent, isActiveJobModalOpen, handleModalOk, contextHolder } =
 		useComponentOperations(serviceName);
 	// 单条操作按钮配置
@@ -108,6 +110,14 @@ const SelectNameNode: FC<SelectNameNodeProps> = ({ nameNodeList }) => {
 		setSelectedNameNode(selectedRows);
 		setMigrateStep(['2']);
 	};
+	const handleCancel = () => {
+		setSelectedNameNode([]);
+		setSelectedZKFC([]);
+		setReloadConfigFile(false);
+		setReloadMigrateList(false);
+		setMigrateStep(['1']);
+		onClose();
+	};
 
 	const rowSelection = {
 		type: 'radio' as RowSelectionType,
@@ -133,7 +143,7 @@ const SelectNameNode: FC<SelectNameNodeProps> = ({ nameNodeList }) => {
 				<Button type="primary" disabled={!selectedRows.length} onClick={handleOk}>
 					{t('next')}
 				</Button>
-				<Button type="primary" ghost>
+				<Button type="primary" ghost onClick={handleCancel}>
 					{t('cancel')}
 				</Button>
 			</Space>

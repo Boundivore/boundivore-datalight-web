@@ -32,14 +32,18 @@ import { t } from 'i18next';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import useStore from '@/store/store';
-// import { ConfigSummaryVo } from '@/api/interface';
-
-const DiffConfigFile: FC = ({ onClose }) => {
+import { ConfigGroupVo, ConfigSummaryVo } from '@/api/interface';
+interface DiffConfigFileProps {
+	onClose: () => void;
+}
+const serviceName = 'HDFS';
+const fileName = 'hdfs-site.xml';
+const DiffConfigFile: FC<DiffConfigFileProps> = ({ onClose }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [newCode, setNewCode] = useState('');
 	const [oldCode, setOldCode] = useState('');
-	const [configGroup, setConfigGroup] = useState([]);
+	const [configGroup, setConfigGroup] = useState<ConfigGroupVo[]>([]);
 	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
 	const { setSelectedNameNode, setSelectedZKFC, setReloadMigrateList, setReloadConfigFile } = useStore();
 	// const [groupNodeList, setGroupNodeList] = useState([]);
@@ -47,31 +51,29 @@ const DiffConfigFile: FC = ({ onClose }) => {
 	const getConfigFile = async () => {
 		// setLoading(true);
 		const api = APIConfig.listSummary;
-		const params = { ClusterId: id, ServiceName: 'HDFS' };
+		const params = { ClusterId: id, ServiceName: serviceName };
 		const data = await RequestHttp.get(api, { params });
 		const {
 			Data: { ConfigSummaryList }
 		} = data;
 
-		const { ConfigPath } = ConfigSummaryList?.find(item => item.FileName === 'hdfs-site.xml') ?? {};
+		const { ConfigPath } = ConfigSummaryList?.find((item: ConfigSummaryVo) => item.FileName === fileName) ?? {};
 		getOldFileContent(ConfigPath);
 	};
-	const getOldFileContent = async configPath => {
+	const getOldFileContent = async (configPath: string) => {
 		const api = APIConfig.listByGroup;
 
-		const params = { ClusterId: id, ServiceName: 'HDFS', Filename: 'hdfs-site.xml', ConfigPath: configPath };
+		const params = { ClusterId: id, ServiceName: serviceName, Filename: fileName, ConfigPath: configPath };
 		const data = await RequestHttp.get(api, { params });
 		const {
 			Data: { ConfigGroupList }
 		} = data;
-		// setLoading(false);
-		// paramData = ConfigGroupList;
+
 		const copyData = _.cloneDeep(ConfigGroupList);
 		const codeData = Utf8.stringify(Base64.parse(copyData[0].ConfigData));
-		// const configNodeList = copyData[currentGroupIndex].ConfigNodeList;
+
 		setOldCode(codeData);
 		setConfigGroup(copyData);
-		// setGroupNodeList(configNodeList);
 	};
 	const getNewHdfsSiteConfigListByGroup = async () => {
 		const api = APIConfig.getNewHdfsSiteConfigListByGroup;
@@ -117,11 +119,6 @@ const DiffConfigFile: FC = ({ onClose }) => {
 				setReloadMigrateList(false);
 				onClose();
 			}, 2000);
-			// setSelectedNameNode([]);
-			// setSelectedZKFC([]);
-			// setReloadConfigFile(false);
-			// setReloadMigrateList(false);
-			// onClose();
 		}
 	};
 	useEffect(() => {
@@ -142,8 +139,6 @@ const DiffConfigFile: FC = ({ onClose }) => {
 										content={
 											<List
 												size="small"
-												// header={<div>Header</div>}
-												// footer={<div>Footer</div>}
 												bordered
 												dataSource={group.ConfigNodeList}
 												renderItem={item => <List.Item>{item.Hostname}</List.Item>}

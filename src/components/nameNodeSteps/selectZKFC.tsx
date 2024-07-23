@@ -30,10 +30,19 @@ import ViewActiveJobModal from '@/components/viewActiveJobModal';
 
 interface SelectZKFCProps {
 	zkfcList: ComponentSummaryVo[];
+	onClose: () => void;
 }
 const serviceName = 'HDFS';
-const SelectZKFC: FC<SelectZKFCProps> = ({ zkfcList }) => {
-	const { stateText, setSelectedZKFC, selectedNameNode, setMigrateStep } = useStore();
+const SelectZKFC: FC<SelectZKFCProps> = ({ zkfcList, onClose }) => {
+	const {
+		stateText,
+		setSelectedZKFC,
+		selectedNameNode,
+		setMigrateStep,
+		setSelectedNameNode,
+		setReloadConfigFile,
+		setReloadMigrateList
+	} = useStore();
 	const [selectedRows, setSelectedRows] = useState<ComponentSummaryVo[]>([]);
 	const [zkFailoverControllerList, setZkFailoverControllerList] = useState<ComponentSummaryVo[]>([]);
 	const { removeComponent, operateComponent, isActiveJobModalOpen, handleModalOk, contextHolder } =
@@ -109,6 +118,14 @@ const SelectZKFC: FC<SelectZKFCProps> = ({ zkfcList }) => {
 		setSelectedZKFC(selectedRows);
 		setMigrateStep(['3']);
 	};
+	const handleCancel = () => {
+		setSelectedNameNode([]);
+		setSelectedZKFC([]);
+		setReloadConfigFile(false);
+		setReloadMigrateList(false);
+		// setMigrateStep(['1']);
+		onClose();
+	};
 
 	useEffect(() => {
 		// setLoading(false);
@@ -161,7 +178,7 @@ const SelectZKFC: FC<SelectZKFCProps> = ({ zkfcList }) => {
 				<Button type="primary" disabled={!selectedRows.length} onClick={handleOk}>
 					{t('next')}
 				</Button>
-				<Button type="primary" ghost>
+				<Button type="primary" ghost onClick={handleCancel}>
 					{t('cancel')}
 				</Button>
 			</Space>

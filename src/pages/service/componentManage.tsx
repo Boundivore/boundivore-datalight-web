@@ -65,7 +65,7 @@ const ComponentManage: React.FC = () => {
 	const [handleButton, setHandleButton] = useState(false);
 	const [nameNodeList, setNameNodeList] = useState<ComponentSummaryVo[]>([]);
 	const [zkfcList, setZkfcList] = useState<ComponentSummaryVo[]>([]);
-	const { setJobId, stateText } = useStore();
+	const { setJobId, stateText, setSelectedNameNode, setSelectedZKFC } = useStore();
 	const { navigateToAddComponent, navigateToService } = useNavigater();
 	const { modal } = App.useApp();
 	const [messageApi, contextHolder] = message.useMessage();
@@ -440,10 +440,12 @@ const ComponentManage: React.FC = () => {
 			};
 		});
 		setNameNodeList(
-			ServiceComponentSummaryList[0].ComponentSummaryList.filter(component => component.ComponentName.includes('NameNode'))
+			ServiceComponentSummaryList[0].ComponentSummaryList.filter((component: ComponentSummaryVo) =>
+				component.ComponentName.includes('NameNode')
+			)
 		);
 		setZkfcList(
-			ServiceComponentSummaryList[0].ComponentSummaryList.filter(component =>
+			ServiceComponentSummaryList[0].ComponentSummaryList.filter((component: ComponentSummaryVo) =>
 				component.ComponentName.includes('ZKFailoverController')
 			)
 		);
@@ -470,7 +472,9 @@ const ComponentManage: React.FC = () => {
 
 	const closeDrawer = useCallback(() => {
 		setIsOpen(false);
-	}, []);
+		setSelectedNameNode([]);
+		setSelectedZKFC([]);
+	}, [setSelectedNameNode, setSelectedZKFC]);
 
 	const rowSelection = {
 		onChange: (_selectedRowKeys: React.Key[], selectedRows: DataType[]) => {

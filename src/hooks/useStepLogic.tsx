@@ -142,7 +142,7 @@ const useStepLogic = (step: number = 0) => {
 		return clearStepState;
 	};
 
-	const useCancelProcedure = () => {
+	const useCancelProcedure = (callback = () => {}) => {
 		const { navigateToClusterList } = useNavigater();
 		const cancelProcedure = async () => {
 			const apiRemove = APIConfig.removeProcedure;
@@ -163,7 +163,7 @@ const useStepLogic = (step: number = 0) => {
 
 			// 检查 Code，如果满足条件，则导航到集群列表
 			if ((removeCode === '00000' || removeCode === 'D1001') && clearCode === '00000') {
-				navigateToClusterList();
+				callback ? callback() : navigateToClusterList();
 			}
 		};
 		return cancelProcedure;

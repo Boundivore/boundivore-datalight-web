@@ -28,19 +28,13 @@ import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import { ComponentSummaryVo, ServiceItemType, ComponentRequest, NodeType } from '@/api/interface';
 interface SelectNewNodeProps {
-	nextStep?: () => void;
+	onClose: () => void;
 }
 interface Node {
 	SCStateEnum: 'UNSELECTED' | 'SELECTED';
 	NodeId: string;
 	// 其他节点属性...
 }
-// interface NodeInfo {
-// 	NodeId: string | number;
-// 	Hostname: string;
-// 	NodeIp: string;
-// 	NodeState: string;
-// }
 interface NodeList {
 	[componentName: string]: {
 		componentNodeList: {
@@ -56,8 +50,17 @@ interface NodeMap {
 }
 const operation = 'MIGRATE';
 const serviceName = 'HDFS';
-const SelectNewNode: FC<SelectNewNodeProps> = () => {
-	const { selectedNameNode, selectedZKFC, setReloadMigrateList, setMigrateStep, setJobId } = useStore();
+const SelectNewNode: FC<SelectNewNodeProps> = ({ onClose }) => {
+	const {
+		selectedNameNode,
+		selectedZKFC,
+		setReloadMigrateList,
+		setMigrateStep,
+		setJobId,
+		setSelectedNameNode,
+		setSelectedZKFC,
+		setReloadConfigFile
+	} = useStore();
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
 	const [tempData, setTempData] = useState<ComponentSummaryVo[]>([]);
 	const [searchParams] = useSearchParams();
@@ -67,9 +70,7 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 	const [disableSelectedNode, setDisableSelectedNode] = useState(false);
 	let tempList = { [id]: {} };
 	let disableSelected = false;
-	const handleOk = () => {
-		getServiceList();
-	};
+
 	const selectComponent = async () => {
 		const apiSelect = APIConfig.selectComponent;
 		// 将 nodeList 转换为以 ComponentName 为 key 的对象
@@ -110,15 +111,9 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 		const { Code } = await RequestHttp.post(apiSelect, params);
 		if (Code === '00000') {
 			setMigrateStep(['4']);
-			// setMigrateDeploy(true);
 			deploy();
 		}
 	};
-	// useEffect(() => {
-	// 	migrateDeploy && nextStep();
-	// 	// migrateDeploy && ;
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [migrateDeploy]);
 	const getServiceList = async () => {
 		const apiList = APIConfig.serviceList;
 		const params = {
@@ -143,6 +138,17 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 		};
 		await RequestHttp.post(apiSelect, params);
 		selectComponent();
+	};
+	const handleOk = () => {
+		getServiceList();
+	};
+	const handleCancel = () => {
+		setSelectedNameNode([]);
+		setSelectedZKFC([]);
+		setReloadConfigFile(false);
+		setReloadMigrateList(false);
+		// setMigrateStep(['1']);
+		onClose();
 	};
 	useEffect(() => {
 		const transformedData = [...selectedNameNode, ...selectedZKFC];
@@ -209,7 +215,6 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 							max: component.Max
 						}
 					};
-					// setNodeList(tempList);
 					const nameArray = (nodeList[id] || tempList[id])[component.ComponentName].componentNodeList
 						?.filter((serviceItem: ServiceItemType) => serviceItem.SCStateEnum !== 'UNSELECTED')
 						.map((node: NodeType) => node.Hostname);
@@ -223,7 +228,6 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 								maxTagCount={8}
 								className="w-4/5"
 								dropdownStyle={{ display: 'none' }} // 不显示下拉菜单
-								// tagRender={customTagRender}
 								onFocus={() => handleFocus(component.ComponentName, disableSelected)}
 							/>
 						</div>
@@ -237,14 +241,13 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 					handleCancel={handleModalCancel}
 					component={currentComponent}
 					disableSelectedNode={disableSelectedNode}
-					// nodeList={nodeList}
 				/>
 			) : null}
 			<Space className="mt-[20px] flex justify-center">
 				<Button type="primary" disabled={tempData.length <= 1} onClick={handleOk}>
 					{t('next')}
 				</Button>
-				<Button type="primary" ghost>
+				<Button type="primary" ghost onClick={handleCancel}>
 					{t('cancel')}
 				</Button>
 			</Space>
