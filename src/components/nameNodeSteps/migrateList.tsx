@@ -18,8 +18,7 @@
  * DeployStep - 部署步骤
  * @author Tracy
  */
-import { forwardRef, useImperativeHandle, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { forwardRef, useState } from 'react';
 import { Table, Progress, Typography, Alert, Flex, Space, Badge, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
@@ -27,7 +26,6 @@ import useStore from '@/store/store';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
 import usePolling from '@/hooks/usePolling';
-import JobPlanModal from '@/components/jobPlanModal';
 import LogModal from '@/components/logModal';
 import { NodeType, ExecProgressPerNodeVo, ExecProgressStepVo } from '@/api/interface';
 import useStepLogic from '@/hooks/useStepLogic';
@@ -37,15 +35,13 @@ const { Text } = Typography;
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 const disabledState = ['RUNNING', 'SUSPEND', 'ERROR'];
 const disableCancelState = ['RUNNING', 'OK'];
-const operation = 'MIGRATE'; // 当前步骤操作，NodeActionTypeEnum
 
-const MigrateList = forwardRef((_props, ref) => {
+const MigrateList = forwardRef(() => {
 	const { t } = useTranslation();
-	const [searchParams] = useSearchParams();
-	const id = searchParams.get('id');
-	const { stableState, jobId, setJobId, setCurrentPageDisabled, setMigrateStep, stepCurrent } = useStore();
+	const { stableState, jobId, setCurrentPageDisabled, setMigrateStep, stepCurrent, currentPageDisabled, setReloadConfigFile } =
+		useStore();
+	const { nextDisabled, cancelDisabled } = currentPageDisabled;
 	const [openAlert, setOpenAlert] = useState(false);
-	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 	const [activeNodeId, setActiveNodeId] = useState('');
 	const { useStepEffect } = useStepLogic();
@@ -103,30 +99,6 @@ const MigrateList = forwardRef((_props, ref) => {
 		}
 	];
 
-	useImperativeHandle(ref, () => ({
-		deploy
-	}));
-	const deploy = async () => {
-		setIsModalOpen(true);
-		const api = APIConfig.migrate;
-		// const serviceNameList = webState[preStepName];
-		const params = {
-			ActionTypeEnum: operation,
-			ClusterId: id,
-			IsOneByOne: false,
-			ServiceNameList: ['HDFS']
-		};
-		try {
-			const {
-				Data: { JobId }
-			} = await RequestHttp.post(api, params);
-			setJobId(JobId);
-		} catch (error) {
-			console.error('请求失败:', error);
-		} finally {
-			setIsModalOpen(false); // 在请求完成后关闭模态框，无论成功还是失败
-		}
-	};
 	const viewLog = (nodeId: string) => {
 		setIsLogModalOpen(true);
 		setActiveNodeId(nodeId);
@@ -165,6 +137,7 @@ const MigrateList = forwardRef((_props, ref) => {
 	};
 	const handleOk = () => {
 		setMigrateStep(['5']);
+		setReloadConfigFile(true);
 	};
 
 	const tableData = usePolling(getList, stableState, 1000, [stepCurrent === 11]);
@@ -189,11 +162,14 @@ const MigrateList = forwardRef((_props, ref) => {
 				dataSource={tableData}
 			/>
 			<Space className="mt-[20px] flex justify-center">
-				<Button type="primary" onClick={handleOk}>
-					下一步
+				<Button type="primary" onClick={handleOk} disabled={nextDisabled}>
+					{t('next')}
+				</Button>
+				<Button type="primary" ghost disabled={cancelDisabled}>
+					{t('cancel')}
 				</Button>
 			</Space>
-			{isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} /> : null}
+			{/* {isModalOpen ? <JobPlanModal isModalOpen={isModalOpen} /> : null} */}
 			{isLogModalOpen ? (
 				<LogModal isModalOpen={isLogModalOpen} nodeId={activeNodeId} handleCancel={handleLogModalCancel} type="jobProgress" />
 			) : null}

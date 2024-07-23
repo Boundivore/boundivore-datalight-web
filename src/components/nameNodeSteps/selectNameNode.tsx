@@ -133,6 +133,9 @@ const SelectNameNode: FC<SelectNameNodeProps> = ({ nameNodeList }) => {
 				<Button type="primary" disabled={!selectedRows.length} onClick={handleOk}>
 					{t('next')}
 				</Button>
+				<Button type="primary" ghost>
+					{t('cancel')}
+				</Button>
 			</Space>
 			{isActiveJobModalOpen ? (
 				<ViewActiveJobModal isModalOpen={isActiveJobModalOpen} handleCancel={handleModalOk} type="jobProgress" />

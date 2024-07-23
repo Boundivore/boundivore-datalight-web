@@ -67,8 +67,10 @@ interface MyStore {
 	setSelectedZKFC: (selectedZKFC: ComponentSummaryVo[]) => void;
 	migrateStep: string[]; //NameNode迁移步骤
 	setMigrateStep: (migrateStep: string[]) => void;
-	migrateDeploy: boolean; //是否执行迁移操作
-	setMigrateDeploy: (migrateDeploy: boolean) => void;
+	reloadMigrateList: boolean; //是否重新加载迁移进度列表, 默认false，迁移操作触发为true
+	setReloadMigrateList: (reloadMigrateList: boolean) => void;
+	reloadConfigFile: boolean; //更新配置文件
+	setReloadConfigFile: (reloadConfigFile: boolean) => void;
 }
 interface PageDisabledType {
 	nextDisabled: boolean;
@@ -295,8 +297,10 @@ const useStore = create<MyStore>(set => ({
 	setSelectedZKFC: (selectedZKFC: ComponentSummaryVo[]) => set({ selectedZKFC }),
 	migrateStep: ['1'], //默认处于第一步
 	setMigrateStep: (migrateStep: string[]) => set({ migrateStep }),
-	migrateDeploy: false, //是否执行迁移操作, 默认不执行
-	setMigrateDeploy: (migrateDeploy: boolean) => set({ migrateDeploy })
+	reloadMigrateList: false, //是否重新加载迁移进度列表, 默认false，迁移操作出发为true
+	setReloadMigrateList: (reloadMigrateList: boolean) => set({ reloadMigrateList }),
+	reloadConfigFile: false, //更新配置文件
+	setReloadConfigFile: (reloadConfigFile: boolean) => set({ reloadConfigFile })
 }));
 export const usePersistStore = create<PersistStore>()(
 	persist(

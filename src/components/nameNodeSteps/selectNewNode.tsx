@@ -57,7 +57,7 @@ interface NodeMap {
 const operation = 'MIGRATE';
 const serviceName = 'HDFS';
 const SelectNewNode: FC<SelectNewNodeProps> = () => {
-	const { selectedNameNode, selectedZKFC, setMigrateDeploy, setMigrateStep, setJobId } = useStore();
+	const { selectedNameNode, selectedZKFC, setReloadMigrateList, setMigrateStep, setJobId } = useStore();
 	const { nodeList, setNodeList } = useComponentAndNodeStore();
 	const [tempData, setTempData] = useState<ComponentSummaryVo[]>([]);
 	const [searchParams] = useSearchParams();
@@ -68,7 +68,6 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 	let tempList = { [id]: {} };
 	let disableSelected = false;
 	const handleOk = () => {
-		setMigrateDeploy(false);
 		getServiceList();
 	};
 	const selectComponent = async () => {
@@ -174,7 +173,7 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 		setDisableSelectedNode(disableSelected);
 	};
 	const deploy = async () => {
-		// setDeployState(false);
+		setReloadMigrateList(false);
 		setIsModalOpen(true);
 		const api = APIConfig.migrate;
 		// const serviceNameList = webState[preStepName];
@@ -182,15 +181,16 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 			ActionTypeEnum: operation,
 			ClusterId: id,
 			IsOneByOne: false,
-			ServiceNameList: ['HDFS']
+			ServiceNameList: [serviceName]
 		};
 		try {
 			const {
-				// Code,
+				Code,
 				Data: { JobId }
 			} = await RequestHttp.post(api, params);
 			setJobId(JobId);
 			// setDeployState(Code === '00000');
+			setReloadMigrateList(Code === '00000');
 		} catch (error) {
 			console.error('请求失败:', error);
 		} finally {
@@ -243,6 +243,9 @@ const SelectNewNode: FC<SelectNewNodeProps> = () => {
 			<Space className="mt-[20px] flex justify-center">
 				<Button type="primary" disabled={tempData.length <= 1} onClick={handleOk}>
 					{t('next')}
+				</Button>
+				<Button type="primary" ghost>
+					{t('cancel')}
 				</Button>
 			</Space>
 		</>

@@ -31,16 +31,18 @@ import Utf8 from 'crypto-js/enc-utf8';
 import { t } from 'i18next';
 import APIConfig from '@/api/config';
 import RequestHttp from '@/api';
+import useStore from '@/store/store';
 // import { ConfigSummaryVo } from '@/api/interface';
 
-const DiffConfigFile: FC = () => {
+const DiffConfigFile: FC = ({ onClose }) => {
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get('id');
 	const [newCode, setNewCode] = useState('');
 	const [oldCode, setOldCode] = useState('');
 	const [configGroup, setConfigGroup] = useState([]);
 	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
-	const [groupNodeList, setGroupNodeList] = useState([]);
+	const { setSelectedNameNode, setSelectedZKFC, setReloadMigrateList, setReloadConfigFile } = useStore();
+	// const [groupNodeList, setGroupNodeList] = useState([]);
 	const [messageApi, contextHolder] = message.useMessage();
 	const getConfigFile = async () => {
 		// setLoading(true);
@@ -66,10 +68,10 @@ const DiffConfigFile: FC = () => {
 		// paramData = ConfigGroupList;
 		const copyData = _.cloneDeep(ConfigGroupList);
 		const codeData = Utf8.stringify(Base64.parse(copyData[0].ConfigData));
-		const configNodeList = copyData[currentGroupIndex].ConfigNodeList;
+		// const configNodeList = copyData[currentGroupIndex].ConfigNodeList;
 		setOldCode(codeData);
 		setConfigGroup(copyData);
-		setGroupNodeList(configNodeList);
+		// setGroupNodeList(configNodeList);
 	};
 	const getNewHdfsSiteConfigListByGroup = async () => {
 		const api = APIConfig.getNewHdfsSiteConfigListByGroup;
@@ -106,7 +108,20 @@ const DiffConfigFile: FC = () => {
 		const { Code } = data;
 		if (Code === '00000') {
 			messageApi.success(t('messageSuccess'));
-			// navigateToService();
+			// 成功更新配置文件后将迁移流程重置
+			setTimeout(() => {
+				// 成功更新配置文件后将迁移流程重置
+				setSelectedNameNode([]);
+				setSelectedZKFC([]);
+				setReloadConfigFile(false);
+				setReloadMigrateList(false);
+				onClose();
+			}, 2000);
+			// setSelectedNameNode([]);
+			// setSelectedZKFC([]);
+			// setReloadConfigFile(false);
+			// setReloadMigrateList(false);
+			// onClose();
 		}
 	};
 	useEffect(() => {
@@ -118,22 +133,23 @@ const DiffConfigFile: FC = () => {
 			{contextHolder}
 			{newCode ? (
 				<>
-					<Space>
-						{configGroup.map((_group, index) => {
-							return (
-								<Space key={index}>
+					<Space className="m-[10px] flex justify-between">
+						<Space>
+							{configGroup.map((group, index) => {
+								return (
 									<Popover
+										key={index}
 										content={
 											<List
 												size="small"
 												// header={<div>Header</div>}
 												// footer={<div>Footer</div>}
 												bordered
-												dataSource={groupNodeList}
+												dataSource={group.ConfigNodeList}
 												renderItem={item => <List.Item>{item.Hostname}</List.Item>}
 											/>
 										}
-										title="Title"
+										title="分组信息"
 									>
 										<Button
 											key={index}
@@ -142,16 +158,15 @@ const DiffConfigFile: FC = () => {
 											shape="round"
 											onClick={() => {
 												setCurrentGroupIndex(index);
-												// setCodeEdit(Utf8.stringify(Base64.parse(activeContent[index].ConfigData)));
+												setOldCode(Utf8.stringify(Base64.parse(group.ConfigData)));
 											}}
 										>
 											{t('group', { name: index + 1 })}
 										</Button>
 									</Popover>
-									{/* <PlusCircleOutlined style={{ fontSize: '16px' }} onClick={() => handleClick(index)} /> */}
-								</Space>
-							);
-						})}
+								);
+							})}
+						</Space>
 
 						<Button type="primary" onClick={saveChange}>
 							同步最新配置文件

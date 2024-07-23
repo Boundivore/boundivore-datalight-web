@@ -18,8 +18,8 @@
  * NameNodeMigrate- NameNode迁移
  * @author Tracy
  */
-import { FC, memo, useRef } from 'react';
-import { Drawer, Collapse } from 'antd';
+import { FC, memo } from 'react';
+import { Drawer, Collapse, Empty } from 'antd';
 import type { CollapseProps } from 'antd';
 import SelectNameNode from '@/components/nameNodeSteps/selectNameNode';
 import SelectNewNode from '@/components/nameNodeSteps/selectNewNode';
@@ -30,9 +30,7 @@ import useStore from '@/store/store';
 
 const NameNodeMigrate: FC<{ isOpen: boolean; onClose: () => void; nameNodeList: []; zkfcList: [] }> = memo(
 	({ isOpen, onClose, nameNodeList, zkfcList }) => {
-		const { migrateStep, setMigrateStep } = useStore();
-		const migrateRef = useRef<any>(null);
-		const migrateDeploy = () => migrateRef.current?.deploy();
+		const { migrateStep, setMigrateStep, reloadMigrateList, selectedNameNode, selectedZKFC, reloadConfigFile } = useStore();
 		const items: CollapseProps['items'] = [
 			{
 				key: '1',
@@ -49,17 +47,22 @@ const NameNodeMigrate: FC<{ isOpen: boolean; onClose: () => void; nameNodeList: 
 			{
 				key: '3',
 				label: '第三步 选择迁移的目标节点',
-				children: <SelectNewNode nextStep={migrateDeploy} />
+				children:
+					selectedNameNode.length && selectedZKFC.length ? (
+						<SelectNewNode />
+					) : (
+						<Empty image={Empty.PRESENTED_IMAGE_SIMPLE}></Empty>
+					)
 			},
 			{
 				key: '4',
 				label: '第四步 迁移部署进度',
-				children: <MigrateList ref={migrateRef} />
+				children: reloadMigrateList ? <MigrateList /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}></Empty>
 			},
 			{
 				key: '5',
 				label: '第五步 同步最新的配置文件',
-				children: <DiffConfigFile />
+				children: reloadConfigFile ? <DiffConfigFile onClose={onClose} /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}></Empty>
 			}
 		];
 		const handleChange = (key: string[]) => {
