@@ -215,10 +215,12 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 														label: (
 															<div>
 																<p>
-																	{t('stepName')}${step.StepName}
+																	{t('stepName')}
+																	{step.StepName}
 																</p>
 																<p>
-																	{t('stepID')}${step.StepId}
+																	{t('stepID')}
+																	{step.StepId}
 																</p>
 															</div>
 														),
@@ -273,10 +275,12 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 														label: (
 															<div>
 																<p>
-																	{t('stepName')}${step.StepName}
+																	{t('stepName')}
+																	{step.StepName}
 																</p>
 																<p>
-																	{t('stepID')}${step.StepId}
+																	{t('stepID')}
+																	{step.StepId}
 																</p>
 															</div>
 														),
