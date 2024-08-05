@@ -31,6 +31,7 @@ import useStepLogic from '@/hooks/useStepLogic';
 import JobPlanModal from '@/components/jobPlanModal';
 import LogModal from '@/components/logModal';
 import { NodeType, ExecProgressPerNodeVo, ExecProgressStepVo, ServiceItemType } from '@/api/interface';
+import { getStepName } from '@/utils/helper';
 
 const { Text } = Typography;
 
@@ -82,11 +83,8 @@ const DeployStep = forwardRef((_props, ref) => {
 			dataIndex: 'ExecProgressStepList',
 			key: 'ExecProgressStepList',
 			render: (text: ExecProgressStepVo[]) => {
-				const reversedCopy = [...text].reverse();
-				const runningStep = text.find(step => step.StepExecState === 'RUNNING');
-				const errorStep = reversedCopy.find(step => step.StepExecState === 'ERROR');
-				const okStep = reversedCopy.find(step => step.StepExecState === 'OK');
-				const suspendStep = text.find(step => step.StepExecState === 'SUSPEND');
+				const { runningStep, errorStep, okStep, suspendStep } = getStepName(text);
+
 				return runningStep ? (
 					<Text className="text-blue-500">{runningStep?.StepName}</Text>
 				) : errorStep ? (

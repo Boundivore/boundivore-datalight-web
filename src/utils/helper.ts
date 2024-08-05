@@ -16,6 +16,7 @@
  */
 import RequestHttp from '@/api';
 import APIConfig from '@/api/config';
+import { ExecProgressStepVo } from '@/api/interface';
 //轮询
 export const pollRequest = (
 	pollFunction: () => Promise<Array<any>>,
@@ -184,4 +185,23 @@ export const arraysEqual = (arr1: [], arr2: []) => {
 	}
 
 	return true;
+};
+
+export const getStepName = (text: ExecProgressStepVo[]) => {
+	const reversedCopy = [...text].reverse();
+	const runningStep = text.find(step => step.StepExecState === 'RUNNING');
+	const errorStep = reversedCopy.find(step => step.StepExecState === 'ERROR');
+	const okStep = reversedCopy.find(step => step.StepExecState === 'OK');
+	const suspendStep = text.find(step => step.StepExecState === 'SUSPEND');
+
+	const stepName =
+		runningStep?.StepName || errorStep?.StepName || okStep?.StepName || suspendStep?.StepName || text[text.length - 1]?.StepName;
+
+	return {
+		stepName,
+		runningStep,
+		errorStep,
+		okStep,
+		suspendStep
+	};
 };

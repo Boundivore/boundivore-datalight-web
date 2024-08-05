@@ -38,16 +38,19 @@ interface CheckLogModalProps {
 }
 interface StepType {
 	StepId: string;
+	StepName: string;
 	LogErrOut: string;
 	LogStdOut: string;
 }
 interface TaskType {
 	TaskId: string;
+	TaskName: string;
 	steps: StepType[];
 }
 // 定义 Job 类型的数据结构
 interface JobProcessedData {
 	StageId: string;
+	StageName: string;
 	tasks: TaskType[];
 }
 
@@ -56,6 +59,7 @@ interface NodeProcessedData {
 	NodeId: string;
 	NodeJobId: string;
 	NodeTaskId: string;
+	NodeTaskName: string;
 	steps: StepType[];
 }
 type ProcessedDataType = JobProcessedData[] | NodeProcessedData[];
@@ -102,17 +106,19 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 		if (type === 'jobProgress') {
 			// 处理 job 类型数据
 			processedData = JobLogList.reduce((acc: JobProcessedData[], item: JobLogVo) => {
-				const { StageId, TaskId, StepId } = item;
+				const { StageId, TaskId, StepId, StageName, TaskName, StepName, LogErrOut, LogStdOut } = item;
 				// 查找是否存在对应的 StageId
 				let stageIndex = acc.findIndex(stage => stage.StageId === StageId);
 				// 如果不存在，则创建一个新的 Stage
 				if (stageIndex === -1) {
 					acc.push({
 						StageId,
+						StageName,
 						tasks: [
 							{
 								TaskId,
-								steps: [{ ...item, StepId }]
+								TaskName,
+								steps: [{ StepId, StepName, LogErrOut, LogStdOut }]
 							}
 						]
 					});
@@ -123,11 +129,12 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 					if (taskIndex === -1) {
 						acc[stageIndex].tasks.push({
 							TaskId,
-							steps: [{ ...item, StepId }]
+							TaskName,
+							steps: [{ StepId, StepName, LogErrOut, LogStdOut }]
 						});
 					} else {
 						// 如果存在，则将当前数据添加到对应的 Task 的 steps 中
-						acc[stageIndex].tasks[taskIndex].steps.push({ ...item, StepId });
+						acc[stageIndex].tasks[taskIndex].steps.push({ StepId, StepName, LogErrOut, LogStdOut });
 					}
 				}
 				return acc;
@@ -142,6 +149,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 					// 如果存在相同的 NodeTaskId，则将当前步骤添加到步骤数组中
 					acc[existingTaskIndex].steps.push({
 						StepId: curr.StepId,
+						StepName: curr.NodeStepName,
 						LogErrOut: curr.LogErrOut,
 						LogStdOut: curr.LogStdOut
 					});
@@ -151,9 +159,11 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 						NodeId: curr.NodeId,
 						NodeJobId: curr.NodeJobId,
 						NodeTaskId: curr.NodeTaskId,
+						NodeTaskName: curr.NodeTaskName,
 						steps: [
 							{
 								StepId: curr.StepId,
+								StepName: curr.NodeStepName,
 								LogErrOut: curr.LogErrOut,
 								LogStdOut: curr.LogStdOut
 							}
@@ -176,7 +186,7 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 			? [
 					{
 						key: '1',
-						label: '标准输出',
+						label: t('standardOutput'),
 						children: (itemsData as NodeProcessedData[]).map(item => (
 							<Collapse
 								key={item.NodeTaskId}
@@ -184,14 +194,34 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 								// bordered={false}
 								items={[
 									{
-										label: `${t('taskID')}${item.NodeTaskId}`,
+										label: (
+											<div>
+												<p>
+													{t('taskName')}
+													{item.NodeTaskName}
+												</p>
+												<p>
+													{t('taskID')}
+													{item.NodeTaskId}
+												</p>
+											</div>
+										),
 										children: item.steps.map((step: StepType) => (
 											<Collapse
 												key={step.StepId}
 												className="border-0 indent-middle"
 												items={[
 													{
-														label: `${t('stepID')}${step.StepId}`,
+														label: (
+															<div>
+																<p>
+																	{t('stepName')}${step.StepName}
+																</p>
+																<p>
+																	{t('stepID')}${step.StepId}
+																</p>
+															</div>
+														),
 														children: (
 															<List
 																className="pl-[36px]"
@@ -215,21 +245,41 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 					},
 					{
 						key: '2',
-						label: '错误输出',
+						label: t('errorOutput'),
 						children: (itemsData as NodeProcessedData[]).map(item => (
 							<Collapse
 								key={item.NodeTaskId}
 								className="border-0 indent-small"
 								items={[
 									{
-										label: `${t('taskID')}${item.NodeTaskId}`,
+										label: (
+											<div>
+												<p>
+													{t('taskName')}
+													{item.NodeTaskName}
+												</p>
+												<p>
+													{t('taskID')}
+													{item.NodeTaskId}
+												</p>
+											</div>
+										),
 										children: item.steps.map((step: StepType) => (
 											<Collapse
 												key={step.StepId}
 												className="border-0 indent-middle"
 												items={[
 													{
-														label: `${t('stepID')}${step.StepId}`,
+														label: (
+															<div>
+																<p>
+																	{t('stepName')}${step.StepName}
+																</p>
+																<p>
+																	{t('stepID')}${step.StepId}
+																</p>
+															</div>
+														),
 														children: (
 															<List
 																className="pl-[36px]"
@@ -255,28 +305,61 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 			: [
 					{
 						key: '1',
-						label: '标准输出',
+						label: t('standardOutput'),
 						children: (itemsData as JobProcessedData[]).map(item => (
 							<Collapse
 								key={item.StageId}
 								className="border-0 indent-small"
 								items={[
 									{
-										label: `${t('stageID')}${item.StageId}`,
+										label: (
+											<div>
+												<p>
+													{t('stageName')}
+													{item.StageName}
+												</p>
+												<p>
+													{t('stageID')}
+													{item.StageId}
+												</p>
+											</div>
+										),
 										children: item.tasks.map((task: TaskType) => (
 											<Collapse
 												key={task.TaskId}
 												className="border-0 indent-middle"
 												items={[
 													{
-														label: `${t('taskID')}${task.TaskId}`,
+														label: (
+															<div>
+																<p>
+																	{t('taskName')}
+																	{task.TaskName}
+																</p>
+																<p>
+																	{t('taskID')}
+																	{task.TaskId}
+																</p>
+															</div>
+														),
 														children: task.steps.map(step => (
 															<Collapse
 																key={step.StepId}
 																className="border-0 indent-big"
 																items={[
 																	{
-																		label: `${t('stepID')}${step.StepId}`,
+																		label: (
+																			<div>
+																				<p>
+																					{t('stepName')}
+																					{step.StepName}
+																				</p>
+																				<p>
+																					{t('stepID')}
+																					{step.StepId}
+																				</p>
+																			</div>
+																		),
 																		children: (
 																			<List
 																				className="pl-[46px]"
@@ -304,28 +387,61 @@ const CheckLogModal: FC<CheckLogModalProps> = memo(({ isModalOpen, nodeId, handl
 					},
 					{
 						key: '2',
-						label: '错误输出',
+						label: t('errorOutput'),
 						children: (itemsData as JobProcessedData[]).map(item => (
 							<Collapse
 								key={item.StageId}
 								className="border-0 indent-small"
 								items={[
 									{
-										label: `${t('stageID')}${item.StageId}`,
+										label: (
+											<div>
+												<p>
+													{t('stageName')}
+													{item.StageName}
+												</p>
+												<p>
+													{t('stageID')}
+													{item.StageId}
+												</p>
+											</div>
+										),
 										children: item.tasks.map((task: TaskType) => (
 											<Collapse
 												key={task.TaskId}
 												className="border-0 indent-middle"
 												items={[
 													{
-														label: `${t('taskID')}${task.TaskId}`,
+														label: (
+															<div>
+																<p>
+																	{t('taskName')}
+																	{task.TaskName}
+																</p>
+																<p>
+																	{t('taskID')}
+																	{task.TaskId}
+																</p>
+															</div>
+														),
 														children: task.steps.map(step => (
 															<Collapse
 																key={step.StepId}
 																className="border-0 indent-big"
 																items={[
 																	{
-																		label: `${t('stepID')}${step.StepId}`,
+																		label: (
+																			<div>
+																				<p>
+																					{t('stepName')}
+																					{step.StepName}
+																				</p>
+																				<p>
+																					{t('stepID')}
+																					{step.StepId}
+																				</p>
+																			</div>
+																		),
 																		children: (
 																			<List
 																				className="pl-[46px]"

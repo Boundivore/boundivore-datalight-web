@@ -32,6 +32,7 @@ import usePolling from '@/hooks/usePolling';
 import useStore from '@/store/store';
 import CheckLogModal from '@/components/logModal';
 import { NodeType, ExecProgressPerNodeVo } from '@/api/interface';
+import { getStepName } from '@/utils/helper';
 
 const twoColors = { '0%': '#108ee9', '100%': '#87d068' };
 interface ViewActiveJobProps {
@@ -60,8 +61,9 @@ const ViewActiveJobModal: FC<ViewActiveJobProps> = ({ isModalOpen, handleCancel,
 			dataIndex: 'ExecProgress',
 			key: 'ExecProgress',
 			render: (text, record) => {
-				const reversedCopy = [...record.ExecProgressStepList].reverse();
-				const errorStep = reversedCopy.find(step => step.StepExecState === 'ERROR');
+				// const reversedCopy = [...record.ExecProgressStepList].reverse();
+				// const errorStep = reversedCopy.find(step => step.StepExecState === 'ERROR');
+				const { errorStep } = getStepName(record.ExecProgressStepList);
 				return (
 					<Progress
 						percent={parseFloat(parseFloat(text).toFixed(2))}

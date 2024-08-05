@@ -29,6 +29,7 @@ import usePolling from '@/hooks/usePolling';
 import LogModal from '@/components/logModal';
 import { NodeType, ExecProgressPerNodeVo, ExecProgressStepVo } from '@/api/interface';
 import useStepLogic from '@/hooks/useStepLogic';
+import { getStepName } from '@/utils/helper';
 
 const { Text } = Typography;
 
@@ -75,11 +76,8 @@ const MigrateList: FC<MigrateListProps> = ({ onClose }) => {
 			dataIndex: 'ExecProgressStepList',
 			key: 'ExecProgressStepList',
 			render: (text: ExecProgressStepVo[]) => {
-				const reversedCopy = [...text].reverse();
-				const runningStep = text.find(step => step.StepExecState === 'RUNNING');
-				const errorStep = reversedCopy.find(step => step.StepExecState === 'ERROR');
-				const okStep = reversedCopy.find(step => step.StepExecState === 'OK');
-				const suspendStep = text.find(step => step.StepExecState === 'SUSPEND');
+				const { runningStep, errorStep, okStep, suspendStep } = getStepName(text);
+
 				return runningStep ? (
 					<Text className="text-blue-500">{runningStep?.StepName}</Text>
 				) : errorStep ? (

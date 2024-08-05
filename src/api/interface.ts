@@ -689,9 +689,13 @@ export interface NodeJobLogListVo {
 export interface NodeJobLogVo {
 	LogErrOut: string;
 	LogStdOut: string;
+	NodeHostname: string;
 	NodeId: string;
 	NodeJobId: string;
+	NodeJobName: string;
+	NodeStepName: string;
 	NodeTaskId: string;
+	NodeTaskName: string;
 	StepId: string;
 	[property: string]: any;
 }

@@ -379,6 +379,9 @@ export default {
 	taskID: '任务 ID：',
 	stepID: '步骤 ID：',
 	stageID: '阶段 ID：',
+	taskName: '任务名称：',
+	stepName: '步骤名称：',
+	stageName: '阶段名称：',
 	continueBoot: '当前存在未完成的集群引导，请优先完成集群引导  <1>继续集群引导</1>',
 	enable: '启用',
 	disable: '停用',
@@ -441,5 +444,7 @@ export default {
 	result: '响应结果',
 	ai: 'AI分析',
 	aiPrompt: '请帮我分析并优化一下以下内容，并输出markdown格式的回复\n',
-	revert: '复位'
+	revert: '复位',
+	standardOutput: '标准输出',
+	errorOutput: '错误输出'
 };

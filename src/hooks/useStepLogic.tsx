@@ -32,6 +32,7 @@ interface NodeDataType {
 	// 根据实际情况调整这个接口
 	[key: string]: NodeType[] | ParseHostnameType | string[];
 }
+type CallbackType = () => void;
 
 const useStepLogic = (step: number = 0) => {
 	const {
@@ -142,7 +143,7 @@ const useStepLogic = (step: number = 0) => {
 		return clearStepState;
 	};
 
-	const useCancelProcedure = (callback = () => {}) => {
+	const useCancelProcedure = (callback?: CallbackType) => {
 		const { navigateToClusterList } = useNavigater();
 		const cancelProcedure = async () => {
 			const apiRemove = APIConfig.removeProcedure;
