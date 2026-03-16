@@ -144,7 +144,7 @@
         },
         {
           "$$hashKey": "object:938",
-          "alias": "QuarumPeermain",
+          "alias": "QuorumPeermain",
           "align": "auto",
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -9522,7 +9522,7 @@
           "type": "prometheus",
           "uid": "MONITOR-Prometheus"
         },
-        "definition": "label_values({job='ZOOKEEPER-QuarumPeermain'},job)",
+        "definition": "label_values({job='ZOOKEEPER-QuorumPeermain'},job)",
         "hide": 0,
         "includeAll": false,
         "label": "job",
@@ -9530,7 +9530,7 @@
         "name": "job",
         "options": [],
         "query": {
-          "query": "label_values({job='ZOOKEEPER-QuarumPeermain'},job)",
+          "query": "label_values({job='ZOOKEEPER-QuorumPeermain'},job)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -9600,8 +9600,8 @@
     ]
   },
   "timezone": "",
-  "title": "ZOOKEEPER-QuarumPeermain",
-  "uid": "ZOOKEEPER-QuarumPeermain",
+  "title": "ZOOKEEPER-QuorumPeermain",
+  "uid": "ZOOKEEPER-QuorumPeermain",
   "version": 1,
   "weekStart": ""
 }

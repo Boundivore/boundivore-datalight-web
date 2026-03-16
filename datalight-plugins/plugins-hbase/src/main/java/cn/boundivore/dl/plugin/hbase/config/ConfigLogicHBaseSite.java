@@ -94,7 +94,7 @@ public class ConfigLogicHBaseSite extends AbstractConfigLogic {
         zookeeperMetaService.getMetaComponentMap()
                 .values()
                 .stream()
-                .filter(i -> i.getComponentName().equals("QuarumPeermain"))
+                .filter(i -> i.getComponentName().equals("QuorumPeermain"))
                 .sorted(Comparator.comparing(PluginConfig.MetaComponent::getHostname))
                 .forEach(c -> sb.append(c.getHostname()).append(","));
 

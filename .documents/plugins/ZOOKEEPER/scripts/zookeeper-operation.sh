@@ -32,7 +32,7 @@ chown ${USER_NAME}:${GROUP_NAME} -R "${DATA_DIR}"
 
 # 检查参数是否为空
 if [ -z "$1" ]; then
-  echo "Usage: $0 QuarumPeermain <start|stop|restart>"
+  echo "Usage: $0 QuorumPeermain <start|stop|restart>"
   exit 1
 fi
 
@@ -48,7 +48,7 @@ echo "To ${OPERATION} ${COMPONENT_NAME} ..."
 shift
 
 case "${COMPONENT_NAME}" in
-"QuarumPeermain")
+"QuorumPeermain")
   case "$1" in
   "start")
     su -c "${CURRENT_SERVICE_DIR}/bin/zkServer.sh start" "${USER_NAME}"
@@ -66,7 +66,7 @@ case "${COMPONENT_NAME}" in
   esac
   ;;
 *)
-  echo "Invalid component name. Supported component: QuarumPeermain"
+  echo "Invalid component name. Supported component: QuorumPeermain"
   exit 1
   ;;
 esac

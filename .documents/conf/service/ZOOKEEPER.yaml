@@ -55,7 +55,7 @@ datalight:
           sleep: 0
 
     components:
-      - name: QuarumPeermain
+      - name: QuorumPeermain
         priority: 1
         max: -1
         min: 3
@@ -68,9 +68,9 @@ datalight:
             fail-state: SELECTED
             steps:
               - type: SCRIPT
-                name: '部署后启动 QuarumPeermain'
+                name: '部署后启动 QuorumPeermain'
                 shell: 'zookeeper-operation.sh'
-                args: [ 'QuarumPeermain', 'start' ]
+                args: [ 'QuorumPeermain', 'start' ]
                 interactions: [ ]
                 exits: '0'
                 timeout: 60000
@@ -82,9 +82,9 @@ datalight:
             fail-state: STOPPED
             steps:
               - type: SCRIPT
-                name: '启动 QuarumPeermain'
+                name: '启动 QuorumPeermain'
                 shell: 'zookeeper-operation.sh'
-                args: [ 'QuarumPeermain', 'start' ]
+                args: [ 'QuorumPeermain', 'start' ]
                 interactions: [ ]
                 exits: '0'
                 sleep: 1000
@@ -95,9 +95,9 @@ datalight:
             fail-state: STARTED
             steps:
               - type: SCRIPT
-                name: '停止 QuarumPeermain'
+                name: '停止 QuorumPeermain'
                 shell: 'zookeeper-operation.sh'
-                args: [ 'QuarumPeermain', 'stop' ]
+                args: [ 'QuorumPeermain', 'stop' ]
                 interactions: [ ]
                 exits: '0'
                 sleep: 1000
@@ -108,9 +108,9 @@ datalight:
             fail-state: STARTED
             steps:
               - type: SCRIPT
-                name: '重启 QuarumPeermain'
+                name: '重启 QuorumPeermain'
                 shell: 'zookeeper-operation.sh'
-                args: [ 'QuarumPeermain', 'restart' ]
+                args: [ 'QuorumPeermain', 'restart' ]
                 interactions: [ ]
                 exits: '0'
                 sleep: 1000

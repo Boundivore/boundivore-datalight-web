@@ -55,7 +55,7 @@ public class PortConstants {
             put("DOLPHINSCHEDULER-DSApiServer", "12345");
             put("DOLPHINSCHEDULER-DSAlertServer", "50053");
 
-            put("ZOOKEEPER-QuarumPeermain", "19001");
+            put("ZOOKEEPER-QuorumPeermain", "19001");
 
             put("HDFS-JournalNode", "19002");
             put("HDFS-NameNode", "19003");
@@ -101,7 +101,7 @@ public class PortConstants {
         private static final long serialVersionUID = -6792272135600528315L;
 
         {
-            put("ZOOKEEPER-QuarumPeermain", "18001");
+            put("ZOOKEEPER-QuorumPeermain", "18001");
 
             put("HDFS-JournalNode", "18002");
             put("HDFS-NameNode", "18003");

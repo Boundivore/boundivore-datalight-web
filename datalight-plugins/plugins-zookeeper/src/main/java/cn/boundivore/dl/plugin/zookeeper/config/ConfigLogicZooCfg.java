@@ -54,7 +54,7 @@ public class ConfigLogicZooCfg extends AbstractConfigLogic {
         super.currentMetaService.getMetaComponentMap()
                 .keySet()
                 .stream()
-                .filter(k -> k.contains("QuarumPeermain"))
+                .filter(k -> k.contains("QuorumPeermain"))
                 .map(k -> super.currentMetaService.getMetaComponentMap().get(k))
                 .sorted(Comparator.comparing(PluginConfig.MetaComponent::getHostname))
                 .forEach(metaComponent -> {
@@ -86,7 +86,7 @@ public class ConfigLogicZooCfg extends AbstractConfigLogic {
                 )
                 .replace(
                         "{{exporterPort}}",
-                        PortConstants.EXPORTER_PORT_MAP.get("ZOOKEEPER-QuarumPeermain")
+                        PortConstants.EXPORTER_PORT_MAP.get("ZOOKEEPER-QuorumPeermain")
 
                 );
     }

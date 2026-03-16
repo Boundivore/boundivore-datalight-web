@@ -153,7 +153,7 @@ public class GrafanaTest {
                 StandardCharsets.UTF_8
         );
         String dashboardJson7 = FileUtil.readString(
-                "D:\\workspace\\boundivore_workspace\\boundivore-datalight\\.documents\\plugins\\MONITOR\\dashboard\\ZOOKEEPER-QuarumPeermain.json",
+                "D:\\workspace\\boundivore_workspace\\boundivore-datalight\\.documents\\plugins\\MONITOR\\dashboard\\ZOOKEEPER-QuorumPeermain.json",
                 StandardCharsets.UTF_8
         );
 

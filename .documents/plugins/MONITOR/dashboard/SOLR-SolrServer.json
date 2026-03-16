@@ -217,7 +217,7 @@
         },
         {
           "$$hashKey": "object:993",
-          "alias": "QuarumPeermain State",
+          "alias": "QuorumPeermain State",
           "align": "auto",
           "colorMode": "cell",
           "colors": [
@@ -256,7 +256,7 @@
             "uid": "MONITOR-Prometheus"
           },
           "editorMode": "code",
-          "expr": "up{job=~\"ZOOKEEPER-QuarumPeermain\"}",
+          "expr": "up{job=~\"ZOOKEEPER-QuorumPeermain\"}",
           "instant": true,
           "interval": "",
           "legendFormat": "{{instance}}",

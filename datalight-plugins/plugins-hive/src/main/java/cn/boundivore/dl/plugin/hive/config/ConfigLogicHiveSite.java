@@ -376,7 +376,7 @@ public class ConfigLogicHiveSite extends AbstractConfigLogic {
                 .getMetaComponentMap()
                 .values()
                 .stream()
-                .filter(i -> i.getComponentName().equals("QuarumPeermain"))
+                .filter(i -> i.getComponentName().equals("QuorumPeermain"))
                 .map(i -> String.format("%s:2181", i.getHostname()))
                 .collect(Collectors.joining(","));
     }

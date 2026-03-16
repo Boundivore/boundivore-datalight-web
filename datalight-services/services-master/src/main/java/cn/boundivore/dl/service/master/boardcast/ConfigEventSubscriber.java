@@ -174,7 +174,7 @@ public class ConfigEventSubscriber {
      * 5. 插件结合 2、4 修改这些内容
      * 6. 保存修改后的内容
      * 举例：假设集群中部署了 ZOOKEEPER HDFS YARN 3个服务
-     * 1. 当 ZOOKEEPER 某个 QuarumPeermain 的部署位置发生了变化（即 zoo.cfg）文件发生了变动
+     * 1. 当 ZOOKEEPER 某个 QuorumPeermain 的部署位置发生了变化（即 zoo.cfg）文件发生了变动
      * 2. 触发事件推送，检查到依赖 ZOOKEEPER 服务的相关服务，且处于非 UNSELECTED or REMOVED 状态
      * 3. 初始化插件所需的元数据信息，包括当前事件的内容（发生主动修改的、服务的、配置文件内容，称为事件 A）
      * 3. 读取 HDFS 所有配置文件列表，并传递给 HDFS 插件，获取本次涉及到修改的 HDFS 配置文件内容（插件根据事件 A 判断自己需要哪些配置文件内容）
