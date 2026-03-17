@@ -31,7 +31,9 @@ import cn.boundivore.dl.service.master.bean.AlertSummaryBean;
 import cn.boundivore.dl.service.master.bean.RestartInfo;
 import cn.boundivore.dl.service.master.cache.HeartBeatCache;
 import cn.boundivore.dl.service.master.env.DataLightEnv;
+import cn.boundivore.dl.service.master.manage.node.job.NodeJobCacheUtil;
 import cn.boundivore.dl.service.master.manage.node.job.NodeJobService;
+import cn.boundivore.dl.service.master.manage.service.job.JobCacheUtil;
 import cn.boundivore.dl.service.master.resolver.ResolverYamlServiceDetail;
 import cn.boundivore.dl.service.master.resolver.yaml.YamlServiceDetail;
 import cn.hutool.core.collection.CollUtil;
@@ -47,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -81,6 +84,12 @@ public class MasterManageService {
 
     // 多线程拉起 Worker 线程池
     private final ForkJoinPool forkJoinPool = new ForkJoinPool(4);
+
+    // 组件自动拉起冷却时间(毫秒)
+    private static final long RESTART_COOLDOWN_MS = 60 * 1000L;
+
+    // 组件自动拉起防重缓存 <ServiceName-ComponentName-Hostname, LastRestartTimestamp>
+    private final ConcurrentHashMap<String, Long> recentRestartCache = new ConcurrentHashMap<>();
 
     /**
      * Description: 接收来自 Worker 端的心跳包
@@ -422,14 +431,30 @@ public class MasterManageService {
      * Created by: Boundivore
      * E-mail: boundivore@foxmail.com
      * Creation time: 2024/4/16
-     * Modification description:
-     * Modified by:
-     * Modification time:
+     * Modification description: 增加活跃 Job 检测，防止部署期间误拉起组件；增加冷却机制，防止重复重启
+     * Modified by: Boundivore
+     * Modification time: 2024/4/16
      * Throws:
      *
      * @param alerts 告警列表
      */
     public void checkAndPullServiceComponent(List<AlertWebhookPayloadRequest.Alert> alerts) {
+
+        // 检查是否有活跃的部署任务，如果有则跳过自动拉起，避免部署期间组件状态不一致
+        JobCacheUtil jobCacheUtil = JobCacheUtil.getInstance();
+        if (jobCacheUtil.getActiveJobId().get() != 0L) {
+            log.info("检测到活跃的部署任务 (JobId: {}), 跳过自动拉起逻辑，避免部署期间组件状态不一致",
+                    jobCacheUtil.getActiveJobId().get());
+            return;
+        }
+
+        NodeJobCacheUtil nodeJobCacheUtil = NodeJobCacheUtil.getInstance();
+        if (nodeJobCacheUtil.getActiveNodeJobId().get() != 0L) {
+            log.info("检测到活跃的节点任务 (NodeJobId: {}), 跳过自动拉起逻辑",
+                    nodeJobCacheUtil.getActiveNodeJobId().get());
+            return;
+        }
+
         // 服务组件进程自动拉起
         alerts.parallelStream()
                 .filter(alert -> {
@@ -439,7 +464,7 @@ public class MasterManageService {
                 .forEach(alert -> {
                             try {
 
-                                String alertJob = alert.getAnnotations().get("alert_instance");
+                                String alertJob = alert.getAnnotations().get("alert_job");
                                 String alertInstance = alert.getAnnotations().get("alert_instance");
 
                                 AlertSummaryBean alertSummaryBean = AlertSummaryBean.parseAndPrintComponents(
@@ -468,6 +493,32 @@ public class MasterManageService {
 
                                 // 判断，如果当前组件意图状态为 STARTED，但监控状态为不活跃，则应自动拉起该组件
                                 if (tDlComponent.getComponentState() == SCStateEnum.STARTED) {
+
+                                    // 防重复拉起：检查该组件是否在冷却期内
+                                    String cacheKey = String.format(
+                                            "%s-%s-%s",
+                                            alertSummaryBean.getServiceName(),
+                                            alertSummaryBean.getComponentName(),
+                                            alertSummaryBean.getHostname()
+                                    );
+
+                                    Long lastRestartTime = recentRestartCache.get(cacheKey);
+                                    long currentTime = System.currentTimeMillis();
+
+                                    if (lastRestartTime != null && (currentTime - lastRestartTime) < RESTART_COOLDOWN_MS) {
+                                        log.warn("组件在冷却期内，跳过重启: serviceName={}, componentName={}, node={}, 距离上次重启: {}ms",
+                                                alertSummaryBean.getServiceName(),
+                                                alertSummaryBean.getComponentName(),
+                                                alertSummaryBean.getHostname(),
+                                                currentTime - lastRestartTime);
+                                        return;
+                                    }
+
+                                    log.info("准备重启组件: serviceName={}, componentName={}, node={}",
+                                            alertSummaryBean.getServiceName(),
+                                            alertSummaryBean.getComponentName(),
+                                            alertSummaryBean.getHostname());
+
                                     RestartInfo restartInfo = this.getRestartInfo(
                                             alertSummaryBean.getServiceName(),
                                             alertSummaryBean.getComponentName()
@@ -478,9 +529,13 @@ public class MasterManageService {
                                             tDlNode.getIpv4(),
                                             restartInfo
                                     );
+
+                                    // 记录本次重启时间
+                                    recentRestartCache.put(cacheKey, currentTime);
                                 }
 
-                            } catch (Exception ignored) {
+                            } catch (Exception e) {
+                                log.error("自动拉起组件异常: {}", ExceptionUtil.stacktraceToString(e));
                             }
                         }
                 );
