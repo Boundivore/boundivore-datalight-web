@@ -513,10 +513,11 @@ public class MasterManageService {
                                 if (tDlComponent != null && tDlComponent.getComponentState() == SCStateEnum.STARTED) {
 
                                     // 防重复拉起：检查该组件是否在冷却期内
+                                    String actualComponentName = tDlComponent.getComponentName();
                                     String cacheKey = String.format(
                                             "%s-%s-%s",
                                             alertSummaryBean.getServiceName(),
-                                            alertSummaryBean.getComponentName(),
+                                            actualComponentName,
                                             alertSummaryBean.getHostname()
                                     );
 
@@ -526,7 +527,7 @@ public class MasterManageService {
                                     if (lastRestartTime != null && (currentTime - lastRestartTime) < RESTART_COOLDOWN_MS) {
                                         log.warn("组件在冷却期内，跳过重启: serviceName={}, componentName={}, node={}, 距离上次重启: {}ms",
                                                 alertSummaryBean.getServiceName(),
-                                                alertSummaryBean.getComponentName(),
+                                                actualComponentName,
                                                 alertSummaryBean.getHostname(),
                                                 currentTime - lastRestartTime);
                                         return;
@@ -534,12 +535,12 @@ public class MasterManageService {
 
                                     log.info("准备重启组件: serviceName={}, componentName={}, node={}",
                                             alertSummaryBean.getServiceName(),
-                                            alertSummaryBean.getComponentName(),
+                                            actualComponentName,
                                             alertSummaryBean.getHostname());
 
                                     RestartInfo restartInfo = this.getRestartInfo(
                                             alertSummaryBean.getServiceName(),
-                                            alertSummaryBean.getComponentName()
+                                            actualComponentName
                                     );
 
                                     // 执行远程自动拉起操作
