@@ -87,7 +87,7 @@ datalight:
                 interactions: [ ]
                 exits: '0'
                 timeout: 60000
-                sleep: 1000
+                sleep: 10000
 
           - type: START
             start-state: STARTING
@@ -136,7 +136,7 @@ datalight:
         max: 1
         min: 1
         mutexes: [ 'NameNode2' ]
-        dependencies: [ ]
+        dependencies: [ 'JournalNode' ]
         actions:
           - type: DEPLOY
             start-state: DEPLOYING
@@ -268,7 +268,7 @@ datalight:
         max: 1
         min: 1
         mutexes: [ 'NameNode1' ]
-        dependencies: [ ]
+        dependencies: [ 'JournalNode' ]
         actions:
           - type: DEPLOY
             start-state: DEPLOYING
@@ -334,7 +334,7 @@ datalight:
                 exits: '0'
                 timeout: 60000
                 sleep: 1000
-                
+
           - type: MIGRATE
             start-state: DEPLOYING
             success-state: STARTED

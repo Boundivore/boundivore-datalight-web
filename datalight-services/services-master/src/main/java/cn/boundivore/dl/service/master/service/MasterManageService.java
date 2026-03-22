@@ -491,14 +491,33 @@ public class MasterManageService {
                                         alertSummaryBean.getComponentName()
                                 );
 
+                                // 如果使用告警解析出的组件名找不到组件，尝试匹配带有数字后缀的组件（如NameNode -> NameNode1/NameNode2）
+                                if (tDlComponent == null) {
+                                    log.info("使用组件名 {} 未找到组件，尝试匹配带数字后缀的组件实例", alertSummaryBean.getComponentName());
+                                    List<TDlComponent> componentList = this.masterComponentService.getTDlComponentListByServiceName(
+                                            tDlNode.getClusterId(),
+                                            alertSummaryBean.getServiceName()
+                                    );
+                                    // 查找该节点上且组件名以告警组件名开头的组件（如NameNode1匹配NameNode）
+                                    tDlComponent = componentList.stream()
+                                            .filter(c -> c.getNodeId().equals(tDlNode.getId()) &&
+                                                    c.getComponentName().startsWith(alertSummaryBean.getComponentName()))
+                                            .findFirst()
+                                            .orElse(null);
+                                    if (tDlComponent != null) {
+                                        log.info("匹配到具体组件实例: {}", tDlComponent.getComponentName());
+                                    }
+                                }
+
                                 // 判断，如果当前组件意图状态为 STARTED，但监控状态为不活跃，则应自动拉起该组件
-                                if (tDlComponent.getComponentState() == SCStateEnum.STARTED) {
+                                if (tDlComponent != null && tDlComponent.getComponentState() == SCStateEnum.STARTED) {
 
                                     // 防重复拉起：检查该组件是否在冷却期内
+                                    String actualComponentName = tDlComponent.getComponentName();
                                     String cacheKey = String.format(
                                             "%s-%s-%s",
                                             alertSummaryBean.getServiceName(),
-                                            alertSummaryBean.getComponentName(),
+                                            actualComponentName,
                                             alertSummaryBean.getHostname()
                                     );
 
@@ -508,7 +527,7 @@ public class MasterManageService {
                                     if (lastRestartTime != null && (currentTime - lastRestartTime) < RESTART_COOLDOWN_MS) {
                                         log.warn("组件在冷却期内，跳过重启: serviceName={}, componentName={}, node={}, 距离上次重启: {}ms",
                                                 alertSummaryBean.getServiceName(),
-                                                alertSummaryBean.getComponentName(),
+                                                actualComponentName,
                                                 alertSummaryBean.getHostname(),
                                                 currentTime - lastRestartTime);
                                         return;
@@ -516,12 +535,12 @@ public class MasterManageService {
 
                                     log.info("准备重启组件: serviceName={}, componentName={}, node={}",
                                             alertSummaryBean.getServiceName(),
-                                            alertSummaryBean.getComponentName(),
+                                            actualComponentName,
                                             alertSummaryBean.getHostname());
 
                                     RestartInfo restartInfo = this.getRestartInfo(
                                             alertSummaryBean.getServiceName(),
-                                            alertSummaryBean.getComponentName()
+                                            actualComponentName
                                     );
 
                                     // 执行远程自动拉起操作
