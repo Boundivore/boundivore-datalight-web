@@ -1,7 +1,7 @@
 groups:
   - name: DataLight
     rules:
-      - alert: 'NodeExporter ShutDown'
+      - alert: 'MySQL ShutDown'
         expr: up{job="MONITOR-MySQLExporter"} == 0
         for: 10s
         labels:

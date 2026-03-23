@@ -164,20 +164,35 @@ public class RemoteInvokeGrafanaHandler {
                 // TODO 如果非第一次部署，则不执行  Grafana 基础配置（如修改密码，创建 org 等）
                 // TODO (如果非第一次部署，则修改密码过程会报错，在 catch 处中断后续没有必要的操作）
                 // TODO 后续可以通过 if 判断来优化跳过逻辑
-                try {
-                    this.configGrafanaBase(
-                            clusterId,
-                            grafanaUserMap,
-                            tDlNodeGrafana.getIpv4(),
-                            PortConstants.getExporterPort(
-                                    grafanaServerTDlComponent.getServiceName(),
-                                    grafanaServerTDlComponent.getComponentName()
-                            )
-                    );
-                } catch (Exception e) {
-                    String errorLog = ExceptionUtil.stacktraceToString(e);
-                    log.error(errorLog);
-                    throw new BException(errorLog);
+
+                // 检查是否是第一次部署：尝试获取 bds org，如果存在则说明已初始化过
+                boolean isFirstDeploy = isGrafanaFirstDeploy(
+                        tDlNodeGrafana.getIpv4(),
+                        PortConstants.getExporterPort(
+                                grafanaServerTDlComponent.getServiceName(),
+                                grafanaServerTDlComponent.getComponentName()
+                        )
+                );
+
+                // 如果是第一次部署，则执行 Grafana 基础配置
+                if (isFirstDeploy) {
+                    try {
+                        this.configGrafanaBase(
+                                clusterId,
+                                grafanaUserMap,
+                                tDlNodeGrafana.getIpv4(),
+                                PortConstants.getExporterPort(
+                                        grafanaServerTDlComponent.getServiceName(),
+                                        grafanaServerTDlComponent.getComponentName()
+                                )
+                        );
+                    } catch (Exception e) {
+                        String errorLog = ExceptionUtil.stacktraceToString(e);
+                        log.error(errorLog);
+                        throw new BException(errorLog);
+                    }
+                } else {
+                    log.info("Grafana 已初始化过，跳过基础配置");
                 }
 
                 // 加载所有 Dashboard
@@ -189,6 +204,38 @@ public class RemoteInvokeGrafanaHandler {
             log.error(errorLog);
             throw new BException(errorLog);
         }
+    }
+
+    /**
+     * 检查 Grafana 是否是第一次部署
+     * 通过检查 bds org 是否存在来判断
+     *
+     * @param nodeIp Grafana IP
+     * @param port   Grafana 端口号
+     * @return true 表示第一次部署，false 表示已初始化过
+     */
+    private boolean isGrafanaFirstDeploy(String nodeIp, String port) {
+        try {
+            // 配置 Grafana API Feign 客户端
+            this.remoteInvokeGrafanaService.init(nodeIp, port);
+
+            // 尝试获取 datalight org
+            Result<String> getOrgByNameResult = this.remoteInvokeGrafanaService.getOrgByName(
+                    ADMIN_NEW_TOKEN,
+                    GRAFANA_BASE_ORG_NAME
+            );
+
+            // 如果成功获取到 org，说明已初始化过
+            if (getOrgByNameResult.isSuccess() && getOrgByNameResult.getData() != null) {
+                log.info("Grafana datalight org 已存在，判定为非第一次部署");
+                return false;
+            }
+        } catch (Exception e) {
+            // 如果获取失败，说明 org 不存在，这是第一次部署
+            log.debug("Grafana datalight org 不存在或获取失败，判定为第一次部署", e);
+        }
+
+        return true;
     }
 
     /**

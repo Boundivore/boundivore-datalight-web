@@ -1,7 +1,7 @@
 groups:
   - name: DataLight
     rules:
-      - alert: 'NodeExporter ShutDown'
+      - alert: 'Grafana ShutDown'
         expr: up{job="MONITOR-Grafana"} == 0
         for: 10s
         labels:
