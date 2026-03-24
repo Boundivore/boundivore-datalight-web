@@ -160,11 +160,6 @@ public class RemoteInvokeGrafanaHandler {
                         )
                         .get(0);
 
-                // 执行 Grafana 基础配置
-                // TODO 如果非第一次部署，则不执行  Grafana 基础配置（如修改密码，创建 org 等）
-                // TODO (如果非第一次部署，则修改密码过程会报错，在 catch 处中断后续没有必要的操作）
-                // TODO 后续可以通过 if 判断来优化跳过逻辑
-
                 // 检查是否是第一次部署：尝试获取 bds org，如果存在则说明已初始化过
                 boolean isFirstDeploy = isGrafanaFirstDeploy(
                         tDlNodeGrafana.getIpv4(),
